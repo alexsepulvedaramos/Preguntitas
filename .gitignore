@@ -1,0 +1,24 @@
+# --- .NET (Backend) ---
+# Ignorar carpetas de compilación
+[Bb]in/
+[Oo]bj/
+
+# Ignorar archivos de usuario de Visual Studio
+.vs/
+*.user
+*.suo
+
+# --- Angular (Frontend) ---
+# La carpeta más pesada del universo (dependencias)
+node_modules/
+
+# Archivos de compilación de Angular
+/dist
+/.angular/
+
+# --- VS Code ---
+.vscode/
+
+# --- Sistema Operativo ---
+.DS_Store
+Thumbs.db
