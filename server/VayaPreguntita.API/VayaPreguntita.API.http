@@ -1,0 +1,6 @@
+@VayaPreguntita.API_HostAddress = http://localhost:5212
+
+GET {{VayaPreguntita.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
