@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{A163F7BC-798A-4FB0-803A-564BE3DBC4DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VayaPreguntita.API", "server\VayaPreguntita.API\VayaPreguntita.API.csproj", "{BFB5C443-AA33-4771-8FFA-A5EA002FA924}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFB5C443-AA33-4771-8FFA-A5EA002FA924}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB5C443-AA33-4771-8FFA-A5EA002FA924}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB5C443-AA33-4771-8FFA-A5EA002FA924}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB5C443-AA33-4771-8FFA-A5EA002FA924}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BFB5C443-AA33-4771-8FFA-A5EA002FA924} = {A163F7BC-798A-4FB0-803A-564BE3DBC4DA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17D28AA2-B699-4094-A2DB-EA8DDD76A406}
+	EndGlobalSection
+EndGlobal
