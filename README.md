@@ -1,48 +1,64 @@
-🚀 Developer Onboarding: VayaPreguntita API
-Este documento contiene las instrucciones para configurar el entorno de desarrollo local de la API desde cero en cualquier ordenador.
+# 🚀 VayaPreguntita API
 
-🛠️ 1. Requisitos Previos (Instalación en la máquina)
-Antes de clonar el repositorio, el nuevo ordenador debe tener instalado:
+![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-.NET 9 SDK: El motor principal.
+> This document provides step-by-step instructions to set up the local development environment for the API from scratch.
 
-VS Code + Extensión C# Dev Kit.
+## 🛠️ 1. Prerequisites (System Requirements)
 
-Entity Framework Core Tools (Herramienta global). Se instala ejecutando una sola vez en la terminal:
+Before cloning the repository, ensure your machine has the following installed:
 
-Bash
+- **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**: The core framework.
+- **Code Editor**: VS Code with the **C# Dev Kit** extension.
+- **Entity Framework Core Tools**: A global tool required for database migrations. Install it by running the following command in your terminal:
+
+```bash
 dotnet tool install --global dotnet-ef
-📦 2. Stack Tecnológico y Paquetes (Ya configurados)
-El proyecto .csproj ya incluye las siguientes dependencias clave:
+```
 
-Npgsql.EntityFrameworkCore.PostgreSQL: El "traductor" que permite a EF Core hablar con PostgreSQL.
+## 📦 2. Tech Stack & Key Packages
 
-Microsoft.EntityFrameworkCore.Design: Las herramientas necesarias para generar las migraciones desde el código.
+The `.csproj` file already includes the following essential dependencies:
 
-⚙️ 3. Pasos para arrancar el proyecto en un PC nuevo
-Paso 1: Clonar e ir al directorio
-Descarga el código de GitHub y navega hasta la carpeta de la API:
+- `Npgsql.EntityFrameworkCore.PostgreSQL`: The provider that allows EF Core to communicate with the PostgreSQL database.
+- `Microsoft.EntityFrameworkCore.Design`: Design-time tools necessary to generate and apply code-first migrations.
 
-Bash
-git clone <tu-url-del-repo>
+## ⚙️ 3. Getting Started (Local Setup)
+
+**Step 1: Clone the repository**
+Download the source code and navigate to the API directory:
+
+```bash
+git clone <your-repo-url>
 cd VayaPreguntita/server/VayaPreguntita.API
-Paso 2: Restaurar paquetes
-Descarga todas las dependencias listadas en el proyecto:
+```
 
-Bash
+**Step 2: Restore dependencies**
+Download all the packages listed in the project file:
+
+```bash
 dotnet restore
-Paso 3: Configurar los Secretos Locales (¡Crucial!)
-Por seguridad, la contraseña de la base de datos de Supabase no está en el código fuente. El nuevo ordenador necesita vincular la cadena de conexión localmente usando la ID que ya está en el archivo .csproj:
+```
 
-Bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "TU_CADENA_URI_DE_SUPABASE_AQUI"
-Paso 4: Sincronizar la Base de Datos
-Si es una base de datos nueva o ha habido cambios en los modelos, aplica las migraciones pendientes:
+**Step 3: Configure Local Secrets (Crucial!)**
+For security reasons, the Supabase database password is not tracked in version control. You must link the connection string locally using the `.csproj` UserSecretsId. Run this command:
 
-Bash
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "YOUR_SUPABASE_CONNECTION_STRING_HERE"
+```
+
+**Step 4: Synchronize the Database**
+Apply any pending migrations to build or update the database schema:
+
+```bash
 dotnet ef database update
-Paso 5: Arrancar el servidor
-Levanta la API en modo desarrollo:
+```
 
-Bash
+**Step 5: Run the server**
+Start the API in development mode:
+
+```bash
 dotnet run
+```
