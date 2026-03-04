@@ -8,7 +8,7 @@ public class Question
 
     public required string Text { get; set; }
 
-    public string? Creator { get; set; }
+    public string Creator { get; set; } = null!;
 
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
