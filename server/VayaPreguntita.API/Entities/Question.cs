@@ -1,3 +1,5 @@
+using VayaPreguntita.API.Enums;
+
 namespace VayaPreguntita.API.Entities;
 
 public class Question
@@ -12,5 +14,6 @@ public class Question
 
     public DateTime? DateAsked { get; set; }
 
-    public List<Answer> Answers { get; set; } = new();
+    public List<Answer> Answers { get; set; } = [];
+    public QuestionType Type { get; set; } = QuestionType.FreeText;
 }
