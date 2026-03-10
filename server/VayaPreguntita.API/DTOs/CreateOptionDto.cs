@@ -1,8 +1,6 @@
 namespace VayaPreguntita.API.DTOs;
 
-public class CreateAnswerDto
+public class CreateOptionDto
 {
     public string Text { get; set; } = string.Empty;
-
-    public string Creator { get; set; } = string.Empty;
 }

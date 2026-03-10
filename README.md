@@ -24,6 +24,7 @@ The `.csproj` file already includes the following essential dependencies:
 
 - `Npgsql.EntityFrameworkCore.PostgreSQL`: The provider that allows EF Core to communicate with the PostgreSQL database.
 - `Microsoft.EntityFrameworkCore.Design`: Design-time tools necessary to generate and apply code-first migrations.
+- `AutoMapper`: Used for convention-based object-object mapping between Entities and DTOs.
 
 ## ⚙️ 3. Getting Started (Local Setup)
 
