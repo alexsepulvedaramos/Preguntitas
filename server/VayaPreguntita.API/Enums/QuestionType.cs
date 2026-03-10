@@ -2,18 +2,23 @@ namespace VayaPreguntita.API.Enums;
 
 public enum QuestionType
 {
-    // Uses SelectedOptionId (e.g., standard custom polls, true/false)
+    // Questions with predefined text options where only one can be selected.
+    // Example: "What is the best fruit? (A: Banana, B: Melon, C: Grapes)"
     SingleChoice,
 
-    // Uses SelectedOptionId (Will require logic to allow multiple Vote rows per user)
+    // Questions with predefined text options where multiple can be selected.
+    // Example: "Which programming languages do you know? (C#, JavaScript, Python, Rust)"
     MultipleChoice,
 
-    // Uses NumericValue (e.g., rate from 1 to 10)
+    // Questions based on a numeric range.
+    // Example: "How much do you like Mondays? (Rate from 1 to 10)"
     Scale,
 
-    // Uses SelectedTargetUserId (e.g., "Who in the group is most likely to...")
+    // Questions where the answer is a person from the current group.
+    // Example: "Who is most likely to become a millionaire?" (The Superlative)
     TargetUser,
 
-    // Uses FreeText (Open opinions)
+    // Questions requiring a written response.
+    // Example: "What is your biggest motivation in life?"
     FreeText,
 }

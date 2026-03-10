@@ -8,8 +8,8 @@ public class CreateVoteDto
     public int? GuessedCreatorId { get; set; }
 
     // --- The 4 flexible response types ---
-    public int? SelectedOptionId { get; set; }
-    public int? SelectedTargetUserId { get; set; } // Added for user voting
-    public int? NumericValue { get; set; } // Added for the scale
+    public List<int>? SelectedOptionIds { get; set; }
+    public int? SelectedTargetUserId { get; set; }
+    public int? NumericValue { get; set; }
     public string? FreeText { get; set; }
 }

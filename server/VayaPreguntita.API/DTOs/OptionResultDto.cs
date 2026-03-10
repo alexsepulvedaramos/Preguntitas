@@ -11,6 +11,7 @@ public class OptionResultDto
 {
     public int Id { get; set; }
     public string DisplayText { get; set; } = string.Empty;
+    public UserDto? TargetUser { get; set; }
     public int VoteCount { get; set; }
     public List<VoterDto> Voters { get; set; } = [];
     public double Percentage { get; set; }
