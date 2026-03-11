@@ -10,15 +10,15 @@ export interface OptionResultDto {
     displayText: string;
     targetUser?: UserDto | null;
     voteCount: number;
-    percentage: number;
     voters: VoterDto[];
+    percentage: number;
 }
 
 export interface QuestionResultDto {
     id: number;
     text: string;
     creator: string;
-    dateCreated: Date | string;
+    dateCreated: string | Date;
     totalVotes: number;
     results: OptionResultDto[];
 }

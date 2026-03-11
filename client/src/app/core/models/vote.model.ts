@@ -1,4 +1,3 @@
-// Maps to CreateVoteDto.cs
 export interface CreateVoteDto {
     questionId: number;
     guessedCreatorId?: number | null;

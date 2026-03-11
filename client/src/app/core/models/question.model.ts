@@ -18,3 +18,14 @@ export interface QuestionToVoteDto {
     options: OptionDto[];
 }
 
+export interface CreateQuestionDto {
+    text: string;
+    type: QuestionType;
+    creatorId: number;
+    groupId: number;
+    maxSelections: number;
+    minValue?: number | null;
+    maxValue?: number | null;
+    blacklistedUserIds: number[];
+    options: { text: string }[];
+}
