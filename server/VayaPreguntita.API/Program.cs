@@ -4,23 +4,21 @@ using VayaPreguntita.API.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // ====================================================================
-// 1. Service Registration (Dependency Injection Container)
+// 1. Service Registration
 // ====================================================================
 
-// Add support for Controllers (MVC Pattern).
-// This replaces the "Minimal API" approach, allowing for better code organization.
 builder.Services.AddControllers();
 
-// Configure OpenAPI (Swagger) for API documentation.
-builder.Services.AddOpenApi();
-
-// --- Database Configuration ---
-// Retrieve the connection string from configuration (appsettings.json or User Secrets).
+// Configure the database with PostgreSQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Register the Database Context (AppDbContext) with the Dependency Injection container.
-// We configure it to use PostgreSQL as the database provider.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
+// Swagger/OpenAPI setup
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Register AutoMapper using the new configuration action syntax
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
 
 var app = builder.Build();
 
@@ -28,19 +26,22 @@ var app = builder.Build();
 // 2. HTTP Request Pipeline (Middleware)
 // ====================================================================
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Enable OpenAPI/Swagger endpoints in development for testing.
-    app.MapOpenApi();
+    // Enable the middleware to serve generated Swagger as a JSON endpoint
+    app.UseSwagger();
+
+    // Enable the middleware to serve Swagger UI (the visual interface)
+    // This is what was missing!
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Comment this out temporarily if you have issues with local certificates
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-// Map incoming HTTP requests to the controller actions.
-// This tells .NET to look for classes inheriting from 'ControllerBase'.
+// Map controller routes
 app.MapControllers();
 
 app.Run();

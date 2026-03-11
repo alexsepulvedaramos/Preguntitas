@@ -4,11 +4,14 @@ using VayaPreguntita.API.Entities;
 
 namespace VayaPreguntita.API.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
-
+    // ==========================================
+    // DATABASE TABLES (DbSets)
+    // ==========================================
+    public DbSet<User> Users { get; set; }
+    public DbSet<Group> Groups { get; set; }
     public DbSet<Question> Questions { get; set; }
-    public DbSet<Answer> Answers { get; set; }
+    public DbSet<Option> Options { get; set; }
+    public DbSet<Vote> Votes { get; set; }
 }
