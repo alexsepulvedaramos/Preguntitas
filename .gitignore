@@ -14,7 +14,7 @@ node_modules/
 
 # Archivos de compilación de Angular
 /dist
-/.angular/
+client/.angular/
 
 # --- VS Code ---
 .vscode/
