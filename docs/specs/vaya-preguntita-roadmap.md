@@ -2,6 +2,31 @@
 
 Este documento detalla el plan de desarrollo para llevar el proyecto "Vaya Preguntita" desde su estado inicial hasta su puesta en producción. Incluye buenas prácticas, SEO, testing y el flujo completo de autenticación.
 
+---
+
+## 📋 Registro de Progreso
+
+### Última Actualización: 12 de mayo de 2026, 19:05 UTC
+
+#### FASE 1: Estado Actual - 60% Completada ✅
+
+**Cambios Implementados:**
+
+- ✅ **Refactorización del Modelo de Datos**: Creada entidad `QuestionMetadata` con soporte para todos los 5 tipos de preguntas (The Superlative, The Deathmatch, The Scale, The Secret Pairing). Implementada como tipo poseído (Owned Type) mapeado a columna JSONB en PostgreSQL.
+- ✅ **Configuración EF Core**: Actualizado `AppDbContext.OnModelCreating()` para mapear `Metadata` a tipo `jsonb` de Supabase con soporte para colecciones anidadas (`Teams`).
+- ✅ **Migraciones**: Generada y aplicada migración `20260511152838_UpdateQuestionMetadata` a base de datos Supabase. Consolidadas columnas dispersas en una única columna JSON flexible.
+- ✅ **Dependencias**: Instalados paquetes `FluentValidation.AspNetCore` (v11.3.1) y `FluentValidation.DependencyInjectionExtensions` (v11.11.0).
+- ✅ **Configuración de Conexión**: Actualizado `Program.cs` para soportar tanto `ConnectionStrings:Supabase` como fallback a `DefaultConnection`. Connection string actualizado a pooler endpoint con IPv4 compatible.
+- ✅ **Control de Versiones**: Rama `refactor/question-metadata` creada y subida a GitHub con commit semántico. Nueva rama `feat/question-validators` lista para siguiente paso.
+- ✅ **Validaciones de Dominio (FluentValidation)**: Validadores para `CreateQuestionDto`, `CreateVoteDto` y `CreateOptionDto` con reglas específicas por tipo de pregunta y consistencia de respuestas.
+- ✅ **Alineación con Specs**: DTOs, validadores y controladores actualizados para los tipos de pregunta definidos en el spec (Superlative, Deathmatch, Scale, Secret Pairing, Custom Poll).
+
+**Pendiente en FASE 1:**
+
+- ⏳ **Setup Testing Backend**: Crear proyecto `VayaPreguntita.API.Tests` con xUnit, Moq y FluentAssertions. Configurar tests unitarios e integración.
+
+---
+
 ## FASE 1: Alineación de Arquitectura y Base de Datos (Backend Core)
 
 _Objetivo: Adaptar el esquema actual para soportar los 5 tipos de preguntas especificados en el documento._
@@ -130,4 +155,8 @@ Para garantizar la mantenibilidad, escalabilidad y calidad del código, durante 
    - Mantener componentes de Angular pequeños y específicos, delegando lógica compleja a servicios.
 6. **Base de Datos y Migraciones (EF Core + Supabase):**
    - La base de datos se gestiona íntegramente mediante migraciones de Entity Framework Core desde el proyecto .NET. Cualquier modificación en los modelos (Entities) requiere obligatoriamente generar una nueva migración y aplicarla a Supabase para actualizar el esquema de la base de datos y mantener todo sincronizado.
-
+7. **Registro de Cambios en el Roadmap:**
+   - Cada vez que se implemente un cambio (código, configuración, migración o documentación), debe registrarse en este roadmap para mantener el estado del proyecto siempre actualizado.
+8. **Spec-First Rules:**
+   - Always follow the spec rules located in spec folder unless it is not directly mentioned, in which case you will ask the user for the prefferences. When something that is relevant to the funtcionality of the final app, and it's confirmed by the user, it should also be updated in the corresponding section of specs folder so the same question will be never needed again.
+   - Always create and push atomic commits whenever a task is approved.
