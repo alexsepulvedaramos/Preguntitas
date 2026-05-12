@@ -16,6 +16,9 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     private readonly AppDbContext _context = context;
     private readonly IMapper _mapper = mapper;
 
+    // Sentinel value for a "Nobody" selection in Superlative votes.
+    private const int NobodyUserId = 0;
+
     // ==========================================
     // GET: api/questions?groupId=5
     // ==========================================
@@ -87,19 +90,17 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
         // 2. Validate Business Logic based on Question Type
         switch (createQuestionDto.Type)
         {
-            case QuestionType.SingleChoice:
-            case QuestionType.MultipleChoice:
+            case QuestionType.CustomPoll:
                 if (createQuestionDto.Options == null || createQuestionDto.Options.Count < 2)
                 {
-                    return BadRequest(
-                        "Single Choice and Multiple Choice questions require at least 2 options."
-                    );
+                    return BadRequest("Custom Poll questions require options.");
                 }
                 break;
 
-            case QuestionType.TargetUser:
+            case QuestionType.Superlative:
             case QuestionType.Scale:
-            case QuestionType.FreeText:
+            case QuestionType.SecretPairing:
+            case QuestionType.Deathmatch:
                 createQuestionDto.Options.Clear();
                 break;
 
@@ -156,23 +157,32 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
         if (alreadyVoted)
             return BadRequest("User has already voted on this question.");
 
-        // 4. Validate the Vote payload against the Question Type
+        int? selectedTeamLeaderId = null;
+
         // 4. Validate the Vote payload against the Question Type
         switch (question.Type)
         {
-            case QuestionType.SingleChoice:
-            case QuestionType.MultipleChoice:
+            case QuestionType.CustomPoll:
                 if (
                     createVoteDto.SelectedOptionIds == null
                     || createVoteDto.SelectedOptionIds.Count == 0
                 )
                     return BadRequest("You must select at least one option.");
 
+                var pollMinSelections =
+                    question.Metadata.MinSelections > 0 ? question.Metadata.MinSelections : 1;
+                var pollMaxSelections =
+                    question.Metadata.MaxSelections > 0
+                        ? question.Metadata.MaxSelections
+                        : pollMinSelections;
+
                 if (
-                    question.Type == QuestionType.SingleChoice
-                    && createVoteDto.SelectedOptionIds.Count > 1
+                    createVoteDto.SelectedOptionIds.Count < pollMinSelections
+                    || createVoteDto.SelectedOptionIds.Count > pollMaxSelections
                 )
-                    return BadRequest("You can only select one option for this question.");
+                {
+                    return BadRequest("Selection count is outside the allowed range.");
+                }
 
                 var allOptionsValid = createVoteDto.SelectedOptionIds.All(selectedId =>
                     question.Options.Any(o => o.Id == selectedId)
@@ -182,9 +192,50 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                     return BadRequest("One or more selected options are invalid.");
                 break;
 
-            case QuestionType.TargetUser:
+            case QuestionType.Deathmatch:
+                if (
+                    createVoteDto.SelectedTargetUserIds == null
+                    || createVoteDto.SelectedTargetUserIds.Count == 0
+                )
+                    return BadRequest("You must select a team for this question type.");
+
+                if (question.Metadata.Teams.Count != 2)
+                    return BadRequest("Deathmatch teams are not configured correctly.");
+
+                var normalizedSelection = createVoteDto
+                    .SelectedTargetUserIds.OrderBy(id => id)
+                    .ToList();
+
+                var matchedTeam = question.Metadata.Teams.FirstOrDefault(team =>
+                    team.MemberIds.OrderBy(id => id).SequenceEqual(normalizedSelection)
+                );
+
+                if (matchedTeam == null)
+                    return BadRequest("Selected team does not match the configured teams.");
+
+                selectedTeamLeaderId = matchedTeam.MemberIds.First();
+                break;
+
+            case QuestionType.Superlative:
                 if (createVoteDto.SelectedTargetUserId == null)
                     return BadRequest("You must select a target user for this question type.");
+
+                if (createVoteDto.SelectedTargetUserId == NobodyUserId)
+                {
+                    if (!question.Metadata.AllowNobody)
+                    {
+                        return BadRequest("Selecting nobody is not allowed for this question.");
+                    }
+
+                    break;
+                }
+
+                if (
+                    question.Metadata.BlacklistedUserIds.Contains(
+                        createVoteDto.SelectedTargetUserId.Value
+                    )
+                )
+                    return BadRequest("Selected user is blacklisted for this question.");
 
                 // Check group membership (implies existence)
                 var isTargetUserInGroup = await _context.Groups.AnyAsync(g =>
@@ -200,12 +251,48 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                 if (createVoteDto.NumericValue == null)
                     return BadRequest("You must provide a numeric value for this question type.");
 
-                // Optional: Check min/max values here if defined in your Question entity
+                var rangeMin = question.Metadata.RangeMin ?? 1;
+                var rangeMax = question.Metadata.RangeMax ?? 10;
+
+                if (
+                    createVoteDto.NumericValue.Value < rangeMin
+                    || createVoteDto.NumericValue.Value > rangeMax
+                )
+                    return BadRequest("Numeric value is outside the allowed range.");
                 break;
 
-            case QuestionType.FreeText:
-                if (string.IsNullOrWhiteSpace(createVoteDto.FreeText))
-                    return BadRequest("Free text response cannot be empty.");
+            case QuestionType.SecretPairing:
+                if (
+                    createVoteDto.SelectedTargetUserIds == null
+                    || createVoteDto.SelectedTargetUserIds.Count == 0
+                )
+                    return BadRequest("You must select target users for this question type.");
+
+                var pairingMinSelections =
+                    question.Metadata.MinSelections > 0 ? question.Metadata.MinSelections : 2;
+                var pairingMaxSelections =
+                    question.Metadata.MaxSelections > 0 ? question.Metadata.MaxSelections : 2;
+
+                if (
+                    createVoteDto.SelectedTargetUserIds.Count < pairingMinSelections
+                    || createVoteDto.SelectedTargetUserIds.Count > pairingMaxSelections
+                )
+                    return BadRequest("Selection count is outside the allowed range.");
+
+                var hasDuplicateSelections =
+                    createVoteDto.SelectedTargetUserIds.Distinct().Count()
+                    != createVoteDto.SelectedTargetUserIds.Count;
+
+                if (hasDuplicateSelections)
+                    return BadRequest("Selected target users must be unique.");
+
+                var allTargetsInGroup = await _context.Groups.AnyAsync(g =>
+                    g.Id == question.GroupId
+                    && createVoteDto.SelectedTargetUserIds.All(id => g.Users.Any(u => u.Id == id))
+                );
+
+                if (!allTargetsInGroup)
+                    return BadRequest("One or more selected users do not belong to this group.");
                 break;
 
             default:
@@ -215,10 +302,7 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
         // 5. Map DTO to Vote Entities (Handling multiple inserts)
         var votesToInsert = new List<Vote>();
 
-        if (
-            question.Type == QuestionType.SingleChoice
-            || question.Type == QuestionType.MultipleChoice
-        )
+        if (question.Type == QuestionType.CustomPoll)
         {
             foreach (var optionId in createVoteDto.SelectedOptionIds!)
             {
@@ -230,11 +314,40 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                 votesToInsert.Add(vote);
             }
         }
+        else if (question.Type == QuestionType.Deathmatch)
+        {
+            var vote = _mapper.Map<Vote>(createVoteDto);
+            vote.UserId = currentUserId;
+            vote.QuestionId = id;
+            vote.SelectedTargetUserId = selectedTeamLeaderId;
+
+            votesToInsert.Add(vote);
+        }
+        else if (question.Type == QuestionType.SecretPairing)
+        {
+            foreach (var targetUserId in createVoteDto.SelectedTargetUserIds!)
+            {
+                var vote = _mapper.Map<Vote>(createVoteDto);
+                vote.UserId = currentUserId;
+                vote.QuestionId = id;
+                vote.SelectedTargetUserId = targetUserId;
+
+                votesToInsert.Add(vote);
+            }
+        }
         else
         {
             var vote = _mapper.Map<Vote>(createVoteDto);
             vote.UserId = currentUserId;
             vote.QuestionId = id;
+
+            if (
+                question.Type == QuestionType.Superlative
+                && createVoteDto.SelectedTargetUserId == NobodyUserId
+            )
+            {
+                vote.SelectedTargetUserId = null;
+            }
 
             votesToInsert.Add(vote);
         }
@@ -272,8 +385,7 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
         // 3. Route the calculation logic based on the Question Type
         switch (question.Type)
         {
-            case QuestionType.SingleChoice:
-            case QuestionType.MultipleChoice:
+            case QuestionType.CustomPoll:
                 foreach (var option in question.Options)
                 {
                     // 1. Logic and calculations
@@ -294,10 +406,38 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                 }
                 break;
 
-            case QuestionType.TargetUser:
-                var targetUserGroups = allVotes
-                    .Where(v => v.SelectedTargetUserId != null)
-                    .GroupBy(v => v.SelectedTargetUserId);
+            case QuestionType.Deathmatch:
+                for (var teamIndex = 0; teamIndex < question.Metadata.Teams.Count; teamIndex++)
+                {
+                    var team = question.Metadata.Teams[teamIndex];
+                    var teamVotes = allVotes
+                        .Where(v =>
+                            v.SelectedTargetUserId.HasValue
+                            && team.MemberIds.Contains(v.SelectedTargetUserId.Value)
+                        )
+                        .ToList();
+                    var voteCount = teamVotes.Count;
+                    var percentage =
+                        resultDto.TotalVotes > 0
+                            ? (double)voteCount / resultDto.TotalVotes * 100
+                            : 0;
+
+                    var optionResult = new OptionResultDto
+                    {
+                        Id = teamIndex + 1,
+                        DisplayText = $"Team {teamIndex + 1}",
+                        VoteCount = voteCount,
+                        Percentage = percentage,
+                        Voters = _mapper.Map<List<VoterDto>>(teamVotes),
+                    };
+
+                    resultDto.Results.Add(optionResult);
+                }
+                break;
+
+            case QuestionType.Superlative:
+            case QuestionType.SecretPairing:
+                var targetUserGroups = allVotes.GroupBy(v => v.SelectedTargetUserId);
 
                 foreach (var group in targetUserGroups)
                 {
@@ -309,12 +449,14 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                             ? (double)voteCount / resultDto.TotalVotes * 100
                             : 0;
                     var targetUser = group.First().SelectedTargetUser;
+                    var displayName =
+                        group.Key == null ? "Nobody" : targetUser?.Username ?? "Unknown User";
 
                     // 2. Mapping and assignment (Manually created since there's no Option entity)
                     var optionResult = new OptionResultDto
                     {
                         Id = group.Key ?? 0,
-                        DisplayText = targetUser?.Username ?? "Unknown User",
+                        DisplayText = displayName,
                         TargetUser = _mapper.Map<UserDto>(targetUser),
                         VoteCount = voteCount,
                         Percentage = percentage,
@@ -350,22 +492,6 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
                         VoteCount = voteCount,
                         Percentage = percentage,
                         Voters = _mapper.Map<List<VoterDto>>(groupVotes),
-                    };
-
-                    resultDto.Results.Add(optionResult);
-                }
-                break;
-
-            case QuestionType.FreeText:
-                // TODO (Later): Just grab all the FreeText strings and list them.
-                // No percentages needed here!
-                foreach (var vote in allVotes.Where(v => !string.IsNullOrEmpty(v.FreeText)))
-                {
-                    var optionResult = new OptionResultDto
-                    {
-                        Id = vote.Id,
-                        DisplayText = vote.FreeText!,
-                        Voters = [_mapper.Map<VoterDto>(vote)],
                     };
 
                     resultDto.Results.Add(optionResult);

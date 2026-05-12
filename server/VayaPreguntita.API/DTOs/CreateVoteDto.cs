@@ -10,6 +10,6 @@ public class CreateVoteDto
     // --- The 4 flexible response types ---
     public List<int>? SelectedOptionIds { get; set; }
     public int? SelectedTargetUserId { get; set; }
+    public List<int>? SelectedTargetUserIds { get; set; }
     public int? NumericValue { get; set; }
-    public string? FreeText { get; set; }
 }

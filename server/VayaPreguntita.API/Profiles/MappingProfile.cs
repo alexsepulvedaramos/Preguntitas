@@ -11,7 +11,39 @@ public class MappingProfile : Profile
         // --- Input Mappings (DTO to Entity) ---
 
         CreateMap<CreateQuestionDto, Question>()
-            .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow));
+            .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(
+                dest => dest.Metadata,
+                opt =>
+                    opt.MapFrom(src => new QuestionMetadata
+                    {
+                        AllowNobody = src.Type == Enums.QuestionType.Superlative && src.AllowNobody,
+                        BlacklistedUserIds =
+                            src.Type == Enums.QuestionType.Superlative
+                                ? (src.BlacklistedUserIds ?? [])
+                                : [],
+                        RangeMin =
+                            src.Type == Enums.QuestionType.Scale ? (src.RangeMin ?? 1) : null,
+                        RangeMax =
+                            src.Type == Enums.QuestionType.Scale ? (src.RangeMax ?? 10) : null,
+                        TargetUserId =
+                            src.Type == Enums.QuestionType.Scale ? src.TargetUserId : null,
+                        MinSelections =
+                            src.Type == Enums.QuestionType.SecretPairing ? 2
+                            : src.Type == Enums.QuestionType.CustomPoll ? (src.MinSelections ?? 1)
+                            : 0,
+                        MaxSelections =
+                            src.Type == Enums.QuestionType.SecretPairing ? 2
+                            : src.Type == Enums.QuestionType.CustomPoll ? (src.MaxSelections ?? 1)
+                            : 0,
+                        Teams =
+                            src.Type == Enums.QuestionType.Deathmatch
+                                ? (src.Teams ?? [])
+                                    .Select(team => new Team { MemberIds = team })
+                                    .ToList()
+                                : new List<Team>(),
+                    })
+            );
 
         CreateMap<CreateOptionDto, Option>();
 
@@ -21,7 +53,40 @@ public class MappingProfile : Profile
         // --- Output Mappings (Entity to DTO) ---
 
         CreateMap<Option, OptionDto>();
-        CreateMap<Question, QuestionToVoteDto>();
+        CreateMap<Question, QuestionToVoteDto>()
+            .ForMember(
+                dest => dest.AllowNobody,
+                opt => opt.MapFrom(src => src.Metadata.AllowNobody)
+            )
+            .ForMember(
+                dest => dest.BlacklistedUserIds,
+                opt => opt.MapFrom(src => src.Metadata.BlacklistedUserIds)
+            )
+            .ForMember(
+                dest => dest.MinSelections,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Metadata.MinSelections == 0 ? null : src.Metadata.MinSelections
+                    )
+            )
+            .ForMember(
+                dest => dest.MaxSelections,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Metadata.MaxSelections == 0 ? null : src.Metadata.MaxSelections
+                    )
+            )
+            .ForMember(dest => dest.RangeMin, opt => opt.MapFrom(src => src.Metadata.RangeMin))
+            .ForMember(dest => dest.RangeMax, opt => opt.MapFrom(src => src.Metadata.RangeMax))
+            .ForMember(
+                dest => dest.TargetUserId,
+                opt => opt.MapFrom(src => src.Metadata.TargetUserId)
+            )
+            .ForMember(
+                dest => dest.Teams,
+                opt =>
+                    opt.MapFrom(src => src.Metadata.Teams.Select(team => team.MemberIds).ToList())
+            );
 
         // Basic user info mapping
         CreateMap<User, VoterDto>();
