@@ -16,11 +16,7 @@ public class Question
     // ==========================================
     // 2. GAME MECHANICS & RULES
     // ==========================================
-    // public bool AllowNobody { get; set; } = false; // Can users choose "Nobody" as an option?
-    public int MaxSelections { get; set; } = 1;
-    public List<int> BlacklistedUserIds { get; set; } = [];
-    public int? MinValue { get; set; }
-    public int? MaxValue { get; set; }
+    public QuestionMetadata Metadata { get; set; } = new();
 
     // ==========================================
     // 3. FOREIGN KEYS & NAVIGATION PROPERTIES

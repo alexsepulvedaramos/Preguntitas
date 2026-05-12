@@ -14,4 +14,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Question> Questions { get; set; }
     public DbSet<Option> Options { get; set; }
     public DbSet<Vote> Votes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder
+            .Entity<Question>()
+            .OwnsOne(
+                q => q.Metadata,
+                builder =>
+                {
+                    builder.ToJson();
+                    builder.OwnsMany(m => m.Teams);
+                }
+            );
+    }
 }
