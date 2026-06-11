@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VayaPreguntita.API.Tests": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Testing"
+      }
+    }
+  }
+}

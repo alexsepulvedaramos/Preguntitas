@@ -1,5 +1,6 @@
 namespace VayaPreguntita.API.Profiles;
 
+using System.Linq;
 using AutoMapper;
 using VayaPreguntita.API.DTOs;
 using VayaPreguntita.API.Entities;
@@ -12,38 +13,7 @@ public class MappingProfile : Profile
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))
-            .ForMember(
-                dest => dest.Metadata,
-                opt =>
-                    opt.MapFrom(src => new QuestionMetadata
-                    {
-                        AllowNobody = src.Type == Enums.QuestionType.Superlative && src.AllowNobody,
-                        BlacklistedUserIds =
-                            src.Type == Enums.QuestionType.Superlative
-                                ? (src.BlacklistedUserIds ?? [])
-                                : [],
-                        RangeMin =
-                            src.Type == Enums.QuestionType.Scale ? (src.RangeMin ?? 1) : null,
-                        RangeMax =
-                            src.Type == Enums.QuestionType.Scale ? (src.RangeMax ?? 10) : null,
-                        TargetUserId =
-                            src.Type == Enums.QuestionType.Scale ? src.TargetUserId : null,
-                        MinSelections =
-                            src.Type == Enums.QuestionType.SecretPairing ? 2
-                            : src.Type == Enums.QuestionType.CustomPoll ? (src.MinSelections ?? 1)
-                            : 0,
-                        MaxSelections =
-                            src.Type == Enums.QuestionType.SecretPairing ? 2
-                            : src.Type == Enums.QuestionType.CustomPoll ? (src.MaxSelections ?? 1)
-                            : 0,
-                        Teams =
-                            src.Type == Enums.QuestionType.Deathmatch
-                                ? (src.Teams ?? [])
-                                    .Select(team => new Team { MemberIds = team })
-                                    .ToList()
-                                : new List<Team>(),
-                    })
-            );
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom<MetadataResolver>());
 
         CreateMap<CreateOptionDto, Option>();
 
@@ -66,14 +36,14 @@ public class MappingProfile : Profile
                 dest => dest.MinSelections,
                 opt =>
                     opt.MapFrom(src =>
-                        src.Metadata.MinSelections == 0 ? null : src.Metadata.MinSelections
+                        src.Metadata.MinSelections == 0 ? (int?)null : src.Metadata.MinSelections
                     )
             )
             .ForMember(
                 dest => dest.MaxSelections,
                 opt =>
                     opt.MapFrom(src =>
-                        src.Metadata.MaxSelections == 0 ? null : src.Metadata.MaxSelections
+                        src.Metadata.MaxSelections == 0 ? (int?)null : src.Metadata.MaxSelections
                     )
             )
             .ForMember(dest => dest.RangeMin, opt => opt.MapFrom(src => src.Metadata.RangeMin))
