@@ -11,6 +11,7 @@ using VayaPreguntita.API.DTOs;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class QuestionsController(AppDbContext context, IMapper mapper) : ControllerBase
@@ -25,7 +26,7 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     // GET: api/questions?groupId=5
     // ==========================================
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<QuestionToVoteDto>>> GetQuestions(
+    public async Task<ActionResult<IEnumerable<QuestionToVoteDto>>> GetDailyQuestion(
         [FromQuery] int groupId
     )
     {
@@ -41,7 +42,6 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     // ==========================================
     // GET: api/questions/5
     // ==========================================
-    [Authorize]
     [HttpGet("{id}")]
     public async Task<ActionResult<object>> GetQuestion(int id)
     {
@@ -130,7 +130,6 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     // ==========================================
     // POST: api/questions/{id}/vote
     // ==========================================
-    [Authorize]
     [HttpPost("{id}/vote")]
     public async Task<ActionResult> VoteQuestion(int id, CreateVoteDto createVoteDto)
     {
