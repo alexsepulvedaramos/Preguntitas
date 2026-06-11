@@ -1,7 +1,9 @@
 namespace VayaPreguntita.API.Controllers;
 
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
@@ -39,11 +41,12 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     // ==========================================
     // GET: api/questions/5
     // ==========================================
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<ActionResult<object>> GetQuestion(int id)
     {
-        // 1. HARDCODED USER (Until we implement JWT tokens)
-        int currentUserId = 1;
+        if (!TryGetCurrentUserId(out var currentUserId))
+            return Unauthorized();
 
         // 2. THE QUICK CHECK: Did this user already vote?
         bool hasVoted = await _context.Votes.AnyAsync(v =>
@@ -127,11 +130,12 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
     // ==========================================
     // POST: api/questions/{id}/vote
     // ==========================================
+    [Authorize]
     [HttpPost("{id}/vote")]
     public async Task<ActionResult> VoteQuestion(int id, CreateVoteDto createVoteDto)
     {
-        // 1. HARDCODED USER (Until JWT)
-        int currentUserId = 1;
+        if (!TryGetCurrentUserId(out var currentUserId))
+            return Unauthorized();
 
         // 2. Fetch the question including its options (to validate the vote)
         var question = await _context
@@ -357,6 +361,14 @@ public class QuestionsController(AppDbContext context, IMapper mapper) : Control
         await _context.SaveChangesAsync();
 
         return Ok("Vote registered successfully.");
+    }
+
+    private bool TryGetCurrentUserId(out int currentUserId)
+    {
+        currentUserId = 0;
+
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdClaim, out currentUserId);
     }
 
     // ==========================================

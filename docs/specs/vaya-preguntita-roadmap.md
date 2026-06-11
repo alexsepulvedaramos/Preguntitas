@@ -12,6 +12,7 @@ Este documento detalla el plan de desarrollo para llevar el proyecto "Vaya Pregu
 
 **Cambios Implementados:**
 
+- ✅ **Autenticación base**: creados los endpoints `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh` y `POST /api/auth/logout` con hash seguro de contraseña, JWT de acceso y rotación de refresh token.
 - ✅ **Refactorización del Modelo de Datos**: Creada entidad `QuestionMetadata` con soporte para todos los 5 tipos de preguntas (The Superlative, The Deathmatch, The Scale, The Secret Pairing). Implementada como tipo poseído (Owned Type) mapeado a columna JSONB en PostgreSQL.
 - ✅ **Configuración EF Core**: Actualizado `AppDbContext.OnModelCreating()` para mapear `Metadata` a tipo `jsonb` de Supabase con soporte para colecciones anidadas (`Teams`).
 - ✅ **Migraciones**: Generada y aplicada migración `20260511152838_UpdateQuestionMetadata` a base de datos Supabase. Consolidadas columnas dispersas en una única columna JSON flexible.
