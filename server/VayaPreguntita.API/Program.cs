@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ====================================================================
 
 builder.Services.AddControllers();
-
+builder.Services.AddHealthChecks();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>();
 
@@ -77,12 +77,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
 
     // Enable the middleware to serve Swagger UI (the visual interface)
-    // This is what was missing!
     app.UseSwaggerUI();
 }
 
 // Comment this out temporarily if you have issues with local certificates
 // app.UseHttpsRedirection();
+
+app.MapHealthChecks("/healthz").AllowAnonymous();
 
 app.UseAuthentication();
 app.UseAuthorization();
