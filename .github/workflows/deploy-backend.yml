@@ -1,0 +1,54 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches:
+      - master
+    # Only trigger if files inside the server folder change
+    paths:
+      - 'server/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Set the default working directory for all run steps in this job
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup .NET 10 SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Restore dependencies using the exact path to the csproj
+      - name: Restore dependencies
+        run: dotnet restore VayaPreguntita.API/VayaPreguntita.API.csproj
+
+      # Build the application in Release mode
+      - name: Build
+        run: dotnet build VayaPreguntita.API/VayaPreguntita.API.csproj --configuration Release --no-restore
+
+      # Optional: Run tests if you have them configured
+      # - name: Test
+      #   run: dotnet test VayaPreguntita.API.Tests/VayaPreguntita.API.Tests.csproj --no-build --verbosity normal
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    # Only execute deployment if the build step is successful
+    if: success()
+
+    steps:
+      # Send a POST request to the Render Deploy Hook
+      - name: Trigger Render Deploy
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -X POST "$DEPLOY_HOOK_URL"

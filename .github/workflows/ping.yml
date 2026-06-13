@@ -1,0 +1,15 @@
+# GitHub Action to ping the Render server and prevent it from sleeping
+name: Ping Render Server
+
+on:
+  schedule:
+    # Run every 5 minutes to account for GitHub Actions scheduling delays
+    - cron: '*/5 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        # Send a GET request to the specific healthz endpoint
+        run: curl -s https://preguntitas.onrender.com/healthz > /dev/null
