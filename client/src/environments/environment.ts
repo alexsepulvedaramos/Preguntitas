@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://api.tudominio.com/api'
+    apiUrl: 'https://preguntitas.onrender.com/api'
 };

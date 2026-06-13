@@ -37,8 +37,8 @@ jobs:
         run: dotnet build VayaPreguntita.API/VayaPreguntita.API.csproj --configuration Release --no-restore
 
       # Optional: Run tests if you have them configured
-      # - name: Test
-      #   run: dotnet test VayaPreguntita.API.Tests/VayaPreguntita.API.Tests.csproj --no-build --verbosity normal
+      - name: Test
+        run: dotnet test VayaPreguntita.API.Tests/VayaPreguntita.API.Tests.csproj --no-build --verbosity normal
 
   deploy:
     needs: build-and-test
