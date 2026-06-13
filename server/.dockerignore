@@ -1,0 +1,23 @@
+# Avoid copying local build artifacts
+**/bin/
+**/obj/
+
+# Avoid copying IDE configuration files
+.vs/
+.vscode/
+*.suo
+*.user
+*.sln.docuser
+
+# Avoid copying local git history
+.git/
+.gitignore
+
+# Avoid copying local development secrets
+**/appsettings.Development.json
+
+# Avoid copying agents configuration files
+.agents/
+.continue/
+.github/
+.docs/
