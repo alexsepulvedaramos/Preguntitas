@@ -1,8 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Testcontainers.PostgreSql;
+using VayaPreguntita.API.Data;
+
 public sealed class DatabaseFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres;
 
     public AppDbContext Context { get; private set; }
+
+    // Expose the raw connection string directly from the container to keep the password intact
+    public string ConnectionString => _postgres.GetConnectionString();
 
     public DatabaseFixture()
     {
