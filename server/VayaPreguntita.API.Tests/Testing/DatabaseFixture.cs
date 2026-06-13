@@ -1,4 +1,3 @@
-using System;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 using VayaPreguntita.API.Data;
@@ -9,9 +8,11 @@ public sealed class DatabaseFixture : IAsyncLifetime
 
     public AppDbContext Context { get; private set; }
 
+    // Expose the raw connection string directly from the container to keep the password intact
+    public string ConnectionString => _postgres.GetConnectionString();
+
     public DatabaseFixture()
     {
-        // Usa un contenedor PostgreSQL real (puedes cambiar a InMemory si lo prefieres)
         _postgres = new PostgreSqlBuilder()
             .WithImage("postgres:15-alpine")
             .WithCleanUp(true)
@@ -27,7 +28,7 @@ public sealed class DatabaseFixture : IAsyncLifetime
             .Options;
 
         Context = new AppDbContext(options);
-        await Context.Database.MigrateAsync();   // aplica migraciones existentes
+        await Context.Database.MigrateAsync();
     }
 
     public async Task DisposeAsync()
