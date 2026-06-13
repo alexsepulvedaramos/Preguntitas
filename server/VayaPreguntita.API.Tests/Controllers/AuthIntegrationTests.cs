@@ -27,7 +27,11 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
         _fixture.Context.SaveChanges();
     }
 
-    private User SeedUser(string username = "seeduser", string email = "seed@example.com", string password = "12345678")
+    private User SeedUser(
+        string username = "seeduser",
+        string email = "seed@example.com",
+        string password = "12345678"
+    )
     {
         ClearUsers();
         var user = new User { Username = username, Email = email };
@@ -38,7 +42,7 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     }
 
     // Phase 1: Register Tests
-    
+
     [Fact]
     public async Task Register_WithValidData_ReturnsCreated()
     {
@@ -69,7 +73,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         ClearUsers();
-        var request = new { Username = "", Email = "test@example.com", Password = "12345678" };
+        var request = new
+        {
+            Username = "",
+            Email = "test@example.com",
+            Password = "12345678",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -83,7 +92,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         ClearUsers();
-        var request = new { Username = "testuser", Email = "", Password = "12345678" };
+        var request = new
+        {
+            Username = "testuser",
+            Email = "",
+            Password = "12345678",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -97,7 +111,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         ClearUsers();
-        var request = new { Username = "testuser", Email = "test@example.com", Password = "" };
+        var request = new
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -111,7 +130,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         ClearUsers();
-        var request = new { Username = "testuser", Email = "test@example.com", Password = "1234567" };
+        var request = new
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "1234567",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -125,7 +149,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         SeedUser("existinguser", "first@example.com");
-        var request = new { Username = "existinguser", Email = "different@example.com", Password = "12345678" };
+        var request = new
+        {
+            Username = "existinguser",
+            Email = "different@example.com",
+            Password = "12345678",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -139,7 +168,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         SeedUser("firstuser", "existing@example.com");
-        var request = new { Username = "differentuser", Email = "existing@example.com", Password = "12345678" };
+        var request = new
+        {
+            Username = "differentuser",
+            Email = "existing@example.com",
+            Password = "12345678",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/register", request);
@@ -174,7 +208,11 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         var user = SeedUser("emailuser", "email@example.com", "password123");
-        var request = new LoginRequestDto { Identifier = "email@example.com", Password = "password123" };
+        var request = new LoginRequestDto
+        {
+            Identifier = "email@example.com",
+            Password = "password123",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/auth/login", request);
@@ -249,12 +287,16 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         var user = SeedUser("refreshuser", "refresh@example.com");
-        
+
         // Login to get a valid refresh token
-        var loginRequest = new LoginRequestDto { Identifier = "refreshuser", Password = "12345678" };
+        var loginRequest = new LoginRequestDto
+        {
+            Identifier = "refreshuser",
+            Password = "12345678",
+        };
         var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
         var loginContent = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-        
+
         var request = new RefreshTokenRequestDto { RefreshToken = loginContent.RefreshToken };
 
         // Act
@@ -319,12 +361,12 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         var user = SeedUser("logoutuser", "logout@example.com");
-        
+
         // Login to get a refresh token
         var loginRequest = new LoginRequestDto { Identifier = "logoutuser", Password = "12345678" };
         var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
         var loginContent = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-        
+
         var request = new RefreshTokenRequestDto { RefreshToken = loginContent.RefreshToken };
 
         // Act
