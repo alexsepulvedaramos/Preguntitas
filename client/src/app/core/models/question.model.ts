@@ -1,10 +1,10 @@
 import { QuestionType } from '../enums/question-type.enum';
-import { UserDto } from './user.model';
+import { User } from './user.model';
 
 export interface OptionDto {
     id: number;
     text: string;
-    associatedUsers: UserDto[];
+    associatedUsers: User[];
 }
 
 export interface QuestionToVoteDto {
