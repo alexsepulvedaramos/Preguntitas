@@ -1,6 +1,6 @@
-import { UserDto } from './user.model';
+import { User } from './user.model';
 
-export interface VoterDto {
+export interface Voter {
     id: number;
     username: string;
 }
@@ -8,9 +8,9 @@ export interface VoterDto {
 export interface OptionResultDto {
     id: number;
     displayText: string;
-    targetUser?: UserDto | null;
+    targetUser?: User | null;
     voteCount: number;
-    voters: VoterDto[];
+    voters: Voter[];
     percentage: number;
 }
 

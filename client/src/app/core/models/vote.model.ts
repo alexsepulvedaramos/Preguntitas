@@ -1,4 +1,4 @@
-export interface CreateVoteDto {
+export interface CreateVote {
     questionId: number;
     guessedCreatorId?: number | null;
     selectedOptionIds?: number[] | null;

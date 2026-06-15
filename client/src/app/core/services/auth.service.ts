@@ -1,17 +1,20 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { finalize, tap } from 'rxjs/operators';
 
 import { AuthResponse } from '../../features/auth/models/auth-response.interface';
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
 import { Observable, throwError } from 'rxjs';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private http = inject(HttpClient);
-  public isAuthenticated = signal<boolean>(false);
+
+  public currentUser = signal<User | null>(null);
+  public isAuthenticated = computed(() => this.currentUser() !== null);
 
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token'
@@ -24,17 +27,23 @@ export class AuthService {
     const token = this.getAccessToken();
 
     if (token && !this.isTokenExpired(token)) {
-      this.isAuthenticated.set(true);
+      // Decode the JWT to rebuild the user state on page reload
+      const user = this.extractUserFromToken(token);
+      this.currentUser.set(user);
     } else {
       this.clearStorage();
+      this.currentUser.set(null);
     }
   }
 
-  public login(credentials: LoginRequest): Observable<AuthResponse> {
+  public login(credentials: LoginRequest) {
     return this.http.post<AuthResponse>('/api/auth/login', credentials).pipe(
       tap(response => {
         this.saveTokens(response.accessToken, response.refreshToken);
-        this.isAuthenticated.set(true);
+
+        // Update the state immediately after login
+        const user = this.extractUserFromToken(response.accessToken);
+        this.currentUser.set(user);
       })
     );
   }
@@ -63,13 +72,13 @@ export class AuthService {
       this.http.post('/api/auth/logout', { refreshToken: refresh }).pipe(
         finalize(() => {
           this.clearStorage();
-          this.isAuthenticated.set(false);
+          this.currentUser.set(null);
         })
       ).subscribe();
     } else {
       // If there is no token, just clear the local state
       this.clearStorage();
-      this.isAuthenticated.set(false);
+      this.currentUser.set(null);
     }
   }
 
@@ -114,6 +123,30 @@ export class AuthService {
       return Date.now() >= expirationDate;
     } catch {
       return true; // Consider expired if parsing fails
+    }
+  }
+
+  private extractUserFromToken(token: string): User | null {
+    try {
+      let payloadBase64Url = token.split('.')[1];
+      let base64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+
+      const pad = base64.length % 4;
+      if (pad) {
+        if (pad === 1) throw new Error('InvalidLengthError');
+        base64 += new Array(5 - pad).join('=');
+      }
+
+      const decoded = JSON.parse(window.atob(base64));
+
+      // Map standard JWT claims to your User model. 
+      return {
+        id: decoded.sub || decoded.nameid || '',
+        username: decoded.name || decoded.unique_name || '',
+        avatarUrl: decoded.avatar || null
+      };
+    } catch {
+      return null;
     }
   }
 }
