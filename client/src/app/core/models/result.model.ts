@@ -5,7 +5,7 @@ export interface Voter {
     username: string;
 }
 
-export interface OptionResultDto {
+export interface OptionResult {
     id: number;
     displayText: string;
     targetUser?: User | null;
@@ -14,11 +14,11 @@ export interface OptionResultDto {
     percentage: number;
 }
 
-export interface QuestionResultDto {
+export interface QuestionResult {
     id: number;
     text: string;
     creator: string;
     dateCreated: string | Date;
     totalVotes: number;
-    results: OptionResultDto[];
+    results: OptionResult[];
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuestionService } from '../../../core/services/question.service';
-import { QuestionToVoteDto } from '../../../core/models/question.model';
+import { QuestionToVote } from '../../../core/models/question.model';
 
 @Component({
   selector: 'app-question-list',
@@ -12,7 +12,7 @@ import { QuestionToVoteDto } from '../../../core/models/question.model';
 })
 
 export class QuestionListComponent implements OnInit {
-  questions: QuestionToVoteDto[] = [];
+  questions: QuestionToVote[] = [];
 
   constructor(private questionService: QuestionService) { }
 
