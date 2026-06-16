@@ -8,7 +8,7 @@ import { QuestionToVote } from '../../../core/models/question.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './question-list.component.html',
-  styleUrl: './question-list.component.scss'
+  styleUrl: './question-list.component.css'
 })
 
 export class QuestionListComponent implements OnInit {
