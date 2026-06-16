@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from
 import { inject } from '@angular/core';
 import { throwError, BehaviorSubject, Observable } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from './auth.service';
 
 // State variables declared outside to maintain state across all HTTP requests
 let isRefreshing = false;

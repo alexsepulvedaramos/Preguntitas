@@ -52,8 +52,6 @@ describe('AuthService', () => {
     // Setup initial state manually
     localStorage.setItem('access_token', 'token');
     localStorage.setItem('refresh_token', 'refresh');
-    service.isAuthenticated.set(true);
-
     service.logout();
 
     // Verify side effects
