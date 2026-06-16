@@ -12,10 +12,10 @@ export const routes: Routes = [
         path: 'login',
         loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
     },
-    {
-        // path: 'questions/:groupId',
-        // loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent)
-    },
+    // {
+    // path: 'questions/:groupId',
+    // loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent)
+    // },
     {
         path: '**',
         redirectTo: 'login'
