@@ -1,10 +1,11 @@
-import { Injectable, signal, inject, computed } from '@angular/core';
+import { Injectable, signal, inject, computed, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { finalize, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 
 import { AuthResponse } from '../../features/auth/models/auth-response.interface';
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
-import { Observable, throwError } from 'rxjs';
 import { User } from '../models/user.model';
 import { RegisterRequest } from '../../features/auth/models/register-request.interface';
 import { environment } from '../../../environments/environment.development';
@@ -15,6 +16,8 @@ import { environment } from '../../../environments/environment.development';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private http = inject(HttpClient);
+  private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   public currentUser = signal<User | null>(null);
   public isAuthenticated = computed(() => this.currentUser() !== null);
@@ -24,6 +27,18 @@ export class AuthService {
 
   constructor() {
     this.checkInitialState();
+
+    // Listen for changes in localStorage from other tabs
+    window.addEventListener('storage', (event) => {
+      console.log('Storage event intercepted. Key:', event.key, 'New Value:', event.newValue);
+      if (event.key === 'access_token' && !event.newValue) {
+        // Token was removed in another tab, clean up state immediately
+        this.ngZone.run(() => {
+          this.currentUser.set(null);
+          this.router.navigate(['/auth/login']);
+        });
+      }
+    });
   }
 
   private checkInitialState(): void {
