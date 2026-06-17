@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuestionService } from '../../../core/services/question.service';
-import { QuestionToVoteDto } from '../../../core/models/question.model';
+import { QuestionToVote } from '../../../core/models/question.model';
 
 @Component({
   selector: 'app-question-list',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './question-list.component.html',
-  styleUrl: './question-list.component.scss'
+  styleUrl: './question-list.component.css'
 })
 
 export class QuestionListComponent implements OnInit {
-  questions: QuestionToVoteDto[] = [];
+  questions: QuestionToVote[] = [];
 
   constructor(private questionService: QuestionService) { }
 

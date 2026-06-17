@@ -59,7 +59,7 @@ public class MappingProfile : Profile
             );
 
         // Basic user info mapping
-        CreateMap<User, VoterDto>();
+        CreateMap<User, UserDto>();
 
         // Bridge mapping: Extracts user info from a Vote entity
         CreateMap<Vote, VoterDto>()

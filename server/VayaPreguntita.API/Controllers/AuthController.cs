@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs;
@@ -21,6 +22,7 @@ public class AuthController(
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 
     [HttpPost("register")]
+    [EnableRateLimiting("AuthLimiter")]
     public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequestDto request)
     {
         if (!IsValidRegistration(request))
@@ -63,6 +65,7 @@ public class AuthController(
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("AuthLimiter")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginRequestDto request)
     {
         if (!IsValidLogin(request))
@@ -103,6 +106,7 @@ public class AuthController(
     }
 
     [HttpPost("refresh")]
+    [EnableRateLimiting("AuthLimiter")]
     public async Task<ActionResult<AuthResponseDto>> Refresh(RefreshTokenRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
@@ -131,6 +135,7 @@ public class AuthController(
     }
 
     [HttpPost("logout")]
+    [EnableRateLimiting("AuthLimiter")]
     public async Task<IActionResult> Logout(RefreshTokenRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
@@ -150,6 +155,20 @@ public class AuthController(
         }
 
         return NoContent();
+    }
+
+    [HttpGet("check-username")]
+    public async Task<IActionResult> CheckUsername([FromQuery] string username)
+    {
+        var exists = await _context.Users.AnyAsync(u => u.Username == username);
+        return Ok(new { exists });
+    }
+
+    [HttpGet("check-email")]
+    public async Task<IActionResult> CheckEmail([FromQuery] string email)
+    {
+        var exists = await _context.Users.AnyAsync(u => u.Email == email);
+        return Ok(new { exists });
     }
 
     private static bool IsValidRegistration(RegisterRequestDto request)

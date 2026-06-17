@@ -1,13 +1,13 @@
 import { QuestionType } from '../enums/question-type.enum';
 import { User } from './user.model';
 
-export interface OptionDto {
+export interface Option {
     id: number;
     text: string;
     associatedUsers: User[];
 }
 
-export interface QuestionToVoteDto {
+export interface QuestionToVote {
     id: number;
     text: string;
     type: QuestionType;
@@ -15,10 +15,10 @@ export interface QuestionToVoteDto {
     maxSelections: number;
     minValue?: number | null;
     maxValue?: number | null;
-    options: OptionDto[];
+    options: Option[];
 }
 
-export interface CreateQuestionDto {
+export interface CreateQuestion {
     text: string;
     type: QuestionType;
     creatorId: number;

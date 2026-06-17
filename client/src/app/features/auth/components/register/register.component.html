@@ -1,0 +1,127 @@
+<hlm-card>
+  <hlm-card-header>
+    <h3 hlmCardTitle>Create an account</h3>
+    <p hlmCardDescription>
+      Enter your information below to create your account
+    </p>
+  </hlm-card-header>
+  <div hlmCardContent>
+    <form [formGroup]="form" (ngSubmit)="register()">
+      <hlm-field-group>
+        <hlm-field>
+          <label hlmFieldLabel for="username">Username</label>
+          <input
+            hlmInput
+            type="text"
+            id="username"
+            placeholder="John Doe"
+            formControlName="username"
+          />
+          <hlm-field-error validator="required"
+            >Username is required.
+          </hlm-field-error>
+          <hlm-field-error validator="minlength"
+            >Username must be at least 3 characters long.
+          </hlm-field-error>
+          <hlm-field-error validator="usernameTaken"
+            >Username is already taken.
+          </hlm-field-error>
+        </hlm-field>
+        <hlm-field>
+          <label hlmFieldLabel for="email">Email</label>
+          <input
+            hlmInput
+            type="email"
+            id="email"
+            placeholder="you@example.com"
+            formControlName="email"
+          />
+          @if (!(form.controls.email.touched && form.controls.email.invalid)) {
+            <hlm-field-description>
+              We'll use this to contact you. We will not share your email with
+              anyone else.
+            </hlm-field-description>
+          }
+          <hlm-field-error validator="required"
+            >Email is required.
+          </hlm-field-error>
+          <hlm-field-error validator="email"
+            >Enter a valid email address.
+          </hlm-field-error>
+          <hlm-field-error validator="emailTaken">
+            Email is already taken. If it's yours, please
+            <a
+              routerLink="/login"
+              class="underline font-medium text-primary hover:text-primary/80"
+            >
+              log in instead</a
+            >.
+          </hlm-field-error>
+        </hlm-field>
+        <hlm-field>
+          <label hlmFieldLabel for="password">Password</label>
+          <input
+            hlmInput
+            type="password"
+            id="password"
+            formControlName="password"
+          />
+          @if (
+            !(form.controls.password.touched && form.controls.password.invalid)
+          ) {
+            <hlm-field-description
+              >Must be at least 8 characters long.</hlm-field-description
+            >
+          }
+          <hlm-field-error validator="required"
+            >Password is required.</hlm-field-error
+          >
+          <hlm-field-error validator="minlength"
+            >Password must be at least 8 characters long.</hlm-field-error
+          >
+        </hlm-field>
+        <hlm-field>
+          <label hlmFieldLabel for="confirmPassword">Confirm Password</label>
+          <input
+            hlmInput
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+          />
+          @if (
+            !(
+              form.controls.confirmPassword.touched &&
+              (form.controls.confirmPassword.invalid ||
+                form.errors?.['passwordMismatch'])
+            )
+          ) {
+            <hlm-field-description
+              >Please confirm your password.</hlm-field-description
+            >
+          }
+          <hlm-field-error validator="required"
+            >Confirming your password is required.</hlm-field-error
+          >
+          @if (
+            form.errors?.['passwordMismatch'] &&
+            !form.controls.confirmPassword.errors?.['required']
+          ) {
+            <hlm-field-error forceShow>Passwords must match.</hlm-field-error>
+          }
+        </hlm-field>
+        <hlm-field>
+          <button hlmBtn type="submit" [disabled]="form.invalid">
+            Create Account
+          </button>
+          <button hlmBtn variant="outline" type="button">
+            Sign up with Google
+          </button>
+          <p hlmFieldDescription class="text-center">
+            Already have an account?
+            <a routerLink="/auth/login">Login</a>
+          </p>
+        </hlm-field>
+      </hlm-field-group>
+    </form>
+  </div>
+</hlm-card>
