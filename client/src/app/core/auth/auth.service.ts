@@ -6,11 +6,14 @@ import { AuthResponse } from '../../features/auth/models/auth-response.interface
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
 import { Observable, throwError } from 'rxjs';
 import { User } from '../models/user.model';
+import { RegisterRequest } from '../../features/auth/models/register-request.interface';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private apiUrl = `${environment.apiUrl}/auth`;
   private http = inject(HttpClient);
 
   public currentUser = signal<User | null>(null);
@@ -37,11 +40,23 @@ export class AuthService {
   }
 
   public login(credentials: LoginRequest) {
-    return this.http.post<AuthResponse>('/api/auth/login', credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         this.saveTokens(response.accessToken, response.refreshToken);
 
         // Update the state immediately after login
+        const user = this.extractUserFromToken(response.accessToken);
+        this.currentUser.set(user);
+      })
+    );
+  }
+
+  public register(credentials: RegisterRequest) {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, credentials).pipe(
+      tap(response => {
+        this.saveTokens(response.accessToken, response.refreshToken);
+
+        // Update the state immediately after registration
         const user = this.extractUserFromToken(response.accessToken);
         this.currentUser.set(user);
       })
@@ -56,7 +71,7 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<AuthResponse>('/api/auth/refresh', { refreshToken: refresh }).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: refresh }).pipe(
       tap(response => {
         // Update storage with the new token pair
         this.saveTokens(response.accessToken, response.refreshToken);
@@ -69,7 +84,7 @@ export class AuthService {
 
     if (refresh) {
       // Notify the backend to revoke the refresh token in the database
-      this.http.post('/api/auth/logout', { refreshToken: refresh }).pipe(
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken: refresh }).pipe(
         finalize(() => {
           this.clearStorage();
           this.currentUser.set(null);
