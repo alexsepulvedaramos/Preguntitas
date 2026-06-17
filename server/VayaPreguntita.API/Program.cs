@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VayaPreguntita.API.Data;
@@ -32,6 +33,22 @@ builder.Services.AddCors(options =>
             }
         }
     );
+});
+builder.Services.AddRateLimiter(options =>
+{
+    // Define a policy named "AuthLimiter"
+    options.AddFixedWindowLimiter(
+        "AuthLimiter",
+        opt =>
+        {
+            opt.Window = TimeSpan.FromMinutes(5);
+            opt.PermitLimit = 10;
+            opt.QueueLimit = 0;
+        }
+    );
+
+    // Return 429 Too Many Requests when limit is exceeded
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 builder.Services.AddHealthChecks();
 builder.Services.AddFluentValidationAutoValidation();
@@ -101,6 +118,7 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/healthz").AllowAnonymous();
 
 app.UseCors("DynamicCorsPolicy");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
