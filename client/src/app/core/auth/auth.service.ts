@@ -8,7 +8,7 @@ import { AuthResponse } from '../../features/auth/models/auth-response.interface
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
 import { User } from '../models/user.model';
 import { RegisterRequest } from '../../features/auth/models/register-request.interface';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

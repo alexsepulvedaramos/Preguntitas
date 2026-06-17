@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { CreateQuestion, QuestionToVote } from '../models/question.model';
 import { CreateVote } from '../models/vote.model';
 import { QuestionResult } from '../models/result.model';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
