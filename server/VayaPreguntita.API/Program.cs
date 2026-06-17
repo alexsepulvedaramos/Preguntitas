@@ -18,6 +18,21 @@ var builder = WebApplication.CreateBuilder(args);
 // ====================================================================
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "DynamicCorsPolicy",
+        policy =>
+        {
+            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+            if (allowedOrigins != null && allowedOrigins.Length > 0)
+            {
+                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            }
+        }
+    );
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>();
@@ -85,6 +100,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapHealthChecks("/healthz").AllowAnonymous();
 
+app.UseCors("DynamicCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 

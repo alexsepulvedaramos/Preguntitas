@@ -18,8 +18,14 @@
             formControlName="username"
           />
           <hlm-field-error validator="required"
-            >Username is required.</hlm-field-error
-          >
+            >Username is required.
+          </hlm-field-error>
+          <hlm-field-error validator="minlength"
+            >Username must be at least 3 characters long.
+          </hlm-field-error>
+          <hlm-field-error validator="usernameTaken"
+            >Username is already taken.
+          </hlm-field-error>
         </hlm-field>
         <hlm-field>
           <label hlmFieldLabel for="email">Email</label>
@@ -37,11 +43,20 @@
             </hlm-field-description>
           }
           <hlm-field-error validator="required"
-            >Email is required.</hlm-field-error
-          >
+            >Email is required.
+          </hlm-field-error>
           <hlm-field-error validator="email"
-            >Enter a valid email address.</hlm-field-error
-          >
+            >Enter a valid email address.
+          </hlm-field-error>
+          <hlm-field-error validator="emailTaken">
+            Email is already taken. If it's yours, please
+            <a
+              routerLink="/login"
+              class="underline font-medium text-primary hover:text-primary/80"
+            >
+              log in instead</a
+            >.
+          </hlm-field-error>
         </hlm-field>
         <hlm-field>
           <label hlmFieldLabel for="password">Password</label>

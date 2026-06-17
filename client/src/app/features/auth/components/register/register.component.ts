@@ -16,6 +16,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { RegisterRequest } from '../../models/register-request.interface';
+import { AuthValidators } from '../../validators/auth.validators';
 
 @Component({
   selector: 'app-register',
@@ -32,12 +33,12 @@ export class RegisterComponent {
 
   public form = this._fb.group(
     {
-      username: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.minLength(3)], [AuthValidators.usernameExistsValidator(this.authService)]],
+      email: ['', [Validators.required, Validators.email], [AuthValidators.emailExistsValidator(this.authService)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
     },
-    { validators: passwordMatch() },
+    { validators: AuthValidators.passwordMatch() },
   );
 
   public register() {
@@ -60,12 +61,4 @@ export class RegisterComponent {
       });
     }
   }
-}
-
-function passwordMatch(): ValidatorFn {
-  return (group: AbstractControl): ValidationErrors | null => {
-    const password = group.get('password')?.value;
-    const confirm = group.get('confirmPassword')?.value;
-    return password === confirm ? null : { passwordMismatch: true };
-  };
 }

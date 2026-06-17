@@ -152,6 +152,20 @@ public class AuthController(
         return NoContent();
     }
 
+    [HttpGet("check-username")]
+    public async Task<IActionResult> CheckUsername([FromQuery] string username)
+    {
+        var exists = await _context.Users.AnyAsync(u => u.Username == username);
+        return Ok(new { exists });
+    }
+
+    [HttpGet("check-email")]
+    public async Task<IActionResult> CheckEmail([FromQuery] string email)
+    {
+        var exists = await _context.Users.AnyAsync(u => u.Email == email);
+        return Ok(new { exists });
+    }
+
     private static bool IsValidRegistration(RegisterRequestDto request)
     {
         return !string.IsNullOrWhiteSpace(request.Username)
