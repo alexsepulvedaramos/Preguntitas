@@ -1,0 +1,30 @@
+<div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
+  <section>
+    <h2 class="text-sm font-medium text-muted-foreground mb-3">Your groups</h2>
+
+    <div class="grid grid-cols-2 gap-3">
+      @for (group of groups; track group.id) {
+        <hlm-card
+          size="sm"
+          class="cursor-pointer hover:ring-primary/30 transition-all"
+        >
+          <hlm-card-header>
+            <h3 hlmCardTitle>{{ group.name }}</h3>
+            <p hlmCardDescription>{{ group.members }} members</p>
+          </hlm-card-header>
+        </hlm-card>
+      }
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-3">
+    <button hlmBtn class="w-full gap-2">
+      <ng-icon hlm name="lucidePlus" size="sm" />
+      Create new group
+    </button>
+
+    <button hlmBtn variant="link" class="w-full text-muted-foreground">
+      Join an existing group
+    </button>
+  </section>
+</div>
