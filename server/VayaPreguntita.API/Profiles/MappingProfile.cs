@@ -13,7 +13,11 @@ public class MappingProfile : Profile
         // --- Input Mappings (DTO to Entity) ---
 
         // Groups
-        CreateMap<Group, GroupResponse>();
+        CreateMap<Group, GroupResponse>()
+            .ForMember(
+                dest => dest.CreatorUsername,
+                opt => opt.MapFrom(src => src.Creator.Username)
+            );
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))

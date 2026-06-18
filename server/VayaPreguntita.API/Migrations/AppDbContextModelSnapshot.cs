@@ -45,6 +45,12 @@ namespace VayaPreguntita.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("integer");
+
                     b.Property<TimeOnly>("DailyQuestionTime")
                         .HasColumnType("time without time zone");
 
@@ -64,6 +70,10 @@ namespace VayaPreguntita.API.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("CreatorId");
 
                     b.ToTable("Groups");
                 });
@@ -227,6 +237,25 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Group", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Admin")
+                        .WithMany("AdministeredGroups")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Creator")
+                        .WithMany("CreatedGroups")
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.Option", b =>
                 {
                     b.HasOne("VayaPreguntita.API.Entities.Question", "Question")
@@ -374,6 +403,10 @@ namespace VayaPreguntita.API.Migrations
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.User", b =>
                 {
+                    b.Navigation("AdministeredGroups");
+
+                    b.Navigation("CreatedGroups");
+
                     b.Navigation("CreatedQuestions");
 
                     b.Navigation("Votes");

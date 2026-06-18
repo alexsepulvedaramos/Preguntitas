@@ -64,22 +64,25 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     /// PUT /api/groups/{groupId}
     /// Updates the basic information of a group (name, description, etc.).
     /// </summary>
-    // [HttpPut("{groupId}")]
-    // public async Task<IActionResult> UpdateGroup(int groupId, [FromBody] UpdateGroupRequest request)
-    // {
-    //     var userId = User.GetUserId();
+    [HttpPut("{groupId}")]
+    public async Task<IActionResult> UpdateGroup(int groupId, [FromBody] UpdateGroupRequest request)
+    {
+        var userId = User.GetUserId();
 
-    //     var hasAccess = await groupsService.IsUserInGroupAsync(userId, groupId);
-    //     if (!hasAccess)
-    //     {
-    //         return Forbid();
-    //     }
+        var isAdmin = await groupsService.IsUserAdminAsync(userId, groupId);
+        if (!isAdmin)
+            return Forbid();
 
-    //     // TODO: Validate edit permissions (e.g., only the creator can edit)
-    //     // TODO: Call the service to update the data
+        var updatedGroup = await groupsService.UpdateGroupAsync(request, groupId);
 
-    //     throw new NotImplementedException();
-    // }
+        if (updatedGroup == null)
+        {
+            return NotFound();
+        }
+
+        // Return 200 OK with the updated group to sync the frontend state immediately
+        return Ok(updatedGroup);
+    }
 
     /// <summary>
     /// POST /api/groups/join
@@ -95,4 +98,22 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
 
     //     throw new NotImplementedException();
     // }
+    [HttpPut("{id}/admin")]
+    public async Task<IActionResult> TransferAdmin(int id, [FromBody] TransferAdminRequest request)
+    {
+        var userId = User.GetUserId();
+
+        var isAdmin = await groupsService.IsUserAdminAsync(userId, id);
+        if (!isAdmin)
+            return Forbid();
+
+        var success = await groupsService.TransferAdminAsync(id, request.NewAdminId);
+
+        // Return 400 Bad Request indicating the specific business rule violation
+        if (!success)
+            return BadRequest("Target user must be an active member of the group to become admin.");
+
+        // Return 204 No Content as the action succeeded and there's no data to return
+        return NoContent();
+    }
 }
