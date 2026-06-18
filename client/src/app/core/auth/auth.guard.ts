@@ -1,15 +1,22 @@
-// auth.guard.ts
 import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { map } from 'rxjs';
 import { AuthService } from './auth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    if (authService.isAuthenticated()) {
-        return true;
-    }
+    return authService.verifySession().pipe(
+        map(isAuthenticated => {
+            if (isAuthenticated) {
+                return true;
+            }
 
-    return router.parseUrl('/login');
+            // Create a UrlTree to redirect to login, preserving the attempted URL
+            return router.createUrlTree(['/auth/login'], {
+                queryParams: { returnUrl: state.url }
+            });
+        })
+    );
 };

@@ -106,7 +106,6 @@ public class AuthController(
     }
 
     [HttpPost("refresh")]
-    [EnableRateLimiting("AuthLimiter")]
     public async Task<ActionResult<AuthResponseDto>> Refresh(RefreshTokenRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))

@@ -1,8 +1,8 @@
 import { Injectable, signal, inject, computed, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { finalize, tap } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { catchError, finalize, map, tap } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
 
 import { AuthResponse } from '../../features/auth/models/auth-response.interface';
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
@@ -26,8 +26,6 @@ export class AuthService {
   private readonly REFRESH_TOKEN_KEY = 'refresh_token'
 
   constructor() {
-    this.checkInitialState();
-
     // Listen for changes in localStorage from other tabs
     window.addEventListener('storage', (event) => {
       console.log('Storage event intercepted. Key:', event.key, 'New Value:', event.newValue);
@@ -41,17 +39,43 @@ export class AuthService {
     });
   }
 
-  private checkInitialState(): void {
-    const token = this.getAccessToken();
+  // Verify the current session state. Returns an Observable of boolean.
+  public verifySession(): Observable<boolean> {
+    // 1. If we already have a user in memory, session is valid
+    if (this.currentUser() !== null) {
+      return of(true);
+    }
 
+    const token = this.getAccessToken();
+    const refresh = this.getRefreshToken();
+
+    // 2. If we have a valid token in storage, restore state immediately
     if (token && !this.isTokenExpired(token)) {
-      // Decode the JWT to rebuild the user state on page reload
       const user = this.extractUserFromToken(token);
       this.currentUser.set(user);
-    } else {
-      this.clearStorage();
-      this.currentUser.set(null);
+      return of(true);
     }
+
+    // 3. Token is expired or missing, but we have a refresh token. Try to refresh.
+    if (refresh) {
+      return this.refreshToken().pipe(
+        map(response => {
+          // Token refreshed successfully, update state
+          const user = this.extractUserFromToken(response.accessToken);
+          this.currentUser.set(user);
+          return true;
+        }),
+        catchError(() => {
+          // Refresh failed, clean up
+          this.clearStorage();
+          return of(false);
+        })
+      );
+    }
+
+    // 4. No tokens available
+    this.clearStorage();
+    return of(false);
   }
 
   public login(credentials: LoginRequest) {
