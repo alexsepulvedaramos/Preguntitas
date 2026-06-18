@@ -56,6 +56,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

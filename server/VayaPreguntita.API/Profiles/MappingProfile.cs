@@ -3,6 +3,7 @@ namespace VayaPreguntita.API.Profiles;
 using System.Linq;
 using AutoMapper;
 using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Groups;
 using VayaPreguntita.API.Entities;
 
 public class MappingProfile : Profile
@@ -10,6 +11,9 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         // --- Input Mappings (DTO to Entity) ---
+
+        // Groups
+        CreateMap<Group, GroupResponse>();
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))
