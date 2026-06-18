@@ -54,15 +54,11 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
         return mapper.Map<GroupResponse>(newGroup);
     }
 
-    public async Task<GroupResponse> GetGroupAsync(int groupId)
+    public async Task<GroupResponse?> GetGroupAsync(int groupId)
     {
-        // Fetch the specific group where the user is part of the Users list
-        var group =
-            await context.Groups.FirstOrDefaultAsync(g => g.Id == groupId)
-            ?? throw new KeyNotFoundException("Group not found.");
+        var group = await context.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
 
-        // Map the Group entity to a GroupResponse DTO
-        return mapper.Map<GroupResponse>(group);
+        return group == null ? null : mapper.Map<GroupResponse>(group);
     }
 
     // Helper method to generate a short alphanumeric string

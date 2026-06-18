@@ -49,17 +49,13 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var hasAccess = await groupsService.IsUserInGroupAsync(userId, groupId);
-        if (!hasAccess)
-        {
-            return Forbid();
-        }
-
         var group = await groupsService.GetGroupAsync(groupId);
         if (group == null)
-        {
             return NotFound();
-        }
+
+        var hasAccess = await groupsService.IsUserInGroupAsync(userId, groupId);
+        if (!hasAccess)
+            return Forbid();
 
         return Ok(group);
     }
