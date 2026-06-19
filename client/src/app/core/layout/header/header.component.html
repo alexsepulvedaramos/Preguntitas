@@ -1,21 +1,35 @@
-<header
-  class="bg-card border-b border-border px-4 py-3 flex items-center justify-between"
->
-  <span class="text-xl font-display italic tracking-wider text-foreground">
-    Vaya <span class="text-accent">Preguntita</span>
-  </span>
+<header class="bg-card border-b border-border px-4 py-3 flex items-center">
+  <div class="flex-1 flex justify-center">
+    <span class="text-2xl font-display italic tracking-wider text-foreground">
+      Vaya <span class="text-primary">Preguntita</span>
+    </span>
+  </div>
 
-  <button
-    hlmBtn
-    size="icon"
-    variant="ghost"
-    class="rounded-full hover:bg-muted"
-    aria-label="User profile"
-  >
-    <hlm-avatar size="lg">
-      <span hlmAvatarFallback class="bg-accent text-accent-foreground font-bold"
-        >U</span
-      >
-    </hlm-avatar>
-  </button>
+  <div class="flex items-center gap-1">
+    <button
+      hlmBtn
+      variant="ghost"
+      class="w-9 h-9 p-0"
+      (click)="themeService.toggleTheme()"
+    >
+      <ng-icon hlm name="tablerCircleHalf2" class="w-5 h-5 text-foreground" />
+      <span class="sr-only">Toggle theme</span>
+    </button>
+
+    <button
+      hlmBtn
+      size="icon"
+      variant="ghost"
+      class="rounded-full hover:bg-muted"
+      aria-label="User profile"
+    >
+      <hlm-avatar size="lg">
+        <span
+          hlmAvatarFallback
+          class="bg-primary text-primary-foreground font-bold"
+          >U</span
+        >
+      </hlm-avatar>
+    </button>
+  </div>
 </header>
