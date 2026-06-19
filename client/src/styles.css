@@ -1,74 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap');
+
 @import 'tailwindcss';
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
 
-/* 1. Dile a Tailwind dónde están tus componentes de Spartan */
 @source "./app/shared/ui";
 
-/* 2. Definición de variables base (Lo que ya tenías) */
 @layer base {
   :root {
     color-scheme: light;
+
+    /* Tipografía */
     --font-sans:
-      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-      Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-      'Segoe UI Symbol', 'Noto Color Emoji';
-    --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.129 0.042 264.695);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.129 0.042 264.695);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.129 0.042 264.695);
-    --primary: oklch(0.208 0.042 265.755);
-    --primary-foreground: oklch(0.984 0.003 247.858);
-    --secondary: oklch(0.968 0.007 247.896);
-    --secondary-foreground: oklch(0.208 0.042 265.755);
-    --muted: oklch(0.968 0.007 247.896);
-    --muted-foreground: oklch(0.554 0.046 257.417);
-    --accent: oklch(0.968 0.007 247.896);
-    --accent-foreground: oklch(0.208 0.042 265.755);
+      'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --radius: 1.125rem;
+
+    /* ── Fondos ── */
+    --background: oklch(0.97 0.008 140); /* sage 50 — blanco con alma verde */
+    --card: oklch(0.99 0.004 140);
+    --popover: oklch(0.99 0.004 140);
+    --sidebar: oklch(0.93 0.05 140);
+
+    /* ── Texto ── */
+    --foreground: oklch(0.2 0.04 155); /* verde noche */
+    --card-foreground: oklch(0.2 0.04 155);
+    --popover-foreground: oklch(0.2 0.04 155);
+    --sidebar-foreground: oklch(0.25 0.06 150);
+    --muted-foreground: oklch(0.5 0.06 145);
+
+    /* ── Superficies neutras ── */
+    --muted: oklch(0.93 0.05 140);
+    --secondary: oklch(0.9 0.06 140);
+    --secondary-foreground: oklch(0.3 0.09 150);
+
+    /* ── Sage — identidad y superficies ── */
+    --primary: oklch(0.5 0.13 148); /* sage 600 */
+    --primary-foreground: oklch(0.97 0.008 140);
+
+    /* ── Lima — acción principal ── */
+    --accent: oklch(0.83 0.22 128); /* lima 500 */
+    --accent-foreground: oklch(0.17 0.05 145); /* texto oscuro sobre lima */
+    --accent-hover: oklch(0.92 0.18 128); /* lima 300 — hover */
+
+    /* ── Warm sand — apoyo, badges secundarios ── */
+    --sand: oklch(0.92 0.08 85);
+    --sand-foreground: oklch(0.42 0.1 70);
+
+    /* ── Destructivo ── */
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.929 0.013 255.508);
-    --input: oklch(0.929 0.013 255.508);
-    --ring: oklch(0.704 0.04 256.788);
-    --sidebar: oklch(0.984 0.003 247.858);
-    --sidebar-foreground: oklch(0.129 0.042 264.695);
-    --sidebar-primary: oklch(0.208 0.042 265.755);
-    --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-accent: oklch(0.968 0.007 247.896);
-    --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-    --sidebar-border: oklch(0.929 0.013 255.508);
-    --sidebar-ring: oklch(0.704 0.04 256.788);
+
+    /* ── Bordes e inputs ── */
+    --border: oklch(0.88 0.04 140);
+    --input: oklch(0.88 0.04 140);
+    --ring: oklch(0.83 0.22 128); /* lima — focus ring */
+
+    /* ── Sidebar ── */
+    --sidebar-primary: oklch(0.5 0.13 148);
+    --sidebar-primary-foreground: oklch(0.97 0.008 140);
+    --sidebar-accent: oklch(0.9 0.06 140);
+    --sidebar-accent-foreground: oklch(0.3 0.09 150);
+    --sidebar-border: oklch(0.88 0.04 140);
+    --sidebar-ring: oklch(0.83 0.22 128);
   }
 
   :root.dark {
     color-scheme: dark;
-    --background: oklch(0.129 0.042 264.695);
-    --foreground: oklch(0.984 0.003 247.858);
-    --card: oklch(0.208 0.042 265.755);
-    --card-foreground: oklch(0.984 0.003 247.858);
-    --popover: oklch(0.208 0.042 265.755);
-    --popover-foreground: oklch(0.984 0.003 247.858);
-    --primary: oklch(0.929 0.013 255.508);
-    --primary-foreground: oklch(0.208 0.042 265.755);
-    --secondary: oklch(0.279 0.041 260.031);
-    --secondary-foreground: oklch(0.984 0.003 247.858);
-    --muted: oklch(0.279 0.041 260.031);
-    --muted-foreground: oklch(0.704 0.04 256.788);
-    --accent: oklch(0.279 0.041 260.031);
-    --accent-foreground: oklch(0.984 0.003 247.858);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.551 0.027 264.364);
-    --sidebar: oklch(0.208 0.042 265.755);
-    --sidebar-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-primary: oklch(0.984 0.003 247.858);
-    --sidebar-primary-foreground: oklch(0.208 0.042 265.755);
-    --sidebar-accent: oklch(0.279 0.041 260.031);
-    --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.551 0.027 264.364);
+
+    /* ── Fondos ── */
+    --background: oklch(0.17 0.025 155); /* verde noche profundo */
+    --card: oklch(0.23 0.035 155);
+    --popover: oklch(0.23 0.035 155);
+    --sidebar: oklch(0.2 0.03 155);
+
+    /* ── Texto ── */
+    --foreground: oklch(0.96 0.008 100);
+    --card-foreground: oklch(0.96 0.008 100);
+    --popover-foreground: oklch(0.96 0.008 100);
+    --sidebar-foreground: oklch(0.85 0.05 140);
+    --muted-foreground: oklch(0.62 0.07 145);
+
+    /* ── Superficies neutras ── */
+    --muted: oklch(0.25 0.035 155);
+    --secondary: oklch(0.28 0.04 155);
+    --secondary-foreground: oklch(0.85 0.06 140);
+
+    /* ── Sage — identidad y superficies ── */
+    --primary: oklch(0.8 0.1 145); /* sage más claro en oscuro */
+    --primary-foreground: oklch(0.17 0.025 155);
+
+    /* ── Lima — acción principal ── */
+    --accent: oklch(0.83 0.22 128); /* mismo lima, brilla solo */
+    --accent-foreground: oklch(0.17 0.05 145);
+    --accent-hover: oklch(0.75 0.2 130);
+
+    /* ── Warm sand — apoyo ── */
+    --sand: oklch(0.3 0.06 80);
+    --sand-foreground: oklch(0.85 0.08 85);
+
+    /* ── Destructivo ── */
+    --destructive: oklch(0.65 0.22 27);
+
+    /* ── Bordes e inputs ── */
+    --border: oklch(0.32 0.04 150);
+    --input: oklch(0.32 0.04 150);
+    --ring: oklch(0.83 0.22 128);
+
+    /* ── Sidebar ── */
+    --sidebar-primary: oklch(0.83 0.22 128);
+    --sidebar-primary-foreground: oklch(0.17 0.05 145);
+    --sidebar-accent: oklch(0.28 0.04 155);
+    --sidebar-accent-foreground: oklch(0.85 0.06 140);
+    --sidebar-border: oklch(0.3 0.04 150);
+    --sidebar-ring: oklch(0.83 0.22 128);
   }
 
   * {
@@ -80,24 +123,53 @@
 }
 
 @theme {
+  /* Colores base */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
+  /* Sage — identidad */
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
+  /* Lima — acción */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+
+  /* Neutros */
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+
+  /* Warm sand — apoyo */
+  --color-sand: var(--sand);
+  --color-sand-foreground: var(--sand-foreground);
+
+  /* Sistema */
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius: var(--radius);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Tipografía */
+  --font-sans: var(--font-sans);
+  --font-display: 'DM Serif Display', Georgia, serif;
+
+  /* Radio */
+  --radius-default: var(--radius);
 }

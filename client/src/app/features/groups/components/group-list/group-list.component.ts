@@ -1,9 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideUser, lucidePlus } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
+
+import { GroupsService } from '../../services/groups.service';
+import { GroupResponse } from '../../models/group.models';
 
 @Component({
   selector: 'app-group-list',
@@ -17,10 +21,10 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
   styleUrl: "./group-list.component.css"
 })
 export class GroupListComponent {
-  groups = [
-    { id: 1, name: 'Work', members: 8 },
-    { id: 2, name: 'Family', members: 5 },
-    { id: 3, name: 'Friends', members: 12 },
-    { id: 4, name: 'Project X', members: 3 },
-  ];
+  private groupsService = inject(GroupsService);
+
+  public groups = toSignal(
+    this.groupsService.getUserGroups(),
+    { initialValue: [] as GroupResponse[] }
+  );
 }

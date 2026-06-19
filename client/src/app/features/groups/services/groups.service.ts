@@ -14,7 +14,7 @@ import { environment } from '../../../../environments/environment';
     providedIn: 'root'
 })
 export class GroupsService {
-    private readonly baseUrl = `${environment.apiUrl}/api/groups`;
+    private readonly baseUrl = `${environment.apiUrl}/groups`;
 
     constructor(private http: HttpClient) { }
 

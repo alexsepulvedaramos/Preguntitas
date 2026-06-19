@@ -1,17 +1,21 @@
 <header
-  class="bg-slate-900 border-t border-slate-950 border-b px-4 py-3 flex items-center justify-between"
+  class="bg-card border-b border-border px-4 py-3 flex items-center justify-between"
 >
-  <span class="text-lg font-semibold tracking-tight">MyApp</span>
+  <span class="text-xl font-display italic tracking-wider text-foreground">
+    Vaya <span class="text-accent">Preguntita</span>
+  </span>
 
   <button
     hlmBtn
     size="icon"
     variant="ghost"
-    class="rounded-full"
+    class="rounded-full hover:bg-muted"
     aria-label="User profile"
   >
     <hlm-avatar size="lg">
-      <span hlmAvatarFallback>U</span>
+      <span hlmAvatarFallback class="bg-accent text-accent-foreground font-bold"
+        >U</span
+      >
     </hlm-avatar>
   </button>
 </header>

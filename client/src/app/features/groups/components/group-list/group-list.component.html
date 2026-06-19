@@ -1,29 +1,54 @@
 <div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
   <section>
-    <h2 class="text-sm font-medium text-muted-foreground mb-3">Your groups</h2>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-primary mb-3">
+      Your groups
+    </h2>
 
-    <div class="grid grid-cols-2 gap-3">
-      @for (group of groups; track group.id) {
+    <div class="flex flex-col gap-3">
+      @for (group of groups(); track group.id) {
         <hlm-card
           size="sm"
-          class="cursor-pointer hover:ring-primary/30 transition-all"
+          class="cursor-pointer border-border hover:border-accent transition-colors duration-150"
         >
           <hlm-card-header>
-            <h3 hlmCardTitle>{{ group.name }}</h3>
-            <p hlmCardDescription>{{ group.members }} members</p>
+            <h3 hlmCardTitle class="font-bold text-foreground">
+              {{ group.name }}
+            </h3>
+            <p hlmCardDescription class="text-muted-foreground text-sm">
+              {{ group.description }}
+            </p>
+            <p hlmCardDescription class="text-muted-foreground/60 text-xs">
+              Created by {{ group.creatorUsername }}
+            </p>
           </hlm-card-header>
         </hlm-card>
+      } @empty {
+        <div class="text-center py-8">
+          <p class="font-display italic text-lg text-primary/70">
+            You don't have any groups yet
+          </p>
+          <p class="text-sm text-muted-foreground mt-1">
+            Create one or join a friend's group
+          </p>
+        </div>
       }
     </div>
   </section>
 
-  <section class="flex flex-col gap-3">
-    <button hlmBtn class="w-full gap-2">
+  <section class="flex flex-col gap-2">
+    <button
+      hlmBtn
+      class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover font-bold rounded-full"
+    >
       <ng-icon hlm name="lucidePlus" size="sm" />
       Create new group
     </button>
 
-    <button hlmBtn variant="link" class="w-full text-muted-foreground">
+    <button
+      hlmBtn
+      variant="link"
+      class="w-full text-primary/70 hover:text-primary underline underline-offset-4"
+    >
       Join an existing group
     </button>
   </section>
