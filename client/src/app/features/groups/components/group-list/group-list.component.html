@@ -36,20 +36,8 @@
   </section>
 
   <section class="flex flex-col gap-2">
-    <button
-      hlmBtn
-      class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover font-bold rounded-full"
-    >
-      <ng-icon hlm name="lucidePlus" size="sm" />
-      Create new group
-    </button>
-
-    <button
-      hlmBtn
-      variant="link"
-      class="w-full text-primary/70 hover:text-primary underline underline-offset-4"
-    >
-      Join an existing group
-    </button>
+    <app-create-group-dialog></app-create-group-dialog>
+    <span class="text-center text-sm text-muted-foreground"> or </span>
+    <app-join-group-dialog></app-join-group-dialog>
   </section>
 </div>

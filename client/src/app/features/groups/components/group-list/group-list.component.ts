@@ -1,30 +1,28 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideUser, lucidePlus } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 
 import { GroupsService } from '../../services/groups.service';
-import { GroupResponse } from '../../models/group.models';
+import { CreateGroupDialogComponent } from "../create-group-dialog/create-group-dialog.component";
+import { JoinGroupDialogComponent } from '../join-group-dialog/join-group-dialog.component';
 
 @Component({
   selector: 'app-group-list',
   imports: [
     HlmButtonImports,
     HlmCardImports,
-    NgIcon
+    CreateGroupDialogComponent,
+    JoinGroupDialogComponent
   ],
-  providers: [provideIcons({ lucideUser, lucidePlus })],
   templateUrl: "./group-list.component.html",
   styleUrl: "./group-list.component.css"
 })
 export class GroupListComponent {
   private groupsService = inject(GroupsService);
 
-  public groups = toSignal(
-    this.groupsService.getUserGroups(),
-    { initialValue: [] as GroupResponse[] }
-  );
+  public readonly groups = this.groupsService.groups;
+
+  ngOnInit() {
+    this.groupsService.loadGroups();
+  }
 }
