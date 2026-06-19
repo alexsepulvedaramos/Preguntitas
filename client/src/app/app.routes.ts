@@ -5,7 +5,7 @@ import { guestGuard } from './core/auth/guest.guard';
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'login',
+        redirectTo: 'groups',
         pathMatch: 'full'
     },
     {
@@ -17,7 +17,8 @@ export const routes: Routes = [
                 path: 'register',
                 title: 'Register',
                 loadComponent: () => import('./features/auth/components/register/register.component').then(m => m.RegisterComponent)
-            }, {
+            },
+            {
                 path: 'login',
                 title: 'Login',
                 loadComponent: () => import('./features/auth/components/login/login.component').then(m => m.LoginComponent)
@@ -30,17 +31,27 @@ export const routes: Routes = [
         ]
     },
     {
-        path: 'questions',
-        loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent),
-        canActivate: [authGuard]
+        path: '',
+        loadComponent: () => import('./core/layout/main-layout.component').then(m => m.MainLayoutComponent),
+        canActivateChild: [authGuard],
+        children: [
+            {
+                path: 'groups',
+                loadComponent: () => import('./features/groups/components/group-list/group-list.component').then(m => m.GroupListComponent),
+            },
+            // {
+            //     path: 'questions',
+            //     loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent),
+            // },
+            // {
+            //     path: 'questions/:groupId',
+            //     loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent)
+            // }
+        ]
     },
-    // {
-    // path: 'questions/:groupId',
-    // loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent)
-    // },
     {
+        // Fallback
         path: '**',
-        redirectTo: 'auth/login'
+        redirectTo: 'groups'
     }
-    // TODO: Add Home page which will explain how the app works.
 ];

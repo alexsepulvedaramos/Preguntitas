@@ -11,7 +11,7 @@ export const guestGuard: CanActivateFn = () => {
         map(isAuthenticated => {
             if (isAuthenticated) {
                 // Session is valid or successfully refreshed, redirect to the main app
-                return router.createUrlTree(['/questions']);
+                return router.createUrlTree(['/groups']);
             }
 
             // No valid session and refresh failed, allow access to public routes

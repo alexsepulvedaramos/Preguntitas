@@ -88,16 +88,24 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     /// POST /api/groups/join
     /// Allows the authenticated user to join a group using an invitation code.
     /// </summary>
-    // [HttpPost("join")]
-    // public async Task<IActionResult> JoinGroup([FromBody] JoinGroupRequest request)
-    // {
-    //     var userId = User.GetUserId();
+    [HttpPost("join")]
+    public async Task<IActionResult> JoinGroup([FromBody] JoinGroupRequest request)
+    {
+        var userId = User.GetUserId();
 
-    //     // TODO: Call the service to find the group by request.InvitationCode
-    //     // TODO: Add the user to the group if the code is valid
+        var hasJoined = await groupsService.JoinGroupAsync(userId, request.InvitationCode);
+        if (!hasJoined)
+            return BadRequest(new { Message = "Invalid invitation code or group not found." });
 
-    //     throw new NotImplementedException();
-    // }
+        return Ok();
+
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// PUT /api/groups/{id}/admin
+    /// Transfers the administrator role to another user in the group.
+    /// </summary>
     [HttpPut("{id}/admin")]
     public async Task<IActionResult> TransferAdmin(int id, [FromBody] TransferAdminRequest request)
     {

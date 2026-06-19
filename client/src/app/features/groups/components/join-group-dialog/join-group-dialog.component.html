@@ -1,0 +1,64 @@
+<hlm-dialog>
+  <button
+    hlmDialogTrigger
+    hlmBtn
+    variant="link"
+    class="w-full text-primary hover:text-primary underline underline-offset-4"
+  >
+    Join an existing group
+  </button>
+
+  <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-2xl max-w-[95vw]">
+    <hlm-dialog-header>
+      <h3
+        hlmDialogTitle
+        class="font-display text-xl italic tracking-wider text-foreground"
+      >
+        Join group
+      </h3>
+
+      <p hlmDialogDescription>
+        Enter the invitation code to join an existing group.
+      </p>
+    </hlm-dialog-header>
+
+    <form [formGroup]="form" (ngSubmit)="joinGroup(ctx)">
+      <hlm-field-group class="py-4">
+        <hlm-field>
+          <label hlmFieldLabel for="invitationCode"> Invitation code </label>
+
+          <input
+            hlmInput
+            id="invitationCode"
+            placeholder="e.g. ABC123"
+            formControlName="invitationCode"
+          />
+          @if (form.controls.invitationCode.hasError('serverError')) {
+            <hlm-field-error>
+              {{ form.controls.invitationCode.getError('serverError') }}
+            </hlm-field-error>
+          } @else if (
+            form.controls.invitationCode.invalid &&
+            (form.controls.invitationCode.dirty ||
+              form.controls.invitationCode.touched)
+          ) {
+            <hlm-field-error>
+              Please enter a valid invitation code. For example, ABC123.
+            </hlm-field-error>
+          }
+        </hlm-field>
+      </hlm-field-group>
+
+      <hlm-dialog-footer>
+        <button
+          hlmBtn
+          variant="default"
+          type="submit"
+          [disabled]="form.invalid"
+        >
+          Join group
+        </button>
+      </hlm-dialog-footer>
+    </form>
+  </hlm-dialog-content>
+</hlm-dialog>

@@ -51,7 +51,7 @@ export class RegisterComponent {
 
       this.authService.register(credentials).subscribe({
         next: () => {
-          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/questions';
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/groups';
           this.router.navigateByUrl(returnUrl);
         },
         error: (err) => {

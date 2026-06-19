@@ -21,4 +21,7 @@ public interface IGroupsService
 
     // Transfers admin rights to another user
     Task<bool> TransferAdminAsync(int groupId, int newAdminId);
+
+    // Attempts to add a user to a group using an invitation code.
+    Task<bool> JoinGroupAsync(int userId, string invitationCode);
 }

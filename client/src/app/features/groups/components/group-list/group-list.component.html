@@ -1,0 +1,43 @@
+<div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
+  <section>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-primary mb-3">
+      Your groups
+    </h2>
+
+    <div class="flex flex-col gap-3">
+      @for (group of groups(); track group.id) {
+        <hlm-card
+          size="sm"
+          class="cursor-pointer border-border hover:border-accent transition-colors duration-150"
+        >
+          <hlm-card-header>
+            <h3 hlmCardTitle class="font-bold text-foreground">
+              {{ group.name }}
+            </h3>
+            <p hlmCardDescription class="text-muted-foreground text-sm">
+              {{ group.description }}
+            </p>
+            <p hlmCardDescription class="text-muted-foreground/60 text-xs">
+              Created by {{ group.creatorUsername }}
+            </p>
+          </hlm-card-header>
+        </hlm-card>
+      } @empty {
+        <div class="text-center py-8">
+          <p class="font-display italic text-lg text-primary/70">
+            You don't have any groups yet
+          </p>
+          <p class="text-sm text-muted-foreground mt-1">
+            Create one or join a friend's group
+          </p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-2">
+    <app-create-group-dialog></app-create-group-dialog>
+    <span class="text-center text-sm text-muted-foreground"> or </span>
+    <app-join-group-dialog></app-join-group-dialog>
+  </section>
+</div>
