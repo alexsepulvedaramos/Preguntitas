@@ -110,6 +110,31 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
         return true;
     }
 
+    public async Task<bool> JoinGroupAsync(int userId, string invitationCode)
+    {
+        var group = await context
+            .Groups.Include(g => g.Users)
+            .FirstOrDefaultAsync(g => g.InvitationCode == invitationCode);
+
+        if (group == null)
+            return false;
+
+        // return true if the user is already a member of the group
+        if (group.Users.Any(u => u.Id == userId))
+            return true;
+
+        // Find the user in the database
+        var newMember = await context.Users.FindAsync(userId);
+        if (newMember == null)
+            return false;
+
+        // Add the new member and save changes to the database
+        group.Users.Add(newMember);
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+
     // Helper method to generate a short alphanumeric string
     private static string GenerateRandomCode(int length)
     {
