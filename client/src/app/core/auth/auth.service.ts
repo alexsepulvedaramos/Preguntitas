@@ -127,12 +127,14 @@ export class AuthService {
         finalize(() => {
           this.clearStorage();
           this.currentUser.set(null);
+          this.router.navigate(['/auth/login']);
         })
       ).subscribe();
     } else {
       // If there is no token, just clear the local state
       this.clearStorage();
       this.currentUser.set(null);
+      this.router.navigate(['/auth/login']);
     }
   }
 
