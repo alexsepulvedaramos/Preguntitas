@@ -29,6 +29,7 @@
               hlmFieldDescription
               class="ml-auto text-sm underline-offset-4 hover:underline"
               routerLink="."
+              (mousedown)="$event.preventDefault()"
             >
               Forgot password?
             </a>
@@ -53,7 +54,12 @@
           </button>
           <p hlmFieldDescription class="text-center">
             Don't have an account?
-            <a routerLink="/auth/register">Register</a>
+            <a
+              routerLink="/auth/register"
+              (mousedown)="$event.preventDefault()"
+            >
+              Register
+            </a>
           </p>
         </hlm-field>
       </hlm-field-group>
