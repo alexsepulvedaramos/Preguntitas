@@ -1,0 +1,138 @@
+<hlm-card
+  size="sm"
+  class="cursor-pointer border hover:border-accent transition-colors duration-150"
+>
+  <hlm-card-header class="flex flex-row items-center justify-between gap-4">
+    <div class="min-w-0 flex-1">
+      <h3 hlmCardTitle class="font-bold text-foreground">
+        {{ group().name }}
+      </h3>
+      <p hlmCardDescription class="truncate text-sm text-muted-foreground">
+        {{ group().description }}
+      </p>
+      <p hlmCardDescription class="text-xs text-muted-foreground/60">
+        Created by {{ group().creatorUsername }}
+      </p>
+    </div>
+
+    <hlm-dialog (closed)="resetCopiedStates()">
+      <button
+        hlmDialogTrigger
+        hlmBtn
+        variant="outline"
+        size="sm"
+        class="shrink-0 bg-sand"
+        (click)="$event.stopPropagation()"
+      >
+        <ng-icon hlm name="lucideUserPlus" />
+        Invite
+      </button>
+
+      <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
+        <hlm-dialog-header>
+          <h3 hlmDialogTitle class="font-display text-xl text-foreground">
+            Invite to {{ group().name }}
+          </h3>
+          <p hlmDialogDescription>
+            Use the invitation code or the direct link to add members.
+          </p>
+        </hlm-dialog-header>
+
+        <div class="flex flex-col gap-2 py-4">
+          <div class="flex flex-col gap-1.5">
+            <label
+              class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+            >
+              Invitation Code
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                hlmInput
+                readonly
+                [value]="group().invitationCode || ''"
+                class="flex-1 font-mono text-lg tracking-widest text-center font-bold text-foreground bg-muted/30 focus-visible:ring-0"
+              />
+              <button
+                hlmBtn
+                variant="secondary"
+                size="icon"
+                (click)="copyCodeToClipboard()"
+                title="Copy code"
+              >
+                @if (isCodeCopied()) {
+                  <ng-icon hlm name="lucideCheck" class="text-green-500" />
+                } @else {
+                  <ng-icon hlm name="lucideCopy" />
+                }
+              </button>
+            </div>
+            <div class="h-4 text-xs text-center">
+              @if (isCodeCopied()) {
+                <span class="text-green-500 font-medium"
+                  >Code copied to clipboard!</span
+                >
+              }
+            </div>
+          </div>
+
+          <div class="flex items-center my-1">
+            <div class="flex-1 border-t border-border"></div>
+            <span
+              class="px-3 text-xs font-semibold text-muted-foreground/70 uppercase"
+              >o</span
+            >
+            <div class="flex-1 border-t border-border"></div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label
+              class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+            >
+              Link
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                hlmInput
+                readonly
+                [value]="getInviteLink()"
+                class="flex-1 font-mono text-sm text-muted-foreground focus-visible:ring-0"
+              />
+              <button
+                hlmBtn
+                variant="secondary"
+                size="icon"
+                (click)="copyLinkToClipboard()"
+                title="Copy link"
+              >
+                @if (isLinkCopied()) {
+                  <ng-icon hlm name="lucideCheck" class="text-green-500" />
+                } @else {
+                  <ng-icon hlm name="lucideCopy" />
+                }
+              </button>
+            </div>
+            <div class="h-4 text-xs text-center">
+              @if (isLinkCopied()) {
+                <span class="text-green-500 font-medium"
+                  >Link copied to clipboard!</span
+                >
+              }
+            </div>
+          </div>
+        </div>
+
+        <hlm-dialog-footer>
+          <button
+            hlmBtn
+            variant="default"
+            class="w-full gap-2"
+            (click)="shareWithNativeApi()"
+          >
+            <ng-icon hlm name="lucideShare2" />
+            Share options
+          </button>
+        </hlm-dialog-footer>
+      </hlm-dialog-content>
+    </hlm-dialog>
+  </hlm-card-header>
+</hlm-card>

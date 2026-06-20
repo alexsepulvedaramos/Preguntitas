@@ -6,22 +6,7 @@
 
     <div class="flex flex-col gap-3">
       @for (group of groups(); track group.id) {
-        <hlm-card
-          size="sm"
-          class="cursor-pointer border-border hover:border-accent transition-colors duration-150"
-        >
-          <hlm-card-header>
-            <h3 hlmCardTitle class="font-bold text-foreground">
-              {{ group.name }}
-            </h3>
-            <p hlmCardDescription class="text-muted-foreground text-sm">
-              {{ group.description }}
-            </p>
-            <p hlmCardDescription class="text-muted-foreground/60 text-xs">
-              Created by {{ group.creatorUsername }}
-            </p>
-          </hlm-card-header>
-        </hlm-card>
+        <app-group-card [group]="group"></app-group-card>
       } @empty {
         <div class="text-center py-8">
           <p class="font-display italic text-lg text-primary/70">

@@ -39,6 +39,7 @@
 
     /* ── Lima — acción principal ── */
     --accent: oklch(0.83 0.22 128); /* lima 500 */
+    --accent-text: oklch(0.5 0.13 148);
     --accent-foreground: oklch(0.17 0.05 145); /* texto oscuro sobre lima */
     --accent-hover: oklch(0.92 0.18 128); /* lima 300 — hover */
 
@@ -90,6 +91,7 @@
 
     /* ── Lima — acción principal ── */
     --accent: oklch(0.83 0.22 128); /* mismo lima, brilla solo */
+    --accent-text: oklch(0.83 0.22 128);
     --accent-foreground: oklch(0.17 0.05 145);
     --accent-hover: oklch(0.75 0.2 130);
 
@@ -137,6 +139,7 @@
 
   /* Lima — acción */
   --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-hover: var(--accent-hover);
 

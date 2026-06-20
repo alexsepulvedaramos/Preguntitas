@@ -2,7 +2,7 @@
   <button
     hlmDialogTrigger
     hlmBtn
-    class="w-full gap-2 rounded-full bg-primary font-bold text-primary-foreground hover:bg-primary-hover"
+    class="w-full gap-2 rounded-full bg-accent-text font-bold text-primary-foreground hover:bg-primary-hover"
   >
     <ng-icon hlm name="lucidePlus" />
     Create new group
@@ -33,6 +33,14 @@
     </hlm-dialog-header>
 
     <form [formGroup]="form" (ngSubmit)="createGroup(ctx)">
+      <button
+        type="submit"
+        class="hidden"
+        (click)="
+          $event.preventDefault();
+          step() < CreateGroupStep.DailyTime ? next() : createGroup(ctx)
+        "
+      ></button>
       <hlm-field-group class="py-4">
         @if (step() === CreateGroupStep.Name) {
           <hlm-field>
