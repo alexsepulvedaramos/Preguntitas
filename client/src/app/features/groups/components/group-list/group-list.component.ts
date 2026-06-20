@@ -1,18 +1,16 @@
 import { Component, inject } from '@angular/core';
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmCardImports } from '@spartan-ng/helm/card';
 
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupDialogComponent } from "../create-group-dialog/create-group-dialog.component";
 import { JoinGroupDialogComponent } from '../join-group-dialog/join-group-dialog.component';
+import { GroupCardComponent } from "../group-card/group-card.component";
 
 @Component({
   selector: 'app-group-list',
   imports: [
-    HlmButtonImports,
-    HlmCardImports,
     CreateGroupDialogComponent,
-    JoinGroupDialogComponent
+    JoinGroupDialogComponent,
+    GroupCardComponent
   ],
   templateUrl: "./group-list.component.html",
   styleUrl: "./group-list.component.css"
