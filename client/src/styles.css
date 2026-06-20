@@ -62,6 +62,14 @@
     --sidebar-accent-foreground: oklch(0.3 0.09 150);
     --sidebar-border: oklch(0.88 0.04 140);
     --sidebar-ring: oklch(0.83 0.22 128);
+
+    /* ── Logo ── */
+    --logo-v: oklch(0.65 0.1 140); /* sage medio */
+    --logo-q: oklch(0.97 0.008 140); /* crema fondo */
+    --logo-dot-1: oklch(0.65 0.1 140);
+    --logo-dot-2: oklch(0.74 0.16 134);
+    --logo-dot-3: oklch(0.83 0.22 128);
+    --logo-bg: oklch(0.2 0.04 155);
   }
 
   :root.dark {
@@ -114,6 +122,14 @@
     --sidebar-accent-foreground: oklch(0.85 0.06 140);
     --sidebar-border: oklch(0.3 0.04 150);
     --sidebar-ring: oklch(0.83 0.22 128);
+
+    /* ── Logo ── */
+    --logo-v: oklch(0.7 0.1 145); /* sage claro */
+    --logo-q: oklch(0.92 0.06 100); /* crema */
+    --logo-dot-1: oklch(0.7 0.1 145);
+    --logo-dot-2: oklch(0.76 0.16 136);
+    --logo-dot-3: oklch(0.83 0.22 128);
+    --logo-bg: oklch(0.27 0.05 155);
   }
 
   * {
@@ -175,4 +191,12 @@
 
   /* Radio */
   --radius-default: var(--radius);
+
+  /* Logo */
+  --color-logo-v: var(--logo-v);
+  --color-logo-q: var(--logo-q);
+  --color-logo-dot-1: var(--logo-dot-1);
+  --color-logo-dot-2: var(--logo-dot-2);
+  --color-logo-dot-3: var(--logo-dot-3);
+  --color-logo-bg: var(--logo-bg);
 }

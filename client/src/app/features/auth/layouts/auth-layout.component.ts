@@ -1,21 +1,19 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { ThemeComponent } from "../../../core/layout/theme/theme.component";
+import { LogoWordmarkComponent } from "../../../core/layout/logo/logo-wordmark.component";
+import { HeaderComponent } from "../../../core/layout/header/header.component";
+
 @Component({
     selector: 'spartan-login-simple-reactive-form',
-    imports: [RouterOutlet],
+    imports: [RouterOutlet, ThemeComponent, LogoWordmarkComponent, HeaderComponent],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'block',
     },
     styleUrl: './auth-layout.component.css',
-    template: `
-		<div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-			<div class="w-full max-w-sm">
-				<router-outlet></router-outlet>
-			</div>
-		</div>
-	`,
+    templateUrl: './auth-layout.component.html'
 })
 export class AuthLayoutComponent { }

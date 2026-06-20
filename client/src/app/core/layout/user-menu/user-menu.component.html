@@ -1,0 +1,45 @@
+<hlm-drawer direction="right">
+  <button
+    hlmDrawerTrigger
+    hlmBtn
+    size="icon"
+    variant="ghost"
+    class="rounded-full hover:bg-muted w-9 h-9 p-0 flex items-center justify-center"
+    aria-label="User profile"
+  >
+    <ng-icon hlm name="lucideCircleUserRound" class="size-6! text-foreground" />
+  </button>
+
+  <hlm-drawer-overlay hlm />
+
+  <hlm-drawer-content *hlmDrawerPortal="let ctx" class="w-full sm:w-100">
+    <button
+      hlmBtn
+      variant="outline"
+      size="icon"
+      class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      (click)="ctx.close()"
+    >
+      <ng-icon hlm name="lucideX" class="size-4" />
+      <span class="sr-only">Close</span>
+    </button>
+    <hlm-drawer-header>
+      <h3 hlmDrawerTitle class="font-display text-xl">Profile</h3>
+      <p hlmDrawerDescription>Manage your account and settings.</p>
+    </hlm-drawer-header>
+
+    <div class="flex flex-col gap-4 p-4 mt-4">
+      <div class="flex-1"></div>
+
+      <button
+        hlmBtn
+        variant="destructive"
+        class="w-full gap-2"
+        (click)="logout(ctx)"
+      >
+        <ng-icon hlm name="lucideLogOut" />
+        Logout
+      </button>
+    </div>
+  </hlm-drawer-content>
+</hlm-drawer>
