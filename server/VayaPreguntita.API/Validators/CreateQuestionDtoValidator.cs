@@ -1,5 +1,5 @@
 using FluentValidation;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Enums;
 
 namespace VayaPreguntita.API.Validators;
@@ -11,10 +11,6 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
         RuleFor(question => question.Text).NotEmpty().MaximumLength(400);
 
         RuleFor(question => question.Type).IsInEnum();
-
-        RuleFor(question => question.CreatorId).GreaterThan(0);
-
-        RuleFor(question => question.GroupId).GreaterThan(0);
 
         RuleForEach(question => question.Options).SetValidator(new CreateOptionDtoValidator());
 

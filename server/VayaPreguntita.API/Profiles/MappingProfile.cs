@@ -2,8 +2,9 @@ namespace VayaPreguntita.API.Profiles;
 
 using System.Linq;
 using AutoMapper;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.DTOs.Groups;
+using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
 
 public class MappingProfile : Profile
@@ -19,6 +20,11 @@ public class MappingProfile : Profile
                 opt => opt.MapFrom(src => src.Creator.Username)
             );
 
+        CreateMap<GroupMember, GroupMemberDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.Username))
+            .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt));
+
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom<MetadataResolver>());
@@ -31,6 +37,8 @@ public class MappingProfile : Profile
         // --- Output Mappings (Entity to DTO) ---
 
         CreateMap<Option, OptionDto>();
+        CreateMap<Question, QuestionDto>();
+
         CreateMap<Question, QuestionToVoteDto>()
             .ForMember(
                 dest => dest.AllowNobody,
@@ -60,11 +68,7 @@ public class MappingProfile : Profile
                 dest => dest.TargetUserId,
                 opt => opt.MapFrom(src => src.Metadata.TargetUserId)
             )
-            .ForMember(
-                dest => dest.Teams,
-                opt =>
-                    opt.MapFrom(src => src.Metadata.Teams.Select(team => team.MemberIds).ToList())
-            );
+            .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.Metadata.Teams));
 
         // Basic user info mapping
         CreateMap<User, UserDto>();
@@ -87,6 +91,7 @@ public class MappingProfile : Profile
 
         // Mapping for the parent Result DTO
         CreateMap<Question, QuestionResultDto>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.Results, opt => opt.Ignore());
     }
 }
