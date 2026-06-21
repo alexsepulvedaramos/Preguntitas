@@ -98,8 +98,6 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
             return BadRequest(new { Message = "Invalid invitation code or group not found." });
 
         return Ok();
-
-        throw new NotImplementedException();
     }
 
     /// <summary>
