@@ -4,7 +4,7 @@ public class QuestionMetadata
 {
     // The Superlative
     public bool AllowNobody { get; set; }
-    public List<int> BlacklistedUserIds { get; set; } = new();
+    public List<int> BlacklistedUserIds { get; set; } = [];
 
     // The Scale
     public int? RangeMin { get; set; }
@@ -16,10 +16,5 @@ public class QuestionMetadata
     public int MaxSelections { get; set; } = 1;
 
     // The Deathmatch
-    public List<Team> Teams { get; set; } = new();
-}
-
-public class Team
-{
-    public List<int> MemberIds { get; set; } = new();
+    public List<List<int>> Teams { get; set; } = [];
 }

@@ -6,5 +6,4 @@ public class Option
     public string Text { get; set; } = string.Empty;
     public int QuestionId { get; set; }
     public Question Question { get; set; } = null!;
-    public ICollection<User> AssociatedUsers { get; set; } = [];
 }
