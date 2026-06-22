@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
 
 [Authorize]
@@ -51,7 +52,7 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
 
         var result = await questionsService.GetByDateAsync(
             groupId,
-            date ?? DateOnly.FromDateTime(DateTime.UtcNow)
+            date ?? DailyClock.Today()
         );
         if (result == null)
             return NotFound("No hay pregunta para esa fecha.");
