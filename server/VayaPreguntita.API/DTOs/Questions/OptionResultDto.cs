@@ -1,4 +1,6 @@
-namespace VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Auth;
+
+namespace VayaPreguntita.API.DTOs.Questions;
 
 // A tiny DTO just to show who voted, keeping emails and private data safe
 public class VoterDto

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using VayaPreguntita.API.BackgroundServices;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Options;
@@ -57,6 +58,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
+builder.Services.AddScoped<IDailyService, DailyService>();
+builder.Services.AddScoped<IQuestionsService, QuestionsService>();
+builder.Services.AddHostedService<DailyPreselectionService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

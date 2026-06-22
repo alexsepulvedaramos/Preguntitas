@@ -1,3 +1,4 @@
+// User.cs
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VayaPreguntita.API.Entities;
@@ -11,7 +12,7 @@ public class User
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiry { get; set; }
     public DateTime DateJoined { get; set; } = DateTime.UtcNow;
-    public List<Group> Groups { get; set; } = [];
+    public List<GroupMember> GroupMemberships { get; set; } = [];
 
     [InverseProperty("Creator")]
     public List<Question> CreatedQuestions { get; set; } = [];

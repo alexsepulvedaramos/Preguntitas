@@ -1,5 +1,5 @@
 using FluentValidation;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Questions;
 
 namespace VayaPreguntita.API.Validators;
 
@@ -7,7 +7,7 @@ public class CreateVoteDtoValidator : AbstractValidator<CreateVoteDto>
 {
     public CreateVoteDtoValidator()
     {
-        RuleFor(vote => vote.QuestionId).GreaterThan(0);
+        // QuestionId ya no viene en el DTO — eliminado
 
         RuleForEach(vote => vote.SelectedOptionIds).GreaterThan(0);
 
@@ -31,24 +31,17 @@ public class CreateVoteDtoValidator : AbstractValidator<CreateVoteDto>
         var answerCount = 0;
 
         if (vote.SelectedOptionIds != null && vote.SelectedOptionIds.Count > 0)
-        {
             answerCount++;
-        }
 
+        // Incluye 0 (Nobody) como respuesta válida para Superlative
         if (vote.SelectedTargetUserId.HasValue)
-        {
             answerCount++;
-        }
 
         if (vote.NumericValue.HasValue)
-        {
             answerCount++;
-        }
 
         if (vote.SelectedTargetUserIds != null && vote.SelectedTargetUserIds.Count > 0)
-        {
             answerCount++;
-        }
 
         return answerCount == 1;
     }

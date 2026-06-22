@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Identity;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Auth;
+using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Tests.Testing;
 

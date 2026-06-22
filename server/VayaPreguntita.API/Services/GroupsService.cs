@@ -13,7 +13,7 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
     public async Task<bool> IsUserInGroupAsync(int userId, int groupId)
     {
         return await context.Groups.AnyAsync(g =>
-            g.Id == groupId && g.Users.Any(u => u.Id == userId)
+            g.Id == groupId && g.Members.Any(m => m.UserId == userId)
         );
     }
 
@@ -25,27 +25,16 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
 
     public async Task<IEnumerable<GroupResponse>> GetUserGroupsAsync(int userId)
     {
-        // Fetch groups where the user is part of the Users list
-        var groups = await context
-            .Groups.Where(g => g.Users.Any(u => u.Id == userId))
+        return await context
+            .Groups.Where(g => g.Members.Any(m => m.UserId == userId))
             .ProjectTo<GroupResponse>(mapper.ConfigurationProvider)
             .ToListAsync();
-
-        // Map the list of Group entities directly to a list of GroupResponse DTOs
-        return mapper.Map<IEnumerable<GroupResponse>>(groups);
     }
 
     public async Task<GroupResponse> CreateGroupAsync(CreateGroupRequest request, int userId)
     {
-        // 1. Generate a unique short invitation code
         var invitationCode = GenerateRandomCode(6);
 
-        // 2. Fetch the user from the database to attach them to the new group
-        var user =
-            await context.Users.FindAsync(userId)
-            ?? throw new KeyNotFoundException("User not found.");
-
-        // 3. Create the new Group entity
         var newGroup = new Group
         {
             CreatorId = userId,
@@ -54,13 +43,14 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
             Description = request.Description,
             DailyQuestionTime = request.DailyQuestionTime,
             InvitationCode = invitationCode,
-            Users = [user],
+            Members = [new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow }],
         };
 
         context.Groups.Add(newGroup);
         await context.SaveChangesAsync();
 
-        // 4. Map and return the response DTO
+        await context.Entry(newGroup).Reference(g => g.Creator).LoadAsync();
+
         return mapper.Map<GroupResponse>(newGroup);
     }
 
@@ -95,7 +85,7 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
     public async Task<bool> TransferAdminAsync(int groupId, int newAdminId)
     {
         var group = await context
-            .Groups.Where(g => g.Id == groupId && g.Users.Any(u => u.Id == newAdminId))
+            .Groups.Where(g => g.Id == groupId && g.Members.Any(m => m.UserId == newAdminId))
             .FirstOrDefaultAsync();
 
         if (group == null)
@@ -113,23 +103,21 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
     public async Task<bool> JoinGroupAsync(int userId, string invitationCode)
     {
         var group = await context
-            .Groups.Include(g => g.Users)
+            .Groups.Include(g => g.Members)
             .FirstOrDefaultAsync(g => g.InvitationCode == invitationCode);
 
         if (group == null)
             return false;
 
-        // return true if the user is already a member of the group
-        if (group.Users.Any(u => u.Id == userId))
+        if (group.Members.Any(m => m.UserId == userId))
             return true;
 
-        // Find the user in the database
-        var newMember = await context.Users.FindAsync(userId);
-        if (newMember == null)
+        // Check if the user exists
+        var userExists = await context.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
             return false;
 
-        // Add the new member and save changes to the database
-        group.Users.Add(newMember);
+        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow });
         await context.SaveChangesAsync();
 
         return true;

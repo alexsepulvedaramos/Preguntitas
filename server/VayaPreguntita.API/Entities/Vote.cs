@@ -19,8 +19,8 @@ public class Vote
     // ==========================================
     // 2. GAMIFICATION (Guess the Creator mini-game)
     // ==========================================
-    public int? GuessedCreatorId { get; set; }
-    public User? GuessedCreator { get; set; }
+    // public int? GuessedCreatorId { get; set; }
+    // public User? GuessedCreator { get; set; }
 
     // ==========================================
     // 3. THE FLEXIBLE ANSWER FIELDS (Polymorphic data)

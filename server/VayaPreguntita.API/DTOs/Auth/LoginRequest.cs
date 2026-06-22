@@ -1,4 +1,4 @@
-namespace VayaPreguntita.API.DTOs;
+namespace VayaPreguntita.API.DTOs.Auth;
 
 public class LoginRequestDto
 {

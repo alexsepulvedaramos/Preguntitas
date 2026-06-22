@@ -1,8 +1,6 @@
 using AutoMapper;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace VayaPreguntita.API.Profiles
 {
@@ -12,7 +10,12 @@ namespace VayaPreguntita.API.Profiles
     /// </summary>
     public class MetadataResolver : IValueResolver<CreateQuestionDto, Question, QuestionMetadata>
     {
-        public QuestionMetadata Resolve(CreateQuestionDto source, Question destination, QuestionMetadata destMember, ResolutionContext context)
+        public QuestionMetadata Resolve(
+            CreateQuestionDto source,
+            Question destination,
+            QuestionMetadata destMember,
+            ResolutionContext context
+        )
         {
             var metadata = new QuestionMetadata();
 
@@ -56,13 +59,11 @@ namespace VayaPreguntita.API.Profiles
             // Deathmatch
             if (source.Type == Enums.QuestionType.Deathmatch)
             {
-                // Convert list of int[] (team member ids) into List<Team>
-                var teams = source.Teams?.Select(t => new Team { MemberIds = t })?.ToList() ?? new List<Team>();
-                metadata.Teams = teams;
+                metadata.Teams = source.Teams ?? new List<List<int>>();
             }
             else
             {
-                metadata.Teams = new List<Team>();
+                metadata.Teams = new List<List<int>>();
             }
 
             return metadata;

@@ -1,5 +1,5 @@
 using FluentValidation;
-using VayaPreguntita.API.DTOs;
+using VayaPreguntita.API.DTOs.Questions;
 
 namespace VayaPreguntita.API.Validators;
 
