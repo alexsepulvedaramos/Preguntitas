@@ -9,63 +9,69 @@
   :root {
     color-scheme: light;
 
-    /* Tipografía */
+    /* Typography */
     --font-sans:
       'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-display: 'DM Serif Display', Georgia, serif;
     --radius: 1.125rem;
 
-    /* ── Fondos ── */
-    --background: oklch(0.97 0.008 140); /* sage 50 — blanco con alma verde */
-    --card: oklch(0.99 0.004 140);
-    --popover: oklch(0.99 0.004 140);
-    --sidebar: oklch(0.93 0.05 140);
+    /* Backgrounds and Elevation */
+    --background: oklch(0.98 0.005 140); /* Very subtle sage tint */
+    --card: oklch(1 0 0); /* Pure white for proper visual elevation */
+    --popover: oklch(1 0 0);
+    --sidebar: oklch(0.96 0.01 140);
 
-    /* ── Texto ── */
-    --foreground: oklch(0.2 0.04 155); /* verde noche */
+    /* Text Colors */
+    --foreground: oklch(0.2 0.04 155);
     --card-foreground: oklch(0.2 0.04 155);
     --popover-foreground: oklch(0.2 0.04 155);
-    --sidebar-foreground: oklch(0.25 0.06 150);
-    --muted-foreground: oklch(0.5 0.06 145);
+    --sidebar-foreground: oklch(0.25 0.04 150);
+    --muted-foreground: oklch(0.45 0.03 150); /* Darkened to meet WCAG AA */
 
-    /* ── Superficies neutras ── */
-    --muted: oklch(0.93 0.05 140);
-    --secondary: oklch(0.9 0.06 140);
-    --secondary-foreground: oklch(0.3 0.09 150);
+    /* Neutral Surfaces */
+    --muted: oklch(
+      0.95 0.015 140
+    ); /* Desaturated to avoid competing with brand colors */
+    --secondary: oklch(0.92 0.02 140); /* Desaturated */
+    --secondary-foreground: oklch(0.25 0.04 150);
 
-    /* ── Sage — identidad y superficies ── */
-    --primary: oklch(0.5 0.13 148); /* sage 600 */
-    --primary-foreground: oklch(0.97 0.008 140);
+    /* Sage — Brand Identity */
+    --primary: oklch(0.5 0.13 148);
+    --primary-foreground: oklch(0.98 0.005 140);
+    --primary-hover: oklch(0.44 0.13 148); /* Darkened sage for hover feedback */
 
-    /* ── Lima — acción principal ── */
-    --accent: oklch(0.83 0.22 128); /* lima 500 */
+    /* Lime — Primary Action */
+    --accent: oklch(0.83 0.22 128);
     --accent-text: oklch(0.5 0.13 148);
-    --accent-foreground: oklch(0.17 0.05 145); /* texto oscuro sobre lima */
-    --accent-hover: oklch(0.92 0.18 128); /* lima 300 — hover */
+    --accent-foreground: oklch(0.15 0.05 145); /* High contrast text on lime */
+    --accent-hover: oklch(0.88 0.2 128); /* Lighter for hover state */
 
-    /* ── Warm sand — apoyo, badges secundarios ── */
-    --sand: oklch(0.92 0.08 85);
-    --sand-foreground: oklch(0.42 0.1 70);
+    /* Warm Sand — Support / Badges */
+    --sand: oklch(0.94 0.04 85); /* Slightly desaturated for balance */
+    --sand-foreground: oklch(0.4 0.08 70); /* Darkened for legibility */
 
-    /* ── Destructivo ── */
-    --destructive: oklch(0.577 0.245 27.325);
+    /* Destructive Actions */
+    --destructive: oklch(0.58 0.2 27);
+    --destructive-foreground: oklch(
+      0.98 0 0
+    ); /* Added missing foreground token */
 
-    /* ── Bordes e inputs ── */
-    --border: oklch(0.88 0.04 140);
-    --input: oklch(0.88 0.04 140);
-    --ring: oklch(0.83 0.22 128); /* lima — focus ring */
+    /* Borders and Inputs */
+    --border: oklch(0.9 0.02 140); /* Cleaner border */
+    --input: oklch(0.9 0.02 140);
+    --ring: oklch(0.83 0.22 128);
 
-    /* ── Sidebar ── */
+    /* Sidebar Variables */
     --sidebar-primary: oklch(0.5 0.13 148);
-    --sidebar-primary-foreground: oklch(0.97 0.008 140);
-    --sidebar-accent: oklch(0.9 0.06 140);
-    --sidebar-accent-foreground: oklch(0.3 0.09 150);
-    --sidebar-border: oklch(0.88 0.04 140);
+    --sidebar-primary-foreground: oklch(0.98 0.005 140);
+    --sidebar-accent: oklch(0.92 0.02 140);
+    --sidebar-accent-foreground: oklch(0.25 0.04 150);
+    --sidebar-border: oklch(0.9 0.02 140);
     --sidebar-ring: oklch(0.83 0.22 128);
 
-    /* ── Logo ── */
-    --logo-v: oklch(0.65 0.1 140); /* sage medio */
-    --logo-q: oklch(0.97 0.008 140); /* crema fondo */
+    /* Logo Assets */
+    --logo-v: oklch(0.65 0.1 140);
+    --logo-q: oklch(0.98 0.005 140);
     --logo-dot-1: oklch(0.65 0.1 140);
     --logo-dot-2: oklch(0.74 0.16 134);
     --logo-dot-3: oklch(0.83 0.22 128);
@@ -75,57 +81,65 @@
   :root.dark {
     color-scheme: dark;
 
-    /* ── Fondos ── */
-    --background: oklch(0.17 0.025 155); /* verde noche profundo */
-    --card: oklch(0.23 0.035 155);
-    --popover: oklch(0.23 0.035 155);
-    --sidebar: oklch(0.2 0.03 155);
+    /* Backgrounds and Elevation */
+    --background: oklch(
+      0.15 0.02 155
+    ); /* Deepened for better contrast with cards */
+    --card: oklch(0.2 0.025 155); /* Elevated visually against the background */
+    --popover: oklch(0.2 0.025 155);
+    --sidebar: oklch(0.18 0.02 155);
 
-    /* ── Texto ── */
-    --foreground: oklch(0.96 0.008 100);
-    --card-foreground: oklch(0.96 0.008 100);
-    --popover-foreground: oklch(0.96 0.008 100);
-    --sidebar-foreground: oklch(0.85 0.05 140);
-    --muted-foreground: oklch(0.62 0.07 145);
+    /* Text Colors */
+    --foreground: oklch(
+      0.96 0.01 150
+    ); /* Hue adjusted to match the 150 green spectrum */
+    --card-foreground: oklch(0.96 0.01 150);
+    --popover-foreground: oklch(0.96 0.01 150);
+    --sidebar-foreground: oklch(0.85 0.03 150);
+    --muted-foreground: oklch(0.7 0.03 150); /* Lightened to meet WCAG AA */
 
-    /* ── Superficies neutras ── */
-    --muted: oklch(0.25 0.035 155);
-    --secondary: oklch(0.28 0.04 155);
-    --secondary-foreground: oklch(0.85 0.06 140);
+    /* Neutral Surfaces */
+    --muted: oklch(0.22 0.025 155); /* Kept subtle */
+    --secondary: oklch(0.25 0.03 155);
+    --secondary-foreground: oklch(0.9 0.02 150);
 
-    /* ── Sage — identidad y superficies ── */
-    --primary: oklch(0.8 0.1 145); /* sage más claro en oscuro */
-    --primary-foreground: oklch(0.17 0.025 155);
+    /* Sage — Brand Identity */
+    --primary: oklch(0.8 0.1 145);
+    --primary-foreground: oklch(0.15 0.02 155);
+    --primary-hover: oklch(0.74 0.1 145); /* Darkened sage for hover feedback */
 
-    /* ── Lima — acción principal ── */
-    --accent: oklch(0.83 0.22 128); /* mismo lima, brilla solo */
+    /* Lime — Primary Action */
+    --accent: oklch(0.83 0.22 128);
     --accent-text: oklch(0.83 0.22 128);
-    --accent-foreground: oklch(0.17 0.05 145);
+    --accent-foreground: oklch(0.15 0.05 145);
     --accent-hover: oklch(0.75 0.2 130);
 
-    /* ── Warm sand — apoyo ── */
-    --sand: oklch(0.3 0.06 80);
-    --sand-foreground: oklch(0.85 0.08 85);
+    /* Warm Sand — Support / Badges */
+    --sand: oklch(0.28 0.04 80);
+    --sand-foreground: oklch(0.88 0.06 85);
 
-    /* ── Destructivo ── */
-    --destructive: oklch(0.65 0.22 27);
+    /* Destructive Actions */
+    --destructive: oklch(0.6 0.2 27);
+    --destructive-foreground: oklch(0.98 0 0);
 
-    /* ── Bordes e inputs ── */
-    --border: oklch(0.32 0.04 150);
-    --input: oklch(0.32 0.04 150);
+    /* Borders and Inputs */
+    --border: oklch(
+      0.28 0.02 155
+    ); /* Lightened slightly so borders are actually visible */
+    --input: oklch(0.28 0.02 155);
     --ring: oklch(0.83 0.22 128);
 
-    /* ── Sidebar ── */
+    /* Sidebar Variables */
     --sidebar-primary: oklch(0.83 0.22 128);
-    --sidebar-primary-foreground: oklch(0.17 0.05 145);
-    --sidebar-accent: oklch(0.28 0.04 155);
-    --sidebar-accent-foreground: oklch(0.85 0.06 140);
-    --sidebar-border: oklch(0.3 0.04 150);
+    --sidebar-primary-foreground: oklch(0.15 0.05 145);
+    --sidebar-accent: oklch(0.25 0.03 155);
+    --sidebar-accent-foreground: oklch(0.9 0.02 150);
+    --sidebar-border: oklch(0.28 0.02 155);
     --sidebar-ring: oklch(0.83 0.22 128);
 
-    /* ── Logo ── */
-    --logo-v: oklch(0.7 0.1 145); /* sage claro */
-    --logo-q: oklch(0.92 0.06 100); /* crema */
+    /* Logo Assets */
+    --logo-v: oklch(0.7 0.1 145);
+    --logo-q: oklch(0.92 0.04 100);
     --logo-dot-1: oklch(0.7 0.1 145);
     --logo-dot-2: oklch(0.76 0.16 136);
     --logo-dot-3: oklch(0.83 0.22 128);
@@ -135,13 +149,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @theme {
-  /* Colores base */
+  /* Base Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -149,33 +164,37 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
 
-  /* Sage — identidad */
+  /* Sage — Identity */
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
 
-  /* Lima — acción */
+  /* Lime — Action */
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-hover: var(--accent-hover);
 
-  /* Neutros */
+  /* Neutrals */
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  /* Warm sand — apoyo */
+  /* Warm Sand — Support */
   --color-sand: var(--sand);
   --color-sand-foreground: var(--sand-foreground);
 
-  /* Sistema */
+  /* System */
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(
+    --destructive-foreground
+  ); /* Registered */
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Sidebar */
+  /* Sidebar components */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -185,14 +204,14 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Tipografía */
+  /* Typography mapping */
   --font-sans: var(--font-sans);
-  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-display: var(--font-display);
 
-  /* Radio */
+  /* Border radius */
   --radius-default: var(--radius);
 
-  /* Logo */
+  /* Logo mapping */
   --color-logo-v: var(--logo-v);
   --color-logo-q: var(--logo-q);
   --color-logo-dot-1: var(--logo-dot-1);
