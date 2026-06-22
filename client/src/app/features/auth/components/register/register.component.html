@@ -1,93 +1,114 @@
-<hlm-card>
-  <hlm-card-header>
-    <h3 hlmCardTitle>Create an account</h3>
-    <p hlmCardDescription>
-      Enter your information below to create your account
+<hlm-card
+  class="w-full border-border bg-card shadow-lg transition-all duration-200"
+>
+  <hlm-card-header class="space-y-1 text-center">
+    <h3 hlmCardTitle class="text-2xl font-bold tracking-tight text-foreground">
+      Crea tu cuenta
+    </h3>
+    <p hlmCardDescription class="text-sm text-muted-foreground">
+      Únete al juego. Introduce tus datos para empezar a votar y picarte con tus
+      amigos.
     </p>
   </hlm-card-header>
+
   <div hlmCardContent>
-    <form [formGroup]="form" (ngSubmit)="register()">
-      <hlm-field-group>
-        <hlm-field>
-          <label hlmFieldLabel for="username">Username</label>
+    <form [formGroup]="form" (ngSubmit)="register()" class="space-y-4">
+      <hlm-field-group class="grid gap-4">
+        <hlm-field class="grid gap-1.5">
+          <label
+            hlmFieldLabel
+            for="username"
+            class="text-sm font-medium text-foreground"
+            >Nombre de usuario</label
+          >
           <input
             hlmInput
             type="text"
             id="username"
-            placeholder="John Doe"
+            placeholder="Tu apodo o nombre"
             formControlName="username"
+            class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >Username is required.
-          </hlm-field-error>
+            >El nombre de usuario es obligatorio.</hlm-field-error
+          >
           <hlm-field-error validator="minlength"
-            >Username must be at least 3 characters long.
-          </hlm-field-error>
+            >Debe tener al menos 3 caracteres.</hlm-field-error
+          >
           <hlm-field-error validator="usernameTaken"
-            >Username is already taken.
-          </hlm-field-error>
+            >Este nombre de usuario ya está en uso.</hlm-field-error
+          >
         </hlm-field>
-        <hlm-field>
-          <label hlmFieldLabel for="email">Email</label>
+
+        <hlm-field class="grid gap-1.5">
+          <label
+            hlmFieldLabel
+            for="email"
+            class="text-sm font-medium text-foreground"
+            >Correo electrónico</label
+          >
           <input
             hlmInput
             type="email"
             id="email"
-            placeholder="you@example.com"
+            placeholder="nombre@ejemplo.com"
             formControlName="email"
+            class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
-          @if (!(form.controls.email.touched && form.controls.email.invalid)) {
-            <hlm-field-description>
-              We'll use this to contact you. We will not share your email with
-              anyone else.
-            </hlm-field-description>
-          }
           <hlm-field-error validator="required"
-            >Email is required.
-          </hlm-field-error>
+            >El correo electrónico es obligatorio.</hlm-field-error
+          >
           <hlm-field-error validator="email"
-            >Enter a valid email address.
-          </hlm-field-error>
+            >Introduce una dirección de correo válida.</hlm-field-error
+          >
           <hlm-field-error validator="emailTaken">
-            Email is already taken. If it's yours, please
+            Este correo ya está registrado. Si es tuyo,
             <a
-              routerLink="/login"
-              class="underline font-medium text-primary hover:text-primary/80"
+              routerLink="/auth/login"
+              class="font-medium text-primary underline-offset-4 hover:underline"
             >
-              log in instead</a
+              inicia sesión</a
             >.
           </hlm-field-error>
         </hlm-field>
-        <hlm-field>
-          <label hlmFieldLabel for="password">Password</label>
+
+        <hlm-field class="grid gap-1.5">
+          <label
+            hlmFieldLabel
+            for="password"
+            class="text-sm font-medium text-foreground"
+            >Contraseña</label
+          >
           <input
             hlmInput
             type="password"
             id="password"
             formControlName="password"
+            class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
-          @if (
-            !(form.controls.password.touched && form.controls.password.invalid)
-          ) {
-            <hlm-field-description
-              >Must be at least 8 characters long.</hlm-field-description
-            >
-          }
           <hlm-field-error validator="required"
-            >Password is required.</hlm-field-error
+            >La contraseña es obligatoria.</hlm-field-error
           >
           <hlm-field-error validator="minlength"
-            >Password must be at least 8 characters long.</hlm-field-error
+            >Debe tener al menos 8 caracteres.</hlm-field-error
           >
         </hlm-field>
-        <hlm-field>
-          <label hlmFieldLabel for="confirmPassword">Confirm Password</label>
+
+        <hlm-field class="grid gap-1.5">
+          <label
+            hlmFieldLabel
+            for="confirmPassword"
+            class="text-sm font-medium text-foreground"
+            >Confirmar contraseña</label
+          >
           <input
             hlmInput
             type="password"
             id="confirmPassword"
             formControlName="confirmPassword"
+            class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
+
           @if (
             !(
               form.controls.confirmPassword.touched &&
@@ -95,33 +116,58 @@
                 form.errors?.['passwordMismatch'])
             )
           ) {
-            <hlm-field-description
-              >Please confirm your password.</hlm-field-description
-            >
+            <p hlmFieldDescription class="text-xs text-muted-foreground">
+              Confirma la contraseña que has escrito arriba.
+            </p>
           }
+
           <hlm-field-error validator="required"
-            >Confirming your password is required.</hlm-field-error
+            >Es obligatorio confirmar la contraseña.</hlm-field-error
           >
+
           @if (
             form.errors?.['passwordMismatch'] &&
             !form.controls.confirmPassword.errors?.['required']
           ) {
-            <hlm-field-error forceShow>Passwords must match.</hlm-field-error>
+            <hlm-field-error forceShow
+              >Las contraseñas no coinciden.</hlm-field-error
+            >
           }
         </hlm-field>
-        <hlm-field>
-          <button hlmBtn type="submit" [disabled]="form.invalid">
-            Create Account
-          </button>
-          <button hlmBtn variant="outline" type="button">
-            Sign up with Google
-          </button>
-          <p hlmFieldDescription class="text-center">
-            Already have an account?
-            <a routerLink="/auth/login">Login</a>
-          </p>
-        </hlm-field>
       </hlm-field-group>
+
+      <div class="grid gap-2 pt-2">
+        <button
+          hlmBtn
+          type="submit"
+          [disabled]="form.invalid"
+          class="w-full bg-primary text-primary-foreground hover:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
+        >
+          Crear cuenta
+        </button>
+
+        <button
+          hlmBtn
+          variant="outline"
+          type="button"
+          class="w-full border-border text-foreground hover:bg-secondary hover:text-secondary-foreground transition-colors"
+        >
+          Registrarse con Google
+        </button>
+      </div>
+
+      <p
+        hlmFieldDescription
+        class="text-center text-sm text-muted-foreground pt-2"
+      >
+        ¿Ya tienes una cuenta?
+        <a
+          routerLink="/auth/login"
+          class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
+        >
+          Inicia sesión
+        </a>
+      </p>
     </form>
   </div>
 </hlm-card>
