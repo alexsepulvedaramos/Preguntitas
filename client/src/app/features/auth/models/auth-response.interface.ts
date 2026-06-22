@@ -4,7 +4,7 @@ export interface AuthResponse {
     email: string;
     avatarUrl: string | null;
     accessToken: string;
-    accessTokenExpiresAt: Date;
+    accessTokenExpiresAt: string;
     refreshToken: string;
-    refreshTokenExpiresAt: Date;
+    refreshTokenExpiresAt: string;
 }

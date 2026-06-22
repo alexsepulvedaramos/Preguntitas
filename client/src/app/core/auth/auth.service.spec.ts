@@ -31,7 +31,7 @@ describe('AuthService', () => {
 
   it('should save tokens and set authenticated state on login', () => {
     const mockCredentials: LoginRequest = { identifier: 'test@test.com', password: 'password' };
-    const mockResponse: AuthResponse = { userId: 1, username: 'testuser', email: 'test@test.com', accessToken: 'access-123', accessTokenExpiresAt: new Date(), refreshToken: 'refresh-456', refreshTokenExpiresAt: new Date(), avatarUrl: null };
+    const mockResponse: AuthResponse = { userId: 1, username: 'testuser', email: 'test@test.com', accessToken: 'access-123', accessTokenExpiresAt: new Date().toISOString(), refreshToken: 'refresh-456', refreshTokenExpiresAt: new Date().toISOString(), avatarUrl: null };
 
     service.login(mockCredentials).subscribe();
 
