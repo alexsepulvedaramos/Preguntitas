@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
 
 namespace VayaPreguntita.API.BackgroundServices;
@@ -33,15 +34,15 @@ public class DailyPreselectionService(
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var dailyService = scope.ServiceProvider.GetRequiredService<IDailyService>();
 
-        var nowUtc = DateTime.UtcNow;
-        var today = DateOnly.FromDateTime(nowUtc);
+        var today = DailyClock.Today();
         var tomorrow = today.AddDays(1);
+        var localTimeOfDay = DailyClock.TimeOfDay();
 
         // Buscar grupos cuya hora de cierre ya ha pasado hoy
         // y que aún no tienen preselección para mañana
         var groupsToPreselect = await context
             .Groups.Where(g =>
-                TimeOnly.FromDateTime(nowUtc) >= g.DailyQuestionTime
+                localTimeOfDay >= g.DailyQuestionTime
                 && !context.DailyEntries.Any(d => d.GroupId == g.Id && d.Date == tomorrow)
             )
             .Select(g => g.Id)
@@ -64,7 +65,7 @@ public class DailyPreselectionService(
             .Where(d =>
                 d.Date == today
                 && d.ActivatedAt == null
-                && TimeOnly.FromDateTime(nowUtc) >= d.Group.DailyQuestionTime
+                && localTimeOfDay >= d.Group.DailyQuestionTime
             )
             .ToListAsync();
 

@@ -17,7 +17,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // ==========================================
     public async Task<DailyStatusDto> GetCurrentStatusAsync(int groupId, int userId)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DailyClock.Today();
 
         var group =
             await context
@@ -97,7 +97,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         SelectQuestionDto dto
     )
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DailyClock.Today();
 
         var group =
             await context.Groups.Include(g => g.Members).FirstOrDefaultAsync(g => g.Id == groupId)
@@ -206,7 +206,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // ==========================================
     public async Task<VoteResult> VoteAsync(int groupId, int userId, CreateVoteDto dto)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DailyClock.Today();
 
         var dailyEntry = await context
             .DailyEntries.Include(d => d.Question)
