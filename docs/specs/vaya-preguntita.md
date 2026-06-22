@@ -61,6 +61,7 @@
 - Typography: `DM Serif Display` italic (display headings) + `DM Sans` (UI text)
 - Dark mode: class-based (`:root.dark`)
 - Logo: `LogoComponent` (`sm` | `lg`) + `LogoWordmarkComponent`
+- Full rules (tokens, states, accessibility) — see [§14 Frontend Design System & Style Guide](#frontend-design-system--style-guide)
 
 **Spartan UI patterns:**
 - Native elements with directive decorators: `<button hlmBtn>`
@@ -610,6 +611,47 @@ Atomic commits — one logical change each; push after each approved task.
 - **AutoMapper profiles** for mapping (`MappingProfile.cs`); no manual mapping in controllers.
 - Keep Angular components small; push logic into services; use **Signals** and native control flow (`@if`/`@for`/`@switch`).
 - Build UI with the **Spartan skill** (`agents/skills/spartan`) and Tailwind utility classes; custom CSS only in the `@theme` token block.
+
+### Frontend Design System & Style Guide
+
+Source of truth for tokens: `client/src/styles.css` (`@theme` block + `:root`/`:root.dark`). **Never hardcode raw Tailwind palette classes (`text-green-500`, `bg-red-600`, hex/rgb values) or one-off colors in components** — always use a semantic token below. If a needed color/state has no token yet, add it to `styles.css` first.
+
+**Color tokens (semantic, light + dark pair in `styles.css`):**
+| Token | Usage |
+|---|---|
+| `background` / `foreground` | Page base |
+| `card` / `card-foreground`, `popover` / `popover-foreground` | Elevated surfaces (cards, dialogs, menus) |
+| `primary` / `primary-foreground` (+ `primary-hover`) | Sage — brand identity, secondary actions |
+| `accent` / `accent-foreground` (+ `accent-hover`, `accent-text`) | Electric Lime — primary CTA, focus ring, selection |
+| `secondary` / `secondary-foreground`, `muted` / `muted-foreground` | Neutral surfaces, de-emphasized text |
+| `sand` / `sand-foreground` | Warm Sand — badges, supporting accents |
+| `success` / `success-foreground` | Confirmation feedback (e.g. "copiado al portapapeles") |
+| `destructive` / `destructive-foreground` | Errors, destructive actions |
+| `border`, `input`, `ring` | Borders, input outlines, focus ring (ring = `accent`) |
+| `sidebar-*`, `logo-*` | Sidebar chrome and logo mark — don't reuse for other UI |
+
+**Dark mode:** class-based (`:root.dark`, toggled by `ThemeService`). Every token is defined for both modes in `styles.css` — when adding a token, define both variants and verify WCAG AA contrast (text vs. its background) in each mode; don't assume light-mode contrast carries over.
+
+**Typography:**
+- `font-display` (`DM Serif Display`, italic) — headings, branding, the daily question text (`.vp-question-text` utility). Loaded via `<link>` in `index.html` (not CSS `@import`, for `preconnect`/perf).
+- `font-sans` (`DM Sans`) — all UI text, body copy, form labels.
+- Sizes: default Tailwind `text-*` scale, no custom font-size tokens — pick the smallest size that satisfies the hierarchy rather than introducing new scale steps.
+
+**Spacing & shape:** default Tailwind v4 spacing scale (4px base unit) — no custom spacing tokens. Border radius via `--radius` (`1.125rem`, mapped to `rounded-default`) for cards, dialogs, inputs, and primary buttons; don't introduce other radius values.
+
+**Interactive states — apply to every interactive element (buttons, inputs, links acting as controls):**
+- **Hover:** the token's paired `-hover` variant when one exists (`primary-hover`, `accent-hover`); otherwise `hover:bg-muted` / `hover:bg-secondary`.
+- **Focus:** `focus-visible:ring-2 focus-visible:ring-ring` (never plain `focus:`) — keyboard-only focus, no mouse-click ring. The base layer also enforces a global `outline-ring/60` fallback.
+- **Disabled:** `disabled:opacity-50 disabled:pointer-events-none`.
+- **Transitions:** `transition-colors` for simple state changes, `transition-all` only when size/shadow also animates (e.g. `.vp-poll-option`).
+- **Loading:** disable the trigger and swap its label/icon for a spinner state; never let two competing loading affordances show at once.
+- **Empty states:** centered, `text-muted-foreground` secondary line under a short primary message; see `group-list.component.html` for the reference pattern.
+
+**Components:** build with **Spartan** (`Hlm*` directive/element components from `agents/skills/spartan`) — never hand-roll a primitive Spartan already provides. Customize only via `class` overrides layered on top of `hlmBtn`/`hlmInput`/etc., following the states above.
+
+**Logo:** `LogoComponent` (`sm` | `lg`, icon mark) and `LogoWordmarkComponent` (text lockup) — colors always via `--logo-*` tokens, never hardcoded.
+
+**Accessibility:** icon-only controls need both `aria-label` and an `sr-only` text node (see `ThemeComponent`); decorative-only elements get `aria-hidden`. Don't render an interactive-looking element (hover/cursor-pointer) that has no real action — remove it instead of faking it (see footer "Privacy/Terms" removal precedent).
 
 ---
 
