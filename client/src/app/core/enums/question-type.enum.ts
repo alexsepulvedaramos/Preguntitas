@@ -1,21 +1,21 @@
 export enum QuestionType {
-    // Questions with predefined text options where only one can be selected.
-    // Example: "What is the best fruit? (A: Banana, B: Melon, C: Grapes)"
-    SingleChoice = 0,
+    // Classic poll with predefined options.
+    // Example: "What time are we meeting for dinner?"
+    CustomPoll = 0,
 
-    // Questions with predefined text options where multiple can be selected.
-    // Example: "Which programming languages do you know? (C#, JavaScript, Python, Rust)"
-    MultipleChoice = 1,
+    // Group poll where the answer is a person from the current group.
+    // Example: "Who is most likely to end up in jail?"
+    Superlative = 1,
 
-    // Questions based on a numeric range.
-    // Example: "How much do you like Mondays? (Rate from 1 to 10)"
-    Scale = 2,
+    // Team vs Team question with static participants.
+    // Example: "Deathmatch: [Juan & Marta] vs [Luis & Ana]. Who wins?"
+    Deathmatch = 2,
 
-    // Questions where the answer is a person from the current group.
-    // Example: "Who is most likely to become a millionaire?" (The Superlative)
-    TargetUser = 3,
+    // Numeric range rating.
+    // Example: "From 1 to 10, how crazy is Aguacate today?"
+    Scale = 3,
 
-    // Questions requiring a written response.
-    // Example: "What is your biggest motivation in life?"
-    FreeText = 4,
+    // Matchmaking question with exactly two selections.
+    // Example: "Which two people in the group would make the best couple?"
+    SecretPairing = 4,
 }
