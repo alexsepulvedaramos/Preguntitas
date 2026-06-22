@@ -545,7 +545,8 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Groups: list/create/get/update/join/transfer-admin | ✅ |
 | Daily: current / select / vote | ✅ (current+select need redesign per §4) |
 | Questions: pool / create / by-date | ✅ |
-| Migrations through `RemapQuestionTypeEnumOrder` | ✅ |
+| Migrations through `AddGroupTimeZoneId` | ✅ |
+| UTC+2 offset applied to today/tomorrow/T comparisons (`DailyClock` helper); `Group.TimeZoneId` (nullable, default `Europe/Madrid`, unused by MVP logic) | ✅ — rama 0 merged |
 
 ### Pending (MVP) — see §13
 
@@ -559,7 +560,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 
 | # | Branch | Scope |
 |---|---|---|
-| 0 | `fix/daily-time-utc-offset` | Apply configurable **UTC+2** offset to all "today/tomorrow"/T comparisons in `DailyPreselectionService` and `DailyService`; add nullable `Group.TimeZoneId` column (default `Europe/Madrid`, unused by MVP logic) + migration. |
+| 0 ✅ | `fix/daily-time-utc-offset` | Apply configurable **UTC+2** offset to all "today/tomorrow"/T comparisons in `DailyPreselectionService` and `DailyService`; add nullable `Group.TimeZoneId` column (default `Europe/Madrid`, unused by MVP logic) + migration. **Merged ([#13](https://github.com/alexsepulvedaramos/Preguntitas/pull/13)).** |
 | 1 | `feat/group-members` | `GET /members` (+ `isAdmin`); Angular models/service. **Unblocks person-based voting.** |
 | 2 | `feat/base-pack` | `Pack` + `QuestionTemplate` entities, migration (`Question.CreatorId` nullable), seed the **Base** pack (several of each type), clone-on-use + auto-resolution (§6.3), preselection fallback, `daily/selection-sources`. |
 | 3 | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. |
