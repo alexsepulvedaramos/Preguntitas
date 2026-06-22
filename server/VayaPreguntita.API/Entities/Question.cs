@@ -14,8 +14,8 @@ public class Question
 
     public QuestionMetadata Metadata { get; set; } = new();
 
-    public int CreatorId { get; set; }
-    public User Creator { get; set; } = null!;
+    public int? CreatorId { get; set; } // null => came from a pack (no human author)
+    public User? Creator { get; set; }
 
     public int GroupId { get; set; }
     public Group Group { get; set; } = null!;

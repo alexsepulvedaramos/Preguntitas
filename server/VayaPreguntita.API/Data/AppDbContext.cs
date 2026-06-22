@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VayaPreguntita.API.Entities;
 
 namespace VayaPreguntita.API.Data;
@@ -16,6 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Option> Options { get; set; }
     public DbSet<Vote> Votes { get; set; }
     public DbSet<DailyEntry> DailyEntries { get; set; }
+    public DbSet<Pack> Packs { get; set; }
+    public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,48 +59,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict);
 
         // ==========================================
-        // QUESTION — Metadata como JSONB
+        // QUESTION / QUESTION TEMPLATE — Metadata como JSONB
+        // (misma configuración del owned type, reutilizada)
+        // ==========================================
+        modelBuilder.Entity<Question>().OwnsOne(q => q.Metadata, ConfigureMetadata);
+        modelBuilder.Entity<QuestionTemplate>().OwnsOne(t => t.Metadata, ConfigureMetadata);
+
+        // ==========================================
+        // PACK / QUESTION TEMPLATE — relaciones
         // ==========================================
         modelBuilder
-            .Entity<Question>()
-            .OwnsOne(
-                q => q.Metadata,
-                builder =>
-                {
-                    builder.ToJson();
-                    builder
-                        .Property(m => m.Teams)
-                        .HasConversion(
-                            v =>
-                                System.Text.Json.JsonSerializer.Serialize(
-                                    v,
-                                    (System.Text.Json.JsonSerializerOptions?)null
-                                ),
-                            v =>
-                                System.Text.Json.JsonSerializer.Deserialize<List<List<int>>>(
-                                    v,
-                                    (System.Text.Json.JsonSerializerOptions?)null
-                                ) ?? new List<List<int>>(),
-                            new ValueComparer<List<List<int>>>(
-                                (a, b) =>
-                                    (a ?? new()).SequenceEqual(
-                                        b ?? new(),
-                                        EqualityComparer<List<int>>.Create(
-                                            (x, y) =>
-                                                (x ?? new()).SequenceEqual(y ?? new())
-                                        )
-                                    ),
-                                v =>
-                                    v.Aggregate(
-                                        0,
-                                        (hash, inner) =>
-                                            HashCode.Combine(hash, inner.Aggregate(0, HashCode.Combine))
-                                    ),
-                                v => v.Select(inner => inner.ToList()).ToList()
-                            )
-                        );
-                }
-            );
+            .Entity<QuestionTemplate>()
+            .HasOne(t => t.Pack)
+            .WithMany(p => p.Templates)
+            .HasForeignKey(t => t.PackId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<QuestionTemplateOption>()
+            .HasOne(o => o.QuestionTemplate)
+            .WithMany(t => t.Options)
+            .HasForeignKey(o => o.QuestionTemplateId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // ==========================================
         // DAILY ENTRY — índice único por grupo+fecha
@@ -136,5 +119,46 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(v => v.SelectedTargetUserId)
             .OnDelete(DeleteBehavior.Restrict);
+    }
+
+    // Shared owned-type config for QuestionMetadata (JSONB), used by both
+    // Question and QuestionTemplate. Teams (List<List<int>>) needs an explicit
+    // converter + value comparer.
+    private static void ConfigureMetadata<TOwner>(
+        OwnedNavigationBuilder<TOwner, QuestionMetadata> builder
+    )
+        where TOwner : class
+    {
+        builder.ToJson();
+        builder
+            .Property(m => m.Teams)
+            .HasConversion(
+                v =>
+                    System.Text.Json.JsonSerializer.Serialize(
+                        v,
+                        (System.Text.Json.JsonSerializerOptions?)null
+                    ),
+                v =>
+                    System.Text.Json.JsonSerializer.Deserialize<List<List<int>>>(
+                        v,
+                        (System.Text.Json.JsonSerializerOptions?)null
+                    ) ?? new List<List<int>>(),
+                new ValueComparer<List<List<int>>>(
+                    (a, b) =>
+                        (a ?? new()).SequenceEqual(
+                            b ?? new(),
+                            EqualityComparer<List<int>>.Create(
+                                (x, y) => (x ?? new()).SequenceEqual(y ?? new())
+                            )
+                        ),
+                    v =>
+                        v.Aggregate(
+                            0,
+                            (hash, inner) =>
+                                HashCode.Combine(hash, inner.Aggregate(0, HashCode.Combine))
+                        ),
+                    v => v.Select(inner => inner.ToList()).ToList()
+                )
+            );
     }
 }

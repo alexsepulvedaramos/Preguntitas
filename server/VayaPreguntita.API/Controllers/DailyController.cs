@@ -38,6 +38,20 @@ public class DailyController(IDailyService dailyService, IGroupsService groupsSe
         return Ok(status);
     }
 
+    // GET api/groups/{groupId}/daily/selection-sources
+    // Preguntas que el selector puede elegir: pool del grupo + pack base
+    [HttpGet("selection-sources")]
+    public async Task<ActionResult<SelectionSourcesDto>> GetSelectionSources(int groupId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var sources = await dailyService.GetSelectionSourcesAsync(groupId);
+        return Ok(sources);
+    }
+
     // POST api/groups/{groupId}/daily/select
     // El selector del día elige (o cambia) la pregunta activa
     [HttpPost("select")]

@@ -309,14 +309,16 @@ Requirement: **there must always be a question.** The **base pack** is a global,
 
 > Schema change: `Question.CreatorId` becomes **nullable** (`null` ⇒ came from a pack, no human author).
 
+**Creator display convention:** the backend keeps `CreatorId = null` for pack-sourced questions and exposes it as-is. The **frontend** maps that `null` to a label such as *"Vaya Preguntita"* / *"El equipo de Vaya Preguntita"* instead of showing it empty. (Rendered in the UI ramas 5/7/8; the field stays genuinely nullable.)
+
 ### 6.3 Auto-resolution of dynamic base questions
 
-Superlative, Secret Pairing, and Custom Poll templates are self-contained. **Scale and Deathmatch are not** (they need a target person / teams). For base-pack instances these are resolved **automatically at clone/activation time** from the group's current active members:
+Superlative, Secret Pairing, and Custom Poll templates are self-contained. **Scale and Deathmatch are not** (they need a target person / teams). For base-pack instances these are resolved **automatically at clone/instantiation time** from the group's current active members:
 
 - **Scale:** `TargetUserId` ← a random active member.
 - **Deathmatch:** `Teams` ← a random split of active members into 2 teams (sizes balanced).
 
-Resolution uses the membership snapshot at the moment of instantiation. Minor staleness (a member joining before T) is accepted in the MVP.
+Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Implemented in `Helpers/TemplateCloner.cs`; the seed pack is loaded at startup by `Data/BasePackSeeder.cs` (idempotent).
 
 ### 6.4 Selection sources
 
@@ -548,10 +550,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Migrations through `AddGroupTimeZoneId` | ✅ |
 | UTC+2 offset applied to today/tomorrow/T comparisons (`DailyClock` helper); `Group.TimeZoneId` (nullable, default `Europe/Madrid`, unused by MVP logic) | ✅ — rama 0 merged |
 | `GET /groups/{id}/members` (`{ id, username, avatarUrl, joinedAt, isAdmin }`); Angular `GroupMember` model + `getGroupMembers` service method | ✅ — rama 1 merged |
+| Base pack: `Pack` + `QuestionTemplate` (+`QuestionTemplateOption`) entities, `Question.CreatorId` nullable, idempotent `BasePackSeeder`, `TemplateCloner` (clone-on-use + auto-resolution §6.3), preselection fallback, `GET /daily/selection-sources`, `SelectQuestionDto.TemplateId`; Angular `SelectionSources` model + `getSelectionSources` | ✅ — rama 2 (`feat/base-pack`) |
 
 ### Pending (MVP) — see §13
 
-Daily lifecycle rewrite (sacred T, next-day selection) · base pack (Pack + QuestionTemplate + clone-on-use + auto-resolution) · history list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · group-detail screen & routing · "te toca elegir" indicator · refresh button · limits.
+Daily lifecycle rewrite (sacred T, next-day selection) · history list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · group-detail screen & routing · "te toca elegir" indicator · refresh button · limits.
 
 ---
 
@@ -563,7 +566,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 |---|---|---|
 | 0 ✅ | `fix/daily-time-utc-offset` | Apply configurable **UTC+2** offset to all "today/tomorrow"/T comparisons in `DailyPreselectionService` and `DailyService`; add nullable `Group.TimeZoneId` column (default `Europe/Madrid`, unused by MVP logic) + migration. **Merged ([#13](https://github.com/alexsepulvedaramos/Preguntitas/pull/13)).** |
 | 1 ✅ | `feat/group-members` | `GET /members` (+ `isAdmin`); Angular models/service. **Unblocks person-based voting.** **Merged ([#15](https://github.com/alexsepulvedaramos/Preguntitas/pull/15)).** |
-| 2 | `feat/base-pack` | `Pack` + `QuestionTemplate` entities, migration (`Question.CreatorId` nullable), seed the **Base** pack (several of each type), clone-on-use + auto-resolution (§6.3), preselection fallback, `daily/selection-sources`. |
+| 2 ✅ | `feat/base-pack` | `Pack` + `QuestionTemplate` entities, migration (`Question.CreatorId` nullable), seed the **Base** pack (several of each type), clone-on-use + auto-resolution (§6.3), preselection fallback, `daily/selection-sources`. **Implemented on `feat/base-pack`** (migration pending apply). |
 | 3 | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. |
 | 4 | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. |
 | 5 | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. |

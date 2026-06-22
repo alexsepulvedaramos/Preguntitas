@@ -89,6 +89,38 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     }
 
     // ==========================================
+    // GET SELECTION SOURCES (pool del grupo + pack base)
+    // ==========================================
+    public async Task<SelectionSourcesDto> GetSelectionSourcesAsync(int groupId)
+    {
+        var pool = await context
+            .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
+            .OrderByDescending(q => q.DateCreated)
+            .Select(q => new SelectionSourceItemDto
+            {
+                SourceType = "pool",
+                Id = q.Id,
+                Text = q.Text,
+                Type = q.Type,
+            })
+            .ToListAsync();
+
+        var pack = await context
+            .QuestionTemplates.Where(t => t.Pack.IsActiveByDefault)
+            .OrderBy(t => t.Type)
+            .Select(t => new SelectionSourceItemDto
+            {
+                SourceType = "pack",
+                Id = t.Id,
+                Text = t.Text,
+                Type = t.Type,
+            })
+            .ToListAsync();
+
+        return new SelectionSourcesDto { Pool = pool, Pack = pack };
+    }
+
+    // ==========================================
     // SELECT QUESTION (el selector elige o crea)
     // ==========================================
     public async Task<SelectResult> SelectQuestionAsync(
@@ -157,6 +189,23 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
             question.IsUsed = true;
             question.DateActivated = DateTime.UtcNow;
         }
+        else if (dto.TemplateId.HasValue)
+        {
+            // Clona una plantilla del pack base al grupo y la activa
+            var template = await context
+                .QuestionTemplates.Include(t => t.Options)
+                .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value);
+
+            if (template == null)
+                return SelectResult.QuestionNotFound;
+
+            var memberIds = group.Members.Select(m => m.UserId).ToList();
+            question = TemplateCloner.CloneToGroup(template, groupId, memberIds);
+            question.IsUsed = true;
+            question.DateActivated = DateTime.UtcNow;
+            context.Questions.Add(question);
+            await context.SaveChangesAsync();
+        }
         else
         {
             return SelectResult.QuestionNotFound;
@@ -185,14 +234,22 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
             dailyEntry.ActivatedAt = DateTime.UtcNow;
             dailyEntry.IsAutoSelected = false;
 
-            // Liberar la pregunta preseleccionada automáticamente si era diferente
+            // Soltar la pregunta preseleccionada automáticamente si era diferente
             if (oldQuestionId != question.Id && wasAutoSelected)
             {
                 var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
                 if (oldQuestion != null)
                 {
-                    oldQuestion.IsUsed = false;
-                    oldQuestion.DateActivated = null;
+                    if (oldQuestion.Source == QuestionSource.Pack)
+                    {
+                        // Un clon de pack no tiene valor en el pool: se elimina
+                        context.Questions.Remove(oldQuestion);
+                    }
+                    else
+                    {
+                        oldQuestion.IsUsed = false;
+                        oldQuestion.DateActivated = null;
+                    }
                 }
             }
         }
@@ -257,18 +314,36 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         if (group == null)
             return;
 
-        // Elegir pregunta aleatoria del pool
+        var selector = CalculateSelector(group.Members, group.DateCreated, date);
+
+        // Elegir pregunta aleatoria del pool del grupo
         var question = await context
             .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
             .OrderBy(_ => Guid.NewGuid()) // aleatorio
             .FirstOrDefaultAsync();
 
         if (question == null)
-            return; // Sin preguntas en el pool, no preseleccionamos
+        {
+            // Fallback: clonar una plantilla del pack base (§6 — siempre hay una pregunta)
+            var template = await context
+                .QuestionTemplates.Include(t => t.Options)
+                .Where(t => t.Pack.IsActiveByDefault)
+                .OrderBy(_ => Guid.NewGuid())
+                .FirstOrDefaultAsync();
 
-        var selector = CalculateSelector(group.Members, group.DateCreated, date);
+            if (template == null)
+                return; // No hay plantillas activas (no debería ocurrir con el pack base)
 
-        question.IsUsed = true;
+            var memberIds = group.Members.Select(m => m.UserId).ToList();
+            question = TemplateCloner.CloneToGroup(template, groupId, memberIds);
+            question.IsUsed = true;
+            context.Questions.Add(question);
+            await context.SaveChangesAsync(); // persistir para obtener el Id de la pregunta clonada
+        }
+        else
+        {
+            question.IsUsed = true;
+        }
         // No ponemos DateActivated aquí — se pone cuando se activa de verdad
 
         context.DailyEntries.Add(
