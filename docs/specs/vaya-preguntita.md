@@ -547,10 +547,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Questions: pool / create / by-date | ✅ |
 | Migrations through `AddGroupTimeZoneId` | ✅ |
 | UTC+2 offset applied to today/tomorrow/T comparisons (`DailyClock` helper); `Group.TimeZoneId` (nullable, default `Europe/Madrid`, unused by MVP logic) | ✅ — rama 0 merged |
+| `GET /groups/{id}/members` (`{ id, username, avatarUrl, joinedAt, isAdmin }`); Angular `GroupMember` model + `getGroupMembers` service method | ✅ — rama 1 merged |
 
 ### Pending (MVP) — see §13
 
-Members endpoint · daily lifecycle rewrite (sacred T, next-day selection) · base pack (Pack + QuestionTemplate + clone-on-use + auto-resolution) · history list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · group-detail screen & routing · "te toca elegir" indicator · refresh button · limits.
+Daily lifecycle rewrite (sacred T, next-day selection) · base pack (Pack + QuestionTemplate + clone-on-use + auto-resolution) · history list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · group-detail screen & routing · "te toca elegir" indicator · refresh button · limits.
 
 ---
 
@@ -561,7 +562,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | # | Branch | Scope |
 |---|---|---|
 | 0 ✅ | `fix/daily-time-utc-offset` | Apply configurable **UTC+2** offset to all "today/tomorrow"/T comparisons in `DailyPreselectionService` and `DailyService`; add nullable `Group.TimeZoneId` column (default `Europe/Madrid`, unused by MVP logic) + migration. **Merged ([#13](https://github.com/alexsepulvedaramos/Preguntitas/pull/13)).** |
-| 1 | `feat/group-members` | `GET /members` (+ `isAdmin`); Angular models/service. **Unblocks person-based voting.** |
+| 1 ✅ | `feat/group-members` | `GET /members` (+ `isAdmin`); Angular models/service. **Unblocks person-based voting.** **Merged ([#15](https://github.com/alexsepulvedaramos/Preguntitas/pull/15)).** |
 | 2 | `feat/base-pack` | `Pack` + `QuestionTemplate` entities, migration (`Question.CreatorId` nullable), seed the **Base** pack (several of each type), clone-on-use + auto-resolution (§6.3), preselection fallback, `daily/selection-sources`. |
 | 3 | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. |
 | 4 | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. |
@@ -659,7 +660,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ✅/🟢 **Group names are NOT unique** — labels only, no existence check (decided).
 - 🟡 **"You're already in this group" on join** — backend already detects membership; give `join` a clear response so the UI can message it.
 - 🟢 **Change admin** — backend `PUT /groups/{id}/admin` done; UI in `feat/group-admin` (rama 9).
-- 🟡 **Investigate slow groups fetch** — most likely Render free-tier cold start (~50 s wake); verify no N+1 in `GetUserGroupsAsync`. Worth a quick look during rama 1.
+- ✅ **Investigate slow groups fetch** — checked during rama 1: `GetUserGroupsAsync` uses AutoMapper `ProjectTo` directly on the `IQueryable`, which compiles to a single flat SQL query (no `Members` collection loaded) — no N+1. The slowness is almost certainly the Render free-tier cold start (~50 s wake).
 - 🔵 **Invitation QR code** — generate from the invite code.
 - 🔵 **Tweak invite dialog** — group-name display + invite-button colors (polish).
 - 🔵 **Extract `ShareGroup` component** out of `GroupCard` (refactor).
