@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
-using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.DTOs.Daily;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
@@ -13,12 +12,13 @@ namespace VayaPreguntita.API.Services;
 public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
 {
     // ==========================================
-    // GET CURRENT STATUS
+    // GET CURRENT STATUS (§4.7)
+    // Surfaces BOTH coexisting states: today (the open question) and selection
+    // (the next-day question being chosen). The lifecycle is driven off ActivatedAt
+    // state, not the calendar date — so it is correct across the daily-time boundary.
     // ==========================================
     public async Task<DailyStatusDto> GetCurrentStatusAsync(int groupId, int userId)
     {
-        var today = DailyClock.Today();
-
         var group =
             await context
                 .Groups.Include(g => g.Members)
@@ -26,66 +26,122 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 .FirstOrDefaultAsync(g => g.Id == groupId)
             ?? throw new KeyNotFoundException("Group not found.");
 
-        var selector = CalculateSelector(group.Members, group.DateCreated, today);
-
-        var dailyEntry = await context
+        // The currently-open question = the most recently activated entry. The previous
+        // one is "closed" precisely because a newer one activated.
+        var openEntry = await context
             .DailyEntries.Include(d => d.Question)
                 .ThenInclude(q => q.Options)
-            .FirstOrDefaultAsync(d => d.GroupId == groupId && d.Date == today);
+            .Where(d => d.GroupId == groupId && d.ActivatedAt != null)
+            .OrderByDescending(d => d.Date)
+            .FirstOrDefaultAsync();
 
-        // No hay entrada para hoy todavía
-        if (dailyEntry == null)
-        {
-            return new DailyStatusDto
-            {
-                Status = "no_question",
-                SelectorUserId = selector.UserId,
-                SelectorUsername = selector.User.Username,
-                IsCurrentUserSelector = selector.UserId == userId,
-            };
-        }
+        // The next question to activate (the one the selector can still change).
+        var pendingEntry = await context
+            .DailyEntries.Include(d => d.Question)
+                .ThenInclude(q => q.Options)
+            .Where(d => d.GroupId == groupId && d.ActivatedAt == null)
+            .OrderBy(d => d.Date)
+            .FirstOrDefaultAsync();
 
-        // Hay entrada pero aún no está activada (el selector puede cambiarla)
-        if (dailyEntry.ActivatedAt == null)
-        {
-            return new DailyStatusDto
-            {
-                Status = "pending_selection",
-                SelectorUserId = selector.UserId,
-                SelectorUsername = selector.User.Username,
-                IsCurrentUserSelector = selector.UserId == userId,
-                Question = mapper.Map<QuestionToVoteDto>(dailyEntry.Question),
-            };
-        }
-
-        // Hay pregunta activa — ¿ha votado el usuario?
-        var hasVoted = await context.Votes.AnyAsync(v =>
-            v.QuestionId == dailyEntry.QuestionId && v.UserId == userId
-        );
-
-        if (!hasVoted)
-        {
-            return new DailyStatusDto
-            {
-                Status = "voting",
-                SelectorUserId = selector.UserId,
-                SelectorUsername = selector.User.Username,
-                IsCurrentUserSelector = selector.UserId == userId,
-                Question = mapper.Map<QuestionToVoteDto>(dailyEntry.Question),
-            };
-        }
-
-        // Ya votó — calculamos resultados
-        var results = await CalculateResultsAsync(dailyEntry.Question);
         return new DailyStatusDto
         {
-            Status = "results",
+            Today = await BuildTodayStateAsync(openEntry, group, userId),
+            Selection = BuildSelectionState(pendingEntry, openEntry, group, userId),
+        };
+    }
+
+    private async Task<TodayStateDto> BuildTodayStateAsync(
+        DailyEntry? openEntry,
+        Group group,
+        int userId
+    )
+    {
+        if (openEntry == null)
+            return new TodayStateDto { Status = "no_question" };
+
+        var hasVoted = await context.Votes.AnyAsync(v =>
+            v.QuestionId == openEntry.QuestionId && v.UserId == userId
+        );
+
+        var state = new TodayStateDto
+        {
+            Question = mapper.Map<QuestionToVoteDto>(openEntry.Question),
+            UserHasVoted = hasVoted,
+            // The open question activated at Date@T and closes 24 h later, at (Date+1)@T.
+            ClosesAt = DailyClock.ToUtc(openEntry.Date.AddDays(1), group.DailyQuestionTime),
+        };
+
+        if (hasVoted)
+        {
+            state.Status = "results";
+            state.Results = await CalculateResultsAsync(openEntry.Question);
+        }
+        else
+        {
+            state.Status = "voting";
+        }
+
+        return state;
+    }
+
+    private SelectionStateDto? BuildSelectionState(
+        DailyEntry? pendingEntry,
+        DailyEntry? openEntry,
+        Group group,
+        int userId
+    )
+    {
+        if (pendingEntry != null)
+        {
+            var isSelector = pendingEntry.SelectorUserId == userId;
+            var selectorMember = group.Members.FirstOrDefault(m =>
+                m.UserId == pendingEntry.SelectorUserId
+            );
+
+            return new SelectionStateDto
+            {
+                Date = pendingEntry.Date,
+                ActivatesAt = DailyClock.ToUtc(pendingEntry.Date, group.DailyQuestionTime),
+                SelectorUserId = pendingEntry.SelectorUserId,
+                SelectorUsername = selectorMember?.User.Username ?? string.Empty,
+                IsCurrentUserSelector = isSelector,
+                IsAutoSelected = pendingEntry.IsAutoSelected,
+                // Only the selector sees tomorrow's question — keeps the surprise.
+                PendingQuestion = isSelector
+                    ? mapper.Map<QuestionToVoteDto>(pendingEntry.Question)
+                    : null,
+            };
+        }
+
+        // No preselection yet. Show whose turn it is only once the group has started
+        // a cycle (≥ 2 members); otherwise there is no selection state (pre-start).
+        if (group.Members.Count < 2)
+            return null;
+
+        var upcoming = NextActivationDate(openEntry, group);
+        var selector = CalculateSelector(group.Members, group.DateCreated, upcoming);
+
+        return new SelectionStateDto
+        {
+            Date = upcoming,
+            ActivatesAt = DailyClock.ToUtc(upcoming, group.DailyQuestionTime),
             SelectorUserId = selector.UserId,
             SelectorUsername = selector.User.Username,
             IsCurrentUserSelector = selector.UserId == userId,
-            Question = mapper.Map<QuestionToVoteDto>(dailyEntry.Question),
-            Results = results,
+            IsAutoSelected = false,
+            PendingQuestion = null,
         };
+    }
+
+    // The next date that will activate, when no pending entry exists yet.
+    private static DateOnly NextActivationDate(DailyEntry? openEntry, Group group)
+    {
+        if (openEntry != null)
+            return openEntry.Date.AddDays(1);
+
+        // Brand-new group: the first question activates today if T hasn't passed, else tomorrow.
+        var today = DailyClock.Today();
+        return DailyClock.TimeOfDay() < group.DailyQuestionTime ? today : today.AddDays(1);
     }
 
     // ==========================================
@@ -121,7 +177,9 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     }
 
     // ==========================================
-    // SELECT QUESTION (el selector elige o crea)
+    // SELECT QUESTION (§4.1, §4.2)
+    // The selector chooses the NEXT-day question. It is NEVER activated here — activation
+    // happens only at T in DailyPreselectionService.
     // ==========================================
     public async Task<SelectResult> SelectQuestionAsync(
         int groupId,
@@ -129,122 +187,69 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         SelectQuestionDto dto
     )
     {
-        var today = DailyClock.Today();
-
         var group =
             await context.Groups.Include(g => g.Members).FirstOrDefaultAsync(g => g.Id == groupId)
             ?? throw new KeyNotFoundException("Group not found.");
 
-        // Verificar que es el turno de este usuario
-        var selector = CalculateSelector(group.Members, group.DateCreated, today);
+        // The pending (next-day) entry is the only one a selector may change.
+        var pendingEntry = await context
+            .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt == null)
+            .OrderBy(d => d.Date)
+            .FirstOrDefaultAsync();
+
+        DateOnly targetDate;
+        if (pendingEntry != null)
+        {
+            targetDate = pendingEntry.Date;
+        }
+        else
+        {
+            var openEntry = await context
+                .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt != null)
+                .OrderByDescending(d => d.Date)
+                .FirstOrDefaultAsync();
+            targetDate = NextActivationDate(openEntry, group);
+        }
+
+        // Only the selector for the target date may choose.
+        var selector = CalculateSelector(group.Members, group.DateCreated, targetDate);
         if (selector.UserId != userId)
             return SelectResult.NotYourTurn;
 
-        var dailyEntry = await context.DailyEntries.FirstOrDefaultAsync(d =>
-            d.GroupId == groupId && d.Date == today
-        );
+        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
+        if (resolveResult != SelectResult.Success)
+            return resolveResult;
 
-        // Una vez activada no se puede cambiar
-        if (dailyEntry?.ActivatedAt != null)
-            return SelectResult.AlreadyActivated;
-
-        Question question;
-
-        if (dto.NewQuestion != null)
+        if (pendingEntry == null)
         {
-            // Crea la pregunta en el momento y la activa directamente
-            question = new Question
-            {
-                Text = dto.NewQuestion.Text,
-                Type = dto.NewQuestion.Type,
-                CreatorId = userId,
-                GroupId = groupId,
-                IsUsed = true,
-                DateActivated = DateTime.UtcNow,
-                Source = QuestionSource.UserCreated,
-                Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion),
-            };
-
-            if (dto.NewQuestion.Options?.Count > 0)
-            {
-                question.Options = dto
-                    .NewQuestion.Options.Select(o => new Option { Text = o.Text })
-                    .ToList();
-            }
-
-            context.Questions.Add(question);
-            await context.SaveChangesAsync();
-        }
-        else if (dto.ExistingQuestionId.HasValue)
-        {
-            // Elige una del pool
-            question =
-                await context.Questions.FirstOrDefaultAsync(q =>
-                    q.Id == dto.ExistingQuestionId.Value && q.GroupId == groupId && !q.IsUsed
-                ) ?? null!;
-
-            if (question == null)
-                return SelectResult.QuestionNotFound;
-
-            question.IsUsed = true;
-            question.DateActivated = DateTime.UtcNow;
-        }
-        else if (dto.TemplateId.HasValue)
-        {
-            // Clona una plantilla del pack base al grupo y la activa
-            var template = await context
-                .QuestionTemplates.Include(t => t.Options)
-                .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value);
-
-            if (template == null)
-                return SelectResult.QuestionNotFound;
-
-            var memberIds = group.Members.Select(m => m.UserId).ToList();
-            question = TemplateCloner.CloneToGroup(template, groupId, memberIds);
-            question.IsUsed = true;
-            question.DateActivated = DateTime.UtcNow;
-            context.Questions.Add(question);
-            await context.SaveChangesAsync();
+            context.DailyEntries.Add(
+                new DailyEntry
+                {
+                    GroupId = groupId,
+                    Date = targetDate,
+                    SelectorUserId = userId,
+                    QuestionId = question!.Id,
+                    ActivatedAt = null, // NEVER activate here — only the background service at T.
+                    IsAutoSelected = false,
+                    PreselectedAt = DateTime.UtcNow,
+                }
+            );
         }
         else
         {
-            return SelectResult.QuestionNotFound;
-        }
+            var oldQuestionId = pendingEntry.QuestionId;
+            var wasAutoSelected = pendingEntry.IsAutoSelected;
+            pendingEntry.QuestionId = question!.Id;
+            pendingEntry.IsAutoSelected = false;
 
-        // Crear o actualizar el DailyEntry
-        if (dailyEntry == null)
-        {
-            dailyEntry = new DailyEntry
-            {
-                GroupId = groupId,
-                Date = today,
-                SelectorUserId = userId,
-                QuestionId = question.Id,
-                ActivatedAt = DateTime.UtcNow,
-                IsAutoSelected = false,
-            };
-            context.DailyEntries.Add(dailyEntry);
-        }
-        else
-        {
-            // Cambia la preselección automática por la elección manual
-            var oldQuestionId = dailyEntry.QuestionId;
-            var wasAutoSelected = dailyEntry.IsAutoSelected;
-            dailyEntry.QuestionId = question.Id;
-            dailyEntry.ActivatedAt = DateTime.UtcNow;
-            dailyEntry.IsAutoSelected = false;
-
-            // Soltar la pregunta preseleccionada automáticamente si era diferente
+            // Release the previously auto-selected question if the choice changed.
             if (oldQuestionId != question.Id && wasAutoSelected)
             {
                 var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
                 if (oldQuestion != null)
                 {
                     if (oldQuestion.Source == QuestionSource.Pack)
-                    {
-                        // Un clon de pack no tiene valor en el pool: se elimina
-                        context.Questions.Remove(oldQuestion);
-                    }
+                        context.Questions.Remove(oldQuestion); // a pack clone has no pool value
                     else
                     {
                         oldQuestion.IsUsed = false;
@@ -258,48 +263,133 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return SelectResult.Success;
     }
 
-    // ==========================================
-    // VOTE
-    // ==========================================
-    public async Task<VoteResult> VoteAsync(int groupId, int userId, CreateVoteDto dto)
+    // Resolves the chosen question (pool / pack template / inline-create) WITHOUT activating it.
+    private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
+        SelectQuestionDto dto,
+        Group group,
+        int userId
+    )
     {
-        var today = DailyClock.Today();
-
-        var dailyEntry = await context
-            .DailyEntries.Include(d => d.Question)
-                .ThenInclude(q => q.Options)
-            .FirstOrDefaultAsync(d =>
-                d.GroupId == groupId && d.Date == today && d.ActivatedAt != null
+        if (dto.NewQuestion != null)
+        {
+            // Same membership validation as POST /questions (§9). Structural rules already
+            // ran via SelectQuestionDtoValidator -> CreateQuestionDtoValidator.
+            var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
+            var membershipError = QuestionMembershipValidator.Validate(
+                dto.NewQuestion,
+                memberIds,
+                userId
             );
+            if (membershipError != null)
+                return (null, SelectResult.InvalidQuestion);
 
-        if (dailyEntry == null)
-            return VoteResult.NoActiveQuestion;
+            var created = new Question
+            {
+                Text = dto.NewQuestion.Text,
+                Type = dto.NewQuestion.Type,
+                CreatorId = userId,
+                GroupId = group.Id,
+                IsUsed = true,
+                Source = QuestionSource.UserCreated,
+                Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion),
+                // No DateActivated — set only at activation.
+            };
 
-        var alreadyVoted = await context.Votes.AnyAsync(v =>
-            v.QuestionId == dailyEntry.QuestionId && v.UserId == userId
-        );
+            if (
+                dto.NewQuestion.Type == QuestionType.CustomPoll
+                && dto.NewQuestion.Options.Count > 0
+            )
+            {
+                created.Options = dto
+                    .NewQuestion.Options.Select(o => new Option { Text = o.Text })
+                    .ToList();
+            }
 
-        if (alreadyVoted)
-            return VoteResult.AlreadyVoted;
+            context.Questions.Add(created);
+            await context.SaveChangesAsync();
+            return (created, SelectResult.Success);
+        }
 
-        var question = dailyEntry.Question;
-        var validationResult = ValidateVotePayload(dto, question);
-        if (validationResult != null)
-            return VoteResult.InvalidPayload;
+        if (dto.ExistingQuestionId.HasValue)
+        {
+            var existing = await context.Questions.FirstOrDefaultAsync(q =>
+                q.Id == dto.ExistingQuestionId.Value && q.GroupId == group.Id && !q.IsUsed
+            );
+            if (existing == null)
+                return (null, SelectResult.QuestionNotFound);
 
-        var votes = BuildVotes(dto, question, userId);
-        context.Votes.AddRange(votes);
-        await context.SaveChangesAsync();
+            existing.IsUsed = true;
+            return (existing, SelectResult.Success);
+        }
 
-        return VoteResult.Success;
+        if (dto.TemplateId.HasValue)
+        {
+            var template = await context
+                .QuestionTemplates.Include(t => t.Options)
+                .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value);
+            if (template == null)
+                return (null, SelectResult.QuestionNotFound);
+
+            var memberIds = group.Members.Select(m => m.UserId).ToList();
+            var cloned = TemplateCloner.CloneToGroup(template, group.Id, memberIds);
+            cloned.IsUsed = true;
+            context.Questions.Add(cloned);
+            await context.SaveChangesAsync();
+            return (cloned, SelectResult.Success);
+        }
+
+        return (null, SelectResult.QuestionNotFound);
     }
 
     // ==========================================
-    // PRESELECT FOR TOMORROW (llamado por el BackgroundService)
+    // VOTE
+    // Votes on the currently-open question (latest activated entry). Returns fresh results.
+    // ==========================================
+    public async Task<(VoteResult result, QuestionResultDto? results)> VoteAsync(
+        int groupId,
+        int userId,
+        CreateVoteDto dto
+    )
+    {
+        var openEntry = await context
+            .DailyEntries.Include(d => d.Question)
+                .ThenInclude(q => q.Options)
+            .Where(d => d.GroupId == groupId && d.ActivatedAt != null)
+            .OrderByDescending(d => d.Date)
+            .FirstOrDefaultAsync();
+
+        if (openEntry == null)
+            return (VoteResult.NoActiveQuestion, null);
+
+        var alreadyVoted = await context.Votes.AnyAsync(v =>
+            v.QuestionId == openEntry.QuestionId && v.UserId == userId
+        );
+        if (alreadyVoted)
+            return (VoteResult.AlreadyVoted, null);
+
+        var question = openEntry.Question;
+        var memberIds = await context
+            .GroupMembers.Where(m => m.GroupId == groupId)
+            .Select(m => m.UserId)
+            .ToHashSetAsync();
+
+        if (ValidateVotePayload(dto, question, memberIds) != null)
+            return (VoteResult.InvalidPayload, null);
+
+        context.Votes.AddRange(BuildVotes(dto, question, userId));
+        await context.SaveChangesAsync();
+
+        var results = await CalculateResultsAsync(question);
+        return (VoteResult.Success, results);
+    }
+
+    // ==========================================
+    // PRESELECT FOR TOMORROW (called by DailyPreselectionService)
+    // Only groups with ≥ 2 members run a cycle (§4.3, §4.5).
     // ==========================================
     public async Task PreselectForGroupAsync(int groupId, DateOnly date)
     {
-        // Idempotente: si ya existe entrada para esa fecha, no hacer nada
+        // Idempotent: if an entry already exists for that date, do nothing.
         var exists = await context.DailyEntries.AnyAsync(d =>
             d.GroupId == groupId && d.Date == date
         );
@@ -311,20 +401,20 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
             .Groups.Include(g => g.Members)
             .FirstOrDefaultAsync(g => g.Id == groupId);
 
-        if (group == null)
+        if (group == null || group.Members.Count < 2)
             return;
 
         var selector = CalculateSelector(group.Members, group.DateCreated, date);
 
-        // Elegir pregunta aleatoria del pool del grupo
+        // Pick a random unused question from the group pool.
         var question = await context
             .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
-            .OrderBy(_ => Guid.NewGuid()) // aleatorio
+            .OrderBy(_ => Guid.NewGuid())
             .FirstOrDefaultAsync();
 
         if (question == null)
         {
-            // Fallback: clonar una plantilla del pack base (§6 — siempre hay una pregunta)
+            // Fallback: clone a base-pack template (§6 — there is always a question).
             var template = await context
                 .QuestionTemplates.Include(t => t.Options)
                 .Where(t => t.Pack.IsActiveByDefault)
@@ -332,19 +422,19 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 .FirstOrDefaultAsync();
 
             if (template == null)
-                return; // No hay plantillas activas (no debería ocurrir con el pack base)
+                return; // No active templates (should not happen with the base pack).
 
             var memberIds = group.Members.Select(m => m.UserId).ToList();
             question = TemplateCloner.CloneToGroup(template, groupId, memberIds);
             question.IsUsed = true;
             context.Questions.Add(question);
-            await context.SaveChangesAsync(); // persistir para obtener el Id de la pregunta clonada
+            await context.SaveChangesAsync(); // persist to obtain the cloned question Id
         }
         else
         {
             question.IsUsed = true;
         }
-        // No ponemos DateActivated aquí — se pone cuando se activa de verdad
+        // No DateActivated here — it is set when the question really activates at T.
 
         context.DailyEntries.Add(
             new DailyEntry
@@ -355,7 +445,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 SelectorUserId = selector.UserId,
                 IsAutoSelected = true,
                 PreselectedAt = DateTime.UtcNow,
-                ActivatedAt = null, // Se activará a la hora configurada del grupo
+                ActivatedAt = null, // Activates at the group's configured time.
             }
         );
 
@@ -378,7 +468,11 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return ordered[index];
     }
 
-    private static string? ValidateVotePayload(CreateVoteDto dto, Question question)
+    private static string? ValidateVotePayload(
+        CreateVoteDto dto,
+        Question question,
+        ISet<int> memberIds
+    )
     {
         return question.Type switch
         {
@@ -390,14 +484,29 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 when !dto.SelectedOptionIds!.All(id => question.Options.Any(o => o.Id == id)) =>
                 "One or more selected options are invalid.",
 
+            QuestionType.CustomPoll
+                when dto.SelectedOptionIds!.Distinct().Count() != dto.SelectedOptionIds!.Count
+                    || dto.SelectedOptionIds!.Count < (question.Metadata.MinSelections)
+                    || dto.SelectedOptionIds!.Count > (question.Metadata.MaxSelections) =>
+                "Number of selected options is out of the allowed range.",
+
             QuestionType.Superlative when dto.SelectedTargetUserId == null =>
                 "Must select a target user.",
+
+            QuestionType.Superlative
+                when dto.SelectedTargetUserId == 0 && !question.Metadata.AllowNobody =>
+                "\"Nobody\" is not allowed for this question.",
 
             QuestionType.Superlative
                 when dto.SelectedTargetUserId != 0
                     && question.Metadata.BlacklistedUserIds.Contains(
                         dto.SelectedTargetUserId!.Value
                     ) => "Selected user is blacklisted.",
+
+            QuestionType.Superlative
+                when dto.SelectedTargetUserId != 0
+                    && !memberIds.Contains(dto.SelectedTargetUserId!.Value) =>
+                "Selected user is not a group member.",
 
             QuestionType.Scale when dto.NumericValue == null => "Must provide a numeric value.",
 
@@ -407,8 +516,13 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 "Numeric value out of range.",
 
             QuestionType.SecretPairing
-                when dto.SelectedTargetUserIds == null || dto.SelectedTargetUserIds.Count != 2 =>
-                "Must select exactly 2 users.",
+                when dto.SelectedTargetUserIds == null
+                    || dto.SelectedTargetUserIds.Distinct().Count() != 2 =>
+                "Must select exactly 2 distinct users.",
+
+            QuestionType.SecretPairing
+                when !dto.SelectedTargetUserIds!.All(memberIds.Contains) =>
+                "Selected users must be group members.",
 
             QuestionType.Deathmatch
                 when dto.SelectedTargetUserIds == null
@@ -417,7 +531,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                             .SequenceEqual(dto.SelectedTargetUserIds.OrderBy(id => id))
                     ) => "Must select a valid team.",
 
-            _ => null, // válido
+            _ => null, // valid
         };
     }
 

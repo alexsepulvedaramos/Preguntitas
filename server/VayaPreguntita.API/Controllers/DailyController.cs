@@ -69,6 +69,9 @@ public class DailyController(IDailyService dailyService, IGroupsService groupsSe
             SelectResult.Success => Ok(),
             SelectResult.NotYourTurn => Forbid(),
             SelectResult.QuestionNotFound => NotFound("Pregunta no encontrada en el pool."),
+            SelectResult.InvalidQuestion => BadRequest(
+                "La pregunta no es válida para este grupo."
+            ),
             SelectResult.AlreadyActivated => BadRequest(
                 "La pregunta ya está activa y no se puede cambiar."
             ),
@@ -86,11 +89,11 @@ public class DailyController(IDailyService dailyService, IGroupsService groupsSe
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var result = await dailyService.VoteAsync(groupId, userId, dto);
+        var (result, results) = await dailyService.VoteAsync(groupId, userId, dto);
 
         return result switch
         {
-            VoteResult.Success => Ok(),
+            VoteResult.Success => Ok(results),
             VoteResult.NoActiveQuestion => NotFound("No hay pregunta activa hoy."),
             VoteResult.AlreadyVoted => BadRequest("Ya has votado hoy."),
             VoteResult.InvalidPayload => BadRequest("Voto inválido para este tipo de pregunta."),

@@ -6,4 +6,5 @@ public enum SelectResult
     NotYourTurn,
     QuestionNotFound,
     AlreadyActivated,
+    InvalidQuestion,
 }

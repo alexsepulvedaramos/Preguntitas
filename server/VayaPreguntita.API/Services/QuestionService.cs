@@ -51,8 +51,22 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     // CREATE
     // Añade una pregunta al pool sin activarla
     // ==========================================
-    public async Task<QuestionDto> CreateAsync(int groupId, int creatorId, CreateQuestionDto dto)
+    public async Task<(QuestionDto? question, string? error)> CreateAsync(
+        int groupId,
+        int creatorId,
+        CreateQuestionDto dto
+    )
     {
+        // DB-dependent membership validation (§9), shared with the inline-create path.
+        var memberIds = await context
+            .GroupMembers.Where(m => m.GroupId == groupId)
+            .Select(m => m.UserId)
+            .ToHashSetAsync();
+
+        var membershipError = QuestionMembershipValidator.Validate(dto, memberIds, creatorId);
+        if (membershipError != null)
+            return (null, membershipError);
+
         var question = new Question
         {
             Text = dto.Text,
@@ -73,7 +87,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         context.Questions.Add(question);
         await context.SaveChangesAsync();
 
-        return mapper.Map<QuestionDto>(question);
+        return (mapper.Map<QuestionDto>(question), null);
     }
 
 }

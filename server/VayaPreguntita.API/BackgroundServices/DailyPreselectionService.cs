@@ -38,11 +38,12 @@ public class DailyPreselectionService(
         var tomorrow = today.AddDays(1);
         var localTimeOfDay = DailyClock.TimeOfDay();
 
-        // Buscar grupos cuya hora de cierre ya ha pasado hoy
-        // y que aún no tienen preselección para mañana
+        // Buscar grupos con ≥ 2 miembros (regla de arranque del ciclo, §4.3/§4.5) cuya hora
+        // de cierre ya ha pasado hoy y que aún no tienen preselección para mañana
         var groupsToPreselect = await context
             .Groups.Where(g =>
                 localTimeOfDay >= g.DailyQuestionTime
+                && g.Members.Count >= 2
                 && !context.DailyEntries.Any(d => d.GroupId == g.Id && d.Date == tomorrow)
             )
             .Select(g => g.Id)

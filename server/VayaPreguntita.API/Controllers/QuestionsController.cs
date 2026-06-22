@@ -70,7 +70,10 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var question = await questionsService.CreateAsync(groupId, userId, dto);
+        var (question, error) = await questionsService.CreateAsync(groupId, userId, dto);
+        if (error != null)
+            return BadRequest(error);
+
         return CreatedAtAction(nameof(GetPool), new { groupId }, question);
     }
 }
