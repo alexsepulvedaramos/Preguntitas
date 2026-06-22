@@ -164,7 +164,7 @@ The rotating **selector** chooses the question that will activate at the **next*
 
 At each tick of `DailyPreselectionService`:
 
-1. **Activate** any `DailyEntry` for *today* whose `ActivatedAt == null` and whose group time T has now passed. On activation, dynamic base-pack fields are resolved (see §6.3) and `Question.DateActivated` is set.
+1. **Activate** any `DailyEntry` for *today* whose `ActivatedAt == null` and whose group time T has now passed: set `ActivatedAt` and `Question.DateActivated`. (Dynamic base-pack fields were already resolved at clone/instantiation time — see §6.3 — so activation does not re-resolve them.)
 2. **Preselect** the *next* day for any group that has ≥ 2 members and no entry yet for that date: pick the next selector, auto-select a question (group pool first, else base pack), create a `DailyEntry` with `ActivatedAt == null`, `IsAutoSelected = true`.
 
 ### 4.4 The selector
@@ -210,11 +210,22 @@ The endpoint must surface **both** the voting state (today) and the selection st
     "selectorUserId": 42,
     "selectorUsername": "alex",
     "isCurrentUserSelector": true,          // drives the "te toca elegir" indicator
-    "pendingQuestion": QuestionToVoteDto | null,
+    "pendingQuestion": QuestionToVoteDto | null,  // ONLY when isCurrentUserSelector — see note
     "isAutoSelected": true
   }
 }
 ```
+
+`selection` is `null` before the group has started a cycle (< 2 members). The whole flow is
+driven off `DailyEntry.ActivatedAt` state, not the calendar date: `today` reflects the most
+recently **activated** entry (so it stays correct across the T boundary), and `selection`
+reflects the next, not-yet-activated entry. `today.closesAt` always equals
+`selection.activatesAt` (the next T).
+
+**`pendingQuestion` visibility:** the next-day question's full content is returned **only to
+the selector** (`isCurrentUserSelector == true`). Other members see who the selector is and
+whether something is auto-selected, but not the question text — preserving the surprise until
+it activates at T.
 
 The Angular `DailyComponent` uses `@switch` on `today.status` to render the voting/results sub-component, and shows the selection panel when `selection.isCurrentUserSelector` is true.
 
@@ -446,9 +457,9 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 
 | Method | Endpoint | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/groups/{groupId}/daily/current` | 🔧 | redesign → `{ today, selection }` (§4.7) |
-| `POST` | `/api/groups/{groupId}/daily/select` | 🔧 | rewrite → set the **pending (next-day)** question; **must not activate early** |
-| `POST` | `/api/groups/{groupId}/daily/vote` | ✅ | submit vote (minor: return fresh results) |
+| `GET` | `/api/groups/{groupId}/daily/current` | ✅ | redesigned → `{ today, selection }` (§4.7); driven off `ActivatedAt` state |
+| `POST` | `/api/groups/{groupId}/daily/select` | ✅ | sets the **pending (next-day)** question; never activates early; inline-create runs full §9 validation |
+| `POST` | `/api/groups/{groupId}/daily/vote` | ✅ | submit vote; **returns fresh `QuestionResultDto`** |
 | `GET` | `/api/groups/{groupId}/daily/selection-sources` | 🆕 | questions the selector can pick (pool + base pack) |
 
 ### Questions (pool & history)
@@ -543,15 +554,16 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | FluentValidation wired; validators for Create{Question,Vote,Option}Dto | ✅ |
 | Entities: User, Group, GroupMember, Question, Option, Vote, DailyEntry | ✅ |
 | `QuestionSource` + `IsUsed`; QuestionType enum order remapped | ✅ |
-| `DailyPreselectionService` (preselect tomorrow + activate today) | ✅ (needs §4 alignment) |
+| `DailyPreselectionService` (preselect tomorrow + activate today; ≥2-member start gate) | ✅ — rama 3 |
 | `QuestionMetadataBuilder`, `ResultsBuilder` (incl. voters) | ✅ |
 | Groups: list/create/get/update/join/transfer-admin | ✅ |
-| Daily: current / select / vote | ✅ (current+select need redesign per §4) |
+| Daily: current / select / vote | ✅ — rama 3 (lifecycle rewrite per §4) |
 | Questions: pool / create / by-date | ✅ |
 | Migrations through `AddGroupTimeZoneId` | ✅ |
 | UTC+2 offset applied to today/tomorrow/T comparisons (`DailyClock` helper); `Group.TimeZoneId` (nullable, default `Europe/Madrid`, unused by MVP logic) | ✅ — rama 0 merged |
 | `GET /groups/{id}/members` (`{ id, username, avatarUrl, joinedAt, isAdmin }`); Angular `GroupMember` model + `getGroupMembers` service method | ✅ — rama 1 merged |
 | Base pack: `Pack` + `QuestionTemplate` (+`QuestionTemplateOption`) entities, `Question.CreatorId` nullable, idempotent `BasePackSeeder`, `TemplateCloner` (clone-on-use + auto-resolution §6.3), preselection fallback, `GET /daily/selection-sources`, `SelectQuestionDto.TemplateId`; Angular `SelectionSources` model + `getSelectionSources` | ✅ — rama 2 (`feat/base-pack`) |
+| Daily lifecycle rewrite: `daily/current` → `{ today, selection }` (driven off `ActivatedAt`); `daily/select` sets the **next-day** question with **no early activation**; inline-create runs full §9 validation (structural + group-membership, shared with `POST /questions`); `daily/vote` returns fresh results; ≥2-member start gate; `DailyClock.ToUtc` for `closesAt`/`activatesAt`; Angular `DailyStatus`/`SelectQuestion` models + `getCurrent`/`select`/`vote` | ✅ — rama 3 (`feat/daily-lifecycle`) |
 
 ### Pending (MVP) — see §13
 
@@ -568,7 +580,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 0 ✅ | `fix/daily-time-utc-offset` | Apply configurable **UTC+2** offset to all "today/tomorrow"/T comparisons in `DailyPreselectionService` and `DailyService`; add nullable `Group.TimeZoneId` column (default `Europe/Madrid`, unused by MVP logic) + migration. **Merged ([#13](https://github.com/alexsepulvedaramos/Preguntitas/pull/13)).** |
 | 1 ✅ | `feat/group-members` | `GET /members` (+ `isAdmin`); Angular models/service. **Unblocks person-based voting.** **Merged ([#15](https://github.com/alexsepulvedaramos/Preguntitas/pull/15)).** |
 | 2 ✅ | `feat/base-pack` | `Pack` + `QuestionTemplate` entities, migration (`Question.CreatorId` nullable), seed the **Base** pack (several of each type), clone-on-use + auto-resolution (§6.3), preselection fallback, `daily/selection-sources`. **Implemented on `feat/base-pack`** (migration pending apply). |
-| 3 | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. |
+| 3 ✅ | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. **Implemented on `feat/daily-lifecycle`.** |
 | 4 | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. |
 | 5 | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. |
 | 6 | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. |

@@ -8,5 +8,11 @@ public interface IQuestionsService
 {
     Task<IEnumerable<QuestionDto>> GetPoolAsync(int groupId);
     Task<QuestionResultDto?> GetByDateAsync(int groupId, DateOnly date);
-    Task<QuestionDto> CreateAsync(int groupId, int creatorId, CreateQuestionDto dto);
+
+    // Returns the created question, or an error message when membership validation fails (§9).
+    Task<(QuestionDto? question, string? error)> CreateAsync(
+        int groupId,
+        int creatorId,
+        CreateQuestionDto dto
+    );
 }

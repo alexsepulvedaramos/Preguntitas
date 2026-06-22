@@ -12,4 +12,12 @@ public static class DailyClock
     public static DateOnly Today() => DateOnly.FromDateTime(Now());
 
     public static TimeOnly TimeOfDay() => TimeOnly.FromDateTime(Now());
+
+    // The daily time T of a given local (UTC+2) date, expressed as a UTC instant.
+    // Used for closesAt / activatesAt: a question on local date D activates at D@time.
+    public static DateTime ToUtc(DateOnly date, TimeOnly time)
+    {
+        var local = date.ToDateTime(time);
+        return DateTime.SpecifyKind(local - UtcOffset, DateTimeKind.Utc);
+    }
 }
