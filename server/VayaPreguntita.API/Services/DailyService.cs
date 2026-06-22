@@ -520,8 +520,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                     || dto.SelectedTargetUserIds.Distinct().Count() != 2 =>
                 "Must select exactly 2 distinct users.",
 
-            QuestionType.SecretPairing
-                when !dto.SelectedTargetUserIds!.All(memberIds.Contains) =>
+            QuestionType.SecretPairing when !dto.SelectedTargetUserIds!.All(memberIds.Contains) =>
                 "Selected users must be group members.",
 
             QuestionType.Deathmatch
