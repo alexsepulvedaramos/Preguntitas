@@ -311,7 +311,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
             .Groups.Include(g => g.Members)
             .FirstOrDefaultAsync(g => g.Id == groupId);
 
-        if (group == null)
+        if (group == null || group.Members.Count == 0)
             return;
 
         var selector = CalculateSelector(group.Members, group.DateCreated, date);

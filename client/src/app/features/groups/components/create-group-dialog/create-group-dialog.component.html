@@ -2,10 +2,10 @@
   <button
     hlmDialogTrigger
     hlmBtn
-    class="w-full gap-2 rounded-full bg-accent-text font-bold text-primary-foreground hover:bg-primary-hover"
+    class="w-full gap-2 rounded-full bg-accent-text font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring"
   >
     <ng-icon hlm name="lucidePlus" />
-    Create new group
+    Crear nuevo grupo
   </button>
 
   <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-2xl max-w-[95vw]">
@@ -14,20 +14,20 @@
         hlmDialogTitle
         class="font-display text-xl italic tracking-wider text-foreground"
       >
-        Create group
+        Crear grupo
       </h3>
 
       @if (step() === CreateGroupStep.Name) {
-        <p hlmDialogDescription>Give your group a memorable name.</p>
+        <p hlmDialogDescription>Dale a tu grupo un nombre fácil de recordar.</p>
       }
 
       @if (step() === CreateGroupStep.Description) {
-        <p hlmDialogDescription>Add a short description (optional).</p>
+        <p hlmDialogDescription>Añade una breve descripción (opcional).</p>
       }
 
       @if (step() === CreateGroupStep.DailyTime) {
         <p hlmDialogDescription>
-          When should everyone receive the daily question?
+          ¿A qué hora debería llegar la pregunta diaria a todos?
         </p>
       }
     </hlm-dialog-header>
@@ -43,41 +43,47 @@
       ></button>
       <hlm-field-group class="py-4">
         @if (step() === CreateGroupStep.Name) {
-          <hlm-field>
-            <label hlmFieldLabel for="name"> Group name </label>
+          <hlm-field class="grid gap-1.5">
+            <label hlmFieldLabel for="name" class="text-sm font-medium text-foreground">
+              Nombre del grupo
+            </label>
 
             <input
               hlmInput
               id="name"
-              placeholder="e.g. Flatmates"
+              placeholder="p. ej. Compis de piso"
               formControlName="name"
+              class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             />
             @if (form.controls.name.invalid && form.controls.name.touched) {
               <hlm-field-error
-                >Group name must be at least 3 characters long.</hlm-field-error
+                >El nombre del grupo debe tener al menos 3 caracteres.</hlm-field-error
               >
             }
           </hlm-field>
         }
 
         @if (step() === CreateGroupStep.Description) {
-          <hlm-field>
-            <label hlmFieldLabel for="description"> Description </label>
+          <hlm-field class="grid gap-1.5">
+            <label hlmFieldLabel for="description" class="text-sm font-medium text-foreground">
+              Descripción
+            </label>
 
             <textarea
               hlmInput
               id="description"
               rows="4"
-              placeholder="What's this group about?"
+              placeholder="¿De qué va este grupo?"
               formControlName="description"
+              class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             ></textarea>
           </hlm-field>
         }
 
         @if (step() === CreateGroupStep.DailyTime) {
-          <hlm-field>
-            <label hlmFieldLabel for="dailyQuestionTime">
-              Daily reminder
+          <hlm-field class="grid gap-1.5">
+            <label hlmFieldLabel for="dailyQuestionTime" class="text-sm font-medium text-foreground">
+              Recordatorio diario
             </label>
 
             <input
@@ -85,6 +91,7 @@
               id="dailyQuestionTime"
               type="time"
               formControlName="dailyQuestionTime"
+              class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             />
           </hlm-field>
         }
@@ -92,14 +99,26 @@
 
       <hlm-dialog-footer>
         @if (step() > CreateGroupStep.Name) {
-          <button hlmBtn type="button" variant="secondary" (click)="back()">
-            Back
+          <button
+            hlmBtn
+            type="button"
+            variant="secondary"
+            class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="back()"
+          >
+            Atrás
           </button>
         }
 
         @if (step() < CreateGroupStep.DailyTime) {
-          <button hlmBtn type="button" variant="default" (click)="next()">
-            Next
+          <button
+            hlmBtn
+            type="button"
+            variant="default"
+            class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="next()"
+          >
+            Siguiente
           </button>
         } @else {
           <button
@@ -107,8 +126,9 @@
             variant="default"
             type="submit"
             [disabled]="form.invalid"
+            class="transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none"
           >
-            Let's get started
+            Empezar
           </button>
         }
       </hlm-dialog-footer>

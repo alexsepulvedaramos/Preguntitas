@@ -1,10 +1,15 @@
-<header class="bg-card border-b border px-4 py-3 flex items-center">
-  <div class="flex-1 flex justify-center">
+<header
+  class="sticky top-0 z-50 grid grid-cols-[1fr_auto_1fr] items-center border-b border-border bg-card/90 px-4 py-3 backdrop-blur-md transition-colors duration-200"
+>
+  <div class="flex items-center justify-start"></div>
+
+  <div class="flex justify-center min-w-0 whitespace-nowrap">
     <app-logo-wordmark />
   </div>
 
-  <div class="flex items-center justify-center gap-1">
+  <div class="flex items-center justify-end gap-1.5">
     <app-theme></app-theme>
+
     @if (authService.isAuthenticated()) {
       <app-user-menu></app-user-menu>
     }

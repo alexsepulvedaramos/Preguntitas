@@ -25,7 +25,7 @@ import { AuthService } from '../../auth/auth.service';
   templateUrl: './user-menu.component.html',
 })
 export class UserMenuComponent {
-  private readonly authService = inject(AuthService);
+  public readonly authService = inject(AuthService);
 
   logout(ctx: any) {
     this.authService.logout();

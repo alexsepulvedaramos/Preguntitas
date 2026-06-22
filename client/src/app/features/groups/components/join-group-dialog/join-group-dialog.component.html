@@ -3,9 +3,9 @@
     hlmDialogTrigger
     hlmBtn
     variant="link"
-    class="w-full text-primary hover:text-primary underline underline-offset-4"
+    class="w-full text-primary underline underline-offset-4 transition-colors hover:text-primary-hover focus-visible:ring-2 focus-visible:ring-ring"
   >
-    Join an existing group
+    Unirse a un grupo existente
   </button>
 
   <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-2xl max-w-[95vw]">
@@ -14,24 +14,27 @@
         hlmDialogTitle
         class="font-display text-xl italic tracking-wider text-foreground"
       >
-        Join group
+        Unirse a un grupo
       </h3>
 
       <p hlmDialogDescription>
-        Enter the invitation code to join an existing group.
+        Introduce el código de invitación para unirte a un grupo existente.
       </p>
     </hlm-dialog-header>
 
     <form [formGroup]="form" (ngSubmit)="joinGroup(ctx)">
       <hlm-field-group class="py-4">
-        <hlm-field>
-          <label hlmFieldLabel for="invitationCode"> Invitation code </label>
+        <hlm-field class="grid gap-1.5">
+          <label hlmFieldLabel for="invitationCode" class="text-sm font-medium text-foreground">
+            Código de invitación
+          </label>
 
           <input
             hlmInput
             id="invitationCode"
-            placeholder="e.g. ABC123"
+            placeholder="p. ej. ABC123"
             formControlName="invitationCode"
+            class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           @if (form.controls.invitationCode.hasError('serverError')) {
             <hlm-field-error>
@@ -43,7 +46,7 @@
               form.controls.invitationCode.touched)
           ) {
             <hlm-field-error>
-              Please enter a valid invitation code. For example, ABC123.
+              Introduce un código de invitación válido. Por ejemplo, ABC123.
             </hlm-field-error>
           }
         </hlm-field>
@@ -55,8 +58,9 @@
           variant="default"
           type="submit"
           [disabled]="form.invalid"
+          class="transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none"
         >
-          Join group
+          Unirse al grupo
         </button>
       </hlm-dialog-footer>
     </form>
