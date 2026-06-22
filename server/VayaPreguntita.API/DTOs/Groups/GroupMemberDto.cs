@@ -5,5 +5,7 @@ public class GroupMemberDto
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
     public DateTime JoinedAt { get; set; }
+    public bool IsAdmin { get; set; }
 }
