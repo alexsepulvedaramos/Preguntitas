@@ -24,4 +24,7 @@ public interface IGroupsService
 
     // Attempts to add a user to a group using an invitation code.
     Task<bool> JoinGroupAsync(int userId, string invitationCode);
+
+    // Retrieves the members of a group, ordered by join date
+    Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId);
 }

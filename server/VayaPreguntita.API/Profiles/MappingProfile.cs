@@ -23,7 +23,9 @@ public class MappingProfile : Profile
         CreateMap<GroupMember, GroupMemberDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.Username))
-            .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt));
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => (string?)null))
+            .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt))
+            .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.UserId == src.Group.AdminId));
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))

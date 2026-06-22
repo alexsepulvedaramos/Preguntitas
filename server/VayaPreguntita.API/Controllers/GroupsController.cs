@@ -85,6 +85,27 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     }
 
     /// <summary>
+    /// GET /api/groups/{groupId}/members
+    /// Lists the members of a group, including who the admin is.
+    /// </summary>
+    [HttpGet("{groupId}/members")]
+    public async Task<IActionResult> GetGroupMembers(int groupId)
+    {
+        var userId = User.GetUserId();
+
+        var group = await groupsService.GetGroupAsync(groupId);
+        if (group == null)
+            return NotFound();
+
+        var hasAccess = await groupsService.IsUserInGroupAsync(userId, groupId);
+        if (!hasAccess)
+            return Forbid();
+
+        var members = await groupsService.GetGroupMembersAsync(groupId);
+        return Ok(members);
+    }
+
+    /// <summary>
     /// POST /api/groups/join
     /// Allows the authenticated user to join a group using an invitation code.
     /// </summary>

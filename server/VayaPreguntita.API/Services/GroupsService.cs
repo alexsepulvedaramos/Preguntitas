@@ -123,6 +123,15 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
         return true;
     }
 
+    public async Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId)
+    {
+        return await context
+            .GroupMembers.Where(gm => gm.GroupId == groupId)
+            .OrderBy(gm => gm.JoinedAt)
+            .ProjectTo<GroupMemberDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+
     // Helper method to generate a short alphanumeric string
     private static string GenerateRandomCode(int length)
     {

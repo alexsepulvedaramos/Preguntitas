@@ -13,6 +13,14 @@ export interface GroupResponse {
     dailyQuestionTime: string;
 }
 
+export interface GroupMember {
+    id: number;
+    username: string;
+    avatarUrl: string | null;
+    joinedAt: string;
+    isAdmin: boolean;
+}
+
 export interface JoinGroupRequest {
     invitationCode: string;
 }

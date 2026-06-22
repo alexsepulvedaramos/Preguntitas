@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import {
     CreateGroupRequest,
+    GroupMember,
     GroupResponse,
     JoinGroupRequest,
     TransferAdminRequest,
@@ -40,6 +41,11 @@ export class GroupsService {
     // Kept as an Observable since it represents a one-off fetch, not global state.
     getGroup(groupId: number): Observable<GroupResponse> {
         return this.http.get<GroupResponse>(`${this.baseUrl}/${groupId}`);
+    }
+
+    // Fetches the members of a group, including who the admin is
+    getGroupMembers(groupId: number): Observable<GroupMember[]> {
+        return this.http.get<GroupMember[]>(`${this.baseUrl}/${groupId}/members`);
     }
 
     // Updates basic information of an existing group
