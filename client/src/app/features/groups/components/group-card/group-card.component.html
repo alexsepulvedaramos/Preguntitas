@@ -11,7 +11,7 @@
         {{ group().description }}
       </p>
       <p hlmCardDescription class="text-xs text-muted-foreground/60">
-        Created by {{ group().creatorUsername }}
+        Creado por {{ group().creatorUsername }}
       </p>
     </div>
 
@@ -21,20 +21,20 @@
         hlmBtn
         variant="outline"
         size="sm"
-        class="shrink-0 bg-sand"
+        class="shrink-0 bg-sand hover:bg-sand/80 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
         (click)="$event.stopPropagation()"
       >
         <ng-icon hlm name="lucideUserPlus" />
-        Invite
+        Invitar
       </button>
 
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
         <hlm-dialog-header>
           <h3 hlmDialogTitle class="font-display text-xl text-foreground">
-            Invite to {{ group().name }}
+            Invitar a {{ group().name }}
           </h3>
           <p hlmDialogDescription>
-            Use the invitation code or the direct link to add members.
+            Usa el código de invitación o el enlace directo para añadir miembros.
           </p>
         </hlm-dialog-header>
 
@@ -43,7 +43,7 @@
             <label
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
             >
-              Invitation Code
+              Código de invitación
             </label>
             <div class="flex items-center gap-2">
               <input
@@ -56,8 +56,10 @@
                 hlmBtn
                 variant="secondary"
                 size="icon"
+                class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="copyCodeToClipboard()"
-                title="Copy code"
+                aria-label="Copiar código"
+                title="Copiar código"
               >
                 @if (isCodeCopied()) {
                   <ng-icon hlm name="lucideCheck" />
@@ -68,8 +70,8 @@
             </div>
             <div class="h-4 text-xs text-center">
               @if (isCodeCopied()) {
-                <span class="text-green-500 font-medium"
-                  >Code copied to clipboard!</span
+                <span class="text-success font-medium"
+                  >¡Código copiado al portapapeles!</span
                 >
               }
             </div>
@@ -88,7 +90,7 @@
             <label
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
             >
-              Link
+              Enlace
             </label>
             <div class="flex items-center gap-2">
               <input
@@ -101,11 +103,13 @@
                 hlmBtn
                 variant="secondary"
                 size="icon"
+                class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="copyLinkToClipboard()"
-                title="Copy link"
+                aria-label="Copiar enlace"
+                title="Copiar enlace"
               >
                 @if (isLinkCopied()) {
-                  <ng-icon hlm name="lucideCheck" class="text-green-500" />
+                  <ng-icon hlm name="lucideCheck" class="text-success" />
                 } @else {
                   <ng-icon hlm name="lucideCopy" />
                 }
@@ -113,8 +117,8 @@
             </div>
             <div class="h-4 text-xs text-center">
               @if (isLinkCopied()) {
-                <span class="text-green-500 font-medium"
-                  >Link copied to clipboard!</span
+                <span class="text-success font-medium"
+                  >¡Enlace copiado al portapapeles!</span
                 >
               }
             </div>
@@ -125,11 +129,11 @@
           <button
             hlmBtn
             variant="default"
-            class="w-full gap-2"
+            class="w-full gap-2 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
             (click)="shareWithNativeApi()"
           >
             <ng-icon hlm name="lucideShare2" />
-            Share options
+            Más opciones para compartir
           </button>
         </hlm-dialog-footer>
       </hlm-dialog-content>

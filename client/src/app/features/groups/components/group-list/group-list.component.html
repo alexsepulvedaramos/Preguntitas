@@ -1,7 +1,7 @@
 <div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
   <section>
     <h2 class="text-xs font-bold uppercase tracking-widest text-primary mb-3">
-      Your groups
+      Tus grupos
     </h2>
 
     <div class="flex flex-col gap-3">
@@ -10,10 +10,10 @@
       } @empty {
         <div class="text-center py-8">
           <p class="font-display italic text-lg text-primary/70">
-            You don't have any groups yet
+            Todavía no tienes ningún grupo
           </p>
           <p class="text-sm text-muted-foreground mt-1">
-            Create one or join a friend's group
+            Crea uno o únete al grupo de un amigo
           </p>
         </div>
       }
@@ -22,7 +22,7 @@
 
   <section class="flex flex-col gap-2">
     <app-create-group-dialog></app-create-group-dialog>
-    <span class="text-center text-sm text-muted-foreground"> or </span>
+    <span class="text-center text-sm text-muted-foreground"> o </span>
     <app-join-group-dialog></app-join-group-dialog>
   </section>
 </div>
