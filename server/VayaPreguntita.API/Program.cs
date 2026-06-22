@@ -105,6 +105,23 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAss
 var app = builder.Build();
 
 // ====================================================================
+// 1.b Seed the always-on "Base" pack (idempotent)
+// ====================================================================
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await BasePackSeeder.SeedAsync(db);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Base pack seeding skipped (is the migration applied?).");
+    }
+}
+
+// ====================================================================
 // 2. HTTP Request Pipeline (Middleware)
 // ====================================================================
 

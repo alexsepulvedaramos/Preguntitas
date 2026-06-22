@@ -18,6 +18,7 @@ Before implementing anything in this repo:
 - Model guidance: Sonnet by default; reach for Opus on the genuinely hard ramas (the daily-lifecycle rewrite, the base-pack clone/auto-resolution logic, SignalR auth) per the developer's plan.
 - Don't run `dotnet ef database update` (apply a migration) without explicit confirmation.
 - Don't implement Phase 2 items (see spec §13/§16) without explicit confirmation.
+- **Update the spec inside the feature branch, before opening the PR.** Once the work is confirmed complete, mark the rama done in §12/§13 and fold in any confirmed spec changes as part of the same branch — don't defer it to a separate docs-only branch/PR afterwards.
 
 ## Conventions (see spec §14 for full detail)
 
