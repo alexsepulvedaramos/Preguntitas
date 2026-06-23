@@ -7,6 +7,7 @@ import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
 import { ScaleResultComponent } from '../scale-result/scale-result.component';
 import { DeathmatchResultComponent } from '../deathmatch-result/deathmatch-result.component';
+import { FreeTextResponsesComponent } from '../free-text-responses/free-text-responses.component';
 
 // Results dispatcher (rama 7, spec §13 row 7): mirrors the voting dispatcher (rama 6,
 // `app-vote`). Custom Poll, Superlative and Secret Pairing share the exact same shape
@@ -15,7 +16,12 @@ import { DeathmatchResultComponent } from '../deathmatch-result/deathmatch-resul
 // need dedicated sub-components.
 @Component({
   selector: 'app-results',
-  imports: [ResultOptionBarComponent, ScaleResultComponent, DeathmatchResultComponent],
+  imports: [
+    ResultOptionBarComponent,
+    ScaleResultComponent,
+    DeathmatchResultComponent,
+    FreeTextResponsesComponent,
+  ],
   templateUrl: './results.component.html',
 })
 export class ResultsComponent {

@@ -6,4 +6,5 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
     [QuestionType.Deathmatch]: 'Deathmatch',
     [QuestionType.Scale]: 'Escala',
     [QuestionType.SecretPairing]: 'Pareja secreta',
+    [QuestionType.OpenText]: 'Respuesta abierta',
 };

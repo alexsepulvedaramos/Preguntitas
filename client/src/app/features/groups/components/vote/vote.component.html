@@ -24,6 +24,9 @@
     @case (QuestionType.SecretPairing) {
       <app-secret-pairing-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
     }
+    @case (QuestionType.OpenText) {
+      <app-open-text-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
   }
 
   @if (submitting()) {

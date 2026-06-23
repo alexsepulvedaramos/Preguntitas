@@ -1,0 +1,22 @@
+<div class="flex flex-col gap-2">
+  <textarea
+    hlmInput
+    rows="3"
+    [attr.maxlength]="maxLength"
+    [value]="answer()"
+    (input)="onInput($any($event.target).value)"
+    placeholder="Escribe tu respuesta..."
+    class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+  ></textarea>
+  <span class="text-xs text-muted-foreground self-end">{{ answer().length }}/{{ maxLength }}</span>
+</div>
+
+<button
+  type="button"
+  hlmBtn
+  class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+  [disabled]="!isValid()"
+  (click)="submit()"
+>
+  Enviar respuesta
+</button>

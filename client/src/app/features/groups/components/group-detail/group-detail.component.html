@@ -39,13 +39,6 @@
       <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
     </div>
   } @else {
-    @if (daily()?.selection?.isCurrentUserSelector) {
-      <div hlmBadge class="w-fit gap-1.5 bg-accent text-accent-foreground">
-        <ng-icon hlm name="lucideSparkles" />
-        Te toca elegir la pregunta de mañana
-      </div>
-    }
-
     @switch (daily()?.today?.status) {
       @case ('voting') {
         <app-vote
@@ -86,6 +79,16 @@
 
     @if (daily()?.today?.status !== 'no_question') {
       <app-countdown [target]="daily()?.today?.closesAt ?? null" />
+    }
+
+    @if (daily()?.selection; as selection) {
+      <app-select-question-dialog
+        [groupId]="numericGroupId()"
+        [members]="members()"
+        [isSelector]="selection.isCurrentUserSelector"
+        [pendingQuestion]="selection.pendingQuestion"
+        (selected)="refresh()"
+      />
     }
   }
 </div>

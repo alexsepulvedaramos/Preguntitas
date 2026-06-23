@@ -8,4 +8,5 @@ export const QUESTION_TYPE_BADGE_CLASS: Record<QuestionType, string> = {
   [QuestionType.Deathmatch]: 'bg-chart-3/15 text-chart-3',
   [QuestionType.SecretPairing]: 'bg-chart-4/15 text-chart-4',
   [QuestionType.Scale]: 'bg-chart-5/15 text-chart-5',
+  [QuestionType.OpenText]: 'bg-chart-6/15 text-chart-6',
 };

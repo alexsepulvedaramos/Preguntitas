@@ -168,6 +168,34 @@
   body {
     @apply bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground;
   }
+
+  /* Slim, rounded scrollbars that sit inside the content (so they don't clash with
+   * rounded corners like the selection dialog). Firefox + WebKit/Blink. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
+    background-clip: padding-box;
+  }
 }
 
 @theme {

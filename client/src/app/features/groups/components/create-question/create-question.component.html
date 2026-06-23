@@ -1,0 +1,129 @@
+<div class="flex flex-col gap-4">
+  <div class="rounded-xl border-2 border-border bg-card p-4 flex flex-col gap-2">
+    <div class="flex items-center gap-1.5">
+      <span class="text-sm font-medium text-foreground">Tipo de pregunta</span>
+      <span class="relative inline-flex">
+        <button
+          type="button"
+          class="text-muted-foreground hover:text-foreground transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="toggleInfo($event)"
+          [attr.aria-pressed]="infoOpen()"
+          aria-label="Qué es este tipo de pregunta"
+        >
+          <ng-icon hlm name="lucideInfo" size="16" />
+        </button>
+        @if (infoOpen()) {
+          <span
+            class="absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-md bg-foreground px-3 py-2 text-xs leading-snug text-background shadow-lg"
+          >
+            {{ description() }}
+            <span
+              class="absolute left-1/2 top-full size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-foreground"
+            ></span>
+          </span>
+        }
+      </span>
+    </div>
+    <hlm-native-select
+      class="!w-full"
+      [value]="type().toString()"
+      (valueChange)="onTypeChange($event)"
+    >
+      @for (t of types; track t) {
+        <option hlmNativeSelectOption [value]="t">{{ QUESTION_TYPE_LABELS[t] }}</option>
+      }
+    </hlm-native-select>
+  </div>
+
+  <hlm-field class="grid gap-1.5">
+    <label hlmFieldLabel for="questionText" class="text-sm font-medium text-foreground"
+      >Pregunta <span class="text-destructive" aria-hidden="true">*</span></label
+    >
+    <input
+      hlmInput
+      id="questionText"
+      [placeholder]="placeholder()"
+      maxlength="200"
+      [value]="text()"
+      (input)="onTextChange($any($event.target).value)"
+      (blur)="textTouched.set(true)"
+      class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+    />
+    @if (!textValid() && textTouched()) {
+      <hlm-field-error>Escribe la pregunta (entre 3 y 200 caracteres).</hlm-field-error>
+    }
+  </hlm-field>
+
+  @switch (type()) {
+    @case (QuestionType.Superlative) {
+      <app-superlative-create
+        [members]="members()"
+        [(allowNobody)]="allowNobody"
+        [(blacklistedUserIds)]="blacklistedUserIds"
+      />
+    }
+    @case (QuestionType.Deathmatch) {
+      <app-deathmatch-create [members]="members()" [(teams)]="teams" [showErrors]="typeTouched()" />
+    }
+    @case (QuestionType.Scale) {
+      <app-scale-create
+        [members]="members()"
+        [(targetUserId)]="targetUserId"
+        [(rangeMin)]="rangeMin"
+        [(rangeMax)]="rangeMax"
+      />
+    }
+    @case (QuestionType.CustomPoll) {
+      <app-custom-poll-create
+        [(options)]="options"
+        [(minSelections)]="minSelections"
+        [(maxSelections)]="maxSelections"
+        [(allowOther)]="allowOther"
+      />
+    }
+    @case (QuestionType.OpenText) {
+      <p class="text-sm text-muted-foreground">
+        Cada miembro responderá con su propio texto. No hay nada más que configurar.
+      </p>
+    }
+  }
+
+  @if (typeTouched() && typeError()) {
+    <p class="text-sm text-destructive">{{ typeError() }}</p>
+  }
+
+  @if (submitting()) {
+    <div class="flex items-center gap-2 text-sm text-muted-foreground">
+      <hlm-spinner class="size-4" />
+      Guardando...
+    </div>
+  }
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex flex-col gap-2">
+    @if (showSelectButton()) {
+      <button
+        type="button"
+        hlmBtn
+        class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="submitting() || (textTouched() && !isValid())"
+        (click)="selectForTomorrow()"
+      >
+        Elegir para mañana
+      </button>
+    }
+    <button
+      type="button"
+      hlmBtn
+      [variant]="showSelectButton() ? 'secondary' : 'default'"
+      class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+      [disabled]="submitting() || (textTouched() && !isValid())"
+      (click)="saveToPool()"
+    >
+      {{ showSelectButton() ? 'Guardar sin elegir todavía' : 'Guardar pregunta' }}
+    </button>
+  </div>
+</div>

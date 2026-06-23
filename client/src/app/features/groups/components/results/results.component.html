@@ -2,6 +2,8 @@
   <app-scale-result [question]="question()" [result]="result()" />
 } @else if (question().type === QuestionType.Deathmatch) {
   <app-deathmatch-result [result]="result()" />
+} @else if (question().type === QuestionType.OpenText) {
+  <app-free-text-responses [responses]="result().freeTextResponses" />
 } @else {
   <!-- CustomPoll, Superlative, SecretPairing: identical shape, an already-sorted,
        already-aggregated list of OptionResultDto rows. -->
@@ -19,4 +21,12 @@
       />
     }
   </div>
+
+  <!-- Custom Poll "Otro" free-text answers, if any. -->
+  @if (question().type === QuestionType.CustomPoll && result().freeTextResponses.length > 0) {
+    <div class="flex flex-col gap-2 mt-3">
+      <p class="text-xs uppercase tracking-wide text-muted-foreground">Otras respuestas</p>
+      <app-free-text-responses [responses]="result().freeTextResponses" />
+    </div>
+  }
 }

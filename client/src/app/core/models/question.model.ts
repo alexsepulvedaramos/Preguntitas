@@ -17,6 +17,7 @@ export interface QuestionToVote {
     rangeMin?: number | null;
     rangeMax?: number | null;
     targetUserId?: number | null;
+    allowOther: boolean;
     teams: number[][];
     options: Option[];
 }
@@ -33,6 +34,19 @@ export interface CreateQuestion {
     targetUserId?: number | null;
     minSelections?: number | null;
     maxSelections?: number | null;
+    allowOther: boolean;
     teams: number[][];
     options: { text: string }[];
+}
+
+// Mirrors backend QuestionDto — a pool question (GET .../questions/pool).
+export interface Question {
+    id: number;
+    text: string;
+    type: QuestionType;
+    isUsed: boolean;
+    dateCreated: string;
+    dateActivated: string | null;
+    creatorId: number | null;
+    options: Option[];
 }
