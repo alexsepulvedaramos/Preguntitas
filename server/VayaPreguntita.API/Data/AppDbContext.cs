@@ -66,6 +66,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<QuestionTemplate>().OwnsOne(t => t.Metadata, ConfigureMetadata);
 
         // ==========================================
+        // QUESTION → QUESTION TEMPLATE (optional back-link for pack clones)
+        // ==========================================
+        modelBuilder
+            .Entity<Question>()
+            .HasOne(q => q.Template)
+            .WithMany()
+            .HasForeignKey(q => q.TemplateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // ==========================================
         // PACK / QUESTION TEMPLATE — relaciones
         // ==========================================
         modelBuilder

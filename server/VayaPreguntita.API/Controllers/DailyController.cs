@@ -75,6 +75,9 @@ public class DailyController(IDailyService dailyService, IGroupsService groupsSe
             SelectResult.AlreadyActivated => BadRequest(
                 "La pregunta ya está activa y no se puede cambiar."
             ),
+            SelectResult.RecentlyUsedTemplate => BadRequest(
+                "Esta pregunta del pack ya se usó recientemente. Elige otra."
+            ),
             _ => StatusCode(500),
         };
     }

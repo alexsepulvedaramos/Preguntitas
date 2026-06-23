@@ -44,6 +44,7 @@ public static class TemplateCloner
             Type = template.Type,
             Source = QuestionSource.Pack,
             CreatorId = null,
+            TemplateId = template.Id,
             GroupId = groupId,
             IsUsed = false,
             DateCreated = DateTime.UtcNow,
