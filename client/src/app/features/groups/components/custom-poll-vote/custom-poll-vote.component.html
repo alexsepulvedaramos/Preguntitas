@@ -1,0 +1,22 @@
+<div class="flex flex-col gap-2">
+  @for (option of question().options; track option.id) {
+    <button
+      type="button"
+      [class]="optionClass(option.id)"
+      [attr.aria-pressed]="selected().includes(option.id)"
+      (click)="toggle(option.id)"
+    >
+      {{ option.text }}
+    </button>
+  }
+</div>
+
+<button
+  type="button"
+  hlmBtn
+  class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+  [disabled]="!isValid()"
+  (click)="submit()"
+>
+  Votar
+</button>

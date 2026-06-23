@@ -109,9 +109,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict);
 
         // ==========================================
-        // VOTE - a user can only vote once per question
+        // VOTE — one-vote-per-question is enforced in DailyService.VoteAsync
+        // (not here): SecretPairing and multi-select CustomPoll legitimately
+        // write more than one Vote row per (QuestionId, UserId).
         // ==========================================
-        modelBuilder.Entity<Vote>().HasIndex(v => new { v.QuestionId, v.UserId }).IsUnique();
+        modelBuilder.Entity<Vote>().HasIndex(v => new { v.QuestionId, v.UserId });
 
         modelBuilder
             .Entity<Vote>()

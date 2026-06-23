@@ -122,22 +122,31 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow });
         await context.SaveChangesAsync();
 
-        // Seed the group's first DailyEntry once it reaches 2 members, so it doesn't sit
-        // without a cycle until the next background-service tick after today's T. Mirrors
-        // the "brand-new group" rule in DailyService.NextActivationDate: target today if T
-        // hasn't passed yet, otherwise tomorrow. Activation itself still only ever happens
-        // at T, in DailyPreselectionService — the daily time is sacred (§4.1).
+        // Seed the group's first DailyEntry once it reaches 2 members. Bootstrap exception to
+        // the "daily time is sacred" rule (§4.1): the very first question activates
+        // immediately so members aren't left waiting up to 24h with nothing to do, but it
+        // still closes at the next real T (today's T if it hasn't passed yet, otherwise
+        // tomorrow's) — not a full 24h later — so the normal cadence resumes at the very
+        // next T instead of skipping an entire cycle. It's dated one day *before* that T so
+        // it doesn't collide with the regularly-queued entry, which takes the real T date;
+        // ClosesAt/ActivatesAt (Date+1@T) and CalculateSelector both work unmodified off that.
         if (group.Members.Count == 2)
         {
+            var today = DailyClock.Today();
             var hasEntries = await context.DailyEntries.AnyAsync(d => d.GroupId == group.Id);
 
             if (!hasEntries)
             {
-                var today = DailyClock.Today();
-                var targetDate =
+                var nextActivation =
                     DailyClock.TimeOfDay() < group.DailyQuestionTime ? today : today.AddDays(1);
+                var bootstrapDate = nextActivation.AddDays(-1);
 
-                await dailyService.PreselectForGroupAsync(group.Id, targetDate);
+                await dailyService.PreselectForGroupAsync(
+                    group.Id,
+                    bootstrapDate,
+                    activateImmediately: true
+                );
+                await dailyService.PreselectForGroupAsync(group.Id, nextActivation);
             }
         }
 

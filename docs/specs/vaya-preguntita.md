@@ -141,6 +141,8 @@ This is the heart of the app. Read it carefully — the previous implementation 
 
 A question **always activates exactly at the group's `DailyQuestionTime` (T)** and closes 24 h later, at the next T. This guarantees every question gets a full, equal 24-hour voting window. **Nothing — not even a manual selection — may activate a question earlier than T.**
 
+**Bootstrap exception:** the very *first* question of a brand-new group is the one case that activates immediately instead of waiting for T — when a group reaches 2 members (`GroupsService.JoinGroupAsync`), that question goes live right away so members aren't stuck for up to 24h with nothing to do. It still *closes* at the next real T (today's, if it hasn't passed yet — otherwise tomorrow's), not a full 24h later, so the normal cadence resumes at the very next T instead of skipping a cycle. The next cycle's question is preselected normally for that same T (`PreselectForGroupAsync` is called a second time, dated for the real next-T day; the bootstrap entry itself is dated one day earlier so the two don't collide on the `(GroupId, Date)` key — `CalculateSelector`'s day-count math is adjusted to tolerate that). From that point on every cycle is again a full, equal T-to-T window. This fires once per group, never on a later selection.
+
 > Time zone for the MVP is fixed at **UTC+2** (Spain). A nullable `Group.TimeZoneId` column (default `Europe/Madrid`) is added **now** for forward-compatibility, but MVP logic ignores it and uses UTC+2. Per-group IANA time-zone *logic* is Phase 2.
 
 ### 4.2 Selection is for the *next* day
@@ -227,7 +229,7 @@ the selector** (`isCurrentUserSelector == true`). Other members see who the sele
 whether something is auto-selected, but not the question text — preserving the surprise until
 it activates at T.
 
-The Angular `DailyComponent` uses `@switch` on `today.status` to render the voting/results sub-component, and shows the selection panel when `selection.isCurrentUserSelector` is true.
+The Angular `DailyComponent` uses `@switch` on `today.status` to render the voting/results sub-component, and shows the selection panel when `selection.isCurrentUserSelector` is true. A `CountdownComponent` renders `today.closesAt` as a live "siguiente pregunta en…" label so the next T is always visible, including right after the bootstrap exception (§4.1) when the first cycle's window isn't a full 24h.
 
 ---
 
@@ -565,11 +567,12 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Base pack: `Pack` + `QuestionTemplate` (+`QuestionTemplateOption`) entities, `Question.CreatorId` nullable, idempotent `BasePackSeeder`, `TemplateCloner` (clone-on-use + auto-resolution §6.3), preselection fallback, `GET /daily/selection-sources`, `SelectQuestionDto.TemplateId`; Angular `SelectionSources` model + `getSelectionSources` | ✅ — rama 2 (`feat/base-pack`) |
 | Daily lifecycle rewrite: `daily/current` → `{ today, selection }` (driven off `ActivatedAt`); `daily/select` sets the **next-day** question with **no early activation**; inline-create runs full §9 validation (structural + group-membership, shared with `POST /questions`); `daily/vote` returns fresh results; ≥2-member start gate; `DailyClock.ToUtc` for `closesAt`/`activatesAt`; Angular `DailyStatus`/`SelectQuestion` models + `getCurrent`/`select`/`vote` | ✅ — rama 3 (`feat/daily-lifecycle`) |
 | Branding & design-system foundation: Tailwind `@theme` tokens, color/spacing/type scales, dark mode + WCAG AA contrast, Spartan component theming & states | ✅ — rama 4 (`feat/design-system`, [#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)) |
-| Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton loading state; "te toca elegir" indicator; refresh button; `JoinGroupAsync` cold-start seeds the first `DailyEntry` once a group reaches 2 members (target date mirrors `NextActivationDate`'s today/tomorrow rule; activation still only ever happens at T via `DailyPreselectionService`) | ✅ — rama 5 (`feat/group-detail`) |
+| Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton loading state; "te toca elegir" indicator; refresh button; `JoinGroupAsync` cold-start seeds the first `DailyEntry` once a group reaches 2 members | ✅ — rama 5 (`feat/group-detail`) |
+| Voting UI: `app-vote` dispatcher + five per-type sub-components (superlative, deathmatch, scale, secret-pairing, custom-poll); wired into `GroupDetailComponent`'s `'voting'` case. Backend (`CreateVoteDto`, `POST vote` → `QuestionResultDto`) was already complete from rama 3 — this branch only built the Angular UI and fixed `CreateVote`/`QuestionResult` frontend models to match the backend DTOs exactly. `Votes` unique index relaxed to non-unique on `(QuestionId, UserId)` (SecretPairing/multi-select CustomPoll legitimately write more than one row per user per question). Bootstrap exception added (§4.1): `JoinGroupAsync` now activates the group's first question immediately instead of waiting for T, with a second question preselected normally for the real next T; `CountdownComponent` shows a live "siguiente pregunta en…" label off `today.closesAt`, turning red under 5 minutes | ✅ — rama 6 (`feat/voting`) |
 
 ### Pending (MVP) — see §13
 
-History list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · limits.
+History list · group management (leave/kick/regenerate) · pool delete · results visualization (who voted for what) · limits.
 
 ---
 
@@ -585,7 +588,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 3 ✅ | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. **Implemented on `feat/daily-lifecycle`.** |
 | 4 ✅ | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. **Merged ([#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)).** |
 | 5 ✅ | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. **Implemented on `feat/group-detail`.** |
-| 6 | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. |
+| 6 ✅ | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. Backend was already complete from rama 3; this branch built the Angular UI (`app-vote` dispatcher + per-type components) and fixed two frontend DTOs that had drifted from the backend contract. **Implemented on `feat/voting`.** |
 | 7 | `feat/results-view` | Per-type results visualization incl. **who voted for what**. |
 | 8 | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question. |
 | 9 | `feat/history` | `GET /history` (paginated) + history UI with date picker; **open archive** — results shown regardless of whether the user voted (Phase 2 gates this behind a late vote). |

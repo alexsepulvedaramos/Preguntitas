@@ -15,5 +15,5 @@ public interface IDailyService
         int userId,
         CreateVoteDto dto
     );
-    Task PreselectForGroupAsync(int groupId, DateOnly date);
+    Task PreselectForGroupAsync(int groupId, DateOnly date, bool activateImmediately = false);
 }

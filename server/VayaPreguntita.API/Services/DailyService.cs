@@ -387,7 +387,11 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // PRESELECT FOR TOMORROW (called by DailyPreselectionService)
     // Only groups with ≥ 2 members run a cycle (§4.3, §4.5).
     // ==========================================
-    public async Task PreselectForGroupAsync(int groupId, DateOnly date)
+    public async Task PreselectForGroupAsync(
+        int groupId,
+        DateOnly date,
+        bool activateImmediately = false
+    )
     {
         // Idempotent: if an entry already exists for that date, do nothing.
         var exists = await context.DailyEntries.AnyAsync(d =>
@@ -434,7 +438,10 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         {
             question.IsUsed = true;
         }
-        // No DateActivated here — it is set when the question really activates at T.
+        // DateActivated/ActivatedAt stay null here unless activateImmediately — the bootstrap
+        // exception (§4.1) for a group's very first question. Every later cycle activates at T.
+        if (activateImmediately)
+            question.DateActivated = DateTime.UtcNow;
 
         context.DailyEntries.Add(
             new DailyEntry
@@ -445,7 +452,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 SelectorUserId = selector.UserId,
                 IsAutoSelected = true,
                 PreselectedAt = DateTime.UtcNow,
-                ActivatedAt = null, // Activates at the group's configured time.
+                ActivatedAt = activateImmediately ? DateTime.UtcNow : null,
             }
         );
 
@@ -464,7 +471,9 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     {
         var daysSinceCreation = date.DayNumber - DateOnly.FromDateTime(groupCreatedAt).DayNumber;
         var ordered = members.OrderBy(m => m.JoinedAt).ToList();
-        var index = daysSinceCreation % ordered.Count;
+        // Safe modulo: the bootstrap entry (see JoinGroupAsync) can land one day before the
+        // group's creation date, making daysSinceCreation negative.
+        var index = ((daysSinceCreation % ordered.Count) + ordered.Count) % ordered.Count;
         return ordered[index];
     }
 

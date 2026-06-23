@@ -1,4 +1,5 @@
 import { User } from './user.model';
+import { QuestionType } from '../enums/question-type.enum';
 
 export interface Voter {
     id: number;
@@ -14,10 +15,11 @@ export interface OptionResult {
     percentage: number;
 }
 
+// Mirrors backend QuestionResultDto.
 export interface QuestionResult {
     id: number;
     text: string;
-    creator: string;
+    type: QuestionType;
     dateCreated: string | Date;
     totalVotes: number;
     results: OptionResult[];

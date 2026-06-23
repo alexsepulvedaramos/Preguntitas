@@ -1,0 +1,33 @@
+<section class="rounded-default border border-border bg-card p-5 flex flex-col gap-4">
+  <span hlmBadge variant="secondary" class="w-fit">{{ questionTypeLabel() }}</span>
+  <p class="vp-question-text text-foreground">{{ question().text }}</p>
+
+  @switch (question().type) {
+    @case (QuestionType.CustomPoll) {
+      <app-custom-poll-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
+    @case (QuestionType.Superlative) {
+      <app-superlative-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
+    @case (QuestionType.Deathmatch) {
+      <app-deathmatch-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
+    @case (QuestionType.Scale) {
+      <app-scale-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
+    @case (QuestionType.SecretPairing) {
+      <app-secret-pairing-vote [question]="question()" [members]="members()" (vote)="submit($event)" />
+    }
+  }
+
+  @if (submitting()) {
+    <div class="flex items-center gap-2 text-sm text-muted-foreground">
+      <hlm-spinner class="size-4" />
+      Enviando voto...
+    </div>
+  }
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+</section>

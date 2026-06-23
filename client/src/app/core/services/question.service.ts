@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 // Import the DTOs we created earlier
 import { CreateQuestion, QuestionToVote } from '../models/question.model';
-import { CreateVote } from '../models/vote.model';
 import { QuestionResult } from '../models/result.model';
 import { environment } from '../../../environments/environment';
 
@@ -29,10 +28,5 @@ export class QuestionService {
   // POST /api/questions
   createQuestion(question: CreateQuestion): Observable<any> {
     return this.http.post(this.apiUrl, question);
-  }
-
-  // POST /api/questions/{id}/vote
-  submitVote(vote: CreateVote): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${vote.questionId}/vote`, vote);
   }
 }
