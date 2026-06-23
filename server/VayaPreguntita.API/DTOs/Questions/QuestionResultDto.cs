@@ -14,6 +14,10 @@ public class QuestionResultDto
 
     // OpenText answers, and CustomPoll "Otro" free-text answers.
     public List<FreeTextResponseDto> FreeTextResponses { get; set; } = [];
+
+    // Scale only — needed by the frontend to render the full distribution range.
+    public int? RangeMin { get; set; }
+    public int? RangeMax { get; set; }
 }
 
 public class FreeTextResponseDto

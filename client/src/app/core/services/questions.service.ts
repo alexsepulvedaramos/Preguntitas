@@ -2,7 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { CreateQuestion, Question } from '../models/question.model';
+import { CreateQuestion, HistoryEntry, HistoryPage, Question } from '../models/question.model';
+import { QuestionResult } from '../models/result.model';
 import { environment } from '../../../environments/environment';
 
 // Pool of user-created questions within a group: list, create directly (without
@@ -28,5 +29,20 @@ export class QuestionsService {
     // Removes an unused pool question (creator or group admin only)
     delete(groupId: number, questionId: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${groupId}/questions/${questionId}`);
+    }
+
+    // Paginated history list, most recent first. Pass `before` (YYYY-MM-DD) as cursor for
+    // subsequent pages — omit for the first page.
+    getHistory(groupId: number, before?: string): Observable<HistoryPage> {
+        const params: Record<string, string> = {};
+        if (before) params['before'] = before;
+        return this.http.get<HistoryPage>(`${this.baseUrl}/${groupId}/history`, { params });
+    }
+
+    // Full results for a specific past date. Mirrors GET /questions?date=YYYY-MM-DD.
+    getByDate(groupId: number, date: string): Observable<QuestionResult> {
+        return this.http.get<QuestionResult>(`${this.baseUrl}/${groupId}/questions`, {
+            params: { date },
+        });
     }
 }

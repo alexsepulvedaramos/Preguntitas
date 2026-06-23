@@ -30,4 +30,7 @@ export interface QuestionResult {
     totalVotes: number;
     results: OptionResult[];
     freeTextResponses: FreeTextResponse[];
+    // Scale only — present when type === Scale to enable full-range distribution display.
+    rangeMin?: number | null;
+    rangeMax?: number | null;
 }

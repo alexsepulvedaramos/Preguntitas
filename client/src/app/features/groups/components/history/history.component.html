@@ -1,0 +1,150 @@
+<div class="p-4 flex flex-col gap-4 max-w-lg mx-auto">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <a
+      [routerLink]="['/groups', groupId()]"
+      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <ng-icon hlm name="lucideArrowLeft" />
+      Volver
+    </a>
+    <h1 class="text-lg font-semibold">Historial</h1>
+  </div>
+
+  <!-- Date picker — jump to a specific date -->
+  <div class="flex items-center gap-2">
+    <hlm-date-picker
+      [date]="pickerDate()"
+      [autoCloseOnSelect]="true"
+      captionLayout="dropdown"
+      (dateChange)="onDatePickerChange($event)"
+    >
+      <hlm-date-picker-trigger class="w-full" variant="outline">
+        <ng-icon hlm name="lucideCalendar" size="sm" class="mr-2 shrink-0" />
+        Ir a una fecha...
+      </hlm-date-picker-trigger>
+    </hlm-date-picker>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="flex flex-col gap-2">
+      @for (_ of [1, 2, 3, 4, 5]; track $index) {
+        <div hlmSkeleton class="h-[72px] w-full rounded-default"></div>
+      }
+    </div>
+
+  <!-- Error state -->
+  } @else if (error()) {
+    <div class="text-center py-8">
+      <p class="text-destructive">{{ error() }}</p>
+    </div>
+
+  <!-- Empty state -->
+  } @else if (entries().length === 0) {
+    <div class="text-center py-12">
+      <p class="font-display italic text-lg text-primary/70">Aún no hay historial</p>
+      <p class="text-sm text-muted-foreground mt-1">
+        Las preguntas aparecerán aquí a partir del día siguiente.
+      </p>
+    </div>
+
+  <!-- History list -->
+  } @else {
+    <div class="flex flex-col gap-2">
+      @for (entry of entries(); track entry.date) {
+
+        <!-- Entry row -->
+        <button
+          class="flex items-start gap-3 p-3 text-left rounded-default border transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          [class.bg-muted]="selectedDate() === entry.date"
+          [class.border-primary]="selectedDate() === entry.date"
+          (click)="selectEntry(entry.date)"
+        >
+          <!-- Date column -->
+          <div class="flex flex-col items-center text-center min-w-[42px] pt-0.5">
+            <span class="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">
+              {{ getDayName(entry.date) }}
+            </span>
+            <span class="text-xl font-bold leading-tight text-foreground">
+              {{ getDayNumber(entry.date) }}
+            </span>
+            <span class="text-[10px] text-muted-foreground leading-none">
+              {{ getMonthName(entry.date) }}
+            </span>
+          </div>
+
+          <!-- Question text -->
+          <div class="flex-1 min-w-0 flex flex-col gap-1">
+            <p class="text-sm line-clamp-2 text-foreground">{{ entry.questionText }}</p>
+            <span
+              class="inline-flex self-start items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+              [class]="questionTypeBadgeClass(entry.type)"
+            >
+              {{ questionTypeLabel(entry.type) }}
+            </span>
+          </div>
+
+          <!-- Vote count -->
+          <span class="text-xs text-muted-foreground shrink-0 pt-0.5">
+            {{ entry.totalVotes }} votos
+          </span>
+        </button>
+
+        <!-- Inline detail panel — shown when this entry is selected -->
+        @if (selectedDate() === entry.date) {
+          <div class="rounded-default border bg-card p-4 flex flex-col gap-3 -mt-1">
+            <p class="text-xs uppercase tracking-wide text-muted-foreground">
+              {{ formatFullDate(entry.date) }}
+            </p>
+
+            @if (loadingDetail()) {
+              <div class="flex justify-center py-4">
+                <hlm-spinner />
+              </div>
+            } @else if (detailError()) {
+              <p class="text-sm text-destructive text-center">{{ detailError() }}</p>
+            } @else if (selectedResult()) {
+              <div class="flex flex-col gap-3">
+                <p class="vp-question-text text-foreground">{{ selectedResult()!.text }}</p>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-muted-foreground">
+                    @if (selectedResult()!.totalVotes === 1) {
+                      Ha votado 1 persona
+                    } @else {
+                      Han votado {{ selectedResult()!.totalVotes }} personas
+                    }
+                  </span>
+                </div>
+                <app-results
+                  [question]="syntheticQuestion(selectedResult()!)"
+                  [result]="selectedResult()!"
+                />
+              </div>
+            }
+          </div>
+        }
+
+      }
+    </div>
+
+    <!-- Load more -->
+    @if (hasMore()) {
+      <button
+        hlmBtn
+        variant="outline"
+        class="w-full"
+        [disabled]="loadingMore()"
+        (click)="loadMore()"
+      >
+        @if (loadingMore()) {
+          <hlm-spinner />
+        } @else {
+          Cargar más
+        }
+      </button>
+    }
+  }
+
+</div>

@@ -50,3 +50,17 @@ export interface Question {
     creatorId: number | null;
     options: Option[];
 }
+
+// Mirrors backend HistoryEntryDto — one row in the paginated history list.
+export interface HistoryEntry {
+    date: string; // YYYY-MM-DD
+    questionText: string;
+    type: QuestionType;
+    totalVotes: number;
+}
+
+// Mirrors backend HistoryPageDto — cursor-based paginated response.
+export interface HistoryPage {
+    items: HistoryEntry[];
+    hasMore: boolean;
+}
