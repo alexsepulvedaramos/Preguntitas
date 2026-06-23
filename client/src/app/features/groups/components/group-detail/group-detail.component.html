@@ -9,22 +9,35 @@
     </a>
 
     @if (!loading() && !error()) {
-      <button
-        hlmBtn
-        variant="ghost"
-        size="icon"
-        class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-        [disabled]="refreshing()"
-        (click)="refresh()"
-        aria-label="Actualizar"
-      >
-        @if (refreshing()) {
-          <hlm-spinner />
-        } @else {
-          <ng-icon hlm name="lucideRefreshCw" />
-        }
-        <span class="sr-only">Actualizar</span>
-      </button>
+      <div class="flex items-center gap-1">
+        <a
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          [routerLink]="['/groups', numericGroupId(), 'history']"
+          aria-label="Ver historial"
+        >
+          <ng-icon hlm name="lucideHistory" />
+          <span class="sr-only">Ver historial</span>
+        </a>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="refreshing()"
+          (click)="refresh()"
+          aria-label="Actualizar"
+        >
+          @if (refreshing()) {
+            <hlm-spinner />
+          } @else {
+            <ng-icon hlm name="lucideRefreshCw" />
+          }
+          <span class="sr-only">Actualizar</span>
+        </button>
+      </div>
     }
   </div>
 
@@ -91,11 +104,5 @@
       />
     }
 
-    <a
-      [routerLink]="['/groups', numericGroupId(), 'history']"
-      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors self-center mt-2"
-    >
-      Ver historial
-    </a>
   }
 </div>

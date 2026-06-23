@@ -6,7 +6,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideRefreshCw } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideHistory, lucideRefreshCw } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -38,7 +38,7 @@ import { SelectQuestionDialogComponent } from '../select-question-dialog/select-
     CountdownComponent,
     SelectQuestionDialogComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw })],
+  providers: [provideIcons({ lucideArrowLeft, lucideHistory, lucideRefreshCw })],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
 })
