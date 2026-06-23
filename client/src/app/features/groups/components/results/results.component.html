@@ -1,0 +1,19 @@
+@if (question().type === QuestionType.Scale) {
+  <app-scale-result [question]="question()" [result]="result()" />
+} @else if (question().type === QuestionType.Deathmatch) {
+  <app-deathmatch-result [result]="result()" />
+} @else {
+  <!-- CustomPoll, Superlative, SecretPairing: identical shape, an already-sorted,
+       already-aggregated list of OptionResultDto rows. -->
+  <div class="flex flex-col gap-2">
+    @for (option of result().results; track option.id; let i = $index) {
+      <app-result-option-bar
+        [label]="option.displayText"
+        [voteCount]="option.voteCount"
+        [percentage]="option.percentage"
+        [voters]="option.voters"
+        [index]="i"
+      />
+    }
+  </div>
+}

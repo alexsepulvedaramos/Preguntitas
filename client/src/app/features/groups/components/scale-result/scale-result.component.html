@@ -1,0 +1,17 @@
+@if (average() !== null) {
+  <div class="flex flex-col items-center gap-0.5 pb-3 mb-1 border-b border-border">
+    <span class="text-xs uppercase tracking-wide text-muted-foreground">Media</span>
+    <span class="font-display text-4xl text-primary">{{ average() }}</span>
+  </div>
+}
+
+<div class="flex flex-col gap-2">
+  @for (bin of bins(); track bin.id) {
+    <app-result-option-bar
+      [label]="bin.displayText"
+      [voteCount]="bin.voteCount"
+      [percentage]="bin.percentage"
+      [voters]="bin.voters"
+    />
+  }
+</div>

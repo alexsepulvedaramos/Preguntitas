@@ -15,16 +15,10 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { DailyStatus } from '../../../../core/models/daily.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
+import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { VoteComponent } from '../vote/vote.component';
+import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
-
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  [QuestionType.CustomPoll]: 'Encuesta',
-  [QuestionType.Superlative]: 'Superlativo',
-  [QuestionType.Deathmatch]: 'Deathmatch',
-  [QuestionType.Scale]: 'Escala',
-  [QuestionType.SecretPairing]: 'Pareja secreta',
-};
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -39,6 +33,7 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
     HlmSpinnerImports,
     NgIcon,
     VoteComponent,
+    ResultsComponent,
     CountdownComponent,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideSparkles })],
@@ -81,6 +76,11 @@ export class GroupDetailComponent implements OnInit {
 
   questionTypeLabel(type: QuestionType): string {
     return QUESTION_TYPE_LABELS[type];
+  }
+
+  responseCountLabel(totalVotes: number): string {
+    const verb = totalVotes === 1 ? 'Ha' : 'Han';
+    return `${verb} votado ${totalVotes} de ${this.members().length}`;
   }
 
   // The backend already returns the fresh QuestionResultDto from POST vote, so update

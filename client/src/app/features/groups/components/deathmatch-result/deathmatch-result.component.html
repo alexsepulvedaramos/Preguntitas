@@ -1,0 +1,12 @@
+<div class="flex flex-col gap-2">
+  @for (option of result().results; track option.id; let i = $index) {
+    <app-result-option-bar
+      [label]="option.displayText"
+      [subtitle]="teamSubtitle(option)"
+      [voteCount]="option.voteCount"
+      [percentage]="option.percentage"
+      [voters]="option.voters"
+      [index]="i"
+    />
+  }
+</div>

@@ -8,6 +8,7 @@ import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
+import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { GroupMember } from '../../models/group.models';
 
 import { SuperlativeVoteComponent } from '../superlative-vote/superlative-vote.component';
@@ -15,14 +16,6 @@ import { DeathmatchVoteComponent } from '../deathmatch-vote/deathmatch-vote.comp
 import { ScaleVoteComponent } from '../scale-vote/scale-vote.component';
 import { SecretPairingVoteComponent } from '../secret-pairing-vote/secret-pairing-vote.component';
 import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.component';
-
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  [QuestionType.CustomPoll]: 'Encuesta',
-  [QuestionType.Superlative]: 'Superlativo',
-  [QuestionType.Deathmatch]: 'Deathmatch',
-  [QuestionType.Scale]: 'Escala',
-  [QuestionType.SecretPairing]: 'Pareja secreta',
-};
 
 // Voting dispatcher (rama 6, spec §13 row 6): renders today's question and, based on
 // its type, one of the 5 picker sub-components. It owns the single POST daily/vote

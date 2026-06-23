@@ -89,7 +89,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DisplayText, opt => opt.MapFrom(src => src.Text))
             .ForMember(dest => dest.VoteCount, opt => opt.Ignore())
             .ForMember(dest => dest.Percentage, opt => opt.Ignore())
-            .ForMember(dest => dest.Voters, opt => opt.Ignore());
+            .ForMember(dest => dest.Voters, opt => opt.Ignore())
+            .ForMember(dest => dest.TeamMembers, opt => opt.Ignore());
 
         // Mapping for the parent Result DTO
         CreateMap<Question, QuestionResultDto>()

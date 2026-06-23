@@ -9,11 +9,16 @@ using VayaPreguntita.API.Enums;
 
 public static class ResultsBuilder
 {
-    public static QuestionResultDto Build(Question question, List<Vote> votes, IMapper mapper)
+    public static QuestionResultDto Build(
+        Question question,
+        List<Vote> votes,
+        IMapper mapper,
+        IReadOnlyDictionary<int, User>? usersById = null
+    )
     {
         var result = mapper.Map<QuestionResultDto>(question);
-        result.TotalVotes = votes.Count;
-        if (result.TotalVotes == 0)
+        result.TotalVotes = votes.Select(v => v.UserId).Distinct().Count();
+        if (votes.Count == 0)
             return result;
 
         switch (question.Type)
@@ -22,6 +27,8 @@ public static class ResultsBuilder
                 foreach (var option in question.Options)
                 {
                     var optionVotes = votes.Where(v => v.SelectedOptionId == option.Id).ToList();
+                    if (optionVotes.Count == 0)
+                        continue; // Don't clutter the results with unvoted options.
 
                     var optionResult = mapper.Map<OptionResultDto>(option);
                     optionResult.VoteCount = optionVotes.Count;
@@ -29,10 +36,10 @@ public static class ResultsBuilder
                     optionResult.Voters = mapper.Map<List<VoterDto>>(optionVotes);
                     result.Results.Add(optionResult);
                 }
+                result.Results = result.Results.OrderByDescending(r => r.VoteCount).ToList();
                 break;
 
             case QuestionType.Superlative:
-            case QuestionType.SecretPairing:
                 foreach (var group in votes.GroupBy(v => v.SelectedTargetUserId))
                 {
                     var groupVotes = group.ToList();
@@ -47,6 +54,50 @@ public static class ResultsBuilder
                             VoteCount = groupVotes.Count,
                             Percentage = Percent(groupVotes.Count, result.TotalVotes),
                             Voters = mapper.Map<List<VoterDto>>(groupVotes),
+                        }
+                    );
+                }
+                result.Results = result.Results.OrderByDescending(r => r.VoteCount).ToList();
+                break;
+
+            case QuestionType.SecretPairing:
+                // Each voter contributes 2 Vote rows (one per predicted partner) sharing their
+                // UserId. Group those back into the pair they predicted (the unordered set of
+                // the 2 target ids) so "Naiara + Fockhaman" shows as one combined result, not
+                // two separate 50% rows.
+                var pairsByVoter = votes
+                    .GroupBy(v => v.UserId)
+                    .Select(voterVotes => new
+                    {
+                        FirstRow = voterVotes.First(),
+                        PairKey = string.Join(
+                            "-",
+                            voterVotes
+                                .Select(v => v.SelectedTargetUserId!.Value)
+                                .OrderBy(id => id)
+                        ),
+                        TargetNames = voterVotes
+                            .Select(v => v.SelectedTargetUser?.Username ?? "Unknown")
+                            .OrderBy(name => name)
+                            .ToList(),
+                    });
+
+                var pairId = 0;
+                foreach (
+                    var pairGroup in pairsByVoter
+                        .GroupBy(v => v.PairKey)
+                        .OrderByDescending(g => g.Count())
+                )
+                {
+                    var voters = pairGroup.ToList();
+                    result.Results.Add(
+                        new OptionResultDto
+                        {
+                            Id = ++pairId,
+                            DisplayText = string.Join(" + ", voters.First().TargetNames),
+                            VoteCount = voters.Count,
+                            Percentage = Percent(voters.Count, result.TotalVotes),
+                            Voters = mapper.Map<List<VoterDto>>(voters.Select(v => v.FirstRow)),
                         }
                     );
                 }
@@ -85,17 +136,24 @@ public static class ResultsBuilder
                         )
                         .ToList();
 
+                    var teamMembers = team
+                        .Where(id => usersById != null && usersById.ContainsKey(id))
+                        .Select(id => mapper.Map<UserDto>(usersById![id]))
+                        .ToList();
+
                     result.Results.Add(
                         new OptionResultDto
                         {
                             Id = i + 1,
                             DisplayText = $"Equipo {i + 1}",
+                            TeamMembers = teamMembers,
                             VoteCount = teamVotes.Count,
                             Percentage = Percent(teamVotes.Count, result.TotalVotes),
                             Voters = mapper.Map<List<VoterDto>>(teamVotes),
                         }
                     );
                 }
+                result.Results = result.Results.OrderByDescending(r => r.VoteCount).ToList();
                 break;
         }
 

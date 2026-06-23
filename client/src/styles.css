@@ -76,6 +76,14 @@
     --logo-dot-2: oklch(0.74 0.16 134);
     --logo-dot-3: oklch(0.83 0.22 128);
     --logo-bg: oklch(0.2 0.04 155);
+
+    /* Chart Palette — distinct tones per result row (results visualization) */
+    --chart-1: oklch(0.7 0.16 148);
+    --chart-2: oklch(0.78 0.16 90);
+    --chart-3: oklch(0.7 0.19 25);
+    --chart-4: oklch(0.66 0.16 290);
+    --chart-5: oklch(0.72 0.13 230);
+    --chart-6: oklch(0.78 0.18 128);
   }
 
   :root.dark {
@@ -142,6 +150,14 @@
     --logo-dot-2: oklch(0.76 0.16 136);
     --logo-dot-3: oklch(0.83 0.22 128);
     --logo-bg: oklch(0.27 0.05 155);
+
+    /* Chart Palette — distinct tones per result row (results visualization) */
+    --chart-1: oklch(0.6 0.14 148);
+    --chart-2: oklch(0.68 0.14 90);
+    --chart-3: oklch(0.6 0.17 25);
+    --chart-4: oklch(0.58 0.15 290);
+    --chart-5: oklch(0.62 0.12 230);
+    --chart-6: oklch(0.68 0.17 128);
   }
 
   * {
@@ -205,6 +221,14 @@
   --color-logo-dot-2: var(--logo-dot-2);
   --color-logo-dot-3: var(--logo-dot-3);
   --color-logo-bg: var(--logo-bg);
+
+  /* Chart palette mapping */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   /* Animations for gamification feedback */
   --animate-pop: pop 0.2s ease-out forwards;
