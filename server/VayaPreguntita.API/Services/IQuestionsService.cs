@@ -15,4 +15,8 @@ public interface IQuestionsService
         int creatorId,
         CreateQuestionDto dto
     );
+
+    // Removes an unused pool question. Returns an error code: "not_found", "in_use",
+    // "forbidden", or null on success.
+    Task<string?> DeleteAsync(int groupId, int userId, int questionId);
 }

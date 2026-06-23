@@ -49,6 +49,7 @@ namespace VayaPreguntita.API.Profiles
             {
                 metadata.MinSelections = source.MinSelections ?? 1;
                 metadata.MaxSelections = source.MaxSelections ?? 1;
+                metadata.AllowOther = source.AllowOther;
             }
             else
             {

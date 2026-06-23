@@ -7,6 +7,6 @@ public class CreateOptionDtoValidator : AbstractValidator<CreateOptionDto>
 {
     public CreateOptionDtoValidator()
     {
-        RuleFor(option => option.Text).NotEmpty().MaximumLength(200);
+        RuleFor(option => option.Text).NotEmpty().MaximumLength(80);
     }
 }

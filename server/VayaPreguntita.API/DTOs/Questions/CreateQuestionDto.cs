@@ -20,6 +20,9 @@ public class CreateQuestionDto
     public int? MinSelections { get; set; }
     public int? MaxSelections { get; set; }
 
+    // CustomPoll — let voters add their own free-text answer
+    public bool AllowOther { get; set; }
+
     // Deathmatch
     public List<List<int>> Teams { get; set; } = [];
 

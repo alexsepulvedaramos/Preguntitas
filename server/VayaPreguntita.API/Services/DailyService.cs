@@ -11,6 +11,9 @@ namespace VayaPreguntita.API.Services;
 
 public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
 {
+    // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
+    private const int FreeTextMaxLength = 280;
+
     // ==========================================
     // GET CURRENT STATUS (§4.7)
     // Surfaces BOTH coexisting states: today (the open question) and selection
@@ -158,6 +161,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 Id = q.Id,
                 Text = q.Text,
                 Type = q.Type,
+                Options = q.Options.Select(o => o.Text).ToList(),
             })
             .ToListAsync();
 
@@ -170,6 +174,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 Id = t.Id,
                 Text = t.Text,
                 Type = t.Type,
+                Options = t.Options.Select(o => o.Text).ToList(),
             })
             .ToListAsync();
 
@@ -477,6 +482,20 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return ordered[index];
     }
 
+    // Total CustomPoll selections = picked options + an optional "Otro" free-text answer,
+    // which must land within [MinSelections, MaxSelections] and be at least 1.
+    private static bool IsPollSelectionCountValid(CreateVoteDto dto, Question question)
+    {
+        var optionCount = dto.SelectedOptionIds?.Count ?? 0;
+        var hasFreeText =
+            question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText);
+        var total = optionCount + (hasFreeText ? 1 : 0);
+
+        return total >= 1
+            && total >= question.Metadata.MinSelections
+            && total <= question.Metadata.MaxSelections;
+    }
+
     private static string? ValidateVotePayload(
         CreateVoteDto dto,
         Question question,
@@ -486,18 +505,29 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return question.Type switch
         {
             QuestionType.CustomPoll
-                when dto.SelectedOptionIds == null || dto.SelectedOptionIds.Count == 0 =>
-                "Must select at least one option.",
+                when !question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText) =>
+                "This poll does not allow a free-text answer.",
+
+            QuestionType.CustomPoll when (dto.FreeText?.Length ?? 0) > FreeTextMaxLength =>
+                "Free-text answer is too long.",
 
             QuestionType.CustomPoll
-                when !dto.SelectedOptionIds!.All(id => question.Options.Any(o => o.Id == id)) =>
-                "One or more selected options are invalid.",
+                when (dto.SelectedOptionIds?.Any(id => !question.Options.Any(o => o.Id == id))
+                    ?? false) => "One or more selected options are invalid.",
 
             QuestionType.CustomPoll
-                when dto.SelectedOptionIds!.Distinct().Count() != dto.SelectedOptionIds!.Count
-                    || dto.SelectedOptionIds!.Count < (question.Metadata.MinSelections)
-                    || dto.SelectedOptionIds!.Count > (question.Metadata.MaxSelections) =>
+                when dto.SelectedOptionIds != null
+                    && dto.SelectedOptionIds.Distinct().Count() != dto.SelectedOptionIds.Count =>
+                "Selected options must be unique.",
+
+            QuestionType.CustomPoll when !IsPollSelectionCountValid(dto, question) =>
                 "Number of selected options is out of the allowed range.",
+
+            QuestionType.OpenText when string.IsNullOrWhiteSpace(dto.FreeText) =>
+                "Must provide a free-text answer.",
+
+            QuestionType.OpenText when dto.FreeText!.Length > FreeTextMaxLength =>
+                "Free-text answer is too long.",
 
             QuestionType.Superlative when dto.SelectedTargetUserId == null =>
                 "Must select a target user.",
@@ -550,7 +580,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         switch (question.Type)
         {
             case QuestionType.CustomPoll:
-                foreach (var optionId in dto.SelectedOptionIds!)
+                foreach (var optionId in dto.SelectedOptionIds ?? [])
                     votes.Add(
                         new Vote
                         {
@@ -559,6 +589,27 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                             SelectedOptionId = optionId,
                         }
                     );
+                // An "Otro" answer rides along as an extra row carrying only FreeText.
+                if (question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText))
+                    votes.Add(
+                        new Vote
+                        {
+                            UserId = userId,
+                            QuestionId = question.Id,
+                            FreeText = dto.FreeText!.Trim(),
+                        }
+                    );
+                break;
+
+            case QuestionType.OpenText:
+                votes.Add(
+                    new Vote
+                    {
+                        UserId = userId,
+                        QuestionId = question.Id,
+                        FreeText = dto.FreeText!.Trim(),
+                    }
+                );
                 break;
 
             case QuestionType.Superlative:

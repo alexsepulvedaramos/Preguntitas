@@ -76,4 +76,24 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
 
         return CreatedAtAction(nameof(GetPool), new { groupId }, question);
     }
+
+    // DELETE api/groups/{groupId}/questions/{id}
+    // Elimina una pregunta del pool: solo el creador o el admin del grupo, y solo si no se ha usado
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteQuestion(int groupId, int id)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var error = await questionsService.DeleteAsync(groupId, userId, id);
+        return error switch
+        {
+            "not_found" => NotFound("La pregunta no existe en este grupo."),
+            "in_use" => BadRequest("No se puede eliminar una pregunta que ya se ha usado."),
+            "forbidden" => Forbid(),
+            _ => NoContent(),
+        };
+    }
 }

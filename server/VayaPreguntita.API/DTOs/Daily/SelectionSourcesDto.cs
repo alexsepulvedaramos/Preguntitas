@@ -10,6 +10,9 @@ public class SelectionSourceItemDto
     public int Id { get; set; } // QuestionId (pool) | TemplateId (pack)
     public string Text { get; set; } = string.Empty;
     public QuestionType Type { get; set; }
+
+    // Only populated for CustomPoll items, so the picker can preview the options.
+    public List<string> Options { get; set; } = [];
 }
 
 public class SelectionSourcesDto

@@ -157,6 +157,17 @@ public static class ResultsBuilder
                 break;
         }
 
+        // Free-text answers: every OpenText answer, plus any CustomPoll "Otro" answers
+        // (rows carrying FreeText with no SelectedOptionId). Newest last (insertion order).
+        result.FreeTextResponses = votes
+            .Where(v => !string.IsNullOrWhiteSpace(v.FreeText))
+            .Select(v => new FreeTextResponseDto
+            {
+                Username = v.User?.Username ?? "Unknown",
+                Text = v.FreeText!,
+            })
+            .ToList();
+
         return result;
     }
 

@@ -31,6 +31,7 @@ public static class QuestionMetadataBuilder
         {
             metadata.MinSelections = dto.MinSelections ?? 1;
             metadata.MaxSelections = dto.MaxSelections ?? 1;
+            metadata.AllowOther = dto.AllowOther;
         }
         if (dto.Type == QuestionType.Deathmatch)
         {

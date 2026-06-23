@@ -21,28 +21,32 @@ public class CreateVoteDtoValidator : AbstractValidator<CreateVoteDto>
             .Must(ids => ids == null || ids.Distinct().Count() == ids.Count)
             .WithMessage("Selected target user IDs must be unique.");
 
+        // Structural guard only: at least one answer field must be present. The exact
+        // per-type combination (incl. OpenText FreeText and CustomPoll "Otro" = options +
+        // FreeText) is enforced authoritatively in DailyService.ValidateVotePayload.
         RuleFor(vote => vote)
-            .Must(HasExactlyOneAnswer)
-            .WithMessage("Exactly one answer field must be provided.");
+            .Must(HasAnyAnswer)
+            .WithMessage("At least one answer field must be provided.");
     }
 
-    private static bool HasExactlyOneAnswer(CreateVoteDto vote)
+    private static bool HasAnyAnswer(CreateVoteDto vote)
     {
-        var answerCount = 0;
-
         if (vote.SelectedOptionIds != null && vote.SelectedOptionIds.Count > 0)
-            answerCount++;
+            return true;
 
-        // Incluye 0 (Nobody) como respuesta válida para Superlative
+        // Includes 0 (Nobody) as a valid answer for Superlative
         if (vote.SelectedTargetUserId.HasValue)
-            answerCount++;
+            return true;
 
         if (vote.NumericValue.HasValue)
-            answerCount++;
+            return true;
 
         if (vote.SelectedTargetUserIds != null && vote.SelectedTargetUserIds.Count > 0)
-            answerCount++;
+            return true;
 
-        return answerCount == 1;
+        if (!string.IsNullOrWhiteSpace(vote.FreeText))
+            return true;
+
+        return false;
     }
 }
