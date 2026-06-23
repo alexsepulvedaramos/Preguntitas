@@ -1,5 +1,9 @@
 @if (label(); as text) {
-  <p class="text-sm" [class.text-muted-foreground]="!urgent()" [class.text-destructive]="urgent()">
+  <p
+    class="text-sm text-center pt-2"
+    [class.text-muted-foreground]="!urgent()"
+    [class.text-destructive]="urgent()"
+  >
     Siguiente pregunta en
     <span class="font-medium" [class.text-foreground]="!urgent()" [class.text-destructive]="urgent()">{{
       text

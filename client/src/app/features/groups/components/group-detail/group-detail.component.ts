@@ -16,6 +16,7 @@ import { DailyStatus } from '../../../../core/models/daily.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
+import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { VoteComponent } from '../vote/vote.component';
 import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
@@ -76,6 +77,10 @@ export class GroupDetailComponent implements OnInit {
 
   questionTypeLabel(type: QuestionType): string {
     return QUESTION_TYPE_LABELS[type];
+  }
+
+  questionTypeBadgeClass(type: QuestionType): string {
+    return QUESTION_TYPE_BADGE_CLASS[type];
   }
 
   responseCountLabel(totalVotes: number): string {

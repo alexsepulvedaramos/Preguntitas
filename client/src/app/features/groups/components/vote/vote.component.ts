@@ -1,6 +1,5 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 
-import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { DailyService } from '../../../../core/services/daily.service';
@@ -9,6 +8,7 @@ import { CreateVote } from '../../../../core/models/vote.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
+import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { GroupMember } from '../../models/group.models';
 
 import { SuperlativeVoteComponent } from '../superlative-vote/superlative-vote.component';
@@ -23,7 +23,6 @@ import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.co
 @Component({
   selector: 'app-vote',
   imports: [
-    HlmBadgeImports,
     HlmSpinnerImports,
     SuperlativeVoteComponent,
     DeathmatchVoteComponent,
@@ -49,6 +48,10 @@ export class VoteComponent {
 
   questionTypeLabel(): string {
     return QUESTION_TYPE_LABELS[this.question().type];
+  }
+
+  questionTypeBadgeClass(): string {
+    return QUESTION_TYPE_BADGE_CLASS[this.question().type];
   }
 
   submit(dto: CreateVote) {
