@@ -10,6 +10,7 @@ export interface OptionResult {
     id: number;
     displayText: string;
     targetUser?: User | null;
+    teamMembers: User[];
     voteCount: number;
     voters: Voter[];
     percentage: number;

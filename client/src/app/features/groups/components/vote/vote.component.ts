@@ -1,6 +1,5 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 
-import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { DailyService } from '../../../../core/services/daily.service';
@@ -8,6 +7,8 @@ import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
+import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
+import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { GroupMember } from '../../models/group.models';
 
 import { SuperlativeVoteComponent } from '../superlative-vote/superlative-vote.component';
@@ -16,21 +17,12 @@ import { ScaleVoteComponent } from '../scale-vote/scale-vote.component';
 import { SecretPairingVoteComponent } from '../secret-pairing-vote/secret-pairing-vote.component';
 import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.component';
 
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  [QuestionType.CustomPoll]: 'Encuesta',
-  [QuestionType.Superlative]: 'Superlativo',
-  [QuestionType.Deathmatch]: 'Deathmatch',
-  [QuestionType.Scale]: 'Escala',
-  [QuestionType.SecretPairing]: 'Pareja secreta',
-};
-
 // Voting dispatcher (rama 6, spec §13 row 6): renders today's question and, based on
 // its type, one of the 5 picker sub-components. It owns the single POST daily/vote
 // call so error/loading handling isn't duplicated across the per-type components.
 @Component({
   selector: 'app-vote',
   imports: [
-    HlmBadgeImports,
     HlmSpinnerImports,
     SuperlativeVoteComponent,
     DeathmatchVoteComponent,
@@ -56,6 +48,10 @@ export class VoteComponent {
 
   questionTypeLabel(): string {
     return QUESTION_TYPE_LABELS[this.question().type];
+  }
+
+  questionTypeBadgeClass(): string {
+    return QUESTION_TYPE_BADGE_CLASS[this.question().type];
   }
 
   submit(dto: CreateVote) {

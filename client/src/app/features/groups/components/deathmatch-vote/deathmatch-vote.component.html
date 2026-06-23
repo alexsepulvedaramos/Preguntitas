@@ -1,5 +1,5 @@
-<div class="flex flex-col gap-2">
-  @for (team of question().teams; track $index) {
+<div class="flex flex-col gap-1">
+  @for (team of question().teams; track $index; let isLast = $last) {
     <button
       type="button"
       [class]="optionClass($index)"
@@ -8,6 +8,9 @@
     >
       {{ teamLabel(team) }}
     </button>
+    @if (!isLast) {
+      <span class="text-center text-[11px] text-muted-foreground/70 tracking-wide select-none">vs</span>
+    }
   }
 </div>
 

@@ -14,6 +14,7 @@ public class OptionResultDto
     public int Id { get; set; }
     public string DisplayText { get; set; } = string.Empty;
     public UserDto? TargetUser { get; set; }
+    public List<UserDto> TeamMembers { get; set; } = []; // Deathmatch only
     public int VoteCount { get; set; }
     public List<VoterDto> Voters { get; set; } = [];
     public double Percentage { get; set; }

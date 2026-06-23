@@ -1,33 +1,14 @@
-<div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
-  <a
-    routerLink="/groups"
-    class="inline-flex items-center gap-1.5 w-fit text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
-  >
-    <ng-icon hlm name="lucideArrowLeft" />
-    Tus grupos
-  </a>
+<div class="p-4 flex flex-col gap-4 max-w-lg mx-auto">
+  <div class="flex items-center justify-between gap-4">
+    <a
+      routerLink="/groups"
+      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <ng-icon hlm name="lucideArrowLeft" />
+      Tus grupos
+    </a>
 
-  @if (loading()) {
-    <div class="flex flex-col gap-4">
-      <div hlmSkeleton class="h-7 w-2/3"></div>
-      <div hlmSkeleton class="h-4 w-1/2"></div>
-      <div hlmSkeleton class="h-32 w-full rounded-default"></div>
-    </div>
-  } @else if (error()) {
-    <div class="text-center py-8">
-      <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
-    </div>
-  } @else {
-    <header class="flex items-start justify-between gap-4">
-      <div class="min-w-0">
-        <h1 class="font-display italic text-2xl text-foreground truncate">
-          {{ group()!.name }}
-        </h1>
-        @if (group()!.description) {
-          <p class="text-sm text-muted-foreground truncate">{{ group()!.description }}</p>
-        }
-      </div>
-
+    @if (!loading() && !error()) {
       <button
         hlmBtn
         variant="ghost"
@@ -44,16 +25,26 @@
         }
         <span class="sr-only">Actualizar</span>
       </button>
-    </header>
+    }
+  </div>
 
+  @if (loading()) {
+    <div class="flex flex-col gap-4">
+      <div hlmSkeleton class="h-7 w-2/3"></div>
+      <div hlmSkeleton class="h-4 w-1/2"></div>
+      <div hlmSkeleton class="h-32 w-full rounded-default"></div>
+    </div>
+  } @else if (error()) {
+    <div class="text-center py-8">
+      <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
+    </div>
+  } @else {
     @if (daily()?.selection?.isCurrentUserSelector) {
       <div hlmBadge class="w-fit gap-1.5 bg-accent text-accent-foreground">
         <ng-icon hlm name="lucideSparkles" />
         Te toca elegir la pregunta de mañana
       </div>
     }
-
-    <app-countdown [target]="daily()?.today?.closesAt ?? null" />
 
     @switch (daily()?.today?.status) {
       @case ('voting') {
@@ -65,14 +56,22 @@
         />
       }
       @case ('results') {
-        <section class="rounded-default border border-border bg-card p-5 flex flex-col gap-3">
-          <span hlmBadge variant="secondary" class="w-fit">
-            {{ questionTypeLabel(daily()!.today.question!.type) }}
-          </span>
-          <p class="vp-question-text text-foreground">{{ daily()!.today.question!.text }}</p>
-          <p class="text-sm text-muted-foreground">
-            Ya has votado · {{ daily()!.today.results?.totalVotes }} votos
-          </p>
+        <section class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <p class="vp-question-text text-foreground">{{ daily()!.today.question!.text }}</p>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-muted-foreground">
+                {{ responseCountLabel(daily()!.today.results?.totalVotes ?? 0) }}
+              </span>
+              <span
+                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                [class]="questionTypeBadgeClass(daily()!.today.question!.type)"
+                >{{ questionTypeLabel(daily()!.today.question!.type) }}</span
+              >
+            </div>
+          </div>
+
+          <app-results [question]="daily()!.today.question!" [result]="daily()!.today.results!" />
         </section>
       }
       @case ('no_question') {
@@ -83,6 +82,10 @@
           </p>
         </div>
       }
+    }
+
+    @if (daily()?.today?.status !== 'no_question') {
+      <app-countdown [target]="daily()?.today?.closesAt ?? null" />
     }
   }
 </div>

@@ -392,19 +392,35 @@ public class CreateVoteDto
 
 ### 7.4 Results DTOs (who voted for what)
 
-`ResultsBuilder.Build(question, votes, mapper)` already produces, per option/target/team/value:
+`ResultsBuilder.Build(question, votes, mapper, usersById?)` produces, per option/target/team/value:
 
 ```csharp
+public class QuestionResultDto
+{
+    public QuestionType Type { get; set; }
+    public int TotalVotes { get; set; }            // distinct voters (UserId), not Vote rows
+    public List<OptionResultDto> Results { get; set; }
+}
+
 public class OptionResultDto
 {
     public int Id { get; set; }
     public string DisplayText { get; set; }
     public UserDto? TargetUser { get; set; }
+    public List<UserDto> TeamMembers { get; set; } // Deathmatch only
     public int VoteCount { get; set; }
     public List<VoterDto> Voters { get; set; }  // id + username — who voted here
     public double Percentage { get; set; }
 }
 ```
+
+Per-type build rules (rama 7, `feat/results-view`):
+- **`TotalVotes`** counts distinct `UserId`s, not `Vote` rows — CustomPoll (multi-select) and Secret Pairing both write more than one `Vote` row per logical user vote.
+- **CustomPoll:** one row per option; options with 0 votes are omitted (don't clutter results with unvoted options); sorted by `VoteCount` descending.
+- **Superlative:** one row per distinct target (`null` → "Nadie"); sorted by `VoteCount` descending.
+- **Secret Pairing:** each voter writes 2 `Vote` rows (one per predicted partner) sharing their `UserId`. Results are grouped by the **pair** (the unordered set of the 2 target ids), not by individual target — `"Naiara + Fockhaman"` is one combined row, not two separate 50% rows. Sorted by `VoteCount` descending.
+- **Scale:** one row per value across the full `[RangeMin, RangeMax]`, including zero-vote values (it's a distribution, not a ranking — left in ascending numeric order).
+- **Deathmatch:** one row per team, always both (even at 0 votes — a head-to-head comparison shouldn't hide a side); `TeamMembers` resolved server-side from `Question.Metadata.Teams` via the `usersById` lookup `DailyService.CalculateResultsAsync` builds for Deathmatch questions; sorted by `VoteCount` descending.
 
 ### 7.5 Static helpers
 
@@ -569,10 +585,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Branding & design-system foundation: Tailwind `@theme` tokens, color/spacing/type scales, dark mode + WCAG AA contrast, Spartan component theming & states | ✅ — rama 4 (`feat/design-system`, [#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)) |
 | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton loading state; "te toca elegir" indicator; refresh button; `JoinGroupAsync` cold-start seeds the first `DailyEntry` once a group reaches 2 members | ✅ — rama 5 (`feat/group-detail`) |
 | Voting UI: `app-vote` dispatcher + five per-type sub-components (superlative, deathmatch, scale, secret-pairing, custom-poll); wired into `GroupDetailComponent`'s `'voting'` case. Backend (`CreateVoteDto`, `POST vote` → `QuestionResultDto`) was already complete from rama 3 — this branch only built the Angular UI and fixed `CreateVote`/`QuestionResult` frontend models to match the backend DTOs exactly. `Votes` unique index relaxed to non-unique on `(QuestionId, UserId)` (SecretPairing/multi-select CustomPoll legitimately write more than one row per user per question). Bootstrap exception added (§4.1): `JoinGroupAsync` now activates the group's first question immediately instead of waiting for T, with a second question preselected normally for the real next T; `CountdownComponent` shows a live "siguiente pregunta en…" label off `today.closesAt`, turning red under 5 minutes | ✅ — rama 6 (`feat/voting`) |
+| Results UI: `app-results` dispatcher (mirrors `app-vote`) + `ScaleResultComponent`/`DeathmatchResultComponent`/shared `ResultOptionBarComponent` (CustomPoll, Superlative, Secret Pairing render inline — identical row shape); wired into `GroupDetailComponent`'s `'results'` case. Compact proportional-width bars (`width: percentage%`), one of 6 chart colors per row (`--chart-1..6` theme tokens), tap-to-see-voters dialog, up to 3 stacked voter-initial avatars on bars with votes. Scale shows a prominent average headline above a full-range histogram (always one consistent tone, not per-bin colors — it's a distribution, not separate options); zero-vote bars render fully empty (no sliver). Backend fixes that came out of this branch: `TotalVotes` now counts distinct voters (§7.4), `OptionResultDto.TeamMembers` resolves Deathmatch team identity server-side, results sorted by `VoteCount` descending (except Scale), Secret Pairing results merged into combined pair rows instead of two separate per-target rows (§7.4). Header reads "Ha/Han votado X de Y miembros" (X = `TotalVotes`, Y = group member count) | ✅ — rama 7 (`feat/results-view`) |
 
 ### Pending (MVP) — see §13
 
-History list · group management (leave/kick/regenerate) · pool delete · results visualization (who voted for what) · limits.
+History list · group management (leave/kick/regenerate) · pool delete · limits.
 
 ---
 
@@ -589,7 +606,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 4 ✅ | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. **Merged ([#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)).** |
 | 5 ✅ | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. **Implemented on `feat/group-detail`.** |
 | 6 ✅ | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. Backend was already complete from rama 3; this branch built the Angular UI (`app-vote` dispatcher + per-type components) and fixed two frontend DTOs that had drifted from the backend contract. **Implemented on `feat/voting`.** |
-| 7 | `feat/results-view` | Per-type results visualization incl. **who voted for what**. |
+| 7 ✅ | `feat/results-view` | Per-type results visualization incl. **who voted for what**. **Implemented on `feat/results-view`.** |
 | 8 | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question. |
 | 9 | `feat/history` | `GET /history` (paginated) + history UI with date picker; **open archive** — results shown regardless of whether the user voted (Phase 2 gates this behind a late vote). |
 | 10 | `feat/group-admin` | Admin panel (name/description/time, members, transfer admin); leave/kick/regenerate-code. |

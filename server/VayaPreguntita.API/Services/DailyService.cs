@@ -632,6 +632,15 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
 
-        return ResultsBuilder.Build(question, allVotes, mapper);
+        Dictionary<int, User>? usersById = null;
+        if (question.Type == QuestionType.Deathmatch)
+        {
+            var teamMemberIds = question.Metadata.Teams.SelectMany(t => t).Distinct().ToList();
+            usersById = await context
+                .Users.Where(u => teamMemberIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id);
+        }
+
+        return ResultsBuilder.Build(question, allVotes, mapper, usersById);
     }
 }
