@@ -18,6 +18,13 @@ public static class ResultsBuilder
     {
         var result = mapper.Map<QuestionResultDto>(question);
         result.TotalVotes = votes.Select(v => v.UserId).Distinct().Count();
+
+        if (question.Type == QuestionType.Scale)
+        {
+            result.RangeMin = question.Metadata.RangeMin;
+            result.RangeMax = question.Metadata.RangeMax;
+        }
+
         if (votes.Count == 0)
             return result;
 

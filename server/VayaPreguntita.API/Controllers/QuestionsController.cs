@@ -77,6 +77,26 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
         return CreatedAtAction(nameof(GetPool), new { groupId }, question);
     }
 
+    // GET api/groups/{groupId}/history
+    // Historial paginado de preguntas ya cerradas (cursor-based, más recientes primero).
+    // `before` es la fecha del último ítem visto (YYYY-MM-DD); omitir para la primera página.
+    [HttpGet("/api/groups/{groupId}/history")]
+    public async Task<ActionResult<HistoryPageDto>> GetHistory(
+        int groupId,
+        [FromQuery] DateOnly? before = null,
+        [FromQuery] int pageSize = 20
+    )
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        pageSize = Math.Min(pageSize, 50);
+        var result = await questionsService.GetHistoryAsync(groupId, before, pageSize);
+        return Ok(result);
+    }
+
     // DELETE api/groups/{groupId}/questions/{id}
     // Elimina una pregunta del pool: solo el creador o el admin del grupo, y solo si no se ha usado
     [HttpDelete("{id}")]

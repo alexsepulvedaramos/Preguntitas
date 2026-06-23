@@ -52,6 +52,38 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     }
 
     // ==========================================
+    // GET HISTORY
+    // Lista paginada de preguntas ya cerradas (cursor-based, más recientes primero).
+    // Excluye la pregunta activa de hoy y las preseleccionadas futuras.
+    // ==========================================
+    public async Task<HistoryPageDto> GetHistoryAsync(int groupId, DateOnly? before, int pageSize = 20)
+    {
+        var today = DailyClock.Today();
+
+        var items = await context
+            .DailyEntries.Where(d =>
+                d.GroupId == groupId && d.ActivatedAt != null && d.Date < today
+            )
+            .Where(d => before == null || d.Date < before)
+            .OrderByDescending(d => d.Date)
+            .Take(pageSize + 1)
+            .Select(d => new HistoryEntryDto
+            {
+                Date = d.Date,
+                QuestionText = d.Question.Text,
+                Type = d.Question.Type,
+                TotalVotes = d.Question.Votes.Select(v => v.UserId).Distinct().Count(),
+            })
+            .ToListAsync();
+
+        var hasMore = items.Count > pageSize;
+        if (hasMore)
+            items.RemoveAt(items.Count - 1);
+
+        return new HistoryPageDto { Items = items, HasMore = hasMore };
+    }
+
+    // ==========================================
     // CREATE
     // Añade una pregunta al pool sin activarla
     // ==========================================

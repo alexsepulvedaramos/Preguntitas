@@ -19,4 +19,9 @@ public interface IQuestionsService
     // Removes an unused pool question. Returns an error code: "not_found", "in_use",
     // "forbidden", or null on success.
     Task<string?> DeleteAsync(int groupId, int userId, int questionId);
+
+    // Paginated past entries for the group's history view. Cursor-based: pass the last
+    // seen date as `before` to get the next page. Returns at most `pageSize` items,
+    // plus a `HasMore` flag.
+    Task<HistoryPageDto> GetHistoryAsync(int groupId, DateOnly? before, int pageSize = 20);
 }
