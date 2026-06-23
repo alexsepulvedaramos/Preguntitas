@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -11,10 +10,12 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideRefreshCw, lucideSparkles } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
-import { GroupResponse } from '../../models/group.models';
+import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
 import { DailyStatus } from '../../../../core/models/daily.model';
+import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
+import { VoteComponent } from '../vote/vote.component';
 
 const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   [QuestionType.CustomPoll]: 'Encuesta',
@@ -25,19 +26,18 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 };
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
-// and the next-day selection panel from `daily/current` (§4.7). The voting and
-// results sub-components themselves land in ramas 6–7; this screen renders the
-// question prompt and a minimal summary while that work is pending.
+// and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
+// is `app-vote` (rama 6); full results visualization lands in rama 7.
 @Component({
   selector: 'app-group-detail',
   imports: [
     RouterLink,
-    DatePipe,
     HlmButtonImports,
     HlmBadgeImports,
     HlmSkeletonImports,
     HlmSpinnerImports,
     NgIcon,
+    VoteComponent,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideSparkles })],
   templateUrl: './group-detail.component.html',
@@ -48,10 +48,11 @@ export class GroupDetailComponent implements OnInit {
   private readonly dailyService = inject(DailyService);
 
   public readonly groupId = input.required<string>();
-  private readonly numericGroupId = computed(() => Number(this.groupId()));
+  public readonly numericGroupId = computed(() => Number(this.groupId()));
 
   public readonly group = signal<GroupResponse | null>(null);
   public readonly daily = signal<DailyStatus | null>(null);
+  public readonly members = signal<GroupMember[]>([]);
   public readonly loading = signal(true);
   public readonly refreshing = signal(false);
   public readonly error = signal<string | null>(null);
@@ -80,18 +81,37 @@ export class GroupDetailComponent implements OnInit {
     return QUESTION_TYPE_LABELS[type];
   }
 
+  // The backend already returns the fresh QuestionResultDto from POST vote, so update
+  // the local state in place instead of re-fetching daily/current.
+  onVoted(result: QuestionResult) {
+    const daily = this.daily();
+    if (!daily) return;
+
+    this.daily.set({
+      ...daily,
+      today: {
+        ...daily.today,
+        status: 'results',
+        userHasVoted: true,
+        results: result,
+      },
+    });
+  }
+
   private loadAll() {
     this.loading.set(true);
     this.error.set(null);
 
-    // Execute both requests concurrently and wait for both to complete before removing the skeleton
+    // Execute all requests concurrently and wait for them to complete before removing the skeleton
     forkJoin({
       group: this.groupsService.getGroup(this.numericGroupId()),
-      daily: this.dailyService.getCurrent(this.numericGroupId())
+      daily: this.dailyService.getCurrent(this.numericGroupId()),
+      members: this.groupsService.getGroupMembers(this.numericGroupId())
     }).subscribe({
       next: (res) => {
         this.group.set(res.group);
         this.daily.set(res.daily);
+        this.members.set(res.members);
         this.loading.set(false);
       },
       error: (err) => {

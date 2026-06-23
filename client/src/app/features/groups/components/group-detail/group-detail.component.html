@@ -55,15 +55,12 @@
 
     @switch (daily()?.today?.status) {
       @case ('voting') {
-        <section class="rounded-default border border-border bg-card p-5 flex flex-col gap-3">
-          <span hlmBadge variant="secondary" class="w-fit">
-            {{ questionTypeLabel(daily()!.today.question!.type) }}
-          </span>
-          <p class="vp-question-text text-foreground">{{ daily()!.today.question!.text }}</p>
-          <p class="text-xs text-muted-foreground">
-            Cierra a las {{ daily()!.today.closesAt | date: 'HH:mm' }}
-          </p>
-        </section>
+        <app-vote
+          [groupId]="numericGroupId()"
+          [question]="daily()!.today.question!"
+          [members]="members()"
+          (voted)="onVoted($event)"
+        />
       }
       @case ('results') {
         <section class="rounded-default border border-border bg-card p-5 flex flex-col gap-3">

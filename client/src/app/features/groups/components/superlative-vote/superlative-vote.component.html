@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-2">
+  @for (member of candidates(); track member.id) {
+    <button
+      type="button"
+      [class]="optionClass(member.id)"
+      [attr.aria-pressed]="selected() === member.id"
+      (click)="select(member.id)"
+    >
+      {{ member.username }}
+    </button>
+  }
+
+  @if (question().allowNobody) {
+    <button
+      type="button"
+      [class]="optionClass(NOBODY_ID)"
+      [attr.aria-pressed]="selected() === NOBODY_ID"
+      (click)="select(NOBODY_ID)"
+    >
+      Nadie
+    </button>
+  }
+</div>
+
+<button
+  type="button"
+  hlmBtn
+  class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+  [disabled]="selected() === null"
+  (click)="submit()"
+>
+  Votar
+</button>

@@ -1,9 +1,7 @@
+// Mirrors backend CreateVoteDto exactly — questionId comes from the route, not the body.
 export interface CreateVote {
-    questionId: number;
-    guessedCreatorId?: number | null;
-    selectedOptionIds?: number[] | null;
+    selectedOptionIds?: number[] | null; // Custom Poll
     selectedTargetUserId?: number | null; // Superlative
     selectedTargetUserIds?: number[] | null; // Deathmatch, Secret Pairing
-    numericValue?: number | null;
-    freeText?: string | null;
+    numericValue?: number | null; // Scale
 }

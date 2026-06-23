@@ -566,10 +566,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Daily lifecycle rewrite: `daily/current` → `{ today, selection }` (driven off `ActivatedAt`); `daily/select` sets the **next-day** question with **no early activation**; inline-create runs full §9 validation (structural + group-membership, shared with `POST /questions`); `daily/vote` returns fresh results; ≥2-member start gate; `DailyClock.ToUtc` for `closesAt`/`activatesAt`; Angular `DailyStatus`/`SelectQuestion` models + `getCurrent`/`select`/`vote` | ✅ — rama 3 (`feat/daily-lifecycle`) |
 | Branding & design-system foundation: Tailwind `@theme` tokens, color/spacing/type scales, dark mode + WCAG AA contrast, Spartan component theming & states | ✅ — rama 4 (`feat/design-system`, [#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)) |
 | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton loading state; "te toca elegir" indicator; refresh button; `JoinGroupAsync` cold-start seeds the first `DailyEntry` once a group reaches 2 members (target date mirrors `NextActivationDate`'s today/tomorrow rule; activation still only ever happens at T via `DailyPreselectionService`) | ✅ — rama 5 (`feat/group-detail`) |
+| Voting UI: `app-vote` dispatcher + five per-type sub-components (superlative, deathmatch, scale, secret-pairing, custom-poll); wired into `GroupDetailComponent`'s `'voting'` case. Backend (`CreateVoteDto`, `POST vote` → `QuestionResultDto`) was already complete from rama 3 — this branch only built the Angular UI and fixed `CreateVote`/`QuestionResult` frontend models to match the backend DTOs exactly | ✅ — rama 6 (`feat/voting`) |
 
 ### Pending (MVP) — see §13
 
-History list · group management (leave/kick/regenerate) · pool delete · all five voting + results UIs · limits.
+History list · group management (leave/kick/regenerate) · pool delete · results visualization (who voted for what) · limits.
 
 ---
 
@@ -585,7 +586,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 3 ✅ | `feat/daily-lifecycle` | Rewrite `daily/current` (`{today, selection}`) and `daily/select` (next-day, **no early activation**); validate inline-create; align `DailyPreselectionService`; ≥2-member start; first selector = creator. **Implemented on `feat/daily-lifecycle`.** |
 | 4 ✅ | `feat/design-system` | **Branding & design foundation (frontend-only; can run in parallel with ramas 1–3, must land before the screens).** Consolidate Tailwind `@theme` tokens; define color/spacing/type scales; dark mode + WCAG AA contrast; Spartan component theming & states (hover/focus/disabled/loading/empty); logo usage. The unified visual language every screen inherits. **Merged ([#18](https://github.com/alexsepulvedaramos/Preguntitas/pull/18)).** |
 | 5 ✅ | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. **Implemented on `feat/group-detail`.** |
-| 6 | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. |
+| 6 ✅ | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. Backend was already complete from rama 3; this branch built the Angular UI (`app-vote` dispatcher + per-type components) and fixed two frontend DTOs that had drifted from the backend contract. **Implemented on `feat/voting`.** |
 | 7 | `feat/results-view` | Per-type results visualization incl. **who voted for what**. |
 | 8 | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question. |
 | 9 | `feat/history` | `GET /history` (paginated) + history UI with date picker; **open archive** — results shown regardless of whether the user voted (Phase 2 gates this behind a late vote). |
