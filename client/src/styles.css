@@ -245,11 +245,12 @@
     }
   }
 
-  /* Deathmatch "VS" entrance — each team slams in from its own edge (rama 7 polish) */
-  --animate-team-enter-left: team-enter-left 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  --animate-team-enter-right: team-enter-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  /* Result row entrance — alternating rows slide in from their own side (rama 7 polish).
+     Used only on results screens (not while voting). */
+  --animate-result-enter-left: result-enter-left 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-result-enter-right: result-enter-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 
-  @keyframes team-enter-left {
+  @keyframes result-enter-left {
     0% {
       transform: translateX(-40px) scale(0.92);
       opacity: 0;
@@ -264,7 +265,7 @@
     }
   }
 
-  @keyframes team-enter-right {
+  @keyframes result-enter-right {
     0% {
       transform: translateX(40px) scale(0.92);
       opacity: 0;

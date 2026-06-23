@@ -6,12 +6,15 @@
 }
 
 <div class="flex flex-col gap-2">
-  @for (bin of bins(); track bin.id) {
+  @for (bin of bins(); track bin.id; let i = $index) {
     <app-result-option-bar
       [label]="bin.displayText"
       [voteCount]="bin.voteCount"
       [percentage]="bin.percentage"
       [voters]="bin.voters"
+      [class.animate-result-enter-left]="i % 2 === 0"
+      [class.animate-result-enter-right]="i % 2 === 1"
+      [style.animation-delay.ms]="i * 70"
     />
   }
 </div>

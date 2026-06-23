@@ -1,14 +1,31 @@
-<div class="flex flex-col gap-2">
-  @for (option of result().results; track option.id; let i = $index) {
+@if (leadingLabel(); as label) {
+  <div class="flex flex-col items-center gap-0.5 pb-2">
+    <span class="text-xs uppercase tracking-wide text-muted-foreground">{{
+      label === 'Empate' ? 'Resultado' : 'Va ganando'
+    }}</span>
+    <span class="font-display text-2xl text-primary text-center truncate max-w-full">{{ label }}</span>
+  </div>
+}
+
+<div class="flex flex-col gap-1">
+  @for (option of result().results; track option.id; let i = $index; let isLast = $last) {
     <app-result-option-bar
       [label]="option.displayText"
       [voteCount]="option.voteCount"
       [percentage]="option.percentage"
       [voters]="option.voters"
       [index]="i"
-      [class.animate-team-enter-left]="i % 2 === 0"
-      [class.animate-team-enter-right]="i % 2 === 1"
-      [style.animation-delay.ms]="i * 120"
+      [class.animate-result-enter-left]="i % 2 === 0"
+      [class.animate-result-enter-right]="i % 2 === 1"
+      [style.animation-delay.ms]="i * 70"
     />
+    @if (!isLast) {
+      <div class="flex items-center justify-center -my-1 relative z-10">
+        <span
+          class="flex items-center justify-center size-7 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold tracking-wide shadow"
+          >VS</span
+        >
+      </div>
+    }
   }
 </div>

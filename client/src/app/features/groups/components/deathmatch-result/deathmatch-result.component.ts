@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 import { QuestionResult } from '../../../../core/models/result.model';
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
@@ -14,4 +14,11 @@ import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar
 })
 export class DeathmatchResultComponent {
   public readonly result = input.required<QuestionResult>();
+
+  protected readonly leadingLabel = computed(() => {
+    const results = this.result().results;
+    const maxVotes = Math.max(...results.map((r) => r.voteCount), 0);
+    const leaders = results.filter((r) => r.voteCount === maxVotes);
+    return maxVotes === 0 || leaders.length > 1 ? 'Empate' : leaders[0].displayText;
+  });
 }

@@ -1,16 +1,21 @@
-<div class="flex flex-col gap-2">
-  @for (team of question().teams; track $index) {
+<div class="flex flex-col gap-1">
+  @for (team of question().teams; track $index; let isLast = $last) {
     <button
       type="button"
       [class]="optionClass($index)"
-      [class.animate-team-enter-left]="$index % 2 === 0"
-      [class.animate-team-enter-right]="$index % 2 === 1"
-      [style.animation-delay.ms]="$index * 120"
       [attr.aria-pressed]="selectedIndex() === $index"
       (click)="select($index)"
     >
       {{ teamLabel(team) }}
     </button>
+    @if (!isLast) {
+      <div class="flex items-center justify-center -my-1 relative z-10">
+        <span
+          class="flex items-center justify-center size-7 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold tracking-wide shadow"
+          >VS</span
+        >
+      </div>
+    }
   }
 </div>
 
