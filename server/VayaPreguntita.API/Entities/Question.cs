@@ -17,6 +17,9 @@ public class Question
     public int? CreatorId { get; set; } // null => came from a pack (no human author)
     public User? Creator { get; set; }
 
+    public int? TemplateId { get; set; } // set when cloned from a pack template
+    public QuestionTemplate? Template { get; set; }
+
     public int GroupId { get; set; }
     public Group Group { get; set; } = null!;
 

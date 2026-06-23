@@ -14,6 +14,10 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
     private const int FreeTextMaxLength = 280;
 
+    // Minimum gap before the same base-pack template can be reused in a group.
+    // Matches the size of the base pack so the full catalogue rotates before any repeat.
+    private const int TemplateReuseCooldownDays = 50;
+
     // ==========================================
     // GET CURRENT STATUS (§4.7)
     // Surfaces BOTH coexisting states: today (the open question) and selection
@@ -221,7 +225,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         if (selector.UserId != userId)
             return SelectResult.NotYourTurn;
 
-        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
+        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId, targetDate);
         if (resolveResult != SelectResult.Success)
             return resolveResult;
 
@@ -272,7 +276,8 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
-        int userId
+        int userId,
+        DateOnly targetDate
     )
     {
         if (dto.NewQuestion != null)
@@ -334,6 +339,14 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                 .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value);
             if (template == null)
                 return (null, SelectResult.QuestionNotFound);
+
+            var recentlyUsed = await context.DailyEntries.AnyAsync(d =>
+                d.GroupId == group.Id
+                && d.Question.TemplateId == dto.TemplateId.Value
+                && d.Date >= targetDate.AddDays(-TemplateReuseCooldownDays)
+            );
+            if (recentlyUsed)
+                return (null, SelectResult.RecentlyUsedTemplate);
 
             var memberIds = group.Members.Select(m => m.UserId).ToList();
             var cloned = TemplateCloner.CloneToGroup(template, group.Id, memberIds);
@@ -424,11 +437,32 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         if (question == null)
         {
             // Fallback: clone a base-pack template (§6 — there is always a question).
-            var template = await context
-                .QuestionTemplates.Include(t => t.Options)
-                .Where(t => t.Pack.IsActiveByDefault)
-                .OrderBy(_ => Guid.NewGuid())
-                .FirstOrDefaultAsync();
+            // Prefer templates not used in the last TemplateReuseCooldownDays days so the
+            // full catalogue rotates before any repeat. If all templates are on cooldown
+            // (pack smaller than the window), fall back to any template.
+            var recentTemplateIds = await context
+                .DailyEntries.Where(d =>
+                    d.GroupId == groupId
+                    && d.Date >= date.AddDays(-TemplateReuseCooldownDays)
+                )
+                .Select(d => d.Question.TemplateId)
+                .Where(id => id != null)
+                .Select(id => id!.Value)
+                .ToHashSetAsync();
+
+            var template =
+                await context
+                    .QuestionTemplates.Include(t => t.Options)
+                    .Where(t =>
+                        t.Pack.IsActiveByDefault && !recentTemplateIds.Contains(t.Id)
+                    )
+                    .OrderBy(_ => Guid.NewGuid())
+                    .FirstOrDefaultAsync()
+                ?? await context
+                    .QuestionTemplates.Include(t => t.Options)
+                    .Where(t => t.Pack.IsActiveByDefault)
+                    .OrderBy(_ => Guid.NewGuid())
+                    .FirstOrDefaultAsync();
 
             if (template == null)
                 return; // No active templates (should not happen with the base pack).
