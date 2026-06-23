@@ -14,6 +14,7 @@ public class QuestionToVoteDto
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }
     public int? TargetUserId { get; set; }
+    public bool AllowOther { get; set; }
     public List<List<int>> Teams { get; set; } = [];
 
     public List<OptionDto> Options { get; set; } = [];

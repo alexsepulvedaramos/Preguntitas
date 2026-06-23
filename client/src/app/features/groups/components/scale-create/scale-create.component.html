@@ -1,0 +1,63 @@
+<div class="flex flex-col gap-4">
+  <label class="flex items-center gap-2 cursor-pointer select-none">
+    <input
+      type="checkbox"
+      class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
+      [checked]="aboutPerson()"
+      (change)="toggleAboutPerson()"
+    />
+    <span class="text-sm text-foreground">¿Es sobre alguien del grupo?</span>
+  </label>
+
+  @if (aboutPerson()) {
+    <div class="flex flex-col gap-1.5">
+      <p class="text-sm text-muted-foreground">¿A quién se puntúa?</p>
+      <div class="flex flex-col gap-2">
+        @for (member of members(); track member.id) {
+          <button
+            type="button"
+            [class]="optionClass(member.id)"
+            [attr.aria-pressed]="targetUserId() === member.id"
+            (click)="select(member.id)"
+          >
+            {{ member.username }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="flex gap-3">
+    <hlm-field class="grid gap-1.5 flex-1">
+      <label hlmFieldLabel for="rangeMin" class="text-sm font-medium text-foreground">Mínimo</label>
+      <input
+        hlmInput
+        id="rangeMin"
+        type="number"
+        min="0"
+        max="100"
+        [value]="rangeMin()"
+        (input)="onRangeMinChange($any($event.target).value)"
+        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </hlm-field>
+
+    <hlm-field class="grid gap-1.5 flex-1">
+      <label hlmFieldLabel for="rangeMax" class="text-sm font-medium text-foreground">Máximo</label>
+      <input
+        hlmInput
+        id="rangeMax"
+        type="number"
+        min="0"
+        max="100"
+        [value]="rangeMax()"
+        (input)="onRangeMaxChange($any($event.target).value)"
+        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </hlm-field>
+  </div>
+
+  @if (rangeInvalid()) {
+    <p class="text-sm text-destructive">El mínimo debe ser menor que el máximo, entre 0 y 100.</p>
+  }
+</div>

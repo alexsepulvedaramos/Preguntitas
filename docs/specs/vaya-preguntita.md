@@ -1,7 +1,7 @@
 # Vaya Preguntita — Unified Technical & Agent Guide
 
 > **Purpose:** Single source of truth for developers and AI coding agents (Claude, Copilot, etc.).
-> **Last updated:** 22 June 2026 · **Status:** MVP build in progress.
+> **Last updated:** 23 June 2026 · **Status:** MVP build in progress.
 > **Language policy:** This document and all code/comments are written in English. UI-facing copy is Spanish (it is a Spanish-language app).
 
 ---
@@ -235,7 +235,7 @@ The Angular `DailyComponent` uses `@switch` on `today.status` to render the voti
 
 ## 5. Question Types — Complete Spec
 
-All five types are **in MVP scope** (UI + backend). Metadata is stored in the `Question.Metadata` JSONB column.
+All six types are **in MVP scope** (UI + backend). Metadata is stored in the `Question.Metadata` JSONB column.
 
 ### 5.1 The Superlative (Group Poll) — *dynamic*
 
@@ -261,18 +261,19 @@ All five types are **in MVP scope** (UI + backend). Metadata is stored in the `Q
 - **Validation:** a user cannot appear in more than one team; ≥ 2 teams of ≥ 1 member.
 - **Base-pack variant:** teams are auto-generated from a random split of the group's members at activation (§6.3).
 
-### 5.3 The Scale (Subjective Rating) — *numeric, targets one person*
+### 5.3 The Scale (Subjective Rating) — *numeric, rates a person or any subject*
 
-> *"Del 1 al 10, ¿cómo de 'rayao' está hoy el Aguacate?"*
+> *"Del 1 al 10, ¿cómo de 'rayao' está hoy el Aguacate?"* · *"¿Qué nota le pones a Titanic?"*
 
 | Metadata | Type | Default |
 |---|---|---|
-| `TargetUserId` | `int` | — (the person being rated) |
+| `TargetUserId` | `int?` | — (the person being rated; **optional** — when null the subject is just the question text) |
 | `RangeMin` | `int` | 1 |
 | `RangeMax` | `int` | 10 |
 
 - **Vote:** `{ "NumericValue": 7 }` — a raw integer in `[RangeMin, RangeMax]`, **not** an option id.
-- **Base-pack variant:** `TargetUserId` is auto-assigned to a random member at activation (§6.3).
+- **Target is optional:** a Scale can rate a group member (`TargetUserId` set) *or* any free subject described by the text (`TargetUserId` null). The create form offers a "¿Es sobre alguien del grupo?" toggle.
+- **Base-pack variant:** when a template defines a target, `TargetUserId` is auto-assigned to a random member at activation (§6.3).
 
 ### 5.4 The Secret Pairing (Matchmaking) — *dynamic*
 
@@ -294,8 +295,18 @@ All five types are **in MVP scope** (UI + backend). Metadata is stored in the `Q
 | `Options` | `Option` rows | Stored as `Option` entities (not in metadata) |
 | `MinSelections` | `int` | 1 = single-select |
 | `MaxSelections` | `int` | > 1 = multi-select (**MVP supports multi-select**) |
+| `AllowOther` | `bool` | If `true`, voters may add their own free-text answer ("Otro") |
 
 - **Vote:** `{ "SelectedOptionIds": [3] }` — count must be in `[MinSelections, MaxSelections]`; every id must belong to the question.
+- **"Otro" answer:** when `AllowOther`, the vote may also carry `{ "FreeText": "..." }`. The free-text answer counts as one selection toward `[MinSelections, MaxSelections]`. Free-text answers are surfaced in results under `FreeTextResponses` (who wrote what), separate from the option bars.
+
+### 5.6 The Open Text (Open-ended) — *free-text*
+
+> *"¿Cuál es tu mejor recuerdo del viaje?"*
+
+- No structured metadata — just the question text.
+- **Vote:** `{ "FreeText": "..." }` — a non-empty free-text answer (≤ 280 chars), stored in `Vote.FreeText`.
+- **Results:** the list of `FreeTextResponses` (`{ username, text }`), not aggregate bars.
 
 ### Summary
 
@@ -303,9 +314,10 @@ All five types are **in MVP scope** (UI + backend). Metadata is stored in the `Q
 |---|---|---|---|
 | Superlative | Dynamic | `SelectedTargetUserId` | Blacklist check; `0` = Nadie |
 | Deathmatch | Static / auto | `SelectedTargetUserIds` | Must match one exact team |
-| Scale | Static / auto | `NumericValue` | Integer in `[RangeMin, RangeMax]` |
+| Scale | Static / auto | `NumericValue` | Integer in `[RangeMin, RangeMax]`; target optional |
 | Secret Pairing | Dynamic | `SelectedTargetUserIds` | Exactly 2 ids |
-| Custom Poll | Static | `SelectedOptionIds` | Count in `[MinSelections, MaxSelections]` |
+| Custom Poll | Static | `SelectedOptionIds` (+ optional `FreeText`) | Count in `[MinSelections, MaxSelections]`; `FreeText` only when `AllowOther` |
+| Open Text | Static | `FreeText` | Non-empty, ≤ 280 chars |
 
 ---
 
@@ -353,7 +365,7 @@ Multiple thematic packs, an admin UI to enable/disable packs per group, and pack
 - **GroupMember** — composite key `(GroupId, UserId)`, `JoinedAt` (drives rotation).
 - **Question** — `Id, Text, Type, Source, IsUsed, DateCreated, DateActivated, Metadata (JSONB), GroupId, CreatorId (→ nullable), Options, Votes`.
 - **Option** — poll option (`Id, Text, QuestionId`).
-- **Vote** — `Id, DateResponded, QuestionId, UserId`, and the polymorphic answer fields: `SelectedOptionId`, `SelectedTargetUserId`, `NumericValue`, `FreeText` (reserved). Unique index `(QuestionId, UserId)`.
+- **Vote** — `Id, DateResponded, QuestionId, UserId`, and the polymorphic answer fields: `SelectedOptionId`, `SelectedTargetUserId`, `NumericValue`, `FreeText` (used by Open Text answers and Custom Poll "Otro" answers). Unique index `(QuestionId, UserId)`.
 - **DailyEntry** — `Id, Date, IsAutoSelected, PreselectedAt, ActivatedAt (nullable), GroupId, QuestionId, SelectorUserId`. Unique index `(GroupId, Date)`.
 - **Pack** *(new)* — `Id, Name, Description, IsActiveByDefault`.
 - **QuestionTemplate** *(new)* — `Id, Text, Type, Metadata, PackId`, optional template options. Global, voteless.
@@ -433,7 +445,7 @@ Per-type build rules (rama 7, `feat/results-view`):
 
 ```csharp
 public enum QuestionSource { UserCreated = 0, Pack = 1 }
-public enum QuestionType  { CustomPoll, Superlative, Deathmatch, Scale, SecretPairing }
+public enum QuestionType  { CustomPoll, Superlative, Deathmatch, Scale, SecretPairing, OpenText }
 // VoteResult: Success, NoActiveQuestion, AlreadyVoted, InvalidPayload
 // SelectResult: Success, NotYourTurn, QuestionNotFound, AlreadyActivated
 ```
@@ -508,12 +520,14 @@ Validators live in `Validators/` (FluentValidation). Vote-payload validation is 
 | Type | Rule |
 |---|---|
 | Superlative | `BlacklistedUserIds` must not include the creator; ids must be group members |
-| Deathmatch | no user id in more than one team; ≥ 2 teams, each ≥ 1 member |
-| Scale | `RangeMin < RangeMax`; both required; `TargetUserId` is a group member |
+| Deathmatch | no user id in more than one team; 2–4 teams, each 1–4 members |
+| Scale | `RangeMin < RangeMax` (both `0–100`); `TargetUserId` **optional** — if set, must be a group member |
 | Secret Pairing | `MinSelections == MaxSelections == 2` |
-| Custom Poll | `2 ≤ Options ≤ 8`; `1 ≤ MinSelections ≤ MaxSelections ≤ Options.Count` |
+| Custom Poll | `2 ≤ Options ≤ 8`; `1 ≤ MinSelections ≤ MaxSelections ≤ Options.Count`; `AllowOther` is a bool flag |
+| Open Text | text only (3–200 chars); no structured metadata |
+| (all) | `AllowOther` may only be `true` for Custom Poll; question text 3–200 chars |
 
-> The inline-create path of `daily/select` (`NewQuestion`) must run the same validation as `POST /questions` — currently it bypasses FluentValidation. **Fix this.**
+> The inline-create path of `daily/select` (`NewQuestion`) runs the same FluentValidation as `POST /questions` (chained via `SelectQuestionDtoValidator`).
 
 ### `CreateVoteDto` — type-specific
 
@@ -523,7 +537,8 @@ Validators live in `Validators/` (FluentValidation). Vote-payload validation is 
 | Deathmatch | must match exactly one configured team |
 | Scale | required; integer in `[RangeMin, RangeMax]` |
 | Secret Pairing | exactly 2 distinct ids; both active members |
-| Custom Poll | count in `[MinSelections, MaxSelections]`; all ids valid |
+| Custom Poll | total picks (options + optional `FreeText` when `AllowOther`) in `[MinSelections, MaxSelections]`; all ids valid; `FreeText` rejected unless `AllowOther` |
+| Open Text | `FreeText` required, non-empty, ≤ 280 chars |
 
 ---
 
@@ -586,10 +601,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton loading state; "te toca elegir" indicator; refresh button; `JoinGroupAsync` cold-start seeds the first `DailyEntry` once a group reaches 2 members | ✅ — rama 5 (`feat/group-detail`) |
 | Voting UI: `app-vote` dispatcher + five per-type sub-components (superlative, deathmatch, scale, secret-pairing, custom-poll); wired into `GroupDetailComponent`'s `'voting'` case. Backend (`CreateVoteDto`, `POST vote` → `QuestionResultDto`) was already complete from rama 3 — this branch only built the Angular UI and fixed `CreateVote`/`QuestionResult` frontend models to match the backend DTOs exactly. `Votes` unique index relaxed to non-unique on `(QuestionId, UserId)` (SecretPairing/multi-select CustomPoll legitimately write more than one row per user per question). Bootstrap exception added (§4.1): `JoinGroupAsync` now activates the group's first question immediately instead of waiting for T, with a second question preselected normally for the real next T; `CountdownComponent` shows a live "siguiente pregunta en…" label off `today.closesAt`, turning red under 5 minutes | ✅ — rama 6 (`feat/voting`) |
 | Results UI: `app-results` dispatcher (mirrors `app-vote`) + `ScaleResultComponent`/`DeathmatchResultComponent`/shared `ResultOptionBarComponent` (CustomPoll, Superlative, Secret Pairing render inline — identical row shape); wired into `GroupDetailComponent`'s `'results'` case. Compact proportional-width bars (`width: percentage%`), one of 6 chart colors per row (`--chart-1..6` theme tokens), tap-to-see-voters dialog, up to 3 stacked voter-initial avatars on bars with votes. Scale shows a prominent average headline above a full-range histogram (always one consistent tone, not per-bin colors — it's a distribution, not separate options); zero-vote bars render fully empty (no sliver). Backend fixes that came out of this branch: `TotalVotes` now counts distinct voters (§7.4), `OptionResultDto.TeamMembers` resolves Deathmatch team identity server-side, results sorted by `VoteCount` descending (except Scale), Secret Pairing results merged into combined pair rows instead of two separate per-target rows (§7.4). Header reads "Ha/Han votado X de Y miembros" (X = `TotalVotes`, Y = group member count) | ✅ — rama 7 (`feat/results-view`) |
+| Per-type question creation form; selector picker (pool + base-pack + inline create); `DELETE /groups/{id}/questions/{id}`; pool quotas (20 unused/user/group, 500/group total); **`OpenText` question type** (§5.6) — free-text answer, results as a response list; **`CustomPoll.AllowOther`** flag + "Otro" free-text vote option (reuses `Vote.FreeText` + shared `FreeTextResponsesComponent`); **`Scale.TargetUserId` optional** — rate any subject, not just a group member; Deathmatch validator widened to 2–4 teams of 1–4 members; drag-and-drop team builder (`@angular/cdk/drag-drop`); `createQuestionDtoValidator` + `createVoteDtoValidator` tightened (min 3 chars, option max 80 chars, AllowOther only on CustomPoll, OpenText clears all other fields); per-type validation feedback in the creation form (asterisk on required fields, empty-team red-border, inline error text on submit); dialog resets state on every reopen; global slim-scrollbar polish | ✅ — rama 8 (`feat/create-question`) |
 
 ### Pending (MVP) — see §13
 
-History list · group management (leave/kick/regenerate) · pool delete · limits.
+History list · group management (leave/kick/regenerate).
 
 ---
 
@@ -607,7 +623,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 5 ✅ | `feat/group-detail` | Group-detail screen + route `groups/:groupId`; consumes `daily/current`; `@switch` skeleton; "te toca elegir" indicator; refresh button. **Implemented on `feat/group-detail`.** |
 | 6 ✅ | `feat/voting` | Five voting sub-components; build `CreateVoteDto`; `POST vote` → results. Backend was already complete from rama 3; this branch built the Angular UI (`app-vote` dispatcher + per-type components) and fixed two frontend DTOs that had drifted from the backend contract. **Implemented on `feat/voting`.** |
 | 7 ✅ | `feat/results-view` | Per-type results visualization incl. **who voted for what**. **Implemented on `feat/results-view`.** |
-| 8 | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question. |
+| 8 ✅ | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question; pool quotas (§11); **`OpenText` type** (§5.6); **`CustomPoll.AllowOther`** + "Otro" free-text vote; **`Scale.TargetUserId` optional**; Deathmatch 2–4 teams + drag-and-drop builder; per-type validation feedback; dialog reset on reopen. **Implemented on `feat/create-question`.** |
 | 9 | `feat/history` | `GET /history` (paginated) + history UI with date picker; **open archive** — results shown regardless of whether the user voted (Phase 2 gates this behind a late vote). |
 | 10 | `feat/group-admin` | Admin panel (name/description/time, members, transfer admin); leave/kick/regenerate-code. |
 | 11 | `feat/design-polish` | **Final unification & UI QA pass** across all screens: responsive layouts, empty/loading/error states, micro-interactions/motion, copy tone, and a checklist against the design rules. The "pulcro y con personalidad" pass. |

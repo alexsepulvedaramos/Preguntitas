@@ -70,6 +70,7 @@ public class MappingProfile : Profile
                 dest => dest.TargetUserId,
                 opt => opt.MapFrom(src => src.Metadata.TargetUserId)
             )
+            .ForMember(dest => dest.AllowOther, opt => opt.MapFrom(src => src.Metadata.AllowOther))
             .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.Metadata.Teams));
 
         // Basic user info mapping

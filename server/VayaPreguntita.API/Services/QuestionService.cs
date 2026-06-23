@@ -11,6 +11,10 @@ namespace VayaPreguntita.API.Services;
 
 public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestionsService
 {
+    // §11 abuse-protection limits on the pool of unused (IsUsed == false) questions.
+    private const int MaxUnusedQuestionsPerUserPerGroup = 20;
+    private const int MaxUnusedQuestionsPerGroup = 500;
+
     // ==========================================
     // GET POOL
     // Devuelve las preguntas disponibles del grupo (no usadas)
@@ -67,6 +71,21 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         if (membershipError != null)
             return (null, membershipError);
 
+        var unusedByCreator = await context.Questions.CountAsync(q =>
+            q.GroupId == groupId && !q.IsUsed && q.CreatorId == creatorId
+        );
+        if (unusedByCreator >= MaxUnusedQuestionsPerUserPerGroup)
+            return (
+                null,
+                $"You already have {MaxUnusedQuestionsPerUserPerGroup} unused questions in this group's pool."
+            );
+
+        var unusedInGroup = await context.Questions.CountAsync(q =>
+            q.GroupId == groupId && !q.IsUsed
+        );
+        if (unusedInGroup >= MaxUnusedQuestionsPerGroup)
+            return (null, "This group's question pool is full.");
+
         var question = new Question
         {
             Text = dto.Text,
@@ -90,4 +109,28 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         return (mapper.Map<QuestionDto>(question), null);
     }
 
+    // ==========================================
+    // DELETE
+    // Elimina una pregunta del pool (no usada) si el solicitante es el creador o el admin del grupo
+    // ==========================================
+    public async Task<string?> DeleteAsync(int groupId, int userId, int questionId)
+    {
+        var question = await context
+            .Questions.Include(q => q.Group)
+            .FirstOrDefaultAsync(q => q.Id == questionId && q.GroupId == groupId);
+
+        if (question == null)
+            return "not_found";
+
+        if (question.IsUsed)
+            return "in_use";
+
+        if (question.CreatorId != userId && question.Group.AdminId != userId)
+            return "forbidden";
+
+        context.Questions.Remove(question);
+        await context.SaveChangesAsync();
+
+        return null;
+    }
 }

@@ -1,0 +1,96 @@
+<div cdkDropListGroup class="flex flex-col gap-4">
+  <div class="flex flex-col gap-1.5">
+    <p class="text-sm text-muted-foreground">Sin asignar</p>
+    <div
+      cdkDropList
+      id="dm-unassigned"
+      [cdkDropListData]="unassigned()"
+      [cdkDropListConnectedTo]="dropListIds()"
+      (cdkDropListDropped)="drop($event)"
+      class="flex flex-wrap gap-2 min-h-14 rounded-lg border border-dashed border-border bg-muted/30 p-2"
+    >
+      @for (member of unassigned(); track member.id) {
+        <div
+          cdkDrag
+          class="cursor-grab active:cursor-grabbing rounded-md border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-xs select-none"
+        >
+          {{ member.username }}
+        </div>
+      }
+      @empty {
+        <p class="text-xs text-muted-foreground self-center px-1">Todos repartidos</p>
+      }
+    </div>
+  </div>
+
+  @for (team of teamGroups(); track $index; let teamIndex = $index) {
+    @let teamEmpty = team.length === 0;
+    @let showTeamError = teamEmpty && (hasInteracted() || showErrors());
+    <div class="flex flex-col gap-1.5">
+      <div class="flex items-center justify-between">
+        <p
+          class="text-sm"
+          [class]="showTeamError ? 'text-destructive font-medium' : 'text-muted-foreground'"
+        >
+          Equipo {{ teamIndex + 1 }}
+        </p>
+        @if (canRemoveTeam()) {
+          <button
+            type="button"
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="size-6 focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="removeTeam(teamIndex)"
+            aria-label="Quitar equipo"
+          >
+            <ng-icon hlm name="lucideX" size="14" />
+          </button>
+        }
+      </div>
+      <div
+        cdkDropList
+        [id]="'dm-team-' + teamIndex"
+        [cdkDropListData]="team"
+        [cdkDropListConnectedTo]="dropListIds()"
+        (cdkDropListDropped)="drop($event)"
+        class="flex flex-wrap gap-2 min-h-14 rounded-lg border p-2 transition-colors"
+        [class]="showTeamError ? 'border-destructive bg-destructive/5' : 'border-border bg-card/40'"
+      >
+        @for (member of team; track member.id) {
+          <div
+            cdkDrag
+            class="cursor-grab active:cursor-grabbing rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-sm text-foreground shadow-xs select-none"
+          >
+            {{ member.username }}
+          </div>
+        }
+        @empty {
+          <p
+            class="text-xs self-center px-1"
+            [class]="showTeamError ? 'text-destructive' : 'text-muted-foreground'"
+          >
+            @if (showTeamError) {
+              Necesita al menos 1 miembro
+            } @else {
+              Arrastra miembros aquí
+            }
+          </p>
+        }
+      </div>
+    </div>
+  }
+
+  @if (canAddTeam()) {
+    <button
+      type="button"
+      hlmBtn
+      variant="secondary"
+      class="w-full gap-1.5 focus-visible:ring-2 focus-visible:ring-ring"
+      (click)="addTeam()"
+    >
+      <ng-icon hlm name="lucidePlus" />
+      Añadir equipo
+    </button>
+  }
+</div>

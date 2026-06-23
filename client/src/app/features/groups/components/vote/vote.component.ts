@@ -16,6 +16,7 @@ import { DeathmatchVoteComponent } from '../deathmatch-vote/deathmatch-vote.comp
 import { ScaleVoteComponent } from '../scale-vote/scale-vote.component';
 import { SecretPairingVoteComponent } from '../secret-pairing-vote/secret-pairing-vote.component';
 import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.component';
+import { OpenTextVoteComponent } from '../open-text-vote/open-text-vote.component';
 
 // Voting dispatcher (rama 6, spec §13 row 6): renders today's question and, based on
 // its type, one of the 5 picker sub-components. It owns the single POST daily/vote
@@ -29,6 +30,7 @@ import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.co
     ScaleVoteComponent,
     SecretPairingVoteComponent,
     CustomPollVoteComponent,
+    OpenTextVoteComponent,
   ],
   templateUrl: './vote.component.html',
 })

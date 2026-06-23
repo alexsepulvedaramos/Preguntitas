@@ -9,6 +9,27 @@
       {{ option.text }}
     </button>
   }
+
+  @if (question().allowOther) {
+    <button
+      type="button"
+      [class]="otherClass()"
+      [attr.aria-pressed]="otherSelected()"
+      (click)="toggleOther()"
+    >
+      Otro...
+    </button>
+    @if (otherSelected()) {
+      <input
+        hlmInput
+        maxlength="280"
+        [value]="otherText()"
+        (input)="onOtherInput($any($event.target).value)"
+        placeholder="Escribe tu respuesta"
+        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    }
+  }
 </div>
 
 <button

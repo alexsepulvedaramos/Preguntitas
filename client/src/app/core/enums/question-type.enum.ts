@@ -18,4 +18,8 @@ export enum QuestionType {
     // Matchmaking question with exactly two selections.
     // Example: "Which two people in the group would make the best couple?"
     SecretPairing = 4,
+
+    // Open-ended question: every member types a free-text answer.
+    // Example: "What's your favourite memory from this trip?"
+    OpenText = 5,
 }

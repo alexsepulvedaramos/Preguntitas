@@ -16,6 +16,11 @@ export interface OptionResult {
     percentage: number;
 }
 
+export interface FreeTextResponse {
+    username: string;
+    text: string;
+}
+
 // Mirrors backend QuestionResultDto.
 export interface QuestionResult {
     id: number;
@@ -24,4 +29,5 @@ export interface QuestionResult {
     dateCreated: string | Date;
     totalVotes: number;
     results: OptionResult[];
+    freeTextResponses: FreeTextResponse[];
 }

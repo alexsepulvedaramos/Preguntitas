@@ -23,6 +23,7 @@ export class ScaleVoteComponent {
   // Resets to the midpoint whenever the question (and therefore its range) changes.
   protected readonly value = linkedSignal(() => Math.round((this.min() + this.max()) / 2));
 
+  protected readonly hasTarget = computed(() => this.question().targetUserId != null);
   protected readonly targetUsername = computed(
     () => this.members().find((m) => m.id === this.question().targetUserId)?.username ?? '???'
   );

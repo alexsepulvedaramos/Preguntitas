@@ -8,9 +8,15 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
 {
     public CreateQuestionDtoValidator()
     {
-        RuleFor(question => question.Text).NotEmpty().MaximumLength(400);
+        RuleFor(question => question.Text).NotEmpty().MinimumLength(3).MaximumLength(200);
 
         RuleFor(question => question.Type).IsInEnum();
+
+        // Only Custom Poll questions may let voters add their own "Otro" answer.
+        RuleFor(question => question.AllowOther)
+            .Equal(false)
+            .When(question => question.Type != QuestionType.CustomPoll)
+            .WithMessage("Only custom poll questions can allow a free-text \"Otro\" answer.");
 
         RuleForEach(question => question.Options).SetValidator(new CreateOptionDtoValidator());
 
@@ -57,10 +63,12 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
 
                 RuleFor(question => question.Teams)
                     .NotNull()
-                    .Must(teams => teams.Count == 2)
-                    .WithMessage("Deathmatch questions must define exactly 2 teams.")
+                    .Must(teams => teams.Count is >= 2 and <= 4)
+                    .WithMessage("Deathmatch questions must define between 2 and 4 teams.")
                     .Must(TeamsHaveValidMembers)
-                    .WithMessage("Deathmatch teams must not repeat users across teams.");
+                    .WithMessage(
+                        "Deathmatch teams must have 1 to 4 members each and not repeat users across teams."
+                    );
 
                 RuleFor(question => question.RangeMin).Null();
 
@@ -84,7 +92,11 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
             question => question.Type == QuestionType.Scale,
             () =>
             {
-                RuleFor(question => question.TargetUserId).NotNull().GreaterThan(0);
+                // TargetUserId is optional: a Scale can rate a person OR a free subject
+                // described only by the question text (e.g. "¿Qué nota le pones a Titanic?").
+                RuleFor(question => question.TargetUserId)
+                    .GreaterThan(0)
+                    .When(question => question.TargetUserId.HasValue);
 
                 RuleFor(question => question)
                     .Must(q => AreScaleBoundsValid(q.RangeMin, q.RangeMax))
@@ -174,6 +186,33 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                 RuleFor(question => question.AllowNobody).Equal(false);
             }
         );
+
+        When(
+            question => question.Type == QuestionType.OpenText,
+            () =>
+            {
+                // Open-ended questions carry no structured metadata — just the text.
+                RuleFor(question => question.Options)
+                    .Must(options => options == null || options.Count == 0)
+                    .WithMessage("Open-text questions cannot define options.");
+
+                RuleFor(question => question.Teams)
+                    .Must(teams => teams == null || teams.Count == 0)
+                    .WithMessage("Open-text questions cannot define teams.");
+
+                RuleFor(question => question.RangeMin).Null();
+                RuleFor(question => question.RangeMax).Null();
+                RuleFor(question => question.TargetUserId).Null();
+                RuleFor(question => question.MinSelections).Null();
+                RuleFor(question => question.MaxSelections).Null();
+
+                RuleFor(question => question.BlacklistedUserIds)
+                    .Must(ids => ids == null || ids.Count == 0)
+                    .WithMessage("Open-text questions cannot define blacklisted users.");
+
+                RuleFor(question => question.AllowNobody).Equal(false);
+            }
+        );
     }
 
     private static bool AreScaleBoundsValid(int? rangeMin, int? rangeMax)
@@ -188,7 +227,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
 
     private static bool TeamsHaveValidMembers(List<List<int>>? teams)
     {
-        if (teams == null || teams.Count != 2)
+        if (teams == null || teams.Count is < 2 or > 4)
         {
             return false;
         }
@@ -197,7 +236,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
 
         foreach (var team in teams)
         {
-            if (team == null || team.Count == 0)
+            if (team == null || team.Count is < 1 or > 4)
             {
                 return false;
             }

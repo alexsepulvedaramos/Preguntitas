@@ -4,4 +4,5 @@ export interface CreateVote {
     selectedTargetUserId?: number | null; // Superlative
     selectedTargetUserIds?: number[] | null; // Deathmatch, Secret Pairing
     numericValue?: number | null; // Scale
+    freeText?: string | null; // OpenText, or a Custom Poll "Otro" answer
 }

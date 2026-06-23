@@ -1,0 +1,259 @@
+<hlm-dialog class="flex justify-center">
+  <button
+    hlmDialogTrigger
+    hlmBtn
+    [variant]="isSelector() ? 'default' : 'secondary'"
+    [class]="
+      'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
+      (isSelector()
+        ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
+        : '')
+    "
+    (click)="resetDialog()"
+  >
+    @if (isSelector()) {
+      <ng-icon hlm name="lucideSparkles" />
+      Te toca elegir la pregunta de mañana
+    } @else {
+      Sugerir pregunta
+    }
+  </button>
+
+  <hlm-dialog-content
+    *hlmDialogPortal="let ctx"
+    class="w-2xl max-w-[95vw] max-h-[85vh] overflow-y-auto"
+  >
+    <hlm-dialog-header>
+      <h3
+        hlmDialogTitle
+        class="font-display text-xl italic tracking-wider text-foreground"
+      >
+        @if (step() === 'sources') {
+          Elige la pregunta de mañana
+        } @else if (step() === 'assign-teams') {
+          Forma los equipos
+        } @else {
+          Crear pregunta nueva
+        }
+      </h3>
+      <p hlmDialogDescription>
+        @if (step() === 'sources') {
+          Elige una pregunta de las creadas por el grupo, alguna del pack base,
+          o crea la tuya propia.
+        } @else if (step() === 'assign-teams') {
+          "{{ teamAssignmentItem()?.text }}" — reparte a los miembros en 2 a 4
+          equipos antes de confirmar.
+        } @else {
+          Rellena los datos según el tipo de pregunta.
+        }
+      </p>
+    </hlm-dialog-header>
+
+    @if (error()) {
+      <p class="text-sm text-destructive">{{ error() }}</p>
+    }
+
+    @if (step() === 'sources') {
+      @if (loading()) {
+        <div class="flex items-center gap-2 text-sm text-muted-foreground py-4">
+          <hlm-spinner class="size-4" />
+          Cargando preguntas disponibles...
+        </div>
+      } @else {
+        <div class="flex flex-col gap-4 py-2">
+          @if (pendingQuestion(); as pending) {
+            <div class="flex flex-col gap-1.5">
+              <p
+                class="text-xs uppercase tracking-wide text-accent-text font-semibold"
+              >
+                Ya elegida para mañana
+              </p>
+              <div
+                class="rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
+              >
+                <span class="flex items-start gap-2">
+                  <span
+                    class="flex-1 font-display italic text-lg text-foreground leading-tight"
+                    >{{ pending.text }}</span
+                  >
+                  <span
+                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
+                    [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
+                    >{{ QUESTION_TYPE_LABELS[pending.type] }}</span
+                  >
+                </span>
+                @if (
+                  pending.type === QuestionType.CustomPoll &&
+                  pending.options.length > 0
+                ) {
+                  <span class="text-xs text-muted-foreground">{{
+                    formatOptions(pending.options)
+                  }}</span>
+                }
+              </div>
+              <p class="text-xs text-muted-foreground">
+                Puedes cambiarla creando otra o eligiendo una de abajo.
+              </p>
+            </div>
+          }
+
+          <button
+            type="button"
+            hlmBtn
+            class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="openCreate()"
+          >
+            Crear pregunta nueva
+          </button>
+
+          @if (sources().pool.length > 0) {
+            <div class="flex flex-col gap-1.5">
+              <p class="text-sm text-muted-foreground">Creadas por el grupo</p>
+              <div class="flex flex-col gap-2">
+                @for (item of sources().pool; track itemKey(item)) {
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      class="vp-poll-option flex-1 text-left flex flex-col gap-1"
+                      [disabled]="pickingKey() !== null"
+                      (click)="pick(item, ctx)"
+                    >
+                      <span class="flex items-center gap-2">
+                        @if (pickingKey() === itemKey(item)) {
+                          <hlm-spinner class="size-4" />
+                        }
+                        <span class="flex-1">{{ item.text }}</span>
+                        <span
+                          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
+                          [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
+                          >{{ QUESTION_TYPE_LABELS[item.type] }}</span
+                        >
+                      </span>
+                      @if (
+                        item.type === QuestionType.CustomPoll &&
+                        item.options.length > 0
+                      ) {
+                        <span class="text-xs text-muted-foreground">{{
+                          item.options.join(' · ')
+                        }}</span>
+                      }
+                    </button>
+                    @if (canDelete(item)) {
+                      <button
+                        type="button"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon"
+                        class="size-8 shrink-0 text-destructive focus-visible:ring-2 focus-visible:ring-ring"
+                        [disabled]="deletingId() !== null"
+                        (click)="delete(item)"
+                        aria-label="Eliminar del pool"
+                      >
+                        @if (deletingId() === item.id) {
+                          <hlm-spinner class="size-4" />
+                        } @else {
+                          <ng-icon hlm name="lucideTrash2" size="16" />
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (sources().pack.length > 0) {
+            <div class="flex flex-col gap-1.5">
+              <p class="text-sm text-muted-foreground">Pack base</p>
+              <div class="flex flex-col gap-2">
+                @for (item of sources().pack; track itemKey(item)) {
+                  <button
+                    type="button"
+                    class="vp-poll-option flex flex-col gap-1"
+                    [disabled]="pickingKey() !== null"
+                    (click)="pick(item, ctx)"
+                  >
+                    <span class="flex items-center gap-2">
+                      @if (pickingKey() === itemKey(item)) {
+                        <hlm-spinner class="size-4" />
+                      }
+                      <span class="flex-1 text-left">{{ item.text }}</span>
+                      <span
+                        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
+                        [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
+                        >{{ QUESTION_TYPE_LABELS[item.type] }}</span
+                      >
+                    </span>
+                    @if (
+                      item.type === QuestionType.CustomPoll &&
+                      item.options.length > 0
+                    ) {
+                      <span class="text-xs text-muted-foreground text-left">{{
+                        item.options.join(' · ')
+                      }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    } @else if (step() === 'assign-teams') {
+      <div class="py-2">
+        <app-deathmatch-create
+          [members]="members()"
+          [(teams)]="teamAssignmentTeams"
+        />
+      </div>
+
+      <hlm-dialog-footer>
+        <button
+          hlmBtn
+          type="button"
+          variant="secondary"
+          class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="backFromTeamAssignment()"
+        >
+          Atrás
+        </button>
+        <button
+          hlmBtn
+          type="button"
+          class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="assigningTeams()"
+          (click)="confirmTeamAssignment(ctx)"
+        >
+          @if (assigningTeams()) {
+            <hlm-spinner class="size-4" />
+          }
+          Confirmar equipos
+        </button>
+      </hlm-dialog-footer>
+    } @else {
+      <div class="py-2">
+        <app-create-question
+          [groupId]="groupId()"
+          [members]="members()"
+          [showSelectButton]="isSelector()"
+          (selected)="onSelectedForTomorrow(ctx)"
+          (savedToPool)="onSavedToPool(ctx)"
+        />
+      </div>
+
+      @if (isSelector()) {
+        <hlm-dialog-footer>
+          <button
+            hlmBtn
+            type="button"
+            variant="secondary"
+            class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="backToSources()"
+          >
+            Atrás
+          </button>
+        </hlm-dialog-footer>
+      }
+    }
+  </hlm-dialog-content>
+</hlm-dialog>

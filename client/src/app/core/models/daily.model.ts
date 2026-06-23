@@ -50,6 +50,7 @@ export interface SelectionSourceItem {
     id: number; // QuestionId when sourceType === 'pool', TemplateId when 'pack'
     text: string;
     type: QuestionType;
+    options: string[]; // only populated for CustomPoll items
 }
 
 export interface SelectionSources {

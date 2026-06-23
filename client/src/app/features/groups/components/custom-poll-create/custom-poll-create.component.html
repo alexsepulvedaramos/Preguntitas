@@ -1,0 +1,94 @@
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    @for (option of options(); track $index; let i = $index) {
+      <div class="flex items-center gap-2">
+        <input
+          hlmInput
+          [value]="option"
+          (input)="updateOption(i, $any($event.target).value)"
+          placeholder="Opción {{ i + 1 }}"
+          maxlength="80"
+          class="flex-1 bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        />
+        @if (canRemoveOption()) {
+          <button
+            type="button"
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="size-8 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="removeOption(i)"
+            aria-label="Quitar opción"
+          >
+            <ng-icon hlm name="lucideX" size="14" />
+          </button>
+        }
+      </div>
+    }
+
+    @if (canAddOption()) {
+      <button
+        type="button"
+        hlmBtn
+        variant="secondary"
+        class="w-full gap-1.5 focus-visible:ring-2 focus-visible:ring-ring"
+        (click)="addOption()"
+      >
+        <ng-icon hlm name="lucidePlus" />
+        Añadir opción
+      </button>
+    }
+  </div>
+
+  <div class="flex gap-3">
+    <hlm-field class="grid gap-1.5 flex-1">
+      <label
+        hlmFieldLabel
+        for="minSelections"
+        class="text-sm font-medium text-foreground"
+        >Selecciones mínimas</label
+      >
+      <input
+        hlmInput
+        id="minSelections"
+        type="number"
+        min="1"
+        [max]="options().length"
+        [value]="minSelections()"
+        (input)="onMinSelectionsChange($any($event.target).value)"
+        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </hlm-field>
+
+    <hlm-field class="grid gap-1.5 flex-1">
+      <label
+        hlmFieldLabel
+        for="maxSelections"
+        class="text-sm font-medium text-foreground"
+        >Selecciones máximas</label
+      >
+      <input
+        hlmInput
+        id="maxSelections"
+        type="number"
+        min="1"
+        [max]="options().length"
+        [value]="maxSelections()"
+        (input)="onMaxSelectionsChange($any($event.target).value)"
+        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </hlm-field>
+  </div>
+
+  <label class="flex items-center gap-2 cursor-pointer select-none">
+    <input
+      type="checkbox"
+      class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
+      [checked]="allowOther()"
+      (change)="toggleAllowOther()"
+    />
+    <span class="text-sm text-foreground"
+      >Permitir respuesta libre ("Otro")</span
+    >
+  </label>
+</div>

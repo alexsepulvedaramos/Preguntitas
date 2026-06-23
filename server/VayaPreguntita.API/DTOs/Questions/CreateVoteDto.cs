@@ -7,4 +7,7 @@ public class CreateVoteDto
     public int? SelectedTargetUserId { get; set; }
     public List<int>? SelectedTargetUserIds { get; set; }
     public int? NumericValue { get; set; }
+
+    // OpenText answer, or a CustomPoll "Otro" free-text answer.
+    public string? FreeText { get; set; }
 }

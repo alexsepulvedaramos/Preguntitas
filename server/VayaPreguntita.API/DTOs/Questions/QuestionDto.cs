@@ -10,5 +10,6 @@ public class QuestionDto
     public bool IsUsed { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime? DateActivated { get; set; }
+    public int? CreatorId { get; set; }
     public List<OptionDto> Options { get; set; } = [];
 }

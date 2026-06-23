@@ -3,11 +3,10 @@ import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideRefreshCw, lucideSparkles } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideRefreshCw } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -20,24 +19,26 @@ import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-t
 import { VoteComponent } from '../vote/vote.component';
 import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
+import { SelectQuestionDialogComponent } from '../select-question-dialog/select-question-dialog.component';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
-// is `app-vote` (rama 6); full results visualization lands in rama 7.
+// is `app-vote` (rama 6); full results visualization lands in rama 7. The selection
+// panel's picker is `app-select-question-dialog` (rama 8).
 @Component({
   selector: 'app-group-detail',
   imports: [
     RouterLink,
     HlmButtonImports,
-    HlmBadgeImports,
     HlmSkeletonImports,
     HlmSpinnerImports,
     NgIcon,
     VoteComponent,
     ResultsComponent,
     CountdownComponent,
+    SelectQuestionDialogComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideSparkles })],
+  providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw })],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
 })
