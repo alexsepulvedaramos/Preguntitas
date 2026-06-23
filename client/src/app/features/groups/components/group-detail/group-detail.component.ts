@@ -16,6 +16,7 @@ import { DailyStatus } from '../../../../core/models/daily.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { VoteComponent } from '../vote/vote.component';
+import { CountdownComponent } from '../countdown/countdown.component';
 
 const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   [QuestionType.CustomPoll]: 'Encuesta',
@@ -38,6 +39,7 @@ const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
     HlmSpinnerImports,
     NgIcon,
     VoteComponent,
+    CountdownComponent,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideRefreshCw, lucideSparkles })],
   templateUrl: './group-detail.component.html',

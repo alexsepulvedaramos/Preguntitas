@@ -53,6 +53,8 @@
       </div>
     }
 
+    <app-countdown [target]="daily()?.today?.closesAt ?? null" />
+
     @switch (daily()?.today?.status) {
       @case ('voting') {
         <app-vote
