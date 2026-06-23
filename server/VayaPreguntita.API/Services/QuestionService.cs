@@ -58,11 +58,20 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     // ==========================================
     public async Task<HistoryPageDto> GetHistoryAsync(int groupId, DateOnly? before, int pageSize = 20)
     {
-        var today = DailyClock.Today();
+        // The "open" entry is the most-recently-activated one. The lifecycle is driven by
+        // ActivatedAt, not the calendar date, so the open entry's Date may be before today.
+        // We must exclude it from history — only entries that have been superseded by a
+        // newer activation are truly closed.
+        var openDate = await context
+            .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt != null)
+            .MaxAsync(d => (DateOnly?)d.Date);
+
+        if (openDate == null)
+            return new HistoryPageDto { Items = [], HasMore = false };
 
         var items = await context
             .DailyEntries.Where(d =>
-                d.GroupId == groupId && d.ActivatedAt != null && d.Date < today
+                d.GroupId == groupId && d.ActivatedAt != null && d.Date < openDate
             )
             .Where(d => before == null || d.Date < before)
             .OrderByDescending(d => d.Date)
