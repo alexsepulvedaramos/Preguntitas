@@ -3,6 +3,9 @@
     <button
       type="button"
       [class]="optionClass($index)"
+      [class.animate-team-enter-left]="$index % 2 === 0"
+      [class.animate-team-enter-right]="$index % 2 === 1"
+      [style.animation-delay.ms]="$index * 120"
       [attr.aria-pressed]="selectedIndex() === $index"
       (click)="select($index)"
     >

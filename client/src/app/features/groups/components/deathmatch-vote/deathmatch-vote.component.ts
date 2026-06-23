@@ -24,7 +24,7 @@ export class DeathmatchVoteComponent {
   }
 
   protected teamLabel(team: number[]): string {
-    return team.map((id) => this.members().find((m) => m.id === id)?.username ?? '???').join(' y ');
+    return team.map((id) => this.members().find((m) => m.id === id)?.username ?? '???').join(' + ');
   }
 
   select(index: number) {

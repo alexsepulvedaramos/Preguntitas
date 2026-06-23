@@ -244,6 +244,40 @@
       transform: scale(1);
     }
   }
+
+  /* Deathmatch "VS" entrance — each team slams in from its own edge (rama 7 polish) */
+  --animate-team-enter-left: team-enter-left 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  --animate-team-enter-right: team-enter-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+
+  @keyframes team-enter-left {
+    0% {
+      transform: translateX(-40px) scale(0.92);
+      opacity: 0;
+    }
+    60% {
+      transform: translateX(6px) scale(1.02);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes team-enter-right {
+    0% {
+      transform: translateX(40px) scale(0.92);
+      opacity: 0;
+    }
+    60% {
+      transform: translateX(-6px) scale(1.02);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+  }
 }
 
 @layer components {

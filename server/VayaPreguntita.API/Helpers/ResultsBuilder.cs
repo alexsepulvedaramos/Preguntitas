@@ -145,7 +145,7 @@ public static class ResultsBuilder
                         new OptionResultDto
                         {
                             Id = i + 1,
-                            DisplayText = $"Equipo {i + 1}",
+                            DisplayText = string.Join(" + ", teamMembers.Select(m => m.Username)),
                             TeamMembers = teamMembers,
                             VoteCount = teamVotes.Count,
                             Percentage = Percent(teamVotes.Count, result.TotalVotes),

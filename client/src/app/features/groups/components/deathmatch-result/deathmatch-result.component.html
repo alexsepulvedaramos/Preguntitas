@@ -2,11 +2,13 @@
   @for (option of result().results; track option.id; let i = $index) {
     <app-result-option-bar
       [label]="option.displayText"
-      [subtitle]="teamSubtitle(option)"
       [voteCount]="option.voteCount"
       [percentage]="option.percentage"
       [voters]="option.voters"
       [index]="i"
+      [class.animate-team-enter-left]="i % 2 === 0"
+      [class.animate-team-enter-right]="i % 2 === 1"
+      [style.animation-delay.ms]="i * 120"
     />
   }
 </div>
