@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Groups;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
 
-public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsService
+public class GroupsService(AppDbContext context, IMapper mapper, IDailyService dailyService)
+    : IGroupsService
 {
     // Checks if a user is part of a specific group
     public async Task<bool> IsUserInGroupAsync(int userId, int groupId)
@@ -119,6 +121,25 @@ public class GroupsService(AppDbContext context, IMapper mapper) : IGroupsServic
 
         group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow });
         await context.SaveChangesAsync();
+
+        // Seed the group's first DailyEntry once it reaches 2 members, so it doesn't sit
+        // without a cycle until the next background-service tick after today's T. Mirrors
+        // the "brand-new group" rule in DailyService.NextActivationDate: target today if T
+        // hasn't passed yet, otherwise tomorrow. Activation itself still only ever happens
+        // at T, in DailyPreselectionService — the daily time is sacred (§4.1).
+        if (group.Members.Count == 2)
+        {
+            var hasEntries = await context.DailyEntries.AnyAsync(d => d.GroupId == group.Id);
+
+            if (!hasEntries)
+            {
+                var today = DailyClock.Today();
+                var targetDate =
+                    DailyClock.TimeOfDay() < group.DailyQuestionTime ? today : today.AddDays(1);
+
+                await dailyService.PreselectForGroupAsync(group.Id, targetDate);
+            }
+        }
 
         return true;
     }

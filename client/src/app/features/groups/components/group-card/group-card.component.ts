@@ -1,4 +1,5 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -17,6 +18,7 @@ import { GroupResponse } from '../../models/group.models';
 @Component({
   selector: 'app-group-card',
   imports: [
+    RouterLink,
     HlmButtonImports,
     HlmCardImports,
     HlmDialogImports,
@@ -28,11 +30,18 @@ import { GroupResponse } from '../../models/group.models';
   styleUrl: './group-card.component.css',
 })
 export class GroupCardComponent {
+  private readonly router = inject(Router);
+
   public group = input.required<GroupResponse>();
 
   // Track independent clipboard feedback states
   public isLinkCopied = signal<boolean>(false);
   public isCodeCopied = signal<boolean>(false);
+
+  // Keyboard-activated navigation (Enter), mirroring the routerLink-driven click
+  navigateToDetail() {
+    this.router.navigate(['/groups', this.group().id]);
+  }
 
   // Generates the full invitation path
   getInviteLink(): string {

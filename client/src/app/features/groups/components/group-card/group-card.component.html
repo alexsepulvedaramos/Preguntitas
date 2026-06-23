@@ -1,6 +1,10 @@
 <hlm-card
   size="sm"
   class="cursor-pointer border hover:border-accent transition-colors duration-150"
+  role="link"
+  tabindex="0"
+  [routerLink]="['/groups', group().id]"
+  (keydown.enter)="navigateToDetail()"
 >
   <hlm-card-header class="flex flex-row items-center justify-between gap-4">
     <div class="min-w-0 flex-1">
