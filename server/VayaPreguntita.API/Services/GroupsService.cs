@@ -275,6 +275,17 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         return mapper.Map<GroupResponse>(group);
     }
 
+    public async Task<InvitePreviewDto?> GetInvitePreviewAsync(string invitationCode)
+    {
+        var group = await context.Groups
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.InvitationCode == invitationCode);
+
+        if (group == null) return null;
+
+        return new InvitePreviewDto(group.Id, group.Name, group.Description ?? string.Empty, group.Members.Count);
+    }
+
     private static string GenerateRandomCode(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

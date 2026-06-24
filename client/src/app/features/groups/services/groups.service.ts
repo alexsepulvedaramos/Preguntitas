@@ -5,6 +5,7 @@ import {
     CreateGroupRequest,
     GroupMember,
     GroupResponse,
+    InvitePreview,
     JoinGroupRequest,
     TransferAdminRequest,
     UpdateGroupRequest
@@ -93,6 +94,11 @@ export class GroupsService {
     // Kicks a member from a group (admin-only)
     kickMember(groupId: number, userId: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/${groupId}/members/${userId}`);
+    }
+
+    // Fetches public group info for an invitation code (no auth required)
+    getInvitePreview(code: string): Observable<InvitePreview> {
+        return this.http.get<InvitePreview>(`${this.baseUrl}/invite-preview/${code}`);
     }
 
     // Generates a new invitation code for the group (admin-only)

@@ -27,6 +27,13 @@ export interface JoinGroupRequest {
     invitationCode: string;
 }
 
+export interface InvitePreview {
+    id: number;
+    name: string;
+    description: string;
+    memberCount: number;
+}
+
 export interface TransferAdminRequest {
     newAdminId: number;
 }

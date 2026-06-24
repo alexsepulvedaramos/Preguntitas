@@ -36,4 +36,7 @@ public interface IGroupsService
 
     // Generates a new invitation code for the group and returns the updated group
     Task<GroupResponse?> RegenerateInviteCodeAsync(int groupId);
+
+    // Returns public preview info for an invitation code (unauthenticated)
+    Task<InvitePreviewDto?> GetInvitePreviewAsync(string invitationCode);
 }
