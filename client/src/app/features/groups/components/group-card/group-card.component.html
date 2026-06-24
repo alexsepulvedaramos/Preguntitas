@@ -20,35 +20,40 @@
       <h3 hlmCardTitle class="font-bold text-foreground">
         {{ group().name }}
       </h3>
-      <p hlmCardDescription class="truncate text-sm text-muted-foreground">
-        {{ group().description }}
-      </p>
-      <div class="mt-0.5">
+      <div class="mt-1 flex flex-wrap gap-1.5">
         @switch (group().dailyStatus) {
           @case ('voting') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary border border-primary/40"
             >
               Vota ahora
             </span>
           }
           @case ('selector') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/10 text-lime-700 dark:text-lime-400"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/25 text-lime-700 dark:text-lime-400 border border-lime-500/40"
             >
               ¡Te toca elegir!
             </span>
           }
-          <!-- @case ('results') {
-            <p class="text-xs text-muted-foreground/60">
-              Nueva pregunta a las {{ group().dailyQuestionTime.slice(0, 5) }}
-            </p>
-          } -->
-          <!-- @default {
-            <p class="text-xs text-muted-foreground/60">
-              Pregunta a las {{ group().dailyQuestionTime.slice(0, 5) }}
-            </p>
-          } -->
+          @case ('results') {
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
+            >
+              <ng-icon hlm name="lucideClock" size="xs" />
+              Próx. a las {{ nextQuestionTime() }}
+            </span>
+          }
+          @default {
+            @if (nextQuestionTime()) {
+              <span
+                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
+              >
+                <ng-icon hlm name="lucideClock" size="xs" />
+                A las {{ nextQuestionTime() }}
+              </span>
+            }
+          }
         }
       </div>
     </div>

@@ -7,7 +7,12 @@
     class="rounded-full hover:bg-muted w-9 h-9 p-0 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring outline-none"
     aria-label="Menú de usuario"
   >
-    <ng-icon hlm name="lucideCircleUserRound" class="size-6! text-foreground" />
+    <app-user-avatar
+      [avatarUrl]="authService.currentUser()?.avatarUrl"
+      [username]="authService.currentUser()?.username ?? ''"
+      [frameColor]="authService.currentUser()?.frameColor"
+      size="sm"
+    />
   </button>
 
   <hlm-drawer-overlay hlm />
@@ -39,25 +44,12 @@
     <div class="flex flex-col gap-6 p-6 h-full">
       <!-- User identity card -->
       <div class="flex items-center gap-5 rounded-xl bg-muted/50 p-4">
-        <hlm-avatar size="default" class="size-14 shrink-0">
-          @if (authService.currentUser()?.avatarUrl) {
-            <img
-              hlmAvatarImage
-              [src]="authService.currentUser()!.avatarUrl!"
-              alt="Avatar"
-            />
-          }
-          <span
-            hlmAvatarFallback
-            class="text-lg font-semibold bg-primary/15 text-primary"
-          >
-            @if (initials()) {
-              {{ initials() }}
-            } @else {
-              <ng-icon hlm name="lucideUser" class="size-6!" />
-            }
-          </span>
-        </hlm-avatar>
+        <app-user-avatar
+          [avatarUrl]="authService.currentUser()?.avatarUrl"
+          [username]="authService.currentUser()?.username ?? ''"
+          [frameColor]="authService.currentUser()?.frameColor"
+          size="lg"
+        />
         <div class="flex flex-col min-w-0">
           <span class="font-semibold text-foreground truncate">
             {{ authService.currentUser()?.username }}
@@ -66,6 +58,19 @@
             {{ authService.currentUser()?.email }}
           </span>
         </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col gap-2">
+        <button
+          hlmBtn
+          variant="outline"
+          class="w-full justify-start gap-3"
+          (click)="goToProfile(ctx)"
+        >
+          <ng-icon hlm name="lucideSettings" class="size-4!" />
+          Configuración de perfil
+        </button>
       </div>
 
       <div class="flex-1"></div>

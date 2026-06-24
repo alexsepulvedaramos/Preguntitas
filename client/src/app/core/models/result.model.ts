@@ -4,6 +4,8 @@ import { QuestionType } from '../enums/question-type.enum';
 export interface Voter {
     id: number;
     username: string;
+    avatarUrl?: string | null;
+    frameColor?: string | null;
 }
 
 export interface OptionResult {

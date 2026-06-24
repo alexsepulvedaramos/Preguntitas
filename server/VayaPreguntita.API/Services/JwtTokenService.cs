@@ -23,6 +23,10 @@ public sealed class JwtTokenService(IOptions<JwtOptions> jwtOptions)
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
         };
+        if (!string.IsNullOrEmpty(user.AvatarUrl))
+            claims.Add(new("avatar", user.AvatarUrl));
+        if (!string.IsNullOrEmpty(user.FrameColor))
+            claims.Add(new("frame_color", user.FrameColor));
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

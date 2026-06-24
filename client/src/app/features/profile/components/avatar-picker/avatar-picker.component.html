@@ -1,0 +1,107 @@
+<div class="flex flex-col gap-4">
+  <!-- Tabs -->
+  <div class="flex rounded-lg bg-muted p-1 gap-1">
+    <button
+      hlmBtn
+      variant="ghost"
+      class="flex-1 gap-2 text-sm"
+      [class]="activeTab() === 'photo' ? 'bg-background shadow-sm' : ''"
+      (click)="activeTab.set('photo')"
+    >
+      <ng-icon hlm name="lucideCamera" class="size-4!" />
+      Foto
+    </button>
+    <button
+      hlmBtn
+      variant="ghost"
+      class="flex-1 gap-2 text-sm"
+      [class]="activeTab() === 'generated' ? 'bg-background shadow-sm' : ''"
+      (click)="activeTab.set('generated')"
+    >
+      <ng-icon hlm name="lucideImage" class="size-4!" />
+      Avatar generado
+    </button>
+  </div>
+
+  @if (activeTab() === 'photo') {
+    <!-- Photo upload tab -->
+    <div class="flex flex-col items-center gap-4">
+      @if (previewUrl()) {
+        <!-- Preview of cropped photo -->
+        <div class="flex flex-col items-center gap-3">
+          <img
+            [src]="previewUrl()!"
+            alt="Preview"
+            class="size-32 rounded-full object-cover ring-2 ring-primary"
+          />
+          <p class="text-sm text-muted-foreground">¿Te gusta?</p>
+        </div>
+        <div class="flex gap-2 w-full">
+          <button hlmBtn variant="outline" class="flex-1 gap-2" (click)="retakePhoto()">
+            <ng-icon hlm name="lucideRefreshCw" class="size-4!" />
+            Repetir
+          </button>
+          <button
+            hlmBtn
+            class="flex-1 gap-2"
+            [disabled]="isUploading()"
+            (click)="confirmPhotoUpload()"
+          >
+            <ng-icon hlm name="lucideCheck" class="size-4!" />
+            {{ isUploading() ? 'Subiendo...' : 'Usar esta foto' }}
+          </button>
+        </div>
+      } @else {
+        <!-- File picker -->
+        <div class="flex flex-col items-center gap-3 py-4">
+          <div class="size-20 rounded-full bg-muted flex items-center justify-center">
+            <ng-icon hlm name="lucideCamera" class="size-10! text-muted-foreground" />
+          </div>
+          <p class="text-sm text-muted-foreground text-center">
+            Haz una foto o elige una de tu galería
+          </p>
+        </div>
+        <button hlmBtn class="w-full gap-2" (click)="triggerFileInput()">
+          <ng-icon hlm name="lucideCamera" class="size-4!" />
+          Elegir foto
+        </button>
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          capture="user"
+          class="hidden"
+          (change)="onFileSelected($event)"
+        />
+      }
+    </div>
+  } @else {
+    <!-- DiceBear presets tab -->
+    <div class="flex flex-col gap-3">
+      <p class="text-sm text-muted-foreground text-center">
+        Tu nombre genera un avatar único en cada estilo
+      </p>
+      <div class="grid grid-cols-4 gap-3">
+        @for (style of styles; track style.id) {
+          <button
+            class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none"
+            [disabled]="isUploading()"
+            (click)="selectDiceBear(style.id)"
+          >
+            <img
+              [src]="diceBearUrl(style.id)"
+              [alt]="style.label"
+              class="size-14 rounded-full bg-muted"
+              loading="lazy"
+            />
+            <span class="text-xs text-muted-foreground text-center leading-tight">{{ style.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="text-sm text-destructive text-center">{{ errorMessage() }}</p>
+  }
+</div>

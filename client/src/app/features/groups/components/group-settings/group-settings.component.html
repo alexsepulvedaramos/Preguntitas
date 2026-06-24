@@ -101,11 +101,12 @@
         @for (member of members(); track member.id) {
           <li class="flex items-center gap-3 py-2">
             <!-- Avatar -->
-            <div
-              class="size-9 rounded-full bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center shrink-0"
-            >
-              {{ initials(member.username) }}
-            </div>
+            <app-user-avatar
+              [avatarUrl]="member.avatarUrl"
+              [username]="member.username"
+              [frameColor]="member.frameColor"
+              size="sm"
+            />
 
             <!-- Name + badge -->
             <div class="flex flex-col min-w-0 flex-1">

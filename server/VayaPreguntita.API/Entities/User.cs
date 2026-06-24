@@ -11,6 +11,8 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiry { get; set; }
+    public string? AvatarUrl { get; set; }
+    public string? FrameColor { get; set; }
     public DateTime DateJoined { get; set; } = DateTime.UtcNow;
     public List<GroupMember> GroupMemberships { get; set; } = [];
 

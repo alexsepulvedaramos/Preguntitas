@@ -1,12 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCircleUserRound, lucideLogOut, lucideUser, lucideX } from '@ng-icons/lucide';
+import { lucideCircleUserRound, lucideLogOut, lucideSettings, lucideX } from '@ng-icons/lucide';
 
 import { AuthService } from '../../auth/auth.service';
+import { UserAvatarComponent } from '../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-user-menu',
@@ -14,28 +15,29 @@ import { AuthService } from '../../auth/auth.service';
   imports: [
     HlmDrawerImports,
     HlmButtonImports,
-    HlmAvatarImports,
-    NgIcon
+    NgIcon,
+    UserAvatarComponent,
   ],
   providers: [
     provideIcons({
       lucideCircleUserRound,
       lucideLogOut,
-      lucideUser,
-      lucideX
+      lucideSettings,
+      lucideX,
     })
   ],
   templateUrl: './user-menu.component.html',
 })
 export class UserMenuComponent {
   public readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  protected readonly initials = computed(() => {
-    const username = this.authService.currentUser()?.username ?? '';
-    return username.slice(0, 2).toUpperCase();
-  });
+  goToProfile(ctx: any): void {
+    ctx.close();
+    this.router.navigate(['/profile']);
+  }
 
-  logout(ctx: any) {
+  logout(ctx: any): void {
     this.authService.logout();
     ctx.close();
   }

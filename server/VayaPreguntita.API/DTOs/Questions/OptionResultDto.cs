@@ -7,6 +7,8 @@ public class VoterDto
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public string? FrameColor { get; set; }
 }
 
 public class OptionResultDto

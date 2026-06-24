@@ -1,9 +1,11 @@
 import { Component, computed, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
-import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 
 import { OptionResult, Voter } from '../../../../core/models/result.model';
+import { User } from '../../../../core/models/user.model';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 // Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
 // Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
@@ -24,7 +26,7 @@ const CHART_COLORS = [
 // with no voters (e.g. an empty Scale bin) render as a static, non-interactive bar.
 @Component({
   selector: 'app-result-option-bar',
-  imports: [HlmDialogImports, HlmAvatarImports],
+  imports: [HlmDialogImports, UserAvatarComponent, NgTemplateOutlet],
   templateUrl: './result-option-bar.component.html',
 })
 export class ResultOptionBarComponent {
@@ -36,6 +38,7 @@ export class ResultOptionBarComponent {
   public readonly voters = input.required<Voter[]>();
   public readonly allResults = input<OptionResult[]>([]);
   public readonly index = input<number>(0);
+  public readonly leadUser = input<User | null>(null);
 
   protected readonly hasAnyVoters = computed(() =>
     this.allResults().some(r => r.voters.length > 0)
@@ -44,8 +47,14 @@ export class ResultOptionBarComponent {
     () => CHART_COLORS[this.index() % CHART_COLORS.length],
   );
   protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
+  protected readonly chartColor = computed(
+    () => `var(--color-chart-${(this.index() % CHART_COLORS.length) + 1})`
+  );
 
-  protected initials(username: string): string {
-    return username.slice(0, 2).toUpperCase();
+  // When leadUser has a frameColor, use it as bar fill; otherwise fall back to chart class
+  protected readonly fillColor = computed(() => this.leadUser()?.frameColor ?? null);
+
+  protected voterNames(voters: Voter[]): string {
+    return voters.map(v => v.username).join(', ');
   }
 }

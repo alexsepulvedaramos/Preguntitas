@@ -4,4 +4,5 @@ export interface User {
     username: string;
     email: string;
     avatarUrl?: string | null;
+    frameColor?: string | null;
 }
