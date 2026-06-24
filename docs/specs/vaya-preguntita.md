@@ -1,7 +1,7 @@
 # Vaya Preguntita — Unified Technical & Agent Guide
 
 > **Purpose:** Single source of truth for developers and AI coding agents (Claude, Copilot, etc.).
-> **Last updated:** 23 June 2026 · **Status:** MVP build in progress.
+> **Last updated:** 24 June 2026 · **Status:** MVP build in progress.
 > **Language policy:** This document and all code/comments are written in English. UI-facing copy is Spanish (it is a Spanish-language app).
 
 ---
@@ -361,12 +361,12 @@ Multiple thematic packs, an admin UI to enable/disable packs per group, and pack
 ### 7.1 Entities (current + planned)
 
 - **User** — `Id, Username, Email, PasswordHash, RefreshToken, RefreshTokenExpiry, DateJoined`. *(Phase 2: `AvatarUrl`.)*
-- **Group** — `Id, Name, Description, InvitationCode, DailyQuestionTime, TimeZoneId (nullable, default 'Europe/Madrid'; MVP logic uses UTC+2), DateCreated, CreatorId, AdminId`, plus `Members`, `Questions`, `DailyEntries`. **Names are not unique** (labels only).
-- **GroupMember** — composite key `(GroupId, UserId)`, `JoinedAt` (drives rotation).
+- **Group** — `Id, Name, Description, InvitationCode, DailyQuestionTime, TimeZoneId (nullable, default 'Europe/Madrid'; MVP logic uses UTC+2), DateCreated, CreatorId`, plus `Members`, `Questions`, `DailyEntries`. **Names are not unique** (labels only). `AdminId` was removed in rama 10 — admin identity lives on `GroupMember.IsAdmin`.
+- **GroupMember** — composite key `(GroupId, UserId)`, `JoinedAt` (drives rotation), `IsAdmin` (bool; exactly one member per group is admin at all times).
 - **Question** — `Id, Text, Type, Source, IsUsed, DateCreated, DateActivated, Metadata (JSONB), GroupId, CreatorId (→ nullable), Options, Votes`.
 - **Option** — poll option (`Id, Text, QuestionId`).
 - **Vote** — `Id, DateResponded, QuestionId, UserId`, and the polymorphic answer fields: `SelectedOptionId`, `SelectedTargetUserId`, `NumericValue`, `FreeText` (used by Open Text answers and Custom Poll "Otro" answers). Unique index `(QuestionId, UserId)`.
-- **DailyEntry** — `Id, Date, IsAutoSelected, PreselectedAt, ActivatedAt (nullable), GroupId, QuestionId, SelectorUserId`. Unique index `(GroupId, Date)`.
+- **DailyEntry** — `Id, Date, IsAutoSelected, PreselectedAt, ActivatedAt (nullable), GroupId, QuestionId, SelectorUserId`. Unique index `(GroupId, Date)`. `SelectorUserId` is set at preselection time and is the authoritative source for who may call `POST /daily/select` — the backend uses the stored value instead of re-running `CalculateSelector` at selection time, so member rejoins (which change `JoinedAt` and shift the rotation) don't break the selector authorization check.
 - **Pack** *(new)* — `Id, Name, Description, IsActiveByDefault`.
 - **QuestionTemplate** *(new)* — `Id, Text, Type, Metadata, PackId`, optional template options. Global, voteless.
 
@@ -478,9 +478,9 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 | `POST` | `/api/groups/join` | ✅ | `{ invitationCode }` |
 | `PUT` | `/api/groups/{groupId}/admin` | ✅ | transfer admin |
 | `GET` | `/api/groups/{groupId}/members` | 🆕 | `{ id, username, avatarUrl, joinedAt, isAdmin }` — **needed for person-based voting** |
-| `DELETE` | `/api/groups/{groupId}/members/me` | 🆕 | leave group |
-| `DELETE` | `/api/groups/{groupId}/members/{userId}` | 🆕 | admin: kick member |
-| `POST` | `/api/groups/{groupId}/invite-code/regenerate` | 🆕 | admin: rotate invitation code |
+| `DELETE` | `/api/groups/{groupId}/members/me` | ✅ | leave group |
+| `DELETE` | `/api/groups/{groupId}/members/{userId}` | ✅ | admin: kick member |
+| `POST` | `/api/groups/{groupId}/invite-code/regenerate` | ✅ | admin: rotate invitation code |
 | `DELETE` | `/api/groups/{groupId}` | 🅿️ | delete group |
 
 ### Daily (core flow)
@@ -604,10 +604,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Per-type question creation form; selector picker (pool + base-pack + inline create); `DELETE /groups/{id}/questions/{id}`; pool quotas (20 unused/user/group, 500/group total); **`OpenText` question type** (§5.6) — free-text answer, results as a response list; **`CustomPoll.AllowOther`** flag + "Otro" free-text vote option (reuses `Vote.FreeText` + shared `FreeTextResponsesComponent`); **`Scale.TargetUserId` optional** — rate any subject, not just a group member; Deathmatch validator widened to 2–4 teams of 1–4 members; drag-and-drop team builder (`@angular/cdk/drag-drop`); `createQuestionDtoValidator` + `createVoteDtoValidator` tightened (min 3 chars, option max 80 chars, AllowOther only on CustomPoll, OpenText clears all other fields); per-type validation feedback in the creation form (asterisk on required fields, empty-team red-border, inline error text on submit); dialog resets state on every reopen; global slim-scrollbar polish | ✅ — rama 8 (`feat/create-question`) |
 
 | `GET /api/groups/{id}/history` (cursor-based paginated list); `HistoryComponent` at `/groups/:id/history` (date picker + inline results + "Cargar más"); "Ver historial" link in group-detail; `QuestionResultDto.RangeMin`/`RangeMax` for Scale history display | ✅ — rama 9 (`feat/history`) |
+| `DELETE /groups/{id}/members/me` (leave group; auto-assigns admin to oldest remaining member; deletes group if last member); `DELETE /groups/{id}/members/{userId}` (admin: kick non-admin member; DailyEntry left as-is); `POST /groups/{id}/invite-code/regenerate` (admin: generate new 6-char code); `GroupSettingsComponent` at `/groups/:id/settings` — edit info (admin), member list with kick + transfer-admin dialogs (admin), invitation code display + copy + regenerate (admin), leave group with contextual confirmation; gear icon in group-detail header; `hlm-toaster` wired in main layout | ✅ — rama 10 (`feat/group-admin`) |
 
 ### Pending (MVP) — see §13
 
-Group management (leave/kick/regenerate).
+Final design polish (rama 11).
 
 ---
 
@@ -627,7 +628,7 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 7 ✅ | `feat/results-view` | Per-type results visualization incl. **who voted for what**. **Implemented on `feat/results-view`.** |
 | 8 ✅ | `feat/create-question` | Per-type create form (options/range/teams/blacklist/target); selector picker (pool + base + inline create); `DELETE` pool question; pool quotas (§11); **`OpenText` type** (§5.6); **`CustomPoll.AllowOther`** + "Otro" free-text vote; **`Scale.TargetUserId` optional**; Deathmatch 2–4 teams + drag-and-drop builder; per-type validation feedback; dialog reset on reopen. **Implemented on `feat/create-question`.** |
 | 9 ✅ | `feat/history` | `GET /api/groups/{id}/history` cursor-based paginated list (`HistoryEntryDto`: date, questionText, type, totalVotes; 20/page, `before` cursor); `QuestionResultDto` extended with `RangeMin`/`RangeMax` (Scale display); `HistoryComponent` at `/groups/:id/history` — date picker jump-to-date, inline expandable results, "Cargar más" pagination; "Ver historial" link in group-detail; **open archive** — results shown regardless of whether the user voted. **Implemented on `feat/history`.** |
-| 10 | `feat/group-admin` | Admin panel (name/description/time, members, transfer admin); leave/kick/regenerate-code. |
+| 10 ✅ | `feat/group-admin` | Admin panel (name/description/time, members, transfer admin); leave/kick/regenerate-code. **Confirmed behaviors:** admin leaving → auto-assign to oldest remaining member; last member leaving → delete group; kicked selector's pending DailyEntry left unchanged. **Schema change:** `Group.AdminId` removed; `GroupMember.IsAdmin` (bool) is now the source of truth for admin identity; migration backfills existing admins. **`GroupMemberDto.IsCurrentUser`** added (set server-side by integer ID comparison) so the Angular settings page can derive `isAdmin` without touching JWT claims. **Selector bug fix:** `SelectQuestionAsync` now reads `pendingEntry.SelectorUserId` instead of re-running `CalculateSelector` at selection time — prevents 403s when a user rejoins after being kicked (new `JoinedAt` would otherwise shift the rotation). **Spartan portal pattern:** `hlm-alert-dialog-content` must be inside `<ng-template hlmAlertDialogPortal>` to open in a CDK overlay where `BrnDialogRef` is provided. **Implemented on `feat/group-admin`.** |
 | 11 | `feat/design-polish` | **Final unification & UI QA pass** across all screens: responsive layouts, empty/loading/error states, micro-interactions/motion, copy tone, and a checklist against the design rules. The "pulcro y con personalidad" pass. |
 | 12 | `feat/realtime-signalr` | *(optional)* SignalR hub + Angular client; replaces the refresh button. |
 

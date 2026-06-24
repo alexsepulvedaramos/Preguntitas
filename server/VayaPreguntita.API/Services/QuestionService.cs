@@ -148,7 +148,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     public async Task<string?> DeleteAsync(int groupId, int userId, int questionId)
     {
         var question = await context
-            .Questions.Include(q => q.Group)
+            .Questions
             .FirstOrDefaultAsync(q => q.Id == questionId && q.GroupId == groupId);
 
         if (question == null)
@@ -157,7 +157,10 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         if (question.IsUsed)
             return "in_use";
 
-        if (question.CreatorId != userId && question.Group.AdminId != userId)
+        var isGroupAdmin = await context.GroupMembers.AnyAsync(
+            gm => gm.GroupId == groupId && gm.UserId == userId && gm.IsAdmin);
+
+        if (question.CreatorId != userId && !isGroupAdmin)
             return "forbidden";
 
         context.Questions.Remove(question);

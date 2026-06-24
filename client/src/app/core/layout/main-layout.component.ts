@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
+import { HlmToasterImports } from '../../shared/ui/sonner/src';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, HlmToasterImports],
   template: `
 <div class="flex flex-col min-h-screen">
       <app-header></app-header>
@@ -17,6 +18,7 @@ import { FooterComponent } from './footer/footer.component';
 
       <app-footer></app-footer>
     </div>
+    <hlm-toaster richColors />
   `
 })
 export class MainLayoutComponent { }

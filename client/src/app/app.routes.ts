@@ -47,6 +47,10 @@ export const routes: Routes = [
                 path: 'groups/:groupId/history',
                 loadComponent: () => import('./features/groups/components/history/history.component').then(m => m.HistoryComponent),
             },
+            {
+                path: 'groups/:groupId/settings',
+                loadComponent: () => import('./features/groups/components/group-settings/group-settings.component').then(m => m.GroupSettingsComponent),
+            },
             // {
             //     path: 'questions',
             //     loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent),

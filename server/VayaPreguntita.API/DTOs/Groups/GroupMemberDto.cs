@@ -8,4 +8,5 @@ public class GroupMemberDto
     public string? AvatarUrl { get; set; }
     public DateTime JoinedAt { get; set; }
     public bool IsAdmin { get; set; }
+    public bool IsCurrentUser { get; set; }
 }

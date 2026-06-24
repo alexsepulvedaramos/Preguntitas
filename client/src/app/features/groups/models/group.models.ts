@@ -19,6 +19,7 @@ export interface GroupMember {
     avatarUrl: string | null;
     joinedAt: string;
     isAdmin: boolean;
+    isCurrentUser: boolean;
 }
 
 export interface JoinGroupRequest {

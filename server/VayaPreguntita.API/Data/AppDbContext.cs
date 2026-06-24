@@ -51,13 +51,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(g => g.CreatorId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder
-            .Entity<Group>()
-            .HasOne(g => g.Admin)
-            .WithMany(u => u.AdministeredGroups)
-            .HasForeignKey(g => g.AdminId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         // ==========================================
         // QUESTION / QUESTION TEMPLATE — Metadata como JSONB
         // (misma configuración del owned type, reutilizada)

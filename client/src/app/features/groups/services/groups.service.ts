@@ -69,4 +69,23 @@ export class GroupsService {
             tap(() => this.loadGroups())
         );
     }
+
+    // Leaves a group; the group is deleted server-side if the user is the last member
+    leaveGroup(groupId: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${groupId}/members/me`).pipe(
+            tap(() => this.loadGroups())
+        );
+    }
+
+    // Kicks a member from a group (admin-only)
+    kickMember(groupId: number, userId: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${groupId}/members/${userId}`);
+    }
+
+    // Generates a new invitation code for the group (admin-only)
+    regenerateInviteCode(groupId: number): Observable<GroupResponse> {
+        return this.http.post<GroupResponse>(`${this.baseUrl}/${groupId}/invite-code/regenerate`, {}).pipe(
+            tap(() => this.loadGroups())
+        );
+    }
 }

@@ -23,6 +23,5 @@ public class User
     [InverseProperty("Creator")]
     public List<Group> CreatedGroups { get; set; } = [];
 
-    [InverseProperty("Admin")]
-    public List<Group> AdministeredGroups { get; set; } = [];
+
 }
