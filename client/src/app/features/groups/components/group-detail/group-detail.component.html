@@ -69,6 +69,29 @@
       <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
     </div>
   } @else {
+
+    @if (daily()?.today?.status !== 'no_question') {
+      <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+        <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
+        <div class="min-w-0 flex-1">
+          <app-countdown [target]="daily()?.today?.closesAt ?? null" [compact]="true" />
+          @if (daily()?.selection?.pendingQuestion; as q) {
+            <p class="mt-0.5 truncate text-xs text-primary/70">Elegida: {{ q.text }}</p>
+          }
+        </div>
+        @if (daily()?.selection; as sel) {
+          <app-select-question-dialog
+            [groupId]="numericGroupId()"
+            [members]="members()"
+            [isSelector]="sel.isCurrentUserSelector"
+            [pendingQuestion]="sel.pendingQuestion"
+            [compact]="true"
+            (selected)="refresh()"
+          />
+        }
+      </div>
+    }
+
     @switch (daily()?.today?.status) {
       @case ('voting') {
         <app-vote
@@ -108,17 +131,12 @@
     }
 
     @if (daily()?.today?.status !== 'no_question') {
-      <app-countdown [target]="daily()?.today?.closesAt ?? null" />
-    }
-
-    @if (daily()?.selection; as selection) {
-      <app-select-question-dialog
-        [groupId]="numericGroupId()"
-        [members]="members()"
-        [isSelector]="selection.isCurrentUserSelector"
-        [pendingQuestion]="selection.pendingQuestion"
-        (selected)="refresh()"
-      />
+      <div class="flex items-center gap-3 pt-2">
+        <div class="flex-1 border-t border-border"></div>
+        <span class="text-xs text-muted-foreground">Debate</span>
+        <div class="flex-1 border-t border-border"></div>
+      </div>
+      <app-group-chat #chat [groupId]="numericGroupId()" />
     }
 
   }

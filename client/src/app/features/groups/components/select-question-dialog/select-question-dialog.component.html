@@ -11,11 +11,20 @@
     "
     (click)="resetDialog()"
   >
-    @if (isSelector()) {
-      <ng-icon hlm name="lucideSparkles" />
-      Te toca elegir la pregunta de mañana
+    @if (compact()) {
+      @if (isSelector()) {
+        <ng-icon hlm name="lucideSparkles" />
+        {{ pendingQuestion() ? 'Cambiar' : 'Elegir' }}
+      } @else {
+        Sugerir
+      }
     } @else {
-      Sugerir pregunta
+      @if (isSelector()) {
+        <ng-icon hlm name="lucideSparkles" />
+        Te toca elegir la pregunta de mañana
+      } @else {
+        Sugerir pregunta
+      }
     }
   </button>
 

@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { DailyStatus, SelectionSources, SelectQuestion } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { QuestionResult } from '../models/result.model';
+import { ChatMessage } from '../models/chat-message.model';
 import { environment } from '../../../environments/environment';
 
 // Daily flow within a group: current state ({ today, selection }), selection sources,
@@ -34,5 +35,15 @@ export class DailyService {
     // Submit a vote on the currently-open question; returns the fresh results
     vote(groupId: number, dto: CreateVote): Observable<QuestionResult> {
         return this.http.post<QuestionResult>(`${this.baseUrl}/${groupId}/daily/vote`, dto);
+    }
+
+    // Chat messages for the currently-open daily question
+    getChat(groupId: number): Observable<ChatMessage[]> {
+        return this.http.get<ChatMessage[]>(`${this.baseUrl}/${groupId}/daily/chat`);
+    }
+
+    // Send a message; returns the updated message list
+    sendChatMessage(groupId: number, body: string): Observable<ChatMessage[]> {
+        return this.http.post<ChatMessage[]>(`${this.baseUrl}/${groupId}/daily/chat`, { body });
     }
 }

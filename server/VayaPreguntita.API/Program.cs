@@ -60,6 +60,7 @@ builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IDailyService, DailyService>();
 builder.Services.AddScoped<IQuestionsService, QuestionsService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddHostedService<DailyPreselectionService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -112,6 +113,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.MigrateAsync();
         await BasePackSeeder.SeedAsync(db);
     }
     catch (Exception ex)

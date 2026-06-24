@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -6,7 +6,7 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideHistory, lucideRefreshCw, lucideSettings } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideClock, lucideHistory, lucideRefreshCw, lucideSettings } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -22,6 +22,7 @@ import { CountdownComponent } from '../countdown/countdown.component';
 import { SelectQuestionDialogComponent } from '../select-question-dialog/select-question-dialog.component';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-refresh.directive';
+import { GroupChatComponent } from '../group-chat/group-chat.component';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -41,8 +42,9 @@ import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-re
     SelectQuestionDialogComponent,
     WordStaggerPipe,
     PullToRefreshDirective,
+    GroupChatComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideHistory, lucideRefreshCw, lucideSettings })],
+  providers: [provideIcons({ lucideArrowLeft, lucideClock, lucideHistory, lucideRefreshCw, lucideSettings })],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
 })
@@ -52,6 +54,8 @@ export class GroupDetailComponent implements OnInit {
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
+
+  protected readonly chat = viewChild<GroupChatComponent>('chat');
 
   public readonly group = signal<GroupResponse | null>(null);
   public readonly daily = signal<DailyStatus | null>(null);
@@ -66,15 +70,14 @@ export class GroupDetailComponent implements OnInit {
 
   refresh() {
     this.refreshing.set(true);
+    this.chat()?.reload();
 
-    // Only refresh the daily status to keep the real-time polling strategy lightweight
     this.dailyService.getCurrent(this.numericGroupId()).subscribe({
       next: (daily) => {
         this.daily.set(daily);
         this.refreshing.set(false);
       },
       error: () => {
-        // Prevent infinite loading state if the request fails
         this.refreshing.set(false);
       },
     });

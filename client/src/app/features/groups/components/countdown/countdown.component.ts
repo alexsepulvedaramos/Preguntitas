@@ -11,6 +11,7 @@ const URGENT_THRESHOLD_MS = 5 * 60 * 1000;
 })
 export class CountdownComponent {
   public readonly target = input<string | null>(null);
+  public readonly compact = input(false);
 
   private readonly now = signal(Date.now());
 

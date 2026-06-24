@@ -19,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DailyEntry> DailyEntries { get; set; }
     public DbSet<Pack> Packs { get; set; }
     public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -110,6 +111,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(d => d.SelectorUserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ==========================================
+        // CHAT MESSAGE — cascade from DailyEntry, restrict from User
+        // ==========================================
+        modelBuilder
+            .Entity<ChatMessage>()
+            .HasOne(m => m.DailyEntry)
+            .WithMany()
+            .HasForeignKey(m => m.DailyEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<ChatMessage>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ChatMessage>().HasIndex(m => new { m.DailyEntryId, m.UserId });
 
         // ==========================================
         // VOTE — one-vote-per-question is enforced in DailyService.VoteAsync
