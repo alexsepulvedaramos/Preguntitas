@@ -20,6 +20,8 @@ import { VoteComponent } from '../vote/vote.component';
 import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
 import { SelectQuestionDialogComponent } from '../select-question-dialog/select-question-dialog.component';
+import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
+import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-refresh.directive';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -37,6 +39,8 @@ import { SelectQuestionDialogComponent } from '../select-question-dialog/select-
     ResultsComponent,
     CountdownComponent,
     SelectQuestionDialogComponent,
+    WordStaggerPipe,
+    PullToRefreshDirective,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideHistory, lucideRefreshCw, lucideSettings })],
   templateUrl: './group-detail.component.html',

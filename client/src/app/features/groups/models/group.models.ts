@@ -11,6 +11,7 @@ export interface GroupResponse {
     invitationCode: string;
     creatorUsername: string;
     dailyQuestionTime: string;
+    dailyStatus?: 'voting' | 'selector' | 'results' | 'no_question';
 }
 
 export interface GroupMember {

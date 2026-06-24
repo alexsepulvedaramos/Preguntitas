@@ -17,6 +17,8 @@
     <hlm-date-picker
       [date]="pickerDate()"
       [autoCloseOnSelect]="true"
+      [max]="pickerMax"
+      [min]="pickerMin()"
       captionLayout="dropdown"
       (dateChange)="onDatePickerChange($event)"
     >
@@ -94,7 +96,7 @@
 
         <!-- Inline detail panel — shown when this entry is selected -->
         @if (selectedDate() === entry.date) {
-          <div class="rounded-default border bg-card p-4 flex flex-col gap-3 -mt-1">
+          <div class="rounded-default border bg-card p-4 flex flex-col gap-4 -mt-1">
             <p class="text-xs uppercase tracking-wide text-muted-foreground">
               {{ formatFullDate(entry.date) }}
             </p>
@@ -107,7 +109,7 @@
               <p class="text-sm text-destructive text-center">{{ detailError() }}</p>
             } @else if (selectedResult()) {
               <div class="flex flex-col gap-3">
-                <p class="vp-question-text text-foreground">{{ selectedResult()!.text }}</p>
+                <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
                 <div class="flex items-center gap-2">
                   <span class="text-sm text-muted-foreground">
                     @if (selectedResult()!.totalVotes === 1) {

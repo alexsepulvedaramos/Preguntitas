@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCircleUserRound, lucideLogOut, lucideX } from '@ng-icons/lucide';
+import { lucideCircleUserRound, lucideLogOut, lucideUser, lucideX } from '@ng-icons/lucide';
 
 import { AuthService } from '../../auth/auth.service';
 
@@ -13,12 +14,14 @@ import { AuthService } from '../../auth/auth.service';
   imports: [
     HlmDrawerImports,
     HlmButtonImports,
+    HlmAvatarImports,
     NgIcon
   ],
   providers: [
     provideIcons({
       lucideCircleUserRound,
       lucideLogOut,
+      lucideUser,
       lucideX
     })
   ],
@@ -27,9 +30,13 @@ import { AuthService } from '../../auth/auth.service';
 export class UserMenuComponent {
   public readonly authService = inject(AuthService);
 
+  protected readonly initials = computed(() => {
+    const username = this.authService.currentUser()?.username ?? '';
+    return username.slice(0, 2).toUpperCase();
+  });
+
   logout(ctx: any) {
     this.authService.logout();
-
     ctx.close();
   }
 }

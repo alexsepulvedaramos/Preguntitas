@@ -6,7 +6,16 @@
   [routerLink]="['/groups', group().id]"
   (keydown.enter)="navigateToDetail()"
 >
-  <hlm-card-header class="flex flex-row items-center justify-between gap-4">
+  <hlm-card-header class="flex flex-row items-center justify-between gap-3">
+    <!-- Coloured initial circle, deterministic per group id -->
+    <div
+      class="size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-bold text-white"
+      [class]="accentColor()"
+      aria-hidden="true"
+    >
+      {{ group().name.slice(0, 1).toUpperCase() }}
+    </div>
+
     <div class="min-w-0 flex-1">
       <h3 hlmCardTitle class="font-bold text-foreground">
         {{ group().name }}
@@ -14,9 +23,34 @@
       <p hlmCardDescription class="truncate text-sm text-muted-foreground">
         {{ group().description }}
       </p>
-      <p hlmCardDescription class="text-xs text-muted-foreground/60">
-        Creado por {{ group().creatorUsername }}
-      </p>
+      <div class="mt-0.5">
+        @switch (group().dailyStatus) {
+          @case ('voting') {
+            <span
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/10 text-primary"
+            >
+              Vota ahora
+            </span>
+          }
+          @case ('selector') {
+            <span
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/10 text-lime-700 dark:text-lime-400"
+            >
+              ¡Te toca elegir!
+            </span>
+          }
+          <!-- @case ('results') {
+            <p class="text-xs text-muted-foreground/60">
+              Nueva pregunta a las {{ group().dailyQuestionTime.slice(0, 5) }}
+            </p>
+          } -->
+          <!-- @default {
+            <p class="text-xs text-muted-foreground/60">
+              Pregunta a las {{ group().dailyQuestionTime.slice(0, 5) }}
+            </p>
+          } -->
+        }
+      </div>
     </div>
 
     <hlm-dialog (closed)="resetCopiedStates()">
@@ -25,7 +59,7 @@
         hlmBtn
         variant="outline"
         size="sm"
-        class="shrink-0 bg-sand hover:bg-sand/80 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+        class="shrink-0 border-border transition-colors focus-visible:ring-2 focus-visible:ring-ring"
         (click)="$event.stopPropagation()"
       >
         <ng-icon hlm name="lucideUserPlus" />
@@ -37,9 +71,6 @@
           <h3 hlmDialogTitle class="font-display text-xl text-foreground">
             Invitar a {{ group().name }}
           </h3>
-          <p hlmDialogDescription>
-            Usa el código de invitación o el enlace directo para añadir miembros.
-          </p>
         </hlm-dialog-header>
 
         <div class="flex flex-col gap-2 py-4">

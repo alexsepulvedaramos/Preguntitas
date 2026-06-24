@@ -12,6 +12,8 @@
       [voteCount]="bin.voteCount"
       [percentage]="bin.percentage"
       [voters]="bin.voters"
+      [allResults]="bins()"
+      [index]="i"
       [class.animate-result-enter-left]="i % 2 === 0"
       [class.animate-result-enter-right]="i % 2 === 1"
       [style.animation-delay.ms]="i * 70"

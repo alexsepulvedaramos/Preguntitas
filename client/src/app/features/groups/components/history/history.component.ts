@@ -16,6 +16,7 @@ import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { ResultsComponent } from '../results/results.component';
+import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
 @Component({
   selector: 'app-history',
@@ -27,6 +28,7 @@ import { ResultsComponent } from '../results/results.component';
     HlmDatePickerImports,
     NgIcon,
     ResultsComponent,
+    WordStaggerPipe,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideCalendar })],
   templateUrl: './history.component.html',
@@ -52,6 +54,17 @@ export class HistoryComponent implements OnInit {
 
   // Date picker binding (JS Date, reset after each use so the trigger always shows the placeholder).
   public readonly pickerDate = signal<Date | undefined>(undefined);
+
+  // Limit the date picker range: no future dates; lower bound = oldest loaded entry
+  // (only applied when there are no more pages so we know the true minimum).
+  public readonly pickerMax = new Date();
+  public readonly pickerMin = computed<Date | undefined>(() => {
+    if (this.hasMore()) return undefined;
+    const last = this.entries().at(-1);
+    if (!last) return undefined;
+    const [y, m, d] = last.date.split('-').map(Number);
+    return new Date(y, m - 1, d, 12);
+  });
 
   protected readonly QuestionType = QuestionType;
 
@@ -119,16 +132,50 @@ export class HistoryComponent implements OnInit {
   }
 
   // Called by the date picker. Resets the picker immediately so the trigger always
-  // shows the placeholder ("Ir a una fecha..."), and delegates to selectEntry.
+  // shows the placeholder ("Ir a una fecha..."), then selects the entry.
+  // If the chosen date isn't in the currently-loaded page, a synthetic row is
+  // inserted so the inline detail panel has somewhere to render.
   onDatePickerChange(date: Date | undefined) {
-    // Reset the picker signal so the trigger placeholder is restored next render.
     this.pickerDate.set(undefined);
-
     if (!date) return;
-    // YYYY-MM-DD in local time (using noon to avoid timezone-offset edge cases).
+
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
     const dateStr = d.toISOString().slice(0, 10);
-    this.selectEntry(dateStr);
+
+    const alreadyLoaded = this.entries().some(e => e.date === dateStr);
+    if (alreadyLoaded) {
+      this.selectEntry(dateStr);
+      return;
+    }
+
+    // Date not yet in the list — fetch its result and inject a synthetic entry.
+    this.selectedDate.set(dateStr);
+    this.selectedResult.set(null);
+    this.loadingDetail.set(true);
+    this.detailError.set(null);
+
+    this.questionsService.getByDate(this.numericGroupId(), dateStr).subscribe({
+      next: (result) => {
+        const synthetic: HistoryEntry = {
+          date: dateStr,
+          questionText: result.text,
+          type: result.type,
+          totalVotes: result.totalVotes,
+        };
+        this.entries.update(prev => {
+          const insertAt = prev.findIndex(e => e.date < dateStr);
+          if (insertAt === -1) return [...prev, synthetic];
+          return [...prev.slice(0, insertAt), synthetic, ...prev.slice(insertAt)];
+        });
+        this.selectedResult.set(result);
+        this.loadingDetail.set(false);
+      },
+      error: () => {
+        this.detailError.set('No hay resultados para esa fecha.');
+        this.loadingDetail.set(false);
+        this.selectedDate.set(null);
+      },
+    });
   }
 
   // Builds a minimal QuestionToVote from a QuestionResult so that app-results can

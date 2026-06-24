@@ -1,4 +1,9 @@
-<div class="p-4 flex flex-col gap-4 max-w-lg mx-auto">
+<div
+  class="p-4 flex flex-col gap-4 max-w-lg mx-auto"
+  appPullToRefresh
+  [isRefreshing]="refreshing()"
+  (pullRefresh)="refresh()"
+>
   <div class="flex items-center justify-between gap-4">
     <a
       routerLink="/groups"
@@ -32,11 +37,12 @@
           <ng-icon hlm name="lucideSettings" />
           <span class="sr-only">Ajustes del grupo</span>
         </a>
+        <!-- Hidden on mobile (pull-to-refresh covers that); visible on desktop -->
         <button
           hlmBtn
           variant="ghost"
           size="icon"
-          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          class="hidden sm:inline-flex shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="refreshing()"
           (click)="refresh()"
           aria-label="Actualizar"
@@ -74,8 +80,8 @@
       }
       @case ('results') {
         <section class="flex flex-col gap-4">
-          <div class="flex flex-col gap-2">
-            <p class="vp-question-text text-foreground">{{ daily()!.today.question!.text }}</p>
+          <div class="flex flex-col gap-3">
+            <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
             <div class="flex items-center gap-2">
               <span class="text-sm text-muted-foreground">
                 {{ responseCountLabel(daily()!.today.results?.totalVotes ?? 0) }}
