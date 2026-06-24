@@ -13,23 +13,21 @@
         <hlm-field class="grid gap-1.5">
           <label
             hlmFieldLabel
-            for="email"
+            for="identifier"
             class="text-sm font-medium text-foreground"
-            >Correo electrónico</label
+            >Correo o nombre de usuario</label
           >
           <input
             hlmInput
-            type="email"
-            id="email"
-            placeholder="nombre@ejemplo.com"
-            formControlName="email"
+            type="text"
+            id="identifier"
+            placeholder="nombre@ejemplo.com o tu usuario"
+            formControlName="identifier"
+            autocomplete="username"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >El correo electrónico es obligatorio.</hlm-field-error
-          >
-          <hlm-field-error validator="email"
-            >Introduce una dirección de correo válida.</hlm-field-error
+            >Introduce tu correo o nombre de usuario.</hlm-field-error
           >
         </hlm-field>
 
@@ -41,6 +39,7 @@
               class="text-sm font-medium text-foreground"
               >Contraseña</label
             >
+            <!-- TODO: recuperación de contraseña — implementar antes de descomentar
             <a
               hlmFieldDescription
               class="text-xs text-muted-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
@@ -49,12 +48,14 @@
             >
               ¿Has olvidado tu contraseña?
             </a>
+            -->
           </div>
           <input
             hlmInput
             type="password"
             id="password"
             formControlName="password"
+            autocomplete="current-password"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
@@ -66,16 +67,23 @@
         </hlm-field>
       </hlm-field-group>
 
+      @if (loginError()) {
+        <p class="text-sm text-destructive text-center rounded-lg bg-destructive/10 px-3 py-2">
+          {{ loginError() }}
+        </p>
+      }
+
       <div class="grid gap-2 pt-2">
         <button
           hlmBtn
           type="submit"
-          [disabled]="form.invalid"
+          [disabled]="form.invalid || submitting()"
           class="w-full bg-primary text-primary-foreground hover:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
         >
           Iniciar sesión
         </button>
 
+        <!-- TODO: Google OAuth — implementar antes de descomentar
         <button
           hlmBtn
           variant="outline"
@@ -84,6 +92,7 @@
         >
           Iniciar sesión con Google
         </button>
+        -->
       </div>
 
       <p

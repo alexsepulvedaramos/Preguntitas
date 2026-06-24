@@ -203,10 +203,21 @@ export class AuthService {
 
       const decoded = JSON.parse(window.atob(base64));
 
-      // Map standard JWT claims to your User model. 
+      // Map standard JWT claims to your User model.
+      // Cover both the compact form (JwtSecurityTokenHandler default mapping) and
+      // the full-URI form (written when the outbound claim type map is cleared).
       return {
-        id: decoded.sub || decoded.nameid || '',
-        username: decoded.name || decoded.unique_name || '',
+        id: decoded.sub
+          || decoded.nameid
+          || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+          || '',
+        username: decoded.unique_name
+          || decoded.name
+          || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
+          || '',
+        email: decoded.email
+          || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
+          || '',
         avatarUrl: decoded.avatar || null
       };
     } catch {

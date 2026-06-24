@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -22,15 +22,21 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+  public readonly loginError = signal<string | null>(null);
+  public readonly submitting = signal(false);
+
   public form = this._fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    identifier: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   public login() {
     if (this.form.valid) {
-      let credentials: LoginRequest = {
-        identifier: this.form.value.email ?? '',
+      this.loginError.set(null);
+      this.submitting.set(true);
+
+      const credentials: LoginRequest = {
+        identifier: this.form.value.identifier ?? '',
         password: this.form.value.password ?? ''
       };
 
@@ -40,8 +46,12 @@ export class LoginComponent {
           this.router.navigateByUrl(returnUrl);
         },
         error: (err) => {
-          // Handle login errors here (e.g., show a notification)
-          console.error('Login failed:', err);
+          this.submitting.set(false);
+          if (err.status === 401) {
+            this.loginError.set('Correo, nombre de usuario o contraseña incorrectos.');
+          } else {
+            this.loginError.set('No se ha podido iniciar sesión. Inténtalo de nuevo.');
+          }
         }
       });
     }

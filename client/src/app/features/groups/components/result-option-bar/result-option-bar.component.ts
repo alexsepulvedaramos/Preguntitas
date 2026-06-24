@@ -1,10 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
-import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 
-import { Voter } from '../../../../core/models/result.model';
+import { OptionResult, Voter } from '../../../../core/models/result.model';
 
 // Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
 // Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
@@ -33,13 +32,18 @@ export class ResultOptionBarComponent {
   public readonly subtitle = input<string | null>(null);
   public readonly voteCount = input.required<number>();
   public readonly percentage = input.required<number>();
+  public readonly barWidth = input<number | null>(null);
   public readonly voters = input.required<Voter[]>();
+  public readonly allResults = input<OptionResult[]>([]);
   public readonly index = input<number>(0);
 
-  protected readonly hasVoters = computed(() => this.voters().length > 0);
+  protected readonly hasAnyVoters = computed(() =>
+    this.allResults().some(r => r.voters.length > 0)
+  );
   protected readonly colorClass = computed(
     () => CHART_COLORS[this.index() % CHART_COLORS.length],
   );
+  protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
 
   protected initials(username: string): string {
     return username.slice(0, 2).toUpperCase();

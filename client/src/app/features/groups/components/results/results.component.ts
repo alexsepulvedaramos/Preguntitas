@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { QuestionResult } from '../../../../core/models/result.model';
@@ -29,4 +29,15 @@ export class ResultsComponent {
   public readonly result = input.required<QuestionResult>();
 
   protected readonly QuestionType = QuestionType;
+
+  // Normalizes bar widths: max-vote option → 100%, rest proportional.
+  // If all tied (including zero-vote tie), everyone gets 100% so content is readable.
+  protected readonly barWidths = computed(() => {
+    const results = this.result().results;
+    if (!results.length) return [] as number[];
+    const maxVotes = Math.max(...results.map(r => r.voteCount));
+    if (maxVotes === 0) return results.map(() => 0);
+    return results.map(r => Math.round((r.voteCount / maxVotes) * 100));
+  });
+
 }

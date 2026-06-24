@@ -19,14 +19,27 @@ export class GroupsService {
     private readonly baseUrl = `${environment.apiUrl}/groups`;
 
     private readonly _groups = signal<GroupResponse[]>([]);
+    private readonly _loading = signal(false);
+    private readonly _error = signal<string | null>(null);
+
     readonly groups = this._groups.asReadonly();
+    readonly loading = this._loading.asReadonly();
+    readonly error = this._error.asReadonly();
 
     // Fetches groups from the API and updates the central signal state.
     // Call this from your component's ngOnInit or after actions.
     loadGroups(): void {
+        this._loading.set(true);
+        this._error.set(null);
         this.http.get<GroupResponse[]>(this.baseUrl).subscribe({
-            next: (list) => this._groups.set(list),
-            error: (err) => console.error('Failed to load groups:', err)
+            next: (list) => {
+                this._groups.set(list);
+                this._loading.set(false);
+            },
+            error: () => {
+                this._error.set('No se han podido cargar los grupos.');
+                this._loading.set(false);
+            }
         });
     }
 

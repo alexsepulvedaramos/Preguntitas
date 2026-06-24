@@ -8,4 +8,7 @@ public class GroupResponse
     public required string InvitationCode { get; set; }
     public required string CreatorUsername { get; set; }
     public TimeOnly DailyQuestionTime { get; set; }
+
+    // "voting" | "selector" | "results" | "no_question"
+    public string DailyStatus { get; set; } = "no_question";
 }

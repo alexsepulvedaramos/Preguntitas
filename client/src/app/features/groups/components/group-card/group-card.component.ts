@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -33,6 +33,20 @@ export class GroupCardComponent {
   private readonly router = inject(Router);
 
   public group = input.required<GroupResponse>();
+
+  private readonly ACCENT_COLORS = [
+    'bg-group-1',
+    'bg-group-2',
+    'bg-group-3',
+    'bg-group-4',
+    'bg-group-5',
+    'bg-group-6',
+  ];
+
+  readonly accentColor = computed(
+    () => this.ACCENT_COLORS[this.group().id % this.ACCENT_COLORS.length]
+  );
+
 
   // Track independent clipboard feedback states
   public isLinkCopied = signal<boolean>(false);

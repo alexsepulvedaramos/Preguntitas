@@ -27,19 +27,47 @@
       <span class="sr-only">Cerrar</span>
     </button>
 
-    <hlm-drawer-header class="border-b border-border pb-4">
+    <hlm-drawer-header class="pb-4">
       <h3
         hlmDrawerTitle
         class="font-display text-xl italic tracking-tight text-foreground"
       >
         Perfil
       </h3>
-      <p hlmDrawerDescription class="text-sm text-muted-foreground">
-        Gestiona tu cuenta y sesión.
-      </p>
     </hlm-drawer-header>
 
-    <div class="flex flex-col gap-4 p-4 mt-4 h-full">
+    <div class="flex flex-col gap-6 p-6 h-full">
+      <!-- User identity card -->
+      <div class="flex items-center gap-5 rounded-xl bg-muted/50 p-4">
+        <hlm-avatar size="default" class="size-14 shrink-0">
+          @if (authService.currentUser()?.avatarUrl) {
+            <img
+              hlmAvatarImage
+              [src]="authService.currentUser()!.avatarUrl!"
+              alt="Avatar"
+            />
+          }
+          <span
+            hlmAvatarFallback
+            class="text-lg font-semibold bg-primary/15 text-primary"
+          >
+            @if (initials()) {
+              {{ initials() }}
+            } @else {
+              <ng-icon hlm name="lucideUser" class="size-6!" />
+            }
+          </span>
+        </hlm-avatar>
+        <div class="flex flex-col min-w-0">
+          <span class="font-semibold text-foreground truncate">
+            {{ authService.currentUser()?.username }}
+          </span>
+          <span class="text-xs text-muted-foreground truncate">
+            {{ authService.currentUser()?.email }}
+          </span>
+        </div>
+      </div>
+
       <div class="flex-1"></div>
 
       <button

@@ -25,10 +25,58 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
 
     public async Task<IEnumerable<GroupResponse>> GetUserGroupsAsync(int userId)
     {
-        return await context
-            .Groups.Where(g => g.Members.Any(m => m.UserId == userId))
-            .ProjectTo<GroupResponse>(mapper.ConfigurationProvider)
+        var groups = await context.Groups
+            .Where(g => g.Members.Any(m => m.UserId == userId))
+            .Include(g => g.Creator)
             .ToListAsync();
+
+        if (groups.Count == 0)
+            return [];
+
+        var groupIds = groups.Select(g => g.Id).ToList();
+
+        // Latest activated entry per group (the currently open question)
+        var openEntries = await context.DailyEntries
+            .Where(d => groupIds.Contains(d.GroupId) && d.ActivatedAt != null)
+            .GroupBy(d => d.GroupId)
+            .Select(g => g.OrderByDescending(d => d.Date).First())
+            .ToListAsync();
+
+        var openQuestionIds = openEntries.Select(e => e.QuestionId).Distinct().ToList();
+
+        // Which open questions has this user already voted on?
+        var votedQuestionIds = openQuestionIds.Count > 0
+            ? await context.Votes
+                .Where(v => openQuestionIds.Contains(v.QuestionId) && v.UserId == userId)
+                .Select(v => v.QuestionId)
+                .ToListAsync()
+            : new List<int>();
+
+        // Pending (not yet activated) entries where this user is the selector
+        var selectorGroupIds = await context.DailyEntries
+            .Where(d => groupIds.Contains(d.GroupId) && d.ActivatedAt == null && d.SelectorUserId == userId)
+            .Select(d => d.GroupId)
+            .ToListAsync();
+
+        var openByGroup = openEntries.ToDictionary(e => e.GroupId);
+        var votedSet = new HashSet<int>(votedQuestionIds);
+        var selectorSet = new HashSet<int>(selectorGroupIds);
+
+        return groups.Select(g =>
+        {
+            var dto = mapper.Map<GroupResponse>(g);
+            var openEntry = openByGroup.GetValueOrDefault(g.Id);
+
+            dto.DailyStatus = openEntry switch
+            {
+                null => "no_question",
+                _ when !votedSet.Contains(openEntry.QuestionId) => "voting",
+                _ when selectorSet.Contains(g.Id) => "selector",
+                _ => "results",
+            };
+
+            return dto;
+        });
     }
 
     public async Task<GroupResponse> CreateGroupAsync(CreateGroupRequest request, int userId)
