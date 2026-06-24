@@ -156,18 +156,28 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // ==========================================
     public async Task<SelectionSourcesDto> GetSelectionSourcesAsync(int groupId)
     {
-        var pool = await context
-            .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
+        // Keep the already-selected (but not yet activated) pool question visible so the
+        // selector can see it and re-edit/re-pick it. It should only vanish once it activates.
+        var pendingQuestionId = await context.DailyEntries
+            .Where(d => d.GroupId == groupId && d.ActivatedAt == null)
+            .Select(d => (int?)d.QuestionId)
+            .FirstOrDefaultAsync();
+
+        var poolEntities = await context.Questions
+            .Include(q => q.Options)
+            .Where(q => q.GroupId == groupId && (!q.IsUsed || q.Id == pendingQuestionId))
             .OrderByDescending(q => q.DateCreated)
-            .Select(q => new SelectionSourceItemDto
-            {
-                SourceType = "pool",
-                Id = q.Id,
-                Text = q.Text,
-                Type = q.Type,
-                Options = q.Options.Select(o => o.Text).ToList(),
-            })
             .ToListAsync();
+
+        var pool = poolEntities.Select(q => new SelectionSourceItemDto
+        {
+            SourceType = "pool",
+            Id = q.Id,
+            Text = q.Text,
+            Type = q.Type,
+            Options = q.Options.Select(o => o.Text).ToList(),
+            Teams = q.Type == QuestionType.Deathmatch ? q.Metadata.Teams : [],
+        }).ToList();
 
         var pack = await context
             .QuestionTemplates.Where(t => t.Pack.IsActiveByDefault)
@@ -250,12 +260,13 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         else
         {
             var oldQuestionId = pendingEntry.QuestionId;
-            var wasAutoSelected = pendingEntry.IsAutoSelected;
             pendingEntry.QuestionId = question!.Id;
             pendingEntry.IsAutoSelected = false;
 
-            // Release the previously auto-selected question if the choice changed.
-            if (oldQuestionId != question.Id && wasAutoSelected)
+            // Always release the old question when the selection changes, regardless of
+            // whether it was auto-selected or manually chosen. This keeps pool questions
+            // available after a re-selection instead of leaving them stranded as IsUsed=true.
+            if (oldQuestionId != question.Id)
             {
                 var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
                 if (oldQuestion != null)
@@ -275,7 +286,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return SelectResult.Success;
     }
 
-    // Resolves the chosen question (pool / pack template / inline-create) WITHOUT activating it.
+    // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
@@ -283,6 +294,32 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         DateOnly targetDate
     )
     {
+        // Overwrite path: update an existing pending question's content in place.
+        // Used when the selector edits an already-chosen Scale/CustomPoll question.
+        // Runs before the plain NewQuestion branch so we don't create a duplicate entity.
+        if (dto.OverwriteQuestionId.HasValue && dto.NewQuestion != null)
+        {
+            var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
+            var membershipError = QuestionMembershipValidator.Validate(dto.NewQuestion, memberIds, userId);
+            if (membershipError != null)
+                return (null, SelectResult.InvalidQuestion);
+
+            var existing = await context.Questions
+                .Include(q => q.Options)
+                .FirstOrDefaultAsync(q => q.Id == dto.OverwriteQuestionId.Value && q.GroupId == group.Id);
+            if (existing == null)
+                return (null, SelectResult.QuestionNotFound);
+
+            existing.Text = dto.NewQuestion.Text;
+            existing.Type = dto.NewQuestion.Type;
+            existing.Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion);
+            existing.Options.Clear();
+            if (dto.NewQuestion.Type == QuestionType.CustomPoll && dto.NewQuestion.Options.Count > 0)
+                existing.Options = dto.NewQuestion.Options.Select(o => new Option { Text = o.Text }).ToList();
+
+            return (existing, SelectResult.Success);
+        }
+
         if (dto.NewQuestion != null)
         {
             // Same membership validation as POST /questions (§9). Structural rules already
@@ -325,13 +362,20 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
 
         if (dto.ExistingQuestionId.HasValue)
         {
+            // TeamsOverride also allows re-selecting an already-used question (the current
+            // pending DM) to update its teams without creating a duplicate.
             var existing = await context.Questions.FirstOrDefaultAsync(q =>
-                q.Id == dto.ExistingQuestionId.Value && q.GroupId == group.Id && !q.IsUsed
+                q.Id == dto.ExistingQuestionId.Value
+                && q.GroupId == group.Id
+                && (!q.IsUsed || dto.TeamsOverride != null)
             );
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
             existing.IsUsed = true;
+            if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
+                existing.Metadata.Teams = dto.TeamsOverride;
+
             return (existing, SelectResult.Success);
         }
 

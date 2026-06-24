@@ -15,19 +15,19 @@ public static class QuestionMembershipValidator
         {
             case QuestionType.Superlative:
                 if (dto.BlacklistedUserIds.Contains(creatorId))
-                    return "The creator cannot be blacklisted.";
+                    return "El creador no puede estar en la lista de excluidos.";
                 if (dto.BlacklistedUserIds.Any(id => !memberIds.Contains(id)))
-                    return "Blacklisted users must be group members.";
+                    return "Los usuarios excluidos deben ser miembros del grupo.";
                 break;
 
             case QuestionType.Scale:
                 if (dto.TargetUserId is int target && !memberIds.Contains(target))
-                    return "Target user must be a group member.";
+                    return "El usuario objetivo debe ser miembro del grupo.";
                 break;
 
             case QuestionType.Deathmatch:
                 if (dto.Teams.SelectMany(team => team).Any(id => !memberIds.Contains(id)))
-                    return "All team members must be group members.";
+                    return "Todos los miembros de los equipos deben pertenecer al grupo.";
                 break;
 
             // SecretPairing / CustomPoll reference no user ids at creation time —

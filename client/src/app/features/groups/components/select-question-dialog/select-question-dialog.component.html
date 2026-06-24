@@ -68,29 +68,50 @@
               >
                 Ya elegida para mañana
               </p>
-              <div
-                class="rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
-              >
-                <span class="flex items-start gap-2">
-                  <span
-                    class="flex-1 font-display italic text-lg text-foreground leading-tight"
-                    >{{ pending.text }}</span
-                  >
-                  <span
-                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
-                    [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
-                    >{{ QUESTION_TYPE_LABELS[pending.type] }}</span
-                  >
-                </span>
-                @if (
-                  pending.type === QuestionType.CustomPoll &&
-                  pending.options.length > 0
-                ) {
-                  <span class="text-xs text-muted-foreground">{{
-                    formatOptions(pending.options)
-                  }}</span>
-                }
-              </div>
+              @if (isEditableType(pending.type)) {
+                <button
+                  type="button"
+                  class="vp-poll-option flex flex-col gap-1.5 border-2 border-accent/40 bg-accent/5 text-left"
+                  (click)="editPendingQuestion()"
+                >
+                  <span class="flex items-start gap-2">
+                    <span
+                      class="flex-1 font-display italic text-lg text-foreground leading-tight"
+                      >{{ pending.text }}</span
+                    >
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
+                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
+                      >{{ QUESTION_TYPE_LABELS[pending.type] }}</span
+                    >
+                  </span>
+                  @if (
+                    pending.type === QuestionType.CustomPoll &&
+                    pending.options.length > 0
+                  ) {
+                    <span class="text-xs text-muted-foreground">{{
+                      formatOptions(pending.options)
+                    }}</span>
+                  }
+                  <span class="text-xs text-accent-text">Pulsa para editar</span>
+                </button>
+              } @else {
+                <div
+                  class="rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
+                >
+                  <span class="flex items-start gap-2">
+                    <span
+                      class="flex-1 font-display italic text-lg text-foreground leading-tight"
+                      >{{ pending.text }}</span
+                    >
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
+                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
+                      >{{ QUESTION_TYPE_LABELS[pending.type] }}</span
+                    >
+                  </span>
+                </div>
+              }
               <p class="text-xs text-muted-foreground">
                 Puedes cambiarla creando otra o eligiendo una de abajo.
               </p>
@@ -115,7 +136,7 @@
                     <button
                       type="button"
                       class="vp-poll-option flex-1 text-left flex flex-col gap-1"
-                      [disabled]="pickingKey() !== null"
+                      [disabled]="pickingKey() !== null || isPendingPoolItem(item)"
                       (click)="pick(item, ctx)"
                     >
                       <span class="flex items-center gap-2">
@@ -136,6 +157,9 @@
                         <span class="text-xs text-muted-foreground">{{
                           item.options.join(' · ')
                         }}</span>
+                      }
+                      @if (isPendingPoolItem(item)) {
+                        <span class="text-xs text-accent-text font-medium">Elegida para mañana</span>
                       }
                     </button>
                     @if (canDelete(item)) {
@@ -236,6 +260,8 @@
           [groupId]="groupId()"
           [members]="members()"
           [showSelectButton]="isSelector()"
+          [initialValue]="pendingEditValue()"
+          [overwriteQuestionId]="pendingEditValue()?.id ?? null"
           (selected)="onSelectedForTomorrow(ctx)"
           (savedToPool)="onSavedToPool(ctx)"
         />

@@ -13,6 +13,9 @@ public class SelectionSourceItemDto
 
     // Only populated for CustomPoll items, so the picker can preview the options.
     public List<string> Options { get; set; } = [];
+
+    // Only populated for Deathmatch items so the picker can pre-fill team assignment.
+    public List<List<int>> Teams { get; set; } = [];
 }
 
 public class SelectionSourcesDto

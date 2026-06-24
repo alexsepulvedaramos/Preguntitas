@@ -39,6 +39,8 @@ export interface SelectQuestion {
     existingQuestionId?: number | null; // pick one from the group pool
     templateId?: number | null; // clone a base-pack template
     newQuestion?: CreateQuestion | null; // create inline
+    teamsOverride?: number[][] | null; // companion to existingQuestionId: update DM teams in place
+    overwriteQuestionId?: number | null; // companion to newQuestion: update existing question content
 }
 
 // ── GET /daily/selection-sources ──
@@ -51,6 +53,7 @@ export interface SelectionSourceItem {
     text: string;
     type: QuestionType;
     options: string[]; // only populated for CustomPoll items
+    teams: number[][]; // only populated for Deathmatch items
 }
 
 export interface SelectionSources {
