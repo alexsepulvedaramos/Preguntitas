@@ -26,5 +26,14 @@ public interface IGroupsService
     Task<bool> JoinGroupAsync(int userId, string invitationCode);
 
     // Retrieves the members of a group, ordered by join date
-    Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId);
+    Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId, int currentUserId);
+
+    // Removes the user from the group; auto-assigns admin if needed; deletes group if last member
+    Task<bool> LeaveGroupAsync(int userId, int groupId);
+
+    // Removes a non-admin member from the group (admin-only action)
+    Task<bool> KickMemberAsync(int groupId, int targetUserId);
+
+    // Generates a new invitation code for the group and returns the updated group
+    Task<GroupResponse?> RegenerateInviteCodeAsync(int groupId);
 }

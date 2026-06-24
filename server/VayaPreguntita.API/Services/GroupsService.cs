@@ -11,18 +11,16 @@ namespace VayaPreguntita.API.Services;
 public class GroupsService(AppDbContext context, IMapper mapper, IDailyService dailyService)
     : IGroupsService
 {
-    // Checks if a user is part of a specific group
     public async Task<bool> IsUserInGroupAsync(int userId, int groupId)
     {
-        return await context.Groups.AnyAsync(g =>
-            g.Id == groupId && g.Members.Any(m => m.UserId == userId)
-        );
+        return await context.GroupMembers.AnyAsync(gm =>
+            gm.GroupId == groupId && gm.UserId == userId);
     }
 
-    // Checks if a user is the admin of the specified group
     public async Task<bool> IsUserAdminAsync(int userId, int groupId)
     {
-        return await context.Groups.AnyAsync(g => g.Id == groupId && g.AdminId == userId);
+        return await context.GroupMembers.AnyAsync(gm =>
+            gm.GroupId == groupId && gm.UserId == userId && gm.IsAdmin);
     }
 
     public async Task<IEnumerable<GroupResponse>> GetUserGroupsAsync(int userId)
@@ -40,12 +38,11 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         var newGroup = new Group
         {
             CreatorId = userId,
-            AdminId = userId,
             Name = request.Name,
             Description = request.Description,
             DailyQuestionTime = request.DailyQuestionTime,
             InvitationCode = invitationCode,
-            Members = [new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow }],
+            Members = [new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = true }],
         };
 
         context.Groups.Add(newGroup);
@@ -86,19 +83,17 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
 
     public async Task<bool> TransferAdminAsync(int groupId, int newAdminId)
     {
-        var group = await context
-            .Groups.Where(g => g.Id == groupId && g.Members.Any(m => m.UserId == newAdminId))
-            .FirstOrDefaultAsync();
+        var members = await context.GroupMembers
+            .Where(gm => gm.GroupId == groupId && (gm.IsAdmin || gm.UserId == newAdminId))
+            .ToListAsync();
 
-        if (group == null)
-            return false;
+        var newAdmin = members.FirstOrDefault(m => m.UserId == newAdminId);
+        if (newAdmin == null) return false;
 
-        // Reassign the admin role to the new user
-        group.AdminId = newAdminId;
+        foreach (var m in members) m.IsAdmin = false;
+        newAdmin.IsAdmin = true;
 
-        context.Groups.Update(group);
         await context.SaveChangesAsync();
-
         return true;
     }
 
@@ -114,12 +109,11 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         if (group.Members.Any(m => m.UserId == userId))
             return true;
 
-        // Check if the user exists
         var userExists = await context.Users.AnyAsync(u => u.Id == userId);
         if (!userExists)
             return false;
 
-        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow });
+        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = false });
         await context.SaveChangesAsync();
 
         // Seed the group's first DailyEntry once it reaches 2 members. Bootstrap exception to
@@ -153,16 +147,86 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         return true;
     }
 
-    public async Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId)
+    public async Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId, int currentUserId)
     {
-        return await context
+        var members = await context
             .GroupMembers.Where(gm => gm.GroupId == groupId)
             .OrderBy(gm => gm.JoinedAt)
             .ProjectTo<GroupMemberDto>(mapper.ConfigurationProvider)
             .ToListAsync();
+
+        foreach (var m in members)
+            m.IsCurrentUser = m.Id == currentUserId;
+
+        return members;
     }
 
-    // Helper method to generate a short alphanumeric string
+    public async Task<bool> LeaveGroupAsync(int userId, int groupId)
+    {
+        var group = await context.Groups
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null) return false;
+
+        var member = group.Members.FirstOrDefault(m => m.UserId == userId);
+        if (member == null) return false;
+
+        if (group.Members.Count == 1)
+        {
+            context.Groups.Remove(group);
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        bool wasAdmin = member.IsAdmin;
+        group.Members.Remove(member);
+
+        if (wasAdmin)
+        {
+            var newAdmin = group.Members.OrderBy(m => m.JoinedAt).First();
+            newAdmin.IsAdmin = true;
+        }
+
+        context.Groups.Update(group);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> KickMemberAsync(int groupId, int targetUserId)
+    {
+        var group = await context.Groups
+            .Include(g => g.Members)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null) return false;
+
+        var member = group.Members.FirstOrDefault(m => m.UserId == targetUserId);
+        if (member == null) return false;
+
+        // Admin cannot be kicked — use transfer-admin first
+        if (member.IsAdmin) return false;
+
+        group.Members.Remove(member);
+        context.Groups.Update(group);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<GroupResponse?> RegenerateInviteCodeAsync(int groupId)
+    {
+        var group = await context.Groups
+            .Include(g => g.Creator)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
+
+        if (group == null) return null;
+
+        group.InvitationCode = GenerateRandomCode(6);
+        context.Groups.Update(group);
+        await context.SaveChangesAsync();
+        return mapper.Map<GroupResponse>(group);
+    }
+
     private static string GenerateRandomCode(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

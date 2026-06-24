@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VayaPreguntita.API.Data;
@@ -11,9 +12,11 @@ using VayaPreguntita.API.Data;
 namespace VayaPreguntita.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624072449_AddIsAdminToGroupMember")]
+    partial class AddIsAdminToGroupMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,9 +198,6 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("Source")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TemplateId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
@@ -210,8 +210,6 @@ namespace VayaPreguntita.API.Migrations
                     b.HasIndex("CreatorId");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("TemplateId");
 
                     b.ToTable("Questions");
                 });
@@ -419,11 +417,6 @@ namespace VayaPreguntita.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VayaPreguntita.API.Entities.QuestionTemplate", "Template")
-                        .WithMany()
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.OwnsOne("VayaPreguntita.API.Entities.QuestionMetadata", "Metadata", b1 =>
                         {
                             b1.Property<int>("QuestionId");
@@ -466,8 +459,6 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Navigation("Metadata")
                         .IsRequired();
-
-                    b.Navigation("Template");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.QuestionTemplate", b =>

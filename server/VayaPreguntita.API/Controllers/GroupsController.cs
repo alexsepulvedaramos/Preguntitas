@@ -101,7 +101,7 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
         if (!hasAccess)
             return Forbid();
 
-        var members = await groupsService.GetGroupMembersAsync(groupId);
+        var members = await groupsService.GetGroupMembersAsync(groupId, userId);
         return Ok(members);
     }
 
@@ -119,6 +119,68 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
             return BadRequest(new { Message = "Invalid invitation code or group not found." });
 
         return Ok();
+    }
+
+    /// <summary>
+    /// DELETE /api/groups/{groupId}/members/me
+    /// Removes the authenticated user from the group.
+    /// Auto-assigns admin to the next oldest member if the leaving user is the admin.
+    /// Deletes the group when the last member leaves.
+    /// </summary>
+    [HttpDelete("{groupId}/members/me")]
+    public async Task<IActionResult> LeaveGroup(int groupId)
+    {
+        var userId = User.GetUserId();
+
+        var isMember = await groupsService.IsUserInGroupAsync(userId, groupId);
+        if (!isMember)
+            return NotFound();
+
+        await groupsService.LeaveGroupAsync(userId, groupId);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// DELETE /api/groups/{groupId}/members/{userId}
+    /// Removes a member from the group (admin-only). Cannot kick the admin.
+    /// </summary>
+    [HttpDelete("{groupId}/members/{userId}")]
+    public async Task<IActionResult> KickMember(int groupId, int userId)
+    {
+        var currentUserId = User.GetUserId();
+
+        var isAdmin = await groupsService.IsUserAdminAsync(currentUserId, groupId);
+        if (!isAdmin)
+            return Forbid();
+
+        if (userId == currentUserId)
+            return BadRequest(new { Message = "Use leave group to remove yourself." });
+
+        var success = await groupsService.KickMemberAsync(groupId, userId);
+        if (!success)
+            return BadRequest(new { Message = "Member not found or cannot kick the admin." });
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// POST /api/groups/{groupId}/invite-code/regenerate
+    /// Generates a new 6-char alphanumeric invitation code (admin-only).
+    /// </summary>
+    [HttpPost("{groupId}/invite-code/regenerate")]
+    public async Task<IActionResult> RegenerateInviteCode(int groupId)
+    {
+        var userId = User.GetUserId();
+
+        var isAdmin = await groupsService.IsUserAdminAsync(userId, groupId);
+        if (!isAdmin)
+            return Forbid();
+
+        var updatedGroup = await groupsService.RegenerateInviteCodeAsync(groupId);
+        if (updatedGroup == null)
+            return NotFound();
+
+        return Ok(updatedGroup);
     }
 
     /// <summary>

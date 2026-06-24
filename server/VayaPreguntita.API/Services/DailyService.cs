@@ -221,8 +221,11 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         }
 
         // Only the selector for the target date may choose.
-        var selector = CalculateSelector(group.Members, group.DateCreated, targetDate);
-        if (selector.UserId != userId)
+        // If a pending entry already exists, use its stored SelectorUserId — recalculating
+        // would break for members who left and rejoined (new JoinedAt shifts the rotation).
+        var selectorUserId = pendingEntry?.SelectorUserId
+            ?? CalculateSelector(group.Members, group.DateCreated, targetDate).UserId;
+        if (selectorUserId != userId)
             return SelectResult.NotYourTurn;
 
         var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId, targetDate);

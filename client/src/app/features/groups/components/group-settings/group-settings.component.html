@@ -1,0 +1,342 @@
+<div class="p-4 flex flex-col gap-6 max-w-lg mx-auto pb-12">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <a
+      [routerLink]="['/groups', numericGroupId()]"
+      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <ng-icon hlm name="lucideArrowLeft" />
+      Volver
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="flex flex-col gap-4">
+      <div hlmSkeleton class="h-7 w-1/2"></div>
+      <div hlmSkeleton class="h-4 w-1/3"></div>
+      <div hlmSkeleton class="h-32 w-full rounded-default"></div>
+      <div hlmSkeleton class="h-32 w-full rounded-default"></div>
+    </div>
+  } @else if (error()) {
+    <div class="text-center py-8">
+      <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-1">
+      <h1 class="font-display italic text-2xl text-foreground">Ajustes</h1>
+      <p class="text-sm text-muted-foreground">{{ group()?.name }}</p>
+    </div>
+
+    <!-- Group info (admin only) -->
+    @if (isAdmin()) {
+      <section class="flex flex-col gap-4">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+          Información del grupo
+        </h2>
+
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="group-name">Nombre</label>
+            <input
+              hlmInput
+              id="group-name"
+              type="text"
+              class="w-full"
+              [ngModel]="editName()"
+              (ngModelChange)="editName.set($event)"
+              maxlength="100"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="group-desc">Descripción</label>
+            <input
+              hlmInput
+              id="group-desc"
+              type="text"
+              class="w-full"
+              [ngModel]="editDescription()"
+              (ngModelChange)="editDescription.set($event)"
+              maxlength="300"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="group-time">Hora de la pregunta diaria</label>
+            <input
+              hlmInput
+              id="group-time"
+              type="time"
+              class="w-full"
+              [ngModel]="editTime()"
+              (ngModelChange)="editTime.set($event)"
+            />
+          </div>
+
+          <button
+            hlmBtn
+            class="self-end"
+            [disabled]="saving()"
+            (click)="saveInfo()"
+          >
+            @if (saving()) {
+              <hlm-spinner size="sm" class="mr-2" />
+            }
+            Guardar cambios
+          </button>
+        </div>
+      </section>
+
+      <hr class="border-border" />
+    }
+
+    <!-- Members -->
+    <section class="flex flex-col gap-4">
+      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+        Miembros ({{ members().length }})
+      </h2>
+
+      <ul class="flex flex-col gap-2">
+        @for (member of members(); track member.id) {
+          <li class="flex items-center gap-3 py-2">
+            <!-- Avatar -->
+            <div
+              class="size-9 rounded-full bg-primary/10 text-primary font-semibold text-sm flex items-center justify-center shrink-0"
+            >
+              {{ initials(member.username) }}
+            </div>
+
+            <!-- Name + badge -->
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="text-sm font-medium text-foreground truncate">
+                {{ member.username }}
+              </span>
+              @if (member.isAdmin) {
+                <span class="text-xs text-muted-foreground">Administrador</span>
+              }
+            </div>
+
+            <!-- Admin actions for non-admin members -->
+            @if (isAdmin() && !member.isAdmin) {
+              <div class="flex items-center gap-1 shrink-0">
+
+                <!-- Transfer admin -->
+                <hlm-alert-dialog #transferDlg="hlmAlertDialog">
+                  <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon"
+                    hlmAlertDialogTrigger
+                    [disabled]="!!transferringId()"
+                    aria-label="Hacer administrador"
+                  >
+                    @if (transferringId() === member.id) {
+                      <hlm-spinner size="sm" />
+                    } @else {
+                      <ng-icon hlm name="lucideShield" />
+                    }
+                    <span class="sr-only">Hacer administrador</span>
+                  </button>
+                  <ng-template hlmAlertDialogPortal>
+                    <hlm-alert-dialog-content>
+                      <hlm-alert-dialog-header>
+                        <h3 hlmAlertDialogTitle>¿Transferir administración?</h3>
+                        <p hlmAlertDialogDescription>
+                          {{ member.username }} pasará a ser el administrador del grupo.
+                          Tú perderás los privilegios de administración.
+                        </p>
+                      </hlm-alert-dialog-header>
+                      <hlm-alert-dialog-footer>
+                        <button hlmAlertDialogCancel>Cancelar</button>
+                        <button
+                          hlmAlertDialogAction
+                          (click)="transferDlg.close(); transferAdmin(member)"
+                        >
+                          Transferir
+                        </button>
+                      </hlm-alert-dialog-footer>
+                    </hlm-alert-dialog-content>
+                  </ng-template>
+                </hlm-alert-dialog>
+
+                <!-- Kick member -->
+                <hlm-alert-dialog #kickDlg="hlmAlertDialog">
+                  <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon"
+                    hlmAlertDialogTrigger
+                    [disabled]="!!kickingId()"
+                    aria-label="Expulsar"
+                  >
+                    @if (kickingId() === member.id) {
+                      <hlm-spinner size="sm" />
+                    } @else {
+                      <ng-icon hlm name="lucideUserMinus" class="text-destructive" />
+                    }
+                    <span class="sr-only">Expulsar</span>
+                  </button>
+                  <ng-template hlmAlertDialogPortal>
+                    <hlm-alert-dialog-content>
+                      <hlm-alert-dialog-header>
+                        <h3 hlmAlertDialogTitle>¿Expulsar a {{ member.username }}?</h3>
+                        <p hlmAlertDialogDescription>
+                          {{ member.username }} perderá el acceso al grupo y no podrá
+                          volver a unirse a menos que use un código de invitación.
+                        </p>
+                      </hlm-alert-dialog-header>
+                      <hlm-alert-dialog-footer>
+                        <button hlmAlertDialogCancel>Cancelar</button>
+                        <button
+                          hlmAlertDialogAction
+                          class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          (click)="kickDlg.close(); kickMember(member)"
+                        >
+                          Expulsar
+                        </button>
+                      </hlm-alert-dialog-footer>
+                    </hlm-alert-dialog-content>
+                  </ng-template>
+                </hlm-alert-dialog>
+
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- Invitation code (admin only) -->
+    @if (isAdmin()) {
+      <hr class="border-border" />
+
+      <section class="flex flex-col gap-4">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+          Código de invitación
+        </h2>
+
+        <div class="flex items-center gap-2">
+          <div
+            class="flex-1 bg-muted rounded-default px-4 py-2.5 font-mono text-lg font-bold tracking-[0.25em] text-foreground text-center select-all"
+          >
+            {{ group()?.invitationCode }}
+          </div>
+
+          <button
+            hlmBtn
+            variant="outline"
+            size="icon"
+            (click)="copyCode()"
+            aria-label="Copiar código"
+          >
+            <ng-icon hlm name="lucideCopy" />
+            <span class="sr-only">Copiar código</span>
+          </button>
+        </div>
+
+        <hlm-alert-dialog #regenDlg="hlmAlertDialog">
+          <button
+            hlmBtn
+            variant="outline"
+            hlmAlertDialogTrigger
+            [disabled]="regenerating()"
+            class="self-start"
+          >
+            @if (regenerating()) {
+              <hlm-spinner size="sm" class="mr-2" />
+            } @else {
+              <ng-icon hlm name="lucideRefreshCw" class="mr-2" />
+            }
+            Regenerar código
+          </button>
+          <ng-template hlmAlertDialogPortal>
+            <hlm-alert-dialog-content>
+              <hlm-alert-dialog-header>
+                <h3 hlmAlertDialogTitle>¿Regenerar código de invitación?</h3>
+                <p hlmAlertDialogDescription>
+                  El código actual dejará de funcionar. Cualquier enlace de invitación
+                  que hayas compartido quedará invalidado.
+                </p>
+              </hlm-alert-dialog-header>
+              <hlm-alert-dialog-footer>
+                <button hlmAlertDialogCancel>Cancelar</button>
+                <button hlmAlertDialogAction (click)="regenDlg.close(); regenerateCode()">
+                  Regenerar
+                </button>
+              </hlm-alert-dialog-footer>
+            </hlm-alert-dialog-content>
+          </ng-template>
+        </hlm-alert-dialog>
+      </section>
+    }
+
+    <!-- Danger zone — leave group -->
+    <hr class="border-border" />
+
+    <section class="flex flex-col gap-4">
+      <h2 class="text-sm font-semibold text-destructive uppercase tracking-wide">
+        Zona de peligro
+      </h2>
+
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex flex-col gap-0.5">
+          <p class="text-sm font-medium text-foreground">Abandonar el grupo</p>
+          @if (isAdmin() && members().length > 1) {
+            <p class="text-xs text-muted-foreground">
+              El miembro más antiguo pasará a ser administrador automáticamente.
+            </p>
+          } @else if (members().length === 1) {
+            <p class="text-xs text-muted-foreground">
+              Como único miembro, el grupo se eliminará.
+            </p>
+          }
+        </div>
+
+        <hlm-alert-dialog #leaveDlg="hlmAlertDialog">
+          <button
+            hlmBtn
+            variant="destructive"
+            hlmAlertDialogTrigger
+            [disabled]="leaving()"
+            class="shrink-0"
+          >
+            @if (leaving()) {
+              <hlm-spinner size="sm" class="mr-2" />
+            }
+            Abandonar
+          </button>
+          <ng-template hlmAlertDialogPortal>
+            <hlm-alert-dialog-content>
+              <hlm-alert-dialog-header>
+                <h3 hlmAlertDialogTitle>¿Abandonar el grupo?</h3>
+                <p hlmAlertDialogDescription>
+                  @if (members().length === 1) {
+                    Eres el único miembro. El grupo se eliminará permanentemente junto con
+                    todas sus preguntas e historial.
+                  } @else if (isAdmin()) {
+                    Perderás la administración del grupo. El miembro más antiguo pasará a
+                    ser el nuevo administrador.
+                  } @else {
+                    Perderás el acceso al grupo. Podrás volver a unirte con un código de
+                    invitación.
+                  }
+                </p>
+              </hlm-alert-dialog-header>
+              <hlm-alert-dialog-footer>
+                <button hlmAlertDialogCancel>Cancelar</button>
+                <button
+                  hlmAlertDialogAction
+                  class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  (click)="leaveDlg.close(); leaveGroup()"
+                >
+                  Abandonar
+                </button>
+              </hlm-alert-dialog-footer>
+            </hlm-alert-dialog-content>
+          </ng-template>
+        </hlm-alert-dialog>
+      </div>
+    </section>
+  }
+</div>

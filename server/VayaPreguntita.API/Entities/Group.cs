@@ -19,11 +19,6 @@ public class Group
     [InverseProperty("CreatedGroups")]
     public User Creator { get; set; } = null!;
 
-    public int AdminId { get; set; }
-
-    [ForeignKey(nameof(AdminId))]
-    [InverseProperty("AdministeredGroups")]
-    public User Admin { get; set; } = null!;
     public List<GroupMember> Members { get; set; } = [];
     public List<Question> Questions { get; set; } = [];
     public List<DailyEntry> DailyEntries { get; set; } = [];

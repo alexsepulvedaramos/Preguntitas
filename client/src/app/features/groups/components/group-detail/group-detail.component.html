@@ -21,6 +21,17 @@
           <ng-icon hlm name="lucideHistory" />
           <span class="sr-only">Ver historial</span>
         </a>
+        <a
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          [routerLink]="['/groups', numericGroupId(), 'settings']"
+          aria-label="Ajustes del grupo"
+        >
+          <ng-icon hlm name="lucideSettings" />
+          <span class="sr-only">Ajustes del grupo</span>
+        </a>
         <button
           hlmBtn
           variant="ghost"
