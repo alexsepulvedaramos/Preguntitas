@@ -1,0 +1,47 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+
+export interface UserProfileDto {
+  id: number;
+  username: string;
+  email: string;
+  avatarUrl: string | null;
+  frameColor: string | null;
+}
+
+export interface UpdateProfileRequest {
+  username?: string;
+  email?: string;
+  avatarUrl?: string | null;
+  frameColor?: string | null;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private readonly apiUrl = `${environment.apiUrl}/users`;
+  private readonly http = inject(HttpClient);
+
+  getProfile() {
+    return this.http.get<UserProfileDto>(`${this.apiUrl}/me`);
+  }
+
+  updateProfile(request: UpdateProfileRequest) {
+    return this.http.put<UserProfileDto>(`${this.apiUrl}/me`, request);
+  }
+
+  changePassword(request: ChangePasswordRequest) {
+    return this.http.put(`${this.apiUrl}/me/password`, request);
+  }
+
+  uploadAvatar(file: Blob, contentType: string) {
+    const formData = new FormData();
+    formData.append('file', file, `avatar.${contentType.split('/')[1] ?? 'jpg'}`);
+    return this.http.post<{ avatarUrl: string }>(`${this.apiUrl}/me/avatar`, formData);
+  }
+}

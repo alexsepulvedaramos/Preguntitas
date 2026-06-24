@@ -10,7 +10,8 @@ import {
   lucideUserPlus,
   lucideShare2,
   lucideCopy,
-  lucideCheck
+  lucideCheck,
+  lucideClock,
 } from '@ng-icons/lucide';
 
 import { GroupResponse } from '../../models/group.models';
@@ -25,7 +26,7 @@ import { GroupResponse } from '../../models/group.models';
     HlmInputImports,
     NgIcon
   ],
-  providers: [provideIcons({ lucideUserPlus, lucideShare2, lucideCopy, lucideCheck })],
+  providers: [provideIcons({ lucideUserPlus, lucideShare2, lucideCopy, lucideCheck, lucideClock })],
   templateUrl: './group-card.component.html',
   styleUrl: './group-card.component.css',
 })
@@ -43,8 +44,25 @@ export class GroupCardComponent {
     'bg-group-6',
   ];
 
+  private readonly BADGE_COLORS = [
+    'bg-group-1/15 text-group-1',
+    'bg-group-2/15 text-group-2',
+    'bg-group-3/15 text-group-3',
+    'bg-group-4/15 text-group-4',
+    'bg-group-5/15 text-group-5',
+    'bg-group-6/15 text-group-6',
+  ];
+
   readonly accentColor = computed(
     () => this.ACCENT_COLORS[this.group().id % this.ACCENT_COLORS.length]
+  );
+
+  readonly accentBadgeClass = computed(
+    () => this.BADGE_COLORS[this.group().id % this.BADGE_COLORS.length]
+  );
+
+  readonly nextQuestionTime = computed(() =>
+    this.group().dailyQuestionTime?.slice(0, 5) ?? null
   );
 
 

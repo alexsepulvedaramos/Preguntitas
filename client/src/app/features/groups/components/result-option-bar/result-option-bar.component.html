@@ -1,123 +1,128 @@
+<!-- ── Shared bar row (reused in both interactive and static branches) ─────── -->
+<ng-template #barRow>
+  <div class="flex items-center gap-2">
+
+    <!-- ── Bar ──────────────────────────────────────────────────────────────── -->
+    <!-- Outer wrapper: relative but NO overflow-hidden so the avatar (z-10)
+         and voter badges (-bottom-2.5) can bleed out -->
+    <div
+      class="relative flex-1 h-10"
+      [class.mb-3]="voters().length > 0"
+    >
+      <!-- Track (always full width) -->
+      <div class="absolute inset-0 rounded-full bg-muted"></div>
+
+      <!-- Colored fill -->
+      @if (displayWidth() > 0) {
+        <div
+          class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500"
+          [class]="!fillColor() ? colorClass() : ''"
+          [style.background-color]="fillColor() ?? null"
+          [style.width.%]="displayWidth()"
+        ></div>
+      }
+
+      <!-- Avatar: z-10 so it sits above the fill, flush with left edge -->
+      @if (leadUser()) {
+        <div class="absolute left-0 inset-y-0 z-10 flex items-center">
+          <app-user-avatar
+            [avatarUrl]="leadUser()!.avatarUrl"
+            [username]="leadUser()!.username"
+            size="md"
+            class="ring-2 ring-background rounded-full"
+          />
+        </div>
+      }
+
+      <!-- Label overlay (z-20, above fill and avatar) -->
+      <div
+        class="absolute inset-0 z-20 flex items-center overflow-hidden"
+        [class]="leadUser() ? 'pl-14 pr-4' : 'pl-4 pr-4'"
+      >
+        <span class="text-sm font-semibold text-white truncate">{{ label() }}</span>
+      </div>
+
+      <!-- Voter badges: centered on bottom edge, outside overflow -->
+      @if (voters().length > 0) {
+        <div class="absolute right-2 -bottom-2.5 z-30 flex flex-row-reverse -space-x-1.5 space-x-reverse">
+          @for (voter of voters().slice(0, 4); track voter.id) {
+            <app-user-avatar
+              [avatarUrl]="voter.avatarUrl"
+              [username]="voter.username"
+              size="xs"
+              class="ring-2 ring-background rounded-full"
+            />
+          }
+          @if (voters().length > 4) {
+            <span class="size-6 rounded-full bg-muted ring-2 ring-background flex items-center justify-center text-[9px] text-muted-foreground font-semibold">
+              +{{ voters().length - 4 }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Percentage: always right, always readable -->
+    <span class="text-sm font-bold text-foreground shrink-0 w-12 text-right tabular-nums">
+      {{ percentage() }}%
+    </span>
+  </div>
+
+  @if (subtitle()) {
+    <span class="block text-xs text-muted-foreground truncate pl-4 -mt-0.5">{{ subtitle() }}</span>
+  }
+</ng-template>
+
+<!-- ── Interactive branch (has voters → opens dialog) ──────────────────── -->
 @if (hasAnyVoters()) {
   <hlm-dialog>
     <button
       type="button"
       hlmDialogTrigger
-      class="w-full flex items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full"
+      class="w-full flex flex-col gap-1 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
     >
-      <span class="relative flex-1 h-9 rounded-full bg-muted overflow-hidden">
-        @if (displayWidth() > 0) {
-          <span
-            class="absolute inset-y-0 left-0 rounded-full flex items-center justify-between gap-1 px-3 transition-all"
-            [class]="colorClass()"
-            [style.width.%]="displayWidth()"
-          >
-            <span class="text-xs font-medium text-white truncate">{{
-              label()
-            }}</span>
-            <span class="flex -space-x-1.5 shrink-0">
-              @for (voter of voters().slice(0, 3); track voter.id) {
-                <hlm-avatar size="sm" class="ring-2 ring-white/50">
-                  <span hlmAvatarFallback class="text-[9px]">{{
-                    initials(voter.username)
-                  }}</span>
-                </hlm-avatar>
-              }
-              @if (voters().length > 3) {
-                <hlm-avatar size="sm" class="ring-2 ring-white/50">
-                  <span hlmAvatarFallback class="text-[9px]"
-                    >+{{ voters().length - 3 }}</span
-                  >
-                </hlm-avatar>
-              }
-            </span>
-          </span>
-        } @else {
-          <span
-            class="absolute inset-y-0 left-3 flex items-center text-xs text-muted-foreground"
-          >
-            {{ label() }}
-          </span>
-        }
-      </span>
-      <span class="text-xs text-muted-foreground shrink-0 w-10 text-right"
-        >{{ percentage() }}%</span
-      >
+      <ng-container *ngTemplateOutlet="barRow" />
     </button>
-
-    @if (subtitle()) {
-      <span
-        class="block text-[11px] text-muted-foreground truncate pl-3 -mt-0.5"
-        >{{ subtitle() }}</span
-      >
-    }
 
     <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
       <hlm-dialog-header>
-        <h3
-          hlmDialogTitle
-          class="font-display text-lg italic tracking-wider text-foreground"
-        >
+        <h3 hlmDialogTitle class="font-display text-lg italic tracking-wider">
           Resumen de votos
         </h3>
       </hlm-dialog-header>
 
-      <div class="flex flex-col gap-4 py-2 max-h-[60vh] overflow-y-auto">
+      <div class="flex flex-col gap-2 py-1 max-h-[60vh] overflow-y-auto">
         @for (option of allResults(); track option.id) {
           @if (option.voters.length > 0) {
-            <div class="flex flex-col gap-1.5">
-              <p class="text-sm font-medium text-foreground">
-                {{ option.displayText }}
-              </p>
-              <ul class="flex flex-col gap-1.5 pl-1">
-                @for (voter of option.voters; track voter.id) {
-                  <li class="flex items-center gap-2">
-                    <hlm-avatar size="sm">
-                      <span hlmAvatarFallback class="text-[10px]">{{
-                        initials(voter.username)
-                      }}</span>
-                    </hlm-avatar>
-                    <span class="text-sm text-foreground">{{
-                      voter.username
-                    }}</span>
-                  </li>
+            <div class="flex flex-col gap-0.5 rounded-xl bg-muted/50 px-4 py-3">
+              <div class="flex items-center gap-2.5">
+                @if (option.targetUser) {
+                  <app-user-avatar
+                    [avatarUrl]="option.targetUser.avatarUrl"
+                    [username]="option.targetUser.username"
+                    [frameColor]="option.targetUser.frameColor"
+                    size="md"
+                  />
                 }
-              </ul>
+                <p class="text-base font-bold text-foreground leading-tight">
+                  {{ option.displayText }}
+                  <span class="text-sm font-normal text-muted-foreground">&thinsp;({{ option.voters.length }})</span>
+                </p>
+              </div>
+              <p
+                class="text-sm text-muted-foreground leading-snug"
+                [class]="option.targetUser ? 'pl-12' : 'pl-1'"
+              >{{ voterNames(option.voters) }}</p>
             </div>
           }
         }
       </div>
     </hlm-dialog-content>
   </hlm-dialog>
+
 } @else {
-  <div class="w-full flex items-center gap-2">
-    <span class="relative flex-1 h-9 rounded-full bg-muted overflow-hidden">
-      @if (displayWidth() > 0) {
-        <span
-          class="absolute inset-y-0 left-0 rounded-full flex items-center px-3"
-          [class]="colorClass()"
-          [style.width.%]="displayWidth()"
-        >
-          <span class="text-xs font-medium text-white truncate">{{
-            label()
-          }}</span>
-        </span>
-      } @else {
-        <span
-          class="absolute inset-y-0 left-3 flex items-center text-xs text-muted-foreground"
-        >
-          {{ label() }}
-        </span>
-      }
-    </span>
-    <span class="text-xs text-muted-foreground shrink-0 w-10 text-right"
-      >{{ percentage() }}%</span
-    >
+  <!-- Static bar (no voters yet) -->
+  <div class="flex flex-col gap-1">
+    <ng-container *ngTemplateOutlet="barRow" />
   </div>
-  @if (subtitle()) {
-    <span
-      class="block text-[11px] text-muted-foreground truncate pl-3 -mt-0.5"
-      >{{ subtitle() }}</span
-    >
-  }
 }

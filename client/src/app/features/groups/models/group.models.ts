@@ -18,6 +18,7 @@ export interface GroupMember {
     id: number;
     username: string;
     avatarUrl: string | null;
+    frameColor: string | null;
     joinedAt: string;
     isAdmin: boolean;
     isCurrentUser: boolean;

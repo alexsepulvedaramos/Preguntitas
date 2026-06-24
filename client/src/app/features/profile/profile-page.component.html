@@ -1,0 +1,214 @@
+<div class="min-h-dvh flex flex-col bg-background">
+  <!-- Header -->
+  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
+    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="goBack()">
+      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
+      <span class="sr-only">Volver</span>
+    </button>
+    <h1 class="font-display text-lg italic tracking-tight text-foreground">Mi perfil</h1>
+  </header>
+
+  <div class="flex flex-col gap-6 p-4 pb-8 max-w-lg mx-auto w-full">
+
+    <!-- ===== AVATAR ===== -->
+    <section class="flex flex-col items-center gap-4 pt-2">
+      <hlm-drawer direction="bottom">
+        <button
+          hlmDrawerTrigger
+          class="relative group focus-visible:ring-2 focus-visible:ring-ring rounded-full outline-none"
+          aria-label="Cambiar avatar"
+        >
+          <app-user-avatar
+            [avatarUrl]="user()?.avatarUrl"
+            [username]="user()?.username ?? ''"
+            [frameColor]="user()?.frameColor"
+            size="xl"
+          />
+          <div
+            class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center"
+          >
+            <ng-icon hlm name="lucideCheck" class="size-8! text-white" />
+          </div>
+        </button>
+
+        <hlm-drawer-overlay hlm />
+
+        <hlm-drawer-content
+          *hlmDrawerPortal="let ctx"
+          class="flex flex-col px-4 pb-8 pt-4 gap-4 bg-card border-t border-border rounded-t-2xl"
+        >
+          <div class="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-2"></div>
+          <h2 class="font-semibold text-foreground text-center">Cambiar avatar</h2>
+          <app-avatar-picker
+            [username]="user()?.username ?? ''"
+            (avatarSelected)="ctx.close()"
+          />
+        </hlm-drawer-content>
+      </hlm-drawer>
+
+      <p class="text-sm text-muted-foreground">Toca para cambiar tu avatar</p>
+    </section>
+
+    <!-- ===== MARCO DE COLOR ===== -->
+    <section class="flex flex-col gap-3">
+      <h2 class="font-semibold text-sm text-foreground">Marco de color</h2>
+      <div class="flex gap-2 flex-wrap">
+        @for (color of frameColors; track color.value) {
+          <button
+            class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center"
+            [class]="user()?.frameColor === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
+            [style.background-color]="color.value ?? 'transparent'"
+            [style.border]="color.value ? 'none' : '2px dashed var(--border)'"
+            [attr.aria-label]="color.label"
+            [disabled]="isSavingFrame()"
+            (click)="selectFrame(color.value)"
+          >
+            @if (color.value === null) {
+              <span class="text-xs text-muted-foreground leading-none">✕</span>
+            }
+            @if (user()?.frameColor === color.value && color.value !== null) {
+              <ng-icon hlm name="lucideCheck" class="size-4! text-white" />
+            }
+          </button>
+        }
+      </div>
+      <p class="text-xs text-muted-foreground">Pronto habrá marcos especiales desbloqueables</p>
+    </section>
+
+    <div hlmSeparator></div>
+
+    <!-- ===== INFORMACIÓN DE PERFIL ===== -->
+    <section class="flex flex-col gap-4">
+      <h2 class="font-semibold text-sm text-foreground">Información</h2>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label hlmLabel for="username">Nombre de usuario</label>
+          <input
+            hlmInput
+            id="username"
+            type="text"
+            formControlName="username"
+            autocomplete="username"
+            class="w-full"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label hlmLabel for="email">Email</label>
+          <input
+            hlmInput
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            class="w-full"
+          />
+        </div>
+
+        @if (profileError()) {
+          <p class="text-sm text-destructive">{{ profileError() }}</p>
+        }
+        @if (profileSuccess()) {
+          <p class="text-sm text-green-600 dark:text-green-400">Cambios guardados</p>
+        }
+
+        <button
+          hlmBtn
+          type="submit"
+          class="w-full"
+          [disabled]="profileForm.invalid || isSavingProfile()"
+        >
+          {{ isSavingProfile() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </section>
+
+    <div hlmSeparator></div>
+
+    <!-- ===== CONTRASEÑA ===== -->
+    <section class="flex flex-col gap-4">
+      <h2 class="font-semibold text-sm text-foreground">Contraseña</h2>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label hlmLabel for="currentPassword">Contraseña actual</label>
+          <div class="relative">
+            <input
+              hlmInput
+              id="currentPassword"
+              [type]="showCurrentPassword() ? 'text' : 'password'"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+              class="w-full pr-10"
+            />
+            <button
+              type="button"
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+              (click)="showCurrentPassword.set(!showCurrentPassword())"
+            >
+              <ng-icon hlm [name]="showCurrentPassword() ? 'lucideEyeOff' : 'lucideEye'" class="size-4!" />
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label hlmLabel for="newPassword">Nueva contraseña</label>
+          <div class="relative">
+            <input
+              hlmInput
+              id="newPassword"
+              [type]="showNewPassword() ? 'text' : 'password'"
+              formControlName="newPassword"
+              autocomplete="new-password"
+              class="w-full pr-10"
+            />
+            <button
+              type="button"
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+              (click)="showNewPassword.set(!showNewPassword())"
+            >
+              <ng-icon hlm [name]="showNewPassword() ? 'lucideEyeOff' : 'lucideEye'" class="size-4!" />
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label hlmLabel for="confirmPassword">Confirmar nueva contraseña</label>
+          <input
+            hlmInput
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+            class="w-full"
+          />
+        </div>
+
+        @if (passwordError()) {
+          <p class="text-sm text-destructive">{{ passwordError() }}</p>
+        }
+        @if (passwordSuccess()) {
+          <p class="text-sm text-green-600 dark:text-green-400">Contraseña cambiada</p>
+        }
+
+        <button
+          hlmBtn
+          type="submit"
+          variant="outline"
+          class="w-full"
+          [disabled]="passwordForm.invalid || isSavingPassword()"
+        >
+          {{ isSavingPassword() ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    </section>
+
+  </div>
+</div>

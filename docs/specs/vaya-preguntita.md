@@ -770,7 +770,8 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - 🟡 **Toast notifications** — implement early (Spartan toast); base for the "already registered" / "already in group" / error messages.
 - ✅ **Theme switch** — `theme.service` + `theme.component` exist; wire the toggle.
 - 🔵 **Evaluate "Impeccable"** for the UI.
-- 🔵 **User avatar image** — `User.AvatarUrl` + upload/display (MVP shows initials).
+- ✅ **User avatar image** — `User.AvatarUrl` + Supabase Storage upload, DiceBear preset grid, circular canvas crop, `UserAvatarComponent` with `frameColor` ring. Profile settings page at `/profile`.
+- 🟡 **Adaptive frame-color palette (light/dark)** — currently `User.FrameColor` stores a hex value (`#8b5cf6`). Plan: migrate to a colour *key* (`"purple"`, `"blue"`, …) stored in DB; define CSS custom properties with distinct light/dark variants in `styles.css` (e.g. `--frame-purple: #7c3aed` in `:root`, `--frame-purple: #a78bfa` in `.dark`); `UserAvatarComponent` resolves key → `var(--frame-purple)`. This ensures good contrast in both themes without client-side branching. Requires a small EF migration + profile-page picker update. Deferred post-MVP-presentation; current hex palette is acceptable for the demo.
 - 🔵 **Multi-language gameplay (i18n)** — play in other languages: Angular i18n/Transloco on the client + translated base-pack templates server-side. User-created questions stay in the author's language.
 
 ### Daily, rotation & gamification

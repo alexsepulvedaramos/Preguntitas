@@ -56,7 +56,10 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<SupabaseStorageOptions>(builder.Configuration.GetSection("SupabaseStorage"));
+builder.Services.AddHttpClient<SupabaseStorageService>();
 builder.Services.AddScoped<JwtTokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IDailyService, DailyService>();
 builder.Services.AddScoped<IQuestionsService, QuestionsService>();

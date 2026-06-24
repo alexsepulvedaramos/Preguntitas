@@ -21,6 +21,9 @@ export class AuthService {
 
   public currentUser = signal<User | null>(null);
   public isAuthenticated = computed(() => this.currentUser() !== null);
+  private _profileRefreshed = false;
+  public get profileRefreshed() { return this._profileRefreshed; }
+  public markProfileRefreshed() { this._profileRefreshed = true; }
 
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token'
@@ -127,6 +130,7 @@ export class AuthService {
         finalize(() => {
           this.clearStorage();
           this.currentUser.set(null);
+          this._profileRefreshed = false;
           this.router.navigate(['/auth/login']);
         })
       ).subscribe();
@@ -134,8 +138,14 @@ export class AuthService {
       // If there is no token, just clear the local state
       this.clearStorage();
       this.currentUser.set(null);
+      this._profileRefreshed = false;
       this.router.navigate(['/auth/login']);
     }
+  }
+
+  public patchCurrentUser(patch: Partial<import('../models/user.model').User>): void {
+    const current = this.currentUser();
+    if (current) this.currentUser.set({ ...current, ...patch });
   }
 
   public checkUsernameExists(username: string) {
@@ -218,7 +228,8 @@ export class AuthService {
         email: decoded.email
           || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
           || '',
-        avatarUrl: decoded.avatar || null
+        avatarUrl: decoded.avatar || null,
+        frameColor: decoded.frame_color || null,
       };
     } catch {
       return null;

@@ -23,7 +23,8 @@ public class MappingProfile : Profile
         CreateMap<GroupMember, GroupMemberDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User.Username))
-            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => (string?)null))
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl))
+            .ForMember(dest => dest.FrameColor, opt => opt.MapFrom(src => src.User.FrameColor))
             .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt))
             .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin));
 
@@ -79,11 +80,12 @@ public class MappingProfile : Profile
         // Bridge mapping: Extracts user info from a Vote entity
         CreateMap<Vote, VoterDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
-            // Null check prevents exceptions if .Include(v => v.User) is missing
             .ForMember(
                 dest => dest.Username,
                 opt => opt.MapFrom(src => src.User != null ? src.User.Username : "Unknown User")
-            );
+            )
+            .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarUrl : null))
+            .ForMember(dest => dest.FrameColor, opt => opt.MapFrom(src => src.User != null ? src.User.FrameColor : null));
 
         // Result mapping: Handled partially by Mapper, partially by Manual Logic
         CreateMap<Option, OptionResultDto>()

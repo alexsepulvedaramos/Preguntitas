@@ -196,7 +196,7 @@ public class AuthController(
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            AvatarUrl = null,
+            AvatarUrl = user.AvatarUrl,
             AccessToken = accessToken,
             AccessTokenExpiresAt = accessTokenExpiresAt,
             RefreshToken = refreshToken,

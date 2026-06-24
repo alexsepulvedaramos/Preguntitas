@@ -27,6 +27,7 @@ import {
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse, UpdateGroupRequest } from '../../models/group.models';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-group-settings',
@@ -40,6 +41,7 @@ import { GroupMember, GroupResponse, UpdateGroupRequest } from '../../models/gro
     HlmSpinnerImports,
     HlmAlertDialogImports,
     NgIcon,
+    UserAvatarComponent,
   ],
   providers: [
     provideIcons({
