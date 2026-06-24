@@ -132,12 +132,11 @@
               <p class="text-sm text-muted-foreground">Creadas por el grupo</p>
               <div class="flex flex-col gap-2">
                 @for (item of sources().pool; track itemKey(item)) {
-                  @if (!isPendingPoolItem(item)) {
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
                       class="vp-poll-option flex-1 text-left flex flex-col gap-1"
-                      [disabled]="pickingKey() !== null"
+                      [disabled]="pickingKey() !== null || isPendingPoolItem(item)"
                       (click)="pick(item, ctx)"
                     >
                       <span class="flex items-center gap-2">
@@ -145,11 +144,18 @@
                           <hlm-spinner class="size-4" />
                         }
                         <span class="flex-1">{{ item.text }}</span>
-                        <span
-                          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
-                          [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
-                          >{{ QUESTION_TYPE_LABELS[item.type] }}</span
-                        >
+                        @if (isPendingPoolItem(item)) {
+                          <span
+                            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 bg-accent/20 text-accent-text"
+                            >Elegida</span
+                          >
+                        } @else {
+                          <span
+                            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
+                            [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
+                            >{{ QUESTION_TYPE_LABELS[item.type] }}</span
+                          >
+                        }
                       </span>
                       @if (
                         item.type === QuestionType.CustomPoll &&
@@ -179,7 +185,6 @@
                       </button>
                     }
                   </div>
-                  }
                 }
               </div>
             </div>

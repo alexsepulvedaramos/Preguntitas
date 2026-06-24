@@ -260,12 +260,13 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         else
         {
             var oldQuestionId = pendingEntry.QuestionId;
-            var wasAutoSelected = pendingEntry.IsAutoSelected;
             pendingEntry.QuestionId = question!.Id;
             pendingEntry.IsAutoSelected = false;
 
-            // Release the previously auto-selected question if the choice changed.
-            if (oldQuestionId != question.Id && wasAutoSelected)
+            // Always release the old question when the selection changes, regardless of
+            // whether it was auto-selected or manually chosen. This keeps pool questions
+            // available after a re-selection instead of leaving them stranded as IsUsed=true.
+            if (oldQuestionId != question.Id)
             {
                 var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
                 if (oldQuestion != null)
