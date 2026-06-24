@@ -144,18 +144,11 @@
                           <hlm-spinner class="size-4" />
                         }
                         <span class="flex-1">{{ item.text }}</span>
-                        @if (isPendingPoolItem(item)) {
-                          <span
-                            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 bg-accent/20 text-accent-text"
-                            >Elegida</span
-                          >
-                        } @else {
-                          <span
-                            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
-                            [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
-                            >{{ QUESTION_TYPE_LABELS[item.type] }}</span
-                          >
-                        }
+                        <span
+                          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
+                          [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
+                          >{{ QUESTION_TYPE_LABELS[item.type] }}</span
+                        >
                       </span>
                       @if (
                         item.type === QuestionType.CustomPoll &&
@@ -164,6 +157,9 @@
                         <span class="text-xs text-muted-foreground">{{
                           item.options.join(' · ')
                         }}</span>
+                      }
+                      @if (isPendingPoolItem(item)) {
+                        <span class="text-xs text-accent-text font-medium">Elegida para mañana</span>
                       }
                     </button>
                     @if (canDelete(item)) {

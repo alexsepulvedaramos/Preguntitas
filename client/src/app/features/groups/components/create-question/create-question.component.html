@@ -105,7 +105,7 @@
   }
 
   <div class="flex flex-col gap-2">
-    @if (showSelectButton()) {
+    @if (overwriteQuestionId()) {
       <button
         type="button"
         hlmBtn
@@ -113,18 +113,30 @@
         [disabled]="submitting() || (textTouched() && !isValid())"
         (click)="selectForTomorrow()"
       >
-        Elegir para mañana
+        Confirmar edición
+      </button>
+    } @else {
+      @if (showSelectButton()) {
+        <button
+          type="button"
+          hlmBtn
+          class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="submitting() || (textTouched() && !isValid())"
+          (click)="selectForTomorrow()"
+        >
+          Elegir para mañana
+        </button>
+      }
+      <button
+        type="button"
+        hlmBtn
+        [variant]="showSelectButton() ? 'secondary' : 'default'"
+        class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="submitting() || (textTouched() && !isValid())"
+        (click)="saveToPool()"
+      >
+        {{ showSelectButton() ? 'Guardar sin elegir todavía' : 'Guardar pregunta' }}
       </button>
     }
-    <button
-      type="button"
-      hlmBtn
-      [variant]="showSelectButton() ? 'secondary' : 'default'"
-      class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-      [disabled]="submitting() || (textTouched() && !isValid())"
-      (click)="saveToPool()"
-    >
-      {{ showSelectButton() ? 'Guardar sin elegir todavía' : 'Guardar pregunta' }}
-    </button>
   </div>
 </div>
