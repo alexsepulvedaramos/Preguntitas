@@ -105,15 +105,10 @@
         <section class="flex flex-col gap-4">
           <div class="flex flex-col gap-3">
             <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
-            <div class="flex items-center gap-2">
+            <div class="text-center">
               <span class="text-sm text-muted-foreground">
                 {{ responseCountLabel(daily()!.today.results?.totalVotes ?? 0) }}
               </span>
-              <span
-                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                [class]="questionTypeBadgeClass(daily()!.today.question!.type)"
-                >{{ questionTypeLabel(daily()!.today.question!.type) }}</span
-              >
             </div>
           </div>
 
@@ -137,6 +132,8 @@
         <div class="flex-1 border-t border-border"></div>
       </div>
       <app-group-chat #chat [groupId]="numericGroupId()" />
+      <!-- Spacer so fixed input bar doesn't cover content on mobile -->
+      <div class="h-20 sm:hidden" aria-hidden="true"></div>
     }
 
   }

@@ -1,8 +1,18 @@
 <div class="flex flex-col gap-4">
-  <div class="rounded-xl border-2 border-border bg-card p-4 flex flex-col gap-2">
-    <div class="flex items-center gap-1.5">
-      <span class="text-sm font-medium text-foreground">Tipo de pregunta</span>
-      <span class="relative inline-flex">
+  <hlm-field class="grid gap-1.5">
+    <label hlmFieldLabel class="text-sm font-medium text-foreground">Tipo de pregunta</label>
+    <div class="flex items-center gap-2">
+      <hlm-native-select
+        class="!flex-1"
+        selectClass="rounded-xl"
+        [value]="type().toString()"
+        (valueChange)="onTypeChange($event)"
+      >
+        @for (t of types; track t) {
+          <option hlmNativeSelectOption [value]="t">{{ QUESTION_TYPE_LABELS[t] }}</option>
+        }
+      </hlm-native-select>
+      <span class="relative inline-flex shrink-0">
         <button
           type="button"
           class="text-muted-foreground hover:text-foreground transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-ring"
@@ -14,27 +24,17 @@
         </button>
         @if (infoOpen()) {
           <span
-            class="absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-md bg-foreground px-3 py-2 text-xs leading-snug text-background shadow-lg"
+            class="absolute bottom-full right-0 z-20 mb-2 w-56 rounded-md bg-foreground px-3 py-2 text-xs leading-snug text-background shadow-lg"
           >
             {{ description() }}
             <span
-              class="absolute left-1/2 top-full size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-foreground"
+              class="absolute right-2 top-full size-2 -translate-y-1/2 rotate-45 bg-foreground"
             ></span>
           </span>
         }
       </span>
     </div>
-    <hlm-native-select
-      class="!w-full"
-      selectClass="rounded-xl"
-      [value]="type().toString()"
-      (valueChange)="onTypeChange($event)"
-    >
-      @for (t of types; track t) {
-        <option hlmNativeSelectOption [value]="t">{{ QUESTION_TYPE_LABELS[t] }}</option>
-      }
-    </hlm-native-select>
-  </div>
+  </hlm-field>
 
   <hlm-field class="grid gap-1.5">
     <label hlmFieldLabel for="questionText" class="text-sm font-medium text-foreground"
@@ -105,12 +105,21 @@
   }
 
   <div class="flex flex-col gap-2">
+    @if (!isValid() && (textTouched() || typeTouched())) {
+      <p class="text-sm text-destructive">
+        @if (!textValid()) {
+          Escribe la pregunta para poder continuar.
+        } @else if (typeError()) {
+          {{ typeError() }}
+        }
+      </p>
+    }
     @if (overwriteQuestionId()) {
       <button
         type="button"
         hlmBtn
         class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-        [disabled]="submitting() || (textTouched() && !isValid())"
+        [disabled]="submitting()"
         (click)="selectForTomorrow()"
       >
         Confirmar edición
@@ -121,7 +130,7 @@
           type="button"
           hlmBtn
           class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="submitting() || (textTouched() && !isValid())"
+          [disabled]="submitting()"
           (click)="selectForTomorrow()"
         >
           Elegir para mañana
@@ -132,7 +141,7 @@
         hlmBtn
         [variant]="showSelectButton() ? 'secondary' : 'default'"
         class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-        [disabled]="submitting() || (textTouched() && !isValid())"
+        [disabled]="submitting()"
         (click)="saveToPool()"
       >
         {{ showSelectButton() ? 'Guardar sin elegir todavía' : 'Guardar pregunta' }}

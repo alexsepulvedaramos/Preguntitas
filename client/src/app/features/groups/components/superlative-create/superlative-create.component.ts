@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { GroupMember } from '../../models/group.models';
@@ -23,8 +23,14 @@ export class SuperlativeCreateComponent {
     return this.members().filter((m) => m.id !== currentUserId);
   });
 
+  protected readonly showExclude = signal(false);
+
   protected optionClass(id: number): string {
     return voteOptionClass(this.blacklistedUserIds().includes(id));
+  }
+
+  toggleShowExclude() {
+    this.showExclude.set(!this.showExclude());
   }
 
   toggle(id: number) {
