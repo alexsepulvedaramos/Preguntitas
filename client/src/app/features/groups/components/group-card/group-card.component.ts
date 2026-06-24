@@ -57,9 +57,9 @@ export class GroupCardComponent {
     this.router.navigate(['/groups', this.group().id]);
   }
 
-  // Generates the full invitation path
+  // Generates the full invitation link using the invitation code
   getInviteLink(): string {
-    return `${window.location.origin}/join/${this.group().id}`;
+    return `${window.location.origin}/join/${this.group().invitationCode}`;
   }
 
   // Copies the invitation code to the clipboard

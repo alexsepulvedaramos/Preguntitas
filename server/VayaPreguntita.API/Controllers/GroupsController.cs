@@ -106,6 +106,21 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     }
 
     /// <summary>
+    /// GET /api/groups/invite-preview/{code}
+    /// Returns public group info for a given invitation code. No authentication required.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("invite-preview/{code}")]
+    public async Task<IActionResult> GetInvitePreview(string code)
+    {
+        var preview = await groupsService.GetInvitePreviewAsync(code);
+        if (preview == null)
+            return NotFound();
+
+        return Ok(preview);
+    }
+
+    /// <summary>
     /// POST /api/groups/join
     /// Allows the authenticated user to join a group using an invitation code.
     /// </summary>

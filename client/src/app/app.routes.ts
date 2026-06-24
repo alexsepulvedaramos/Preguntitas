@@ -62,6 +62,11 @@ export const routes: Routes = [
         ]
     },
     {
+        path: 'join/:code',
+        title: 'Unirse al grupo',
+        loadComponent: () => import('./features/groups/components/join-by-link/join-by-link.component').then(m => m.JoinByLinkComponent),
+    },
+    {
         // Fallback
         path: '**',
         redirectTo: 'groups'

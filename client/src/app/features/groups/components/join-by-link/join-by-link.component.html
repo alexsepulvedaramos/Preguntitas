@@ -1,0 +1,100 @@
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+  <div class="w-full max-w-sm">
+
+    @switch (state()) {
+      @case ('loading') {
+        <hlm-card class="p-8 text-center">
+          <div class="flex flex-col items-center gap-4">
+            <div class="size-10 rounded-full bg-muted animate-pulse"></div>
+            <div class="h-4 w-32 rounded bg-muted animate-pulse"></div>
+            <div class="h-3 w-48 rounded bg-muted animate-pulse"></div>
+          </div>
+        </hlm-card>
+      }
+
+      @case ('preview') {
+        <hlm-card>
+          <hlm-card-header class="text-center">
+            <div class="mx-auto mb-3 size-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <ng-icon hlm name="lucideUsers" class="text-primary text-2xl" />
+            </div>
+            <h1 hlmCardTitle class="font-display text-2xl text-foreground">
+              {{ preview()?.name }}
+            </h1>
+            @if (preview()?.description) {
+              <p hlmCardDescription class="mt-1 text-sm text-muted-foreground">
+                {{ preview()?.description }}
+              </p>
+            }
+            <p class="mt-2 text-xs text-muted-foreground">
+              {{ preview()?.memberCount }}
+              {{ preview()?.memberCount === 1 ? 'miembro' : 'miembros' }}
+            </p>
+          </hlm-card-header>
+
+          <div hlmCardContent class="flex flex-col gap-3 pt-2 pb-6">
+            @if (isAuthenticated) {
+              <button
+                hlmBtn
+                class="w-full"
+                (click)="joinGroup()"
+              >
+                Unirme al grupo
+              </button>
+            } @else {
+              <p class="text-center text-sm text-muted-foreground">
+                Inicia sesión o regístrate para unirte al grupo.
+              </p>
+              <button
+                hlmBtn
+                class="w-full"
+                (click)="joinGroup()"
+              >
+                Iniciar sesión y unirme
+              </button>
+            }
+          </div>
+        </hlm-card>
+      }
+
+      @case ('joining') {
+        <hlm-card class="p-8 text-center">
+          <p class="text-muted-foreground text-sm">Uniéndote al grupo…</p>
+        </hlm-card>
+      }
+
+      @case ('already_member') {
+        <hlm-card class="p-8 text-center">
+          <p class="font-medium text-foreground mb-1">¡Ya eres miembro!</p>
+          <p class="text-sm text-muted-foreground mb-6">Ya formas parte de este grupo.</p>
+          <button hlmBtn variant="outline" class="w-full" (click)="goToGroups()">
+            Ver mis grupos
+          </button>
+        </hlm-card>
+      }
+
+      @case ('not_found') {
+        <hlm-card class="p-8 text-center">
+          <p class="font-medium text-foreground mb-1">Enlace no válido</p>
+          <p class="text-sm text-muted-foreground mb-6">
+            Este enlace de invitación no existe o ha expirado.
+          </p>
+          <button hlmBtn variant="outline" class="w-full" (click)="goToGroups()">
+            Ir al inicio
+          </button>
+        </hlm-card>
+      }
+
+      @case ('error') {
+        <hlm-card class="p-8 text-center">
+          <p class="font-medium text-foreground mb-1">Error al unirse</p>
+          <p class="text-sm text-muted-foreground mb-6">{{ errorMessage() }}</p>
+          <button hlmBtn variant="outline" class="w-full" (click)="state.set('preview')">
+            Reintentar
+          </button>
+        </hlm-card>
+      }
+    }
+
+  </div>
+</div>
