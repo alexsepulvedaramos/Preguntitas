@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
@@ -10,7 +10,7 @@ import { lucideInfo } from '@ng-icons/lucide';
 
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
-import { CreateQuestion } from '../../../../core/models/question.model';
+import { CreateQuestion, QuestionToVote } from '../../../../core/models/question.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_DESCRIPTIONS } from '../../../../core/constants/question-type-descriptions';
@@ -66,6 +66,10 @@ export class CreateQuestionComponent {
   // (the backend rejects daily/select from anyone else) — only "save to pool" applies then.
   public readonly showSelectButton = input(true);
 
+  // Pre-fill the form when editing an already-chosen question (Scale / CustomPoll).
+  // Deathmatch uses the dedicated assign-teams step in the parent dialog instead.
+  public readonly initialValue = input<QuestionToVote | null>(null);
+
   // Emitted after a successful select-for-tomorrow or save-to-pool
   public readonly selected = output<void>();
   public readonly savedToPool = output<void>();
@@ -103,6 +107,27 @@ export class CreateQuestionComponent {
   protected readonly typeTouched = signal(false);
   protected readonly submitting = signal(false);
   protected readonly error = signal<string | null>(null);
+
+  constructor() {
+    effect(
+      () => {
+        const v = this.initialValue();
+        if (!v) return;
+        this.text.set(v.text);
+        this.type.set(v.type);
+        if (v.type === QuestionType.Scale) {
+          this.rangeMin.set(v.rangeMin ?? 1);
+          this.rangeMax.set(v.rangeMax ?? 10);
+        }
+        if (v.type === QuestionType.CustomPoll && v.options.length > 0) {
+          this.options.set(v.options.map((o) => o.text));
+          if (v.minSelections != null) this.minSelections.set(v.minSelections);
+          if (v.maxSelections != null) this.maxSelections.set(v.maxSelections);
+        }
+      },
+      { allowSignalWrites: true },
+    );
+  }
 
   protected readonly placeholder = computed(() => TEXT_PLACEHOLDERS[this.type()]);
   protected readonly description = computed(() => QUESTION_TYPE_DESCRIPTIONS[this.type()]);

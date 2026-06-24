@@ -51,6 +51,7 @@ export interface SelectionSourceItem {
     text: string;
     type: QuestionType;
     options: string[]; // only populated for CustomPoll items
+    teams: number[][]; // only populated for Deathmatch items
 }
 
 export interface SelectionSources {

@@ -156,18 +156,28 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // ==========================================
     public async Task<SelectionSourcesDto> GetSelectionSourcesAsync(int groupId)
     {
-        var pool = await context
-            .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
+        // Keep the already-selected (but not yet activated) pool question visible so the
+        // selector can see it and re-edit/re-pick it. It should only vanish once it activates.
+        var pendingQuestionId = await context.DailyEntries
+            .Where(d => d.GroupId == groupId && d.ActivatedAt == null)
+            .Select(d => (int?)d.QuestionId)
+            .FirstOrDefaultAsync();
+
+        var poolEntities = await context.Questions
+            .Include(q => q.Options)
+            .Where(q => q.GroupId == groupId && (!q.IsUsed || q.Id == pendingQuestionId))
             .OrderByDescending(q => q.DateCreated)
-            .Select(q => new SelectionSourceItemDto
-            {
-                SourceType = "pool",
-                Id = q.Id,
-                Text = q.Text,
-                Type = q.Type,
-                Options = q.Options.Select(o => o.Text).ToList(),
-            })
             .ToListAsync();
+
+        var pool = poolEntities.Select(q => new SelectionSourceItemDto
+        {
+            SourceType = "pool",
+            Id = q.Id,
+            Text = q.Text,
+            Type = q.Type,
+            Options = q.Options.Select(o => o.Text).ToList(),
+            Teams = q.Type == QuestionType.Deathmatch ? q.Metadata.Teams : [],
+        }).ToList();
 
         var pack = await context
             .QuestionTemplates.Where(t => t.Pack.IsActiveByDefault)

@@ -66,6 +66,9 @@ export class SelectQuestionDialogComponent implements OnInit {
   protected readonly pickingKey = signal<string | null>(null);
   protected readonly deletingId = signal<number | null>(null);
 
+  // Passed to app-create-question when editing an already-selected Scale/CustomPoll question.
+  protected readonly pendingEditValue = signal<QuestionToVote | null>(null);
+
   // Deathmatch-from-pack team assignment (instead of the random split in §6.3, the
   // selector arranges the teams themselves before confirming).
   protected readonly teamAssignmentItem = signal<SelectionSourceItem | null>(null);
@@ -89,6 +92,7 @@ export class SelectQuestionDialogComponent implements OnInit {
     this.teamAssignmentItem.set(null);
     this.teamAssignmentTeams.set([[], []]);
     this.assigningTeams.set(false);
+    this.pendingEditValue.set(null);
     this.loadSources();
   }
 
@@ -107,11 +111,14 @@ export class SelectQuestionDialogComponent implements OnInit {
   pick(item: SelectionSourceItem, ctx: { close: () => void }) {
     if (this.pickingKey()) return;
 
-    // Pack-sourced Deathmatch templates auto-resolve random teams server-side (§6.3) —
-    // let the selector arrange them instead of picking blind.
-    if (item.sourceType === 'pack' && item.type === QuestionType.Deathmatch) {
+    // All Deathmatch items (pack and pool) go through the team assignment step so the
+    // selector can arrange/review teams before confirming. Pack items start fresh;
+    // pool items pre-fill from the question's stored teams.
+    if (item.type === QuestionType.Deathmatch) {
       this.teamAssignmentItem.set(item);
-      this.teamAssignmentTeams.set([[], []]);
+      this.teamAssignmentTeams.set(
+        item.teams?.length ? item.teams.map((t) => [...t]) : [[], []],
+      );
       this.step.set('assign-teams');
       return;
     }
@@ -198,11 +205,55 @@ export class SelectQuestionDialogComponent implements OnInit {
   }
 
   openCreate() {
+    this.pendingEditValue.set(null);
     this.step.set('create');
   }
 
   backToSources() {
+    this.pendingEditValue.set(null);
     this.step.set('sources');
+  }
+
+  // Opens the appropriate edit step for the already-chosen pending question.
+  // Only called for types that have configurable metadata (Deathmatch, Scale, CustomPoll).
+  editPendingQuestion() {
+    const pending = this.pendingQuestion();
+    if (!pending) return;
+
+    if (pending.type === QuestionType.Deathmatch) {
+      const item: SelectionSourceItem = {
+        sourceType: 'pool',
+        id: pending.id,
+        text: pending.text,
+        type: pending.type,
+        options: [],
+        teams: pending.teams ?? [],
+      };
+      this.teamAssignmentItem.set(item);
+      this.teamAssignmentTeams.set(
+        pending.teams?.length ? pending.teams.map((t) => [...t]) : [[], []],
+      );
+      this.step.set('assign-teams');
+    } else {
+      // Scale / CustomPoll: open the create form pre-filled with the existing values.
+      this.pendingEditValue.set(pending);
+      this.step.set('create');
+    }
+  }
+
+  isEditableType(type: QuestionType): boolean {
+    return (
+      type === QuestionType.Deathmatch ||
+      type === QuestionType.Scale ||
+      type === QuestionType.CustomPoll
+    );
+  }
+
+  // True when a pool item is the currently-pending question (already picked but not
+  // activated). We hide it from the pool list to avoid showing it twice.
+  isPendingPoolItem(item: SelectionSourceItem): boolean {
+    const pending = this.pendingQuestion();
+    return item.sourceType === 'pool' && !!pending && item.id === pending.id;
   }
 
   onSelectedForTomorrow(ctx: { close: () => void }) {
