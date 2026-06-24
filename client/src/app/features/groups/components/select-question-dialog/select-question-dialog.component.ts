@@ -51,6 +51,7 @@ export class SelectQuestionDialogComponent implements OnInit {
 
   // The question already picked for tomorrow, if any — only ever set when isSelector().
   public readonly pendingQuestion = input<QuestionToVote | null>(null);
+  public readonly compact = input(false);
 
   public readonly selected = output<void>();
 

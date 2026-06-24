@@ -1,12 +1,22 @@
 @if (label(); as text) {
-  <p
-    class="text-sm text-center pt-2"
-    [class.text-muted-foreground]="!urgent()"
-    [class.text-destructive]="urgent()"
-  >
-    Siguiente pregunta en
-    <span class="font-medium" [class.text-foreground]="!urgent()" [class.text-destructive]="urgent()">{{
-      text
-    }}</span>
-  </p>
+  @if (compact()) {
+    <p
+      class="text-xs font-medium"
+      [class.text-primary]="!urgent()"
+      [class.text-destructive]="urgent()"
+    >
+      Siguiente en <span>{{ text }}</span>
+    </p>
+  } @else {
+    <p
+      class="text-sm text-center pt-2"
+      [class.text-muted-foreground]="!urgent()"
+      [class.text-destructive]="urgent()"
+    >
+      Siguiente pregunta en
+      <span class="font-medium" [class.text-foreground]="!urgent()" [class.text-destructive]="urgent()">{{
+        text
+      }}</span>
+    </p>
+  }
 }
