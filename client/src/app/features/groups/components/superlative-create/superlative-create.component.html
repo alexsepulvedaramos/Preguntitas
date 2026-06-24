@@ -10,18 +10,28 @@
   </label>
 
   <div class="flex flex-col gap-1.5">
-    <p class="text-sm text-muted-foreground">Excluir de las opciones (opcional)</p>
-    <div class="flex flex-col gap-2">
-      @for (member of candidates(); track member.id) {
-        <button
-          type="button"
-          [class]="optionClass(member.id)"
-          [attr.aria-pressed]="blacklistedUserIds().includes(member.id)"
-          (click)="toggle(member.id)"
-        >
-          {{ member.username }}
-        </button>
-      }
-    </div>
+    <label class="flex items-center gap-2 cursor-pointer select-none">
+      <input
+        type="checkbox"
+        class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
+        [checked]="showExclude()"
+        (change)="toggleShowExclude()"
+      />
+      <span class="text-sm text-foreground">Excluir a alguien de las respuestas</span>
+    </label>
+    @if (showExclude()) {
+      <div class="flex flex-col gap-2 pt-1">
+        @for (member of candidates(); track member.id) {
+          <button
+            type="button"
+            [class]="optionClass(member.id)"
+            [attr.aria-pressed]="blacklistedUserIds().includes(member.id)"
+            (click)="toggle(member.id)"
+          >
+            {{ member.username }}
+          </button>
+        }
+      </div>
+    }
   </div>
 </div>

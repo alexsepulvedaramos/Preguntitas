@@ -1,5 +1,12 @@
 <div class="flex flex-col gap-4">
   <div class="flex flex-col gap-2">
+    <label
+      hlmFieldLabel
+      for="questionText"
+      class="text-sm font-medium text-foreground"
+      >Opciones
+      <span class="text-destructive" aria-hidden="true">*</span></label
+    >
     @for (option of options(); track $index; let i = $index) {
       <div class="flex items-center gap-2">
         <input
