@@ -13,11 +13,16 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
         tap(isAuthenticated => {
             if (isAuthenticated && !authService.profileRefreshed) {
                 authService.markProfileRefreshed();
-                userService.getProfile().subscribe(profile => {
-                    authService.patchCurrentUser({
-                        avatarUrl: profile.avatarUrl,
-                        frameColor: profile.frameColor,
-                    });
+                userService.getProfile().subscribe({
+                    next: profile => {
+                        authService.patchCurrentUser({
+                            avatarUrl: profile.avatarUrl,
+                            frameColor: profile.frameColor,
+                        });
+                    },
+                    error: () => {
+                        // Profile fetch is best-effort — never block navigation or trigger logout
+                    },
                 });
             }
         }),
