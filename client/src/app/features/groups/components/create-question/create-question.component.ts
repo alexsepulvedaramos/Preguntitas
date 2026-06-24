@@ -70,6 +70,10 @@ export class CreateQuestionComponent {
   // Deathmatch uses the dedicated assign-teams step in the parent dialog instead.
   public readonly initialValue = input<QuestionToVote | null>(null);
 
+  // When set, selectForTomorrow() updates this question's content in place instead of
+  // creating a new entity — avoids duplicates when editing a pending question.
+  public readonly overwriteQuestionId = input<number | null>(null);
+
   // Emitted after a successful select-for-tomorrow or save-to-pool
   public readonly selected = output<void>();
   public readonly savedToPool = output<void>();
@@ -207,8 +211,14 @@ export class CreateQuestionComponent {
   }
 
   selectForTomorrow() {
+    const overwriteId = this.overwriteQuestionId();
     this.submit((dto) =>
-      this.dailyService.select(this.groupId(), { newQuestion: dto }).subscribe({
+      this.dailyService
+        .select(this.groupId(), {
+          newQuestion: dto,
+          overwriteQuestionId: overwriteId,
+        })
+        .subscribe({
         next: () => {
           this.submitting.set(false);
           this.selected.emit();

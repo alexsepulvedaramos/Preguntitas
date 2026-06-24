@@ -151,23 +151,30 @@ export class SelectQuestionDialogComponent implements OnInit {
     this.error.set(null);
     this.assigningTeams.set(true);
 
+    // Pool questions: update teams on the existing entity (avoids creating a duplicate).
+    // Pack templates: must be cloned as a new question (no pool entity exists yet).
+    const dto =
+      item.sourceType === 'pool'
+        ? { existingQuestionId: item.id, teamsOverride: this.teamAssignmentTeams() }
+        : {
+            newQuestion: {
+              text: item.text,
+              type: QuestionType.Deathmatch,
+              allowNobody: false,
+              blacklistedUserIds: [],
+              rangeMin: null,
+              rangeMax: null,
+              targetUserId: null,
+              minSelections: null,
+              maxSelections: null,
+              allowOther: false,
+              teams: this.teamAssignmentTeams(),
+              options: [],
+            },
+          };
+
     this.dailyService
-      .select(this.groupId(), {
-        newQuestion: {
-          text: item.text,
-          type: QuestionType.Deathmatch,
-          allowNobody: false,
-          blacklistedUserIds: [],
-          rangeMin: null,
-          rangeMax: null,
-          targetUserId: null,
-          minSelections: null,
-          maxSelections: null,
-          allowOther: false,
-          teams: this.teamAssignmentTeams(),
-          options: [],
-        },
-      })
+      .select(this.groupId(), dto)
       .subscribe({
         next: () => {
           this.assigningTeams.set(false);

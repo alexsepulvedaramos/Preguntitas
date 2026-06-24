@@ -286,7 +286,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         return SelectResult.Success;
     }
 
-    // Resolves the chosen question (pool / pack template / inline-create) WITHOUT activating it.
+    // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
@@ -294,6 +294,32 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         DateOnly targetDate
     )
     {
+        // Overwrite path: update an existing pending question's content in place.
+        // Used when the selector edits an already-chosen Scale/CustomPoll question.
+        // Runs before the plain NewQuestion branch so we don't create a duplicate entity.
+        if (dto.OverwriteQuestionId.HasValue && dto.NewQuestion != null)
+        {
+            var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
+            var membershipError = QuestionMembershipValidator.Validate(dto.NewQuestion, memberIds, userId);
+            if (membershipError != null)
+                return (null, SelectResult.InvalidQuestion);
+
+            var existing = await context.Questions
+                .Include(q => q.Options)
+                .FirstOrDefaultAsync(q => q.Id == dto.OverwriteQuestionId.Value && q.GroupId == group.Id);
+            if (existing == null)
+                return (null, SelectResult.QuestionNotFound);
+
+            existing.Text = dto.NewQuestion.Text;
+            existing.Type = dto.NewQuestion.Type;
+            existing.Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion);
+            existing.Options.Clear();
+            if (dto.NewQuestion.Type == QuestionType.CustomPoll && dto.NewQuestion.Options.Count > 0)
+                existing.Options = dto.NewQuestion.Options.Select(o => new Option { Text = o.Text }).ToList();
+
+            return (existing, SelectResult.Success);
+        }
+
         if (dto.NewQuestion != null)
         {
             // Same membership validation as POST /questions (§9). Structural rules already
@@ -336,13 +362,20 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
 
         if (dto.ExistingQuestionId.HasValue)
         {
+            // TeamsOverride also allows re-selecting an already-used question (the current
+            // pending DM) to update its teams without creating a duplicate.
             var existing = await context.Questions.FirstOrDefaultAsync(q =>
-                q.Id == dto.ExistingQuestionId.Value && q.GroupId == group.Id && !q.IsUsed
+                q.Id == dto.ExistingQuestionId.Value
+                && q.GroupId == group.Id
+                && (!q.IsUsed || dto.TeamsOverride != null)
             );
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
             existing.IsUsed = true;
+            if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
+                existing.Metadata.Teams = dto.TeamsOverride;
+
             return (existing, SelectResult.Success);
         }
 

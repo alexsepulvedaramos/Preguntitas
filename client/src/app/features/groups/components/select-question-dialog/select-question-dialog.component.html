@@ -265,6 +265,7 @@
           [members]="members()"
           [showSelectButton]="isSelector()"
           [initialValue]="pendingEditValue()"
+          [overwriteQuestionId]="pendingEditValue()?.id ?? null"
           (selected)="onSelectedForTomorrow(ctx)"
           (savedToPool)="onSavedToPool(ctx)"
         />
