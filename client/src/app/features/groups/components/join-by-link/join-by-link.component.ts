@@ -38,17 +38,17 @@ export class JoinByLinkComponent implements OnInit {
       return;
     }
 
-    // verifySession hydrates currentUser from localStorage before we render the CTA.
-    // Without this, isAuthenticated is always false on direct navigation to this route
-    // because the auth guard never runs here.
-    this.authService.verifySession().subscribe(() => {
-      this.groupsService.getInvitePreview(this.code).subscribe({
-        next: (data) => {
-          this.preview.set(data);
-          this.state.set('preview');
-        },
-        error: () => this.state.set('not_found'),
-      });
+    // Hydrate currentUser from a non-expired stored token (no refresh, no HTTP).
+    // verifySession() must not be called here because it can trigger token rotation,
+    // which races with the guest guard or auth guard if the user navigates away.
+    this.authService.hydrateUser();
+
+    this.groupsService.getInvitePreview(this.code).subscribe({
+      next: (data) => {
+        this.preview.set(data);
+        this.state.set('preview');
+      },
+      error: () => this.state.set('not_found'),
     });
   }
 

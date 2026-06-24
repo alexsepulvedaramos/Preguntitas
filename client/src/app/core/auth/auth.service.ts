@@ -1,7 +1,7 @@
 import { Injectable, signal, inject, computed, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { catchError, finalize, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, share, tap } from 'rxjs/operators';
 import { Observable, of, throwError } from 'rxjs';
 
 import { AuthResponse } from '../../features/auth/models/auth-response.interface';
@@ -26,7 +26,10 @@ export class AuthService {
   public markProfileRefreshed() { this._profileRefreshed = true; }
 
   private readonly ACCESS_TOKEN_KEY = 'access_token';
-  private readonly REFRESH_TOKEN_KEY = 'refresh_token'
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
+
+  // Deduplicates concurrent refresh calls so token rotation can't race with itself
+  private _refreshInFlight: Observable<AuthResponse> | null = null;
 
   constructor() {
     // Listen for changes in localStorage from other tabs
@@ -113,12 +116,23 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: refresh }).pipe(
-      tap(response => {
-        // Update storage with the new token pair
-        this.saveTokens(response.accessToken, response.refreshToken);
-      })
-    );
+    if (this._refreshInFlight) {
+      return this._refreshInFlight;
+    }
+
+    this._refreshInFlight = this.http
+      .post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: refresh })
+      .pipe(
+        tap(response => {
+          this.saveTokens(response.accessToken, response.refreshToken);
+        }),
+        finalize(() => {
+          this._refreshInFlight = null;
+        }),
+        share()
+      );
+
+    return this._refreshInFlight;
   }
 
   public logout(): void {
@@ -146,6 +160,16 @@ export class AuthService {
   public patchCurrentUser(patch: Partial<import('../models/user.model').User>): void {
     const current = this.currentUser();
     if (current) this.currentUser.set({ ...current, ...patch });
+  }
+
+  // Hydrates currentUser from a non-expired stored token without triggering a refresh.
+  // Safe to call from any component that sits outside the auth guard.
+  public hydrateUser(): void {
+    if (this.currentUser() !== null) return;
+    const token = this.getAccessToken();
+    if (token && !this.isTokenExpired(token)) {
+      this.currentUser.set(this.extractUserFromToken(token));
+    }
   }
 
   public checkUsernameExists(username: string) {
