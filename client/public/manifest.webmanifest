@@ -1,0 +1,23 @@
+{
+  "name": "Vaya Preguntita...",
+  "short_name": "Vaya Preguntita...",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "/groups",
+  "theme_color": "oklch(0.15 0.02 155)",
+  "background_color": "oklch(0.15 0.02 155)",
+  "icons": [
+    {
+      "src": "icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}
