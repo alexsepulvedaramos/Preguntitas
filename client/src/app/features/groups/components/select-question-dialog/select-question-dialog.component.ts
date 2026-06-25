@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -40,7 +40,7 @@ type Step = 'sources' | 'create' | 'assign-teams';
   providers: [provideIcons({ lucideSparkles, lucideTrash2 })],
   templateUrl: './select-question-dialog.component.html',
 })
-export class SelectQuestionDialogComponent implements OnInit {
+export class SelectQuestionDialogComponent {
   private readonly authService = inject(AuthService);
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
@@ -62,7 +62,7 @@ export class SelectQuestionDialogComponent implements OnInit {
   protected readonly step = signal<Step>('sources');
   protected readonly sources = signal<SelectionSources>({ pool: [], pack: [] });
   protected readonly poolCreatorIds = signal<Record<number, number | null>>({});
-  protected readonly loading = signal(true);
+  protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly pickingKey = signal<string | null>(null);
   protected readonly deletingId = signal<number | null>(null);
@@ -81,10 +81,6 @@ export class SelectQuestionDialogComponent implements OnInit {
     return this.members().find((m) => m.id === currentUserId)?.isAdmin ?? false;
   });
 
-  ngOnInit() {
-    this.resetDialog();
-  }
-
   resetDialog() {
     this.step.set(this.isSelector() ? 'sources' : 'create');
     this.error.set(null);
@@ -94,7 +90,9 @@ export class SelectQuestionDialogComponent implements OnInit {
     this.teamAssignmentTeams.set([[], []]);
     this.assigningTeams.set(false);
     this.pendingEditValue.set(null);
-    this.loadSources();
+    if (this.isSelector()) {
+      this.loadSources();
+    }
   }
 
   itemKey(item: SelectionSourceItem): string {
