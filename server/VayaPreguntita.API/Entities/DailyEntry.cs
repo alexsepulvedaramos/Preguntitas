@@ -7,6 +7,7 @@ public class DailyEntry
     public bool IsAutoSelected { get; set; } = false;
     public DateTime PreselectedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ActivatedAt { get; set; }
+    public DateTime? SelectorReminderSentAt { get; set; }
 
     // ==========================================
     // FOREIGN KEYS & NAVIGATION PROPERTIES

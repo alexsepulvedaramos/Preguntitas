@@ -10,4 +10,5 @@ public class GroupMemberDto
     public DateTime JoinedAt { get; set; }
     public bool IsAdmin { get; set; }
     public bool IsCurrentUser { get; set; }
+    public bool NotificationsMuted { get; set; }
 }

@@ -15,5 +15,6 @@ public interface IDailyService
         int userId,
         CreateVoteDto dto
     );
-    Task PreselectForGroupAsync(int groupId, DateOnly date, bool activateImmediately = false);
+    // Returns the selectorUserId if a new entry was created, null if it already existed (idempotent).
+    Task<int?> PreselectForGroupAsync(int groupId, DateOnly date, bool activateImmediately = false);
 }

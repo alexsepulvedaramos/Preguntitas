@@ -5,7 +5,7 @@ using VayaPreguntita.API.Entities;
 
 namespace VayaPreguntita.API.Services;
 
-public class ChatService(AppDbContext context) : IChatService
+public class ChatService(AppDbContext context, INotificationService notificationService) : IChatService
 {
     private const int MaxMessagesPerUserPerDay = 10;
 
@@ -48,6 +48,14 @@ public class ChatService(AppDbContext context) : IChatService
         };
         context.ChatMessages.Add(message);
         await context.SaveChangesAsync();
+
+        var group = await context.Groups.FindAsync(groupId);
+        if (group != null)
+        {
+            var sender = await context.Users.FindAsync(userId);
+            _ = notificationService.SendNewMessageAsync(
+                groupId, userId, group.Name, sender?.Username ?? "Alguien", dto.Body.Trim());
+        }
 
         return (true, null, await BuildMessageDtosAsync(entry.Id, userId));
     }

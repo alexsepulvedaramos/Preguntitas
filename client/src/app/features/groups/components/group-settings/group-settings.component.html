@@ -272,6 +272,18 @@
       </section>
     }
 
+    <!-- Notifications -->
+    <section class="flex flex-col gap-3">
+      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Notificaciones</h2>
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-col gap-0.5">
+          <p class="text-sm font-medium text-foreground">Silenciar este grupo</p>
+          <p class="text-xs text-muted-foreground">No recibirás notificaciones de este grupo.</p>
+        </div>
+        <hlm-switch [checked]="notifMuted()" (checkedChange)="toggleMute()" />
+      </div>
+    </section>
+
     <!-- Danger zone — leave group -->
     <hr class="border-border" />
 

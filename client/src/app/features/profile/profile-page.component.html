@@ -210,5 +210,83 @@
       </form>
     </section>
 
+    <hlm-separator />
+
+    <!-- Notificaciones -->
+    <section class="flex flex-col gap-4">
+      <h2 class="font-semibold text-sm text-foreground">Notificaciones</h2>
+
+      @if (!pushService.isSupported) {
+        <p class="text-xs text-muted-foreground">Tu navegador no admite notificaciones push.</p>
+      } @else {
+        <!-- Master toggle: activar / desactivar el canal push -->
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground font-medium">Notificaciones push</p>
+            <p class="text-xs text-muted-foreground">
+              @if (pushService.permission() === 'denied') {
+                Bloqueadas en tu navegador. Actívalas desde la configuración del navegador.
+              } @else if (pushService.permission() === 'granted') {
+                Activadas en este dispositivo.
+              } @else {
+                Toca para activar en este dispositivo.
+              }
+            </p>
+          </div>
+          @if (pushService.permission() !== 'denied') {
+            <hlm-switch
+              [checked]="pushService.permission() === 'granted'"
+              (checkedChange)="togglePushSubscription()"
+            />
+          }
+        </div>
+
+        <hlm-separator />
+
+        <!-- Preferencias por tipo -->
+        <p class="text-xs text-muted-foreground -mb-1">Elige qué quieres recibir (en todos tus grupos):</p>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">Nueva pregunta del día</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().newQuestion"
+            (checkedChange)="togglePref('newQuestion')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">Te toca elegir</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().selectorTurn"
+            (checkedChange)="togglePref('selectorTurn')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">Alguien ha votado</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().userVoted"
+            (checkedChange)="togglePref('userVoted')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">Nuevo mensaje en el chat</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().newMessage"
+            (checkedChange)="togglePref('newMessage')"
+          />
+        </div>
+      }
+    </section>
+
   </div>
 </div>

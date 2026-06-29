@@ -56,6 +56,7 @@ export class GroupDetailComponent implements OnInit {
   public readonly numericGroupId = computed(() => Number(this.groupId()));
 
   protected readonly chat = viewChild<GroupChatComponent>('chat');
+  private readonly selectDialog = viewChild<SelectQuestionDialogComponent>('selectDialog');
 
   public readonly group = signal<GroupResponse | null>(null);
   public readonly daily = signal<DailyStatus | null>(null);
@@ -111,6 +112,11 @@ export class GroupDetailComponent implements OnInit {
         results: result,
       },
     });
+
+    // If this user is the selector for the next question, auto-open the picker.
+    if (daily.selection?.isCurrentUserSelector) {
+      setTimeout(() => this.selectDialog()?.triggerOpen(), 600);
+    }
   }
 
   private loadAll() {

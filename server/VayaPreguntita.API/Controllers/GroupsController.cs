@@ -1,6 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Groups;
 using VayaPreguntita.API.Extensions;
 using VayaPreguntita.API.Services;
@@ -12,7 +14,7 @@ namespace VayaPreguntita.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/groups")]
-public class GroupsController(IGroupsService groupsService) : ControllerBase
+public class GroupsController(IGroupsService groupsService, AppDbContext context) : ControllerBase
 {
     /// <summary>
     /// GET /api/groups
@@ -129,11 +131,11 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var hasJoined = await groupsService.JoinGroupAsync(userId, request.InvitationCode);
-        if (!hasJoined)
+        var (found, alreadyMember) = await groupsService.JoinGroupAsync(userId, request.InvitationCode);
+        if (!found)
             return BadRequest(new { Message = "Invalid invitation code or group not found." });
 
-        return Ok();
+        return Ok(new { alreadyMember });
     }
 
     /// <summary>
@@ -153,6 +155,23 @@ public class GroupsController(IGroupsService groupsService) : ControllerBase
 
         await groupsService.LeaveGroupAsync(userId, groupId);
         return NoContent();
+    }
+
+    /// <summary>
+    /// PATCH /api/groups/{groupId}/members/me/mute
+    /// Mutes or unmutes all notifications for this group for the current user.
+    /// </summary>
+    [HttpPatch("{groupId}/members/me/mute")]
+    public async Task<IActionResult> SetGroupMute(int groupId, [FromBody] SetGroupMuteRequest request)
+    {
+        var userId = User.GetUserId();
+        var member = await context.GroupMembers
+            .FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (member == null) return NotFound();
+
+        member.NotificationsMuted = request.Muted;
+        await context.SaveChangesAsync();
+        return Ok(new { muted = member.NotificationsMuted });
     }
 
     /// <summary>

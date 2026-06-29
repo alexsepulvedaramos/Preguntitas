@@ -23,7 +23,8 @@ public interface IGroupsService
     Task<bool> TransferAdminAsync(int groupId, int newAdminId);
 
     // Attempts to add a user to a group using an invitation code.
-    Task<bool> JoinGroupAsync(int userId, string invitationCode);
+    // Returns (false, false) = invalid code; (true, true) = already a member; (true, false) = just joined.
+    Task<(bool found, bool alreadyMember)> JoinGroupAsync(int userId, string invitationCode);
 
     // Retrieves the members of a group, ordered by join date
     Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId, int currentUserId);

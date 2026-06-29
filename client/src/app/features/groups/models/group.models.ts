@@ -22,6 +22,7 @@ export interface GroupMember {
     joinedAt: string;
     isAdmin: boolean;
     isCurrentUser: boolean;
+    notificationsMuted: boolean;
 }
 
 export interface JoinGroupRequest {

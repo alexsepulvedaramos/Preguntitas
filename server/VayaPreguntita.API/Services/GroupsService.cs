@@ -145,21 +145,21 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         return true;
     }
 
-    public async Task<bool> JoinGroupAsync(int userId, string invitationCode)
+    public async Task<(bool found, bool alreadyMember)> JoinGroupAsync(int userId, string invitationCode)
     {
         var group = await context
             .Groups.Include(g => g.Members)
             .FirstOrDefaultAsync(g => g.InvitationCode == invitationCode);
 
         if (group == null)
-            return false;
+            return (false, false);
 
         if (group.Members.Any(m => m.UserId == userId))
-            return true;
+            return (true, true);
 
         var userExists = await context.Users.AnyAsync(u => u.Id == userId);
         if (!userExists)
-            return false;
+            return (false, false);
 
         group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = false });
         await context.SaveChangesAsync();
@@ -192,7 +192,7 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
             }
         }
 
-        return true;
+        return (true, false);
     }
 
     public async Task<IEnumerable<GroupMemberDto>> GetGroupMembersAsync(int groupId, int currentUserId)

@@ -136,6 +136,10 @@
         </hlm-field>
       </hlm-field-group>
 
+      @if (serverError()) {
+        <p class="text-sm text-destructive">{{ serverError() }}</p>
+      }
+
       <div class="grid gap-2 pt-2">
         <button
           hlmBtn

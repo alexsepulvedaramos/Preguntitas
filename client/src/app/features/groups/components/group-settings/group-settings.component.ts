@@ -28,6 +28,7 @@ import {
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse, UpdateGroupRequest } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { HlmSwitchImports } from '@spartan-ng/helm/switch';
 
 @Component({
   selector: 'app-group-settings',
@@ -40,6 +41,7 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
     HlmSkeletonImports,
     HlmSpinnerImports,
     HlmAlertDialogImports,
+    HlmSwitchImports,
     NgIcon,
     UserAvatarComponent,
   ],
@@ -77,6 +79,7 @@ export class GroupSettingsComponent implements OnInit {
   protected readonly transferringId = signal<number | null>(null);
   protected readonly regenerating = signal(false);
   protected readonly leaving = signal(false);
+  protected readonly notifMuted = signal(false);
 
   protected readonly isAdmin = computed(() =>
     this.members().find((m) => m.isCurrentUser)?.isAdmin ?? false
@@ -176,6 +179,17 @@ export class GroupSettingsComponent implements OnInit {
       });
   }
 
+  protected toggleMute() {
+    const muted = !this.notifMuted();
+    this.notifMuted.set(muted);
+    this.groupsService.setGroupMute(this.numericGroupId(), muted).subscribe({
+      error: () => {
+        this.notifMuted.set(!muted);
+        toast.error('No se ha podido cambiar la configuración');
+      },
+    });
+  }
+
   protected leaveGroup() {
     if (this.leaving()) return;
     this.leaving.set(true);
@@ -206,6 +220,8 @@ export class GroupSettingsComponent implements OnInit {
         this.groupsService.getGroupMembers(this.numericGroupId()).subscribe({
           next: (members) => {
             this.members.set(members);
+            const me = members.find(m => m.isCurrentUser);
+            if (me) this.notifMuted.set(me.notificationsMuted);
             this.loading.set(false);
           },
           error: () => {
