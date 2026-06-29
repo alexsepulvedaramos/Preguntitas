@@ -20,6 +20,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Pack> Packs { get; set; }
     public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<DevicePushSubscription> DevicePushSubscriptions { get; set; }
+    public DbSet<NotificationPreferences> NotificationPreferences { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -137,6 +139,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // write more than one Vote row per (QuestionId, UserId).
         // ==========================================
         modelBuilder.Entity<Vote>().HasIndex(v => new { v.QuestionId, v.UserId });
+
+        // ==========================================
+        // NOTIFICATION PREFERENCES — 1:1 with User, PK = UserId
+        // ==========================================
+        modelBuilder.Entity<NotificationPreferences>().HasKey(np => np.UserId);
+        modelBuilder
+            .Entity<NotificationPreferences>()
+            .HasOne(np => np.User)
+            .WithOne()
+            .HasForeignKey<NotificationPreferences>(np => np.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ==========================================
+        // DEVICE PUSH SUBSCRIPTIONS
+        // ==========================================
+        modelBuilder.Entity<DevicePushSubscription>().HasIndex(s => s.Endpoint).IsUnique();
+        modelBuilder
+            .Entity<DevicePushSubscription>()
+            .HasOne(s => s.User)
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder
             .Entity<Vote>()

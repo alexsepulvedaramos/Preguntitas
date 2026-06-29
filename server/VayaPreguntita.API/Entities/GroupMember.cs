@@ -10,4 +10,5 @@ public class GroupMember
 
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
     public bool IsAdmin { get; set; } = false;
+    public bool NotificationsMuted { get; set; } = false;
 }

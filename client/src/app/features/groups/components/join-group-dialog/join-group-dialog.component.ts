@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
@@ -36,13 +37,14 @@ export class JoinGroupDialogComponent {
     const request: JoinGroupRequest = this.form.getRawValue();
 
     this.groupsService.joinGroup(request).subscribe({
-      next: () => {
+      next: ({ alreadyMember }) => {
         this.form.reset();
         ctx.close();
+        if (alreadyMember) toast.info('Ya eres miembro de este grupo.');
       },
       error: (err) => {
-        const errorMessage = err.error?.message || 'Failed to join group. Please try again.';
-        this.form.controls.invitationCode.setErrors({ serverError: errorMessage });
+        const msg = err.error?.message || 'Código de invitación inválido o grupo no encontrado.';
+        this.form.controls.invitationCode.setErrors({ serverError: msg });
       }
     });
   }

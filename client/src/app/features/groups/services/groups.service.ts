@@ -70,10 +70,14 @@ export class GroupsService {
     }
 
     // Joins a group using an invitation code
-    joinGroup(request: JoinGroupRequest): Observable<void> {
-        return this.http.post<void>(`${this.baseUrl}/join`, request).pipe(
+    joinGroup(request: JoinGroupRequest): Observable<{ alreadyMember: boolean }> {
+        return this.http.post<{ alreadyMember: boolean }>(`${this.baseUrl}/join`, request).pipe(
             tap(() => this.loadGroups())
         );
+    }
+
+    setGroupMute(groupId: number, muted: boolean): Observable<{ muted: boolean }> {
+        return this.http.patch<{ muted: boolean }>(`${this.baseUrl}/${groupId}/members/me/mute`, { muted });
     }
 
     // Transfers admin privileges to another user within the group

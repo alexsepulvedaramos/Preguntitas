@@ -10,6 +10,9 @@ public class DailyPreselectionService(
     ILogger<DailyPreselectionService> logger
 ) : BackgroundService
 {
+    // After this many hours without a manual selection, send a reminder to the selector.
+    private static readonly TimeSpan SelectorReminderDelay = TimeSpan.FromHours(3);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -23,7 +26,6 @@ public class DailyPreselectionService(
                 logger.LogError(ex, "Error en DailyPreselectionService");
             }
 
-            // Comprobar cada minuto
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
@@ -33,33 +35,37 @@ public class DailyPreselectionService(
         using var scope = scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var dailyService = scope.ServiceProvider.GetRequiredService<IDailyService>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
         var today = DailyClock.Today();
         var tomorrow = today.AddDays(1);
         var localTimeOfDay = DailyClock.TimeOfDay();
 
-        // Buscar grupos con ≥ 2 miembros (regla de arranque del ciclo, §4.3/§4.5) cuya hora
-        // de cierre ya ha pasado hoy y que aún no tienen preselección para mañana
+        // ── PRESELECT TOMORROW ────────────────────────────────────────────────
         var groupsToPreselect = await context
             .Groups.Where(g =>
                 localTimeOfDay >= g.DailyQuestionTime
                 && g.Members.Count >= 2
                 && !context.DailyEntries.Any(d => d.GroupId == g.Id && d.Date == tomorrow)
             )
-            .Select(g => g.Id)
+            .Select(g => new { g.Id, g.Name, g.DailyQuestionTime })
             .ToListAsync();
 
-        foreach (var groupId in groupsToPreselect)
+        foreach (var group in groupsToPreselect)
         {
-            await dailyService.PreselectForGroupAsync(groupId, tomorrow);
+            var selectorUserId = await dailyService.PreselectForGroupAsync(group.Id, tomorrow);
             logger.LogInformation(
                 "Preseleccionada pregunta para grupo {GroupId} fecha {Date}",
-                groupId,
+                group.Id,
                 tomorrow
             );
+
+            if (selectorUserId.HasValue)
+                _ = notificationService.SendSelectorTurnAsync(
+                    group.Id, selectorUserId.Value, group.Name, group.DailyQuestionTime);
         }
 
-        // También activar las preselecciones de hoy cuya hora ya ha llegado
+        // ── ACTIVATE TODAY ────────────────────────────────────────────────────
         var entriesToActivate = await context
             .DailyEntries.Include(d => d.Group)
             .Include(d => d.Question)
@@ -82,6 +88,38 @@ public class DailyPreselectionService(
         }
 
         if (entriesToActivate.Count > 0)
+        {
+            await context.SaveChangesAsync();
+
+            foreach (var entry in entriesToActivate)
+                _ = notificationService.SendNewQuestionAsync(
+                    entry.GroupId, entry.Group.Name, entry.Question.Text);
+        }
+
+        // ── SELECTOR REMINDER (if no manual selection after SelectorReminderDelay) ──
+        var reminderCutoff = DateTime.UtcNow - SelectorReminderDelay;
+        var pendingWithoutSelection = await context
+            .DailyEntries.Include(d => d.Group)
+            .Where(d =>
+                d.ActivatedAt == null
+                && d.IsAutoSelected
+                && d.PreselectedAt <= reminderCutoff
+                && d.SelectorReminderSentAt == null
+            )
+            .ToListAsync();
+
+        foreach (var entry in pendingWithoutSelection)
+        {
+            entry.SelectorReminderSentAt = DateTime.UtcNow;
+            _ = notificationService.SendSelectorTurnAsync(
+                entry.GroupId, entry.SelectorUserId, entry.Group.Name, entry.Group.DailyQuestionTime);
+            logger.LogInformation(
+                "Recordatorio de selector enviado para grupo {GroupId}",
+                entry.GroupId
+            );
+        }
+
+        if (pendingWithoutSelection.Count > 0)
             await context.SaveChangesAsync();
     }
 }

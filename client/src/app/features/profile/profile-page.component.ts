@@ -13,11 +13,14 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { HlmSwitchImports } from '@spartan-ng/helm/switch';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { AvatarPickerComponent } from './components/avatar-picker/avatar-picker.component';
+import { PushNotificationService } from '../../core/services/push-notification.service';
+import { NotificationPreferencesService, NotificationPreferences } from '../../core/services/notification-preferences.service';
 
 const FRAME_COLORS = [
   { label: 'Morado', value: '#8b5cf6' },
@@ -40,6 +43,7 @@ const FRAME_COLORS = [
     HlmLabelImports,
     HlmDrawerImports,
     HlmSeparatorImports,
+    HlmSwitchImports,
     NgIcon,
     UserAvatarComponent,
     AvatarPickerComponent,
@@ -52,6 +56,8 @@ export class ProfilePageComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  protected readonly pushService = inject(PushNotificationService);
+  private readonly prefsService = inject(NotificationPreferencesService);
 
   protected readonly frameColors = FRAME_COLORS;
   protected readonly isSavingProfile = signal(false);
@@ -63,6 +69,10 @@ export class ProfilePageComponent implements OnInit {
   protected readonly passwordError = signal<string | null>(null);
   protected readonly showCurrentPassword = signal(false);
   protected readonly showNewPassword = signal(false);
+
+  protected readonly notifPrefs = signal<NotificationPreferences>({
+    newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
+  });
 
   protected readonly user = computed(() => this.authService.currentUser());
 
@@ -81,6 +91,21 @@ export class ProfilePageComponent implements OnInit {
     const user = this.user();
     if (user) {
       this.profileForm.patchValue({ username: user.username, email: user.email });
+    }
+    this.prefsService.get().subscribe(prefs => this.notifPrefs.set(prefs));
+  }
+
+  togglePref(key: keyof NotificationPreferences): void {
+    const updated = { ...this.notifPrefs(), [key]: !this.notifPrefs()[key] };
+    this.notifPrefs.set(updated);
+    this.prefsService.update(updated).subscribe();
+  }
+
+  async togglePushSubscription(): Promise<void> {
+    if (this.pushService.permission() === 'granted') {
+      await this.pushService.unsubscribe();
+    } else {
+      await this.pushService.requestAndSubscribe();
     }
   }
 

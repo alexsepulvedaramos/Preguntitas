@@ -1,10 +1,13 @@
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Lib.Net.Http.WebPush;
+using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using VayaPreguntita.API.BackgroundServices;
 using VayaPreguntita.API.Data;
@@ -57,6 +60,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateQuestionDtoValidator>
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<SupabaseStorageOptions>(builder.Configuration.GetSection("SupabaseStorage"));
+builder.Services.Configure<VapidOptions>(builder.Configuration.GetSection("Vapid"));
 builder.Services.AddHttpClient<SupabaseStorageService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -64,8 +68,21 @@ builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IDailyService, DailyService>();
 builder.Services.AddScoped<IQuestionsService, QuestionsService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHostedService<DailyPreselectionService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+// Web Push (VAPID)
+builder.Services.AddSingleton(sp =>
+{
+    var vapid = sp.GetRequiredService<IOptions<VapidOptions>>().Value;
+    var client = new PushServiceClient();
+    client.DefaultAuthentication = new VapidAuthentication(vapid.PublicKey, vapid.PrivateKey)
+    {
+        Subject = vapid.Subject
+    };
+    return client;
+});
 
 var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 

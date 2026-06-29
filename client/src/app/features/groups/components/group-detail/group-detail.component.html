@@ -81,6 +81,7 @@
         </div>
         @if (daily()?.selection; as sel) {
           <app-select-question-dialog
+            #selectDialog
             [groupId]="numericGroupId()"
             [members]="members()"
             [isSelector]="sel.isCurrentUserSelector"

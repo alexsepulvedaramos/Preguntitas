@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -31,6 +31,8 @@ export class RegisterComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
+  protected readonly serverError = signal<string | null>(null);
+
   public form = this._fb.group(
     {
       username: ['', [Validators.required, Validators.minLength(3)], [AuthValidators.usernameExistsValidator(this.authService)]],
@@ -49,14 +51,18 @@ export class RegisterComponent {
         password: this.form.value.password ?? ''
       };
 
+      this.serverError.set(null);
       this.authService.register(credentials).subscribe({
         next: () => {
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/groups';
           this.router.navigateByUrl(returnUrl);
         },
         error: (err) => {
-          // Handle registration errors here (e.g., show a notification)
-          console.error('Registration failed:', err);
+          if (err.status === 409) {
+            this.serverError.set('Este nombre de usuario o email ya está registrado.');
+          } else {
+            this.serverError.set('No se ha podido completar el registro. Inténtalo de nuevo.');
+          }
         }
       });
     }

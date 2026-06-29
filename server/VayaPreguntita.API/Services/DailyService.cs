@@ -9,7 +9,7 @@ using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
 
-public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
+public class DailyService(AppDbContext context, IMapper mapper, INotificationService notificationService) : IDailyService
 {
     // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
     private const int FreeTextMaxLength = 280;
@@ -444,6 +444,11 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         context.Votes.AddRange(BuildVotes(dto, question, userId));
         await context.SaveChangesAsync();
 
+        var group = await context.Groups.FindAsync(groupId);
+        var voter = await context.Users.FindAsync(userId);
+        if (group != null && voter != null)
+            _ = notificationService.SendUserVotedAsync(groupId, userId, group.Name, voter.Username);
+
         var results = await CalculateResultsAsync(question);
         return (VoteResult.Success, results);
     }
@@ -452,7 +457,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
     // PRESELECT FOR TOMORROW (called by DailyPreselectionService)
     // Only groups with ≥ 2 members run a cycle (§4.3, §4.5).
     // ==========================================
-    public async Task PreselectForGroupAsync(
+    public async Task<int?> PreselectForGroupAsync(
         int groupId,
         DateOnly date,
         bool activateImmediately = false
@@ -464,14 +469,14 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         );
 
         if (exists)
-            return;
+            return null;
 
         var group = await context
             .Groups.Include(g => g.Members)
             .FirstOrDefaultAsync(g => g.Id == groupId);
 
         if (group == null || group.Members.Count < 2)
-            return;
+            return null;
 
         var selector = CalculateSelector(group.Members, group.DateCreated, date);
 
@@ -512,7 +517,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
                     .FirstOrDefaultAsync();
 
             if (template == null)
-                return; // No active templates (should not happen with the base pack).
+                return null; // No active templates (should not happen with the base pack).
 
             var memberIds = group.Members.Select(m => m.UserId).ToList();
             question = TemplateCloner.CloneToGroup(template, groupId, memberIds);
@@ -543,6 +548,7 @@ public class DailyService(AppDbContext context, IMapper mapper) : IDailyService
         );
 
         await context.SaveChangesAsync();
+        return selector.UserId;
     }
 
     // ==========================================

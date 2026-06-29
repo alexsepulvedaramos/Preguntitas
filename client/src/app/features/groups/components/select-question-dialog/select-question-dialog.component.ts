@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, inject, input, output, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -80,6 +80,14 @@ export class SelectQuestionDialogComponent {
     const currentUserId = Number(this.authService.currentUser()?.id);
     return this.members().find((m) => m.id === currentUserId)?.isAdmin ?? false;
   });
+
+  @ViewChild('triggerBtn') private triggerBtn!: ElementRef<HTMLButtonElement>;
+
+  triggerOpen() {
+    this.resetDialog();
+    // Delegates to the native trigger so Spartan's dialog state machine stays in sync.
+    this.triggerBtn?.nativeElement.click();
+  }
 
   resetDialog() {
     this.step.set(this.isSelector() ? 'sources' : 'create');
