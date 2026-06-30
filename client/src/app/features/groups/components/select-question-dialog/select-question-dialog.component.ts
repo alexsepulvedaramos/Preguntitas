@@ -1,10 +1,10 @@
 import { Component, ElementRef, ViewChild, computed, inject, input, output, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
+import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
@@ -12,9 +12,9 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
-import { Option, Question, QuestionToVote } from '../../../../core/models/question.model';
+import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
 import { SelectionSourceItem } from '../../../../core/models/daily.model';
-import { Pack, PackTemplate } from '../../../../core/models/pack.model';
+import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
@@ -24,26 +24,30 @@ import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-creat
 
 type Step = 'sources' | 'create' | 'assign-teams';
 
-const PAGE_SIZE = 8;
+// 'all' = group pool + every enabled pack · 'pool' = only group-created · number = one pack id.
+type SourceFilter = 'all' | 'pool' | number;
 
-// Selector picker (rama 8/15, spec §13 row 8+15 / §6.4): lets the day's selector choose the
-// next-day question from the group pool, any enabled pack, or create one inline. Anyone —
-// not just the selector — can open it to suggest/save a question to the pool, but only
-// the selector sees the "elegir para mañana" actions (the backend rejects daily/select
-// from anyone else). Pool items owned by the current user (or any item, if the user is
-// the group admin) can be deleted directly from the list.
+const PAGE_SIZE = 10;
+
+// Selector picker (rama 8/15, spec §6.4): lets the day's selector choose the next-day question
+// from the group pool, any enabled pack, or create one inline. Anyone — not just the selector —
+// can open it to suggest/save a question to the pool, but only the selector sees the "elegir
+// para mañana" actions (the backend rejects daily/select from anyone else). Pool items owned by
+// the current user (or any item, if the user is the group admin) can be deleted from the list.
 //
-// The pool and pack-templates lists are independently paginated ("Cargar más"), share a
-// type filter, and the pack list additionally takes a pack filter. Both QuestionDto and
-// PackTemplateDto pages get mapped into the same local SelectionSourceItem shape so the
-// pick/team-assignment/edit logic below doesn't care which paginated source an item came from.
+// UI: one combined, scannable list of question cards with two compact dropdowns — type and
+// source (Todas / Del grupo / a specific pack). The pool and pack template pages are fetched
+// independently and merged client-side (pool first, preserving user-pool priority — §6.6) so a
+// single "Cargar más" walks the pool pages first and then the pack pages. Both QuestionDto and
+// PackTemplateDto map into the same local SelectionSourceItem shape, so the pick/edit/team
+// logic below doesn't care which source an item came from.
 @Component({
   selector: 'app-select-question-dialog',
   imports: [
     HlmButtonImports,
     HlmDialogImports,
     HlmSpinnerImports,
-    HlmToggleGroupImports,
+    HlmNativeSelectImports,
     NgIcon,
     CreateQuestionComponent,
     DeathmatchCreateComponent,
@@ -80,26 +84,43 @@ export class SelectQuestionDialogComponent {
   protected readonly pickingKey = signal<string | null>(null);
   protected readonly deletingId = signal<number | null>(null);
 
-  // Filters: type is shared by both lists; pack only narrows the pack-templates list.
+  // Filters. The two string computeds back the native-select [value] bindings.
   protected readonly typeFilter = signal<QuestionType | null>(null);
-  protected readonly packFilter = signal<number | null>(null);
+  protected readonly typeFilterValue = computed(() => this.typeFilter()?.toString() ?? 'all');
+  protected readonly sourceFilter = signal<SourceFilter>('all');
+  protected readonly sourceFilterValue = computed(() => this.sourceFilter().toString());
   protected readonly availablePacks = signal<Pack[]>([]);
 
-  // Pool list — independently paginated.
+  // Pool + pack pages (fetched independently, merged for display).
   protected readonly poolItems = signal<SelectionSourceItem[]>([]);
   protected readonly poolHasMore = signal(false);
   protected readonly poolLoadingMore = signal(false);
-
-  // Pack-templates list — independently paginated.
   protected readonly packItems = signal<SelectionSourceItem[]>([]);
   protected readonly packHasMore = signal(false);
   protected readonly packLoadingMore = signal(false);
 
+  // The single list the template renders, plus its combined paging state.
+  protected readonly items = computed<SelectionSourceItem[]>(() => {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.poolItems();
+    if (typeof s === 'number') return this.packItems();
+    return [...this.poolItems(), ...this.packItems()];
+  });
+  protected readonly hasMore = computed(() => {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.poolHasMore();
+    if (typeof s === 'number') return this.packHasMore();
+    return this.poolHasMore() || this.packHasMore();
+  });
+  protected readonly loadingMore = computed(
+    () => this.poolLoadingMore() || this.packLoadingMore(),
+  );
+
   // Passed to app-create-question when editing an already-selected Scale/CustomPoll question.
   protected readonly pendingEditValue = signal<QuestionToVote | null>(null);
 
-  // Deathmatch-from-pack team assignment (instead of the random split in §6.3, the
-  // selector arranges the teams themselves before confirming).
+  // Deathmatch team assignment (instead of the random split in §6.3, the selector arranges
+  // the teams themselves before confirming).
   protected readonly teamAssignmentItem = signal<SelectionSourceItem | null>(null);
   protected readonly teamAssignmentTeams = signal<number[][]>([[], []]);
   protected readonly assigningTeams = signal(false);
@@ -127,9 +148,10 @@ export class SelectQuestionDialogComponent {
     this.assigningTeams.set(false);
     this.pendingEditValue.set(null);
     this.typeFilter.set(null);
-    this.packFilter.set(null);
+    this.sourceFilter.set('all');
     if (this.isSelector()) {
-      this.loadSources();
+      this.loadAvailablePacks();
+      this.reload();
     }
   }
 
@@ -148,9 +170,8 @@ export class SelectQuestionDialogComponent {
   pick(item: SelectionSourceItem, ctx: { close: () => void }) {
     if (this.pickingKey()) return;
 
-    // All Deathmatch items (pack and pool) go through the team assignment step so the
-    // selector can arrange/review teams before confirming. Pack items start fresh;
-    // pool items pre-fill from the question's stored teams.
+    // All Deathmatch items go through the team assignment step so the selector can arrange/review
+    // teams before confirming. Pack items start fresh; pool items pre-fill from stored teams.
     if (item.type === QuestionType.Deathmatch) {
       this.teamAssignmentItem.set(item);
       this.teamAssignmentTeams.set(
@@ -210,19 +231,17 @@ export class SelectQuestionDialogComponent {
             },
           };
 
-    this.dailyService
-      .select(this.groupId(), dto)
-      .subscribe({
-        next: () => {
-          this.assigningTeams.set(false);
-          this.selected.emit();
-          ctx.close();
-        },
-        error: (err) => {
-          this.assigningTeams.set(false);
-          this.error.set(err.error ?? 'No se ha podido confirmar los equipos.');
-        },
-      });
+    this.dailyService.select(this.groupId(), dto).subscribe({
+      next: () => {
+        this.assigningTeams.set(false);
+        this.selected.emit();
+        ctx.close();
+      },
+      error: (err) => {
+        this.assigningTeams.set(false);
+        this.error.set(err.error ?? 'No se ha podido confirmar los equipos.');
+      },
+    });
   }
 
   backFromTeamAssignment() {
@@ -301,7 +320,7 @@ export class SelectQuestionDialogComponent {
   onSavedToPool(ctx: { close: () => void }) {
     if (this.isSelector()) {
       this.step.set('sources');
-      this.loadSources();
+      this.reload();
     } else {
       ctx.close();
     }
@@ -311,47 +330,56 @@ export class SelectQuestionDialogComponent {
     return options.map((o) => o.text).join(' · ');
   }
 
-  onTypeFilterChange(value: string | string[] | null | undefined) {
-    const v = Array.isArray(value) ? value[0] : value;
-    this.typeFilter.set(v && v !== 'all' ? (Number(v) as QuestionType) : null);
-    this.loadPool(true);
-    this.loadPack(true);
+  onTypeChange(value: string | undefined | null) {
+    this.typeFilter.set(!value || value === 'all' ? null : (Number(value) as QuestionType));
+    this.reload();
   }
 
-  onPackFilterChange(value: string | string[] | null | undefined) {
-    const v = Array.isArray(value) ? value[0] : value;
-    this.packFilter.set(v && v !== 'all' ? Number(v) : null);
-    this.loadPack(true);
+  onSourceChange(value: string | undefined | null) {
+    if (!value || value === 'all') this.sourceFilter.set('all');
+    else if (value === 'pool') this.sourceFilter.set('pool');
+    else this.sourceFilter.set(Number(value));
+    this.reload();
   }
 
-  loadMorePool() {
-    this.loadPool(false);
+  loadMore() {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.loadPool(false);
+    if (typeof s === 'number') return this.loadPack(false);
+    // Combined view: exhaust the pool pages first, then the pack pages.
+    return this.poolHasMore() ? this.loadPool(false) : this.loadPack(false);
   }
 
-  loadMorePack() {
-    this.loadPack(false);
+  private loadAvailablePacks() {
+    this.packsService.getPacks(this.groupId()).subscribe({
+      next: (packs) => this.availablePacks.set(packs.filter((p) => p.enabled)),
+      // Source dropdown is a non-essential refinement — leave it minimal on failure.
+      error: () => {},
+    });
   }
 
-  private loadSources() {
+  private reload() {
     this.loading.set(true);
     this.error.set(null);
 
-    this.packsService.getPacks(this.groupId()).subscribe({
-      next: (packs) => this.availablePacks.set(packs.filter((p) => p.enabled)),
-      error: () => {
-        // Pack filter is a non-essential refinement — silently leave it empty on failure.
-      },
-    });
+    const type = this.typeFilter() ?? undefined;
+    const s = this.sourceFilter();
+    const wantPool = s === 'all' || s === 'pool';
+    const wantPack = s === 'all' || typeof s === 'number';
+
+    const empty = { items: [], hasMore: false };
 
     forkJoin({
-      pool: this.questionsService.getPool(this.groupId(), {
-        pageSize: PAGE_SIZE,
-        type: this.typeFilter() ?? undefined,
-      }),
-      pack: this.packsService.getTemplates(this.groupId(), {
-        pageSize: PAGE_SIZE,
-        type: this.typeFilter() ?? undefined,
-      }),
+      pool: wantPool
+        ? this.questionsService.getPool(this.groupId(), { pageSize: PAGE_SIZE, type })
+        : of(empty as QuestionPage),
+      pack: wantPack
+        ? this.packsService.getTemplates(this.groupId(), {
+            pageSize: PAGE_SIZE,
+            type,
+            packId: typeof s === 'number' ? s : undefined,
+          })
+        : of(empty as PackTemplatePage),
     }).subscribe({
       next: ({ pool, pack }) => {
         this.poolItems.set(pool.items.map((q) => this.toPoolItem(q)));
@@ -382,15 +410,15 @@ export class SelectQuestionDialogComponent {
           this.poolHasMore.set(page.hasMore);
           this.poolLoadingMore.set(false);
         },
-        error: () => {
-          this.poolLoadingMore.set(false);
-        },
+        error: () => this.poolLoadingMore.set(false),
       });
   }
 
   private loadPack(reset: boolean) {
     if (!reset && (this.packLoadingMore() || !this.packHasMore())) return;
 
+    const s = this.sourceFilter();
+    const packId = typeof s === 'number' ? s : undefined;
     const before = reset ? undefined : this.packItems().at(-1)?.id;
     this.packLoadingMore.set(true);
 
@@ -398,7 +426,7 @@ export class SelectQuestionDialogComponent {
       .getTemplates(this.groupId(), {
         pageSize: PAGE_SIZE,
         type: this.typeFilter() ?? undefined,
-        packId: this.packFilter() ?? undefined,
+        packId,
         before,
       })
       .subscribe({
@@ -408,9 +436,7 @@ export class SelectQuestionDialogComponent {
           this.packHasMore.set(page.hasMore);
           this.packLoadingMore.set(false);
         },
-        error: () => {
-          this.packLoadingMore.set(false);
-        },
+        error: () => this.packLoadingMore.set(false),
       });
   }
 

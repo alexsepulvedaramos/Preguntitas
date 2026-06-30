@@ -1,4 +1,4 @@
-<div class="p-4 flex flex-col gap-6 max-w-lg mx-auto pb-12">
+<div class="p-4 flex flex-col gap-8 max-w-lg mx-auto pb-12">
 
   <!-- Header -->
   <div class="flex items-center gap-3">
@@ -278,27 +278,57 @@
 
       <section class="flex flex-col gap-3">
         <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Packs</h2>
-        <p class="text-xs text-muted-foreground">
-          Elige qué packs de preguntas están disponibles para este grupo. Debe quedar
-          al menos uno activo.
-        </p>
 
-        <ul class="flex flex-col gap-3">
-          @for (pack of packs(); track pack.id) {
-            <li class="flex items-center justify-between gap-3">
-              <div class="flex flex-col gap-0.5 min-w-0">
-                <p class="text-sm font-medium text-foreground truncate">{{ pack.name }}</p>
-                @if (pack.description) {
-                  <p class="text-xs text-muted-foreground truncate">{{ pack.description }}</p>
-                }
-              </div>
-              <hlm-switch
-                [checked]="pack.enabled"
-                (checkedChange)="togglePack(pack)"
-              />
-            </li>
-          }
-        </ul>
+        <hlm-dialog>
+          <button
+            type="button"
+            hlmDialogTrigger
+            class="flex items-center justify-between gap-3 rounded-default border border-border px-4 py-3 text-left hover:bg-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <div class="flex flex-col gap-0.5">
+              <p class="text-sm font-medium text-foreground">Gestionar packs</p>
+              <p class="text-xs text-muted-foreground">
+                {{ enabledPacksCount() }}/{{ packs().length }} activos
+              </p>
+            </div>
+            <ng-icon hlm name="lucideChevronRight" class="text-muted-foreground shrink-0" />
+          </button>
+
+          <hlm-dialog-content
+            *hlmDialogPortal="let ctx"
+            class="max-w-md max-h-[80vh] overflow-y-auto"
+          >
+            <hlm-dialog-header>
+              <h3
+                hlmDialogTitle
+                class="font-display text-xl italic tracking-wider text-foreground"
+              >
+                Packs
+              </h3>
+              <p hlmDialogDescription>
+                Elige qué packs de preguntas están disponibles para este grupo. Debe
+                quedar al menos uno activo.
+              </p>
+            </hlm-dialog-header>
+
+            <ul class="flex flex-col gap-3 py-2">
+              @for (pack of packs(); track pack.id) {
+                <li class="flex items-center justify-between gap-3">
+                  <div class="flex flex-col gap-0.5 min-w-0">
+                    <p class="text-sm font-medium text-foreground truncate">{{ pack.name }}</p>
+                    @if (pack.description) {
+                      <p class="text-xs text-muted-foreground truncate">{{ pack.description }}</p>
+                    }
+                  </div>
+                  <hlm-switch
+                    [checked]="pack.enabled"
+                    (checkedChange)="togglePack(pack)"
+                  />
+                </li>
+              }
+            </ul>
+          </hlm-dialog-content>
+        </hlm-dialog>
       </section>
     }
 

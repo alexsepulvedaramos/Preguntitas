@@ -46,17 +46,14 @@
           Crear pregunta nueva
         }
       </h3>
-      <p hlmDialogDescription>
-        @if (step() === 'sources') {
-          Elige una pregunta de las creadas por el grupo, alguna del pack base,
-          o crea la tuya propia.
-        } @else if (step() === 'assign-teams') {
+      @if (step() === 'assign-teams') {
+        <p hlmDialogDescription>
           "{{ teamAssignmentItem()?.text }}" — reparte a los miembros en 2 a 4
           equipos antes de confirmar.
-        } @else {
-          Rellena los datos según el tipo de pregunta.
-        }
-      </p>
+        </p>
+      } @else if (step() === 'create') {
+        <p hlmDialogDescription>Rellena los datos según el tipo de pregunta.</p>
+      }
     </hlm-dialog-header>
 
     @if (error()) {
@@ -137,123 +134,45 @@
             Crear pregunta nueva
           </button>
 
-          <div class="flex flex-col gap-1.5">
-            <p class="text-xs uppercase tracking-wide text-muted-foreground">Tipo</p>
-            <hlm-toggle-group
-              type="single"
-              class="flex-wrap"
-              value="all"
-              (valueChange)="onTypeFilterChange($event)"
+          <div class="flex gap-2">
+            <hlm-native-select
+              size="sm"
+              class="!flex-1"
+              selectClass="rounded-xl"
+              [value]="typeFilterValue()"
+              (valueChange)="onTypeChange($event)"
             >
-              <button hlmToggleGroupItem value="all" size="sm">Todas</button>
+              <option hlmNativeSelectOption value="all">Todos los tipos</option>
               @for (type of questionTypes; track type) {
-                <button hlmToggleGroupItem [value]="type.toString()" size="sm">
+                <option hlmNativeSelectOption [value]="type.toString()">
                   {{ QUESTION_TYPE_LABELS[type] }}
-                </button>
+                </option>
               }
-            </hlm-toggle-group>
+            </hlm-native-select>
+            <hlm-native-select
+              size="sm"
+              class="!flex-1"
+              selectClass="rounded-xl"
+              [value]="sourceFilterValue()"
+              (valueChange)="onSourceChange($event)"
+            >
+              <option hlmNativeSelectOption value="all">Todo</option>
+              <option hlmNativeSelectOption value="pool">Del grupo</option>
+              @for (pack of availablePacks(); track pack.id) {
+                <option hlmNativeSelectOption [value]="pack.id.toString()">
+                  {{ pack.name }}
+                </option>
+              }
+            </hlm-native-select>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <p class="text-sm text-muted-foreground">Creadas por el grupo</p>
-            @if (poolItems().length > 0) {
-              <div class="flex flex-col gap-2">
-                @for (item of poolItems(); track itemKey(item)) {
-                  <div class="flex items-center gap-2">
-                    <button
-                      type="button"
-                      class="vp-poll-option flex-1 text-left flex flex-col gap-1"
-                      [disabled]="pickingKey() !== null"
-                      (click)="pick(item, ctx)"
-                    >
-                      <span class="flex items-center gap-2">
-                        @if (pickingKey() === itemKey(item)) {
-                          <hlm-spinner class="size-4" />
-                        }
-                        <span class="flex-1">{{ item.text }}</span>
-                        <span
-                          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
-                          [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
-                          >{{ QUESTION_TYPE_LABELS[item.type] }}</span
-                        >
-                      </span>
-                      @if (
-                        item.type === QuestionType.CustomPoll &&
-                        item.options.length > 0
-                      ) {
-                        <span class="text-xs text-muted-foreground">{{
-                          item.options.join(' · ')
-                        }}</span>
-                      }
-                    </button>
-                    @if (canDelete(item)) {
-                      <button
-                        type="button"
-                        hlmBtn
-                        variant="ghost"
-                        size="icon"
-                        class="size-8 shrink-0 text-destructive focus-visible:ring-2 focus-visible:ring-ring"
-                        [disabled]="deletingId() !== null"
-                        (click)="delete(item)"
-                        aria-label="Eliminar del pool"
-                      >
-                        @if (deletingId() === item.id) {
-                          <hlm-spinner class="size-4" />
-                        } @else {
-                          <ng-icon hlm name="lucideTrash2" size="16" />
-                        }
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-              @if (poolHasMore()) {
-                <button
-                  hlmBtn
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  class="w-full"
-                  [disabled]="poolLoadingMore()"
-                  (click)="loadMorePool()"
-                >
-                  @if (poolLoadingMore()) {
-                    <hlm-spinner class="size-4" />
-                  } @else {
-                    Cargar más
-                  }
-                </button>
-              }
-            } @else {
-              <p class="text-xs text-muted-foreground">
-                No hay preguntas del grupo con este filtro.
-              </p>
-            }
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <p class="text-sm text-muted-foreground">Packs</p>
-            @if (availablePacks().length > 1) {
-              <hlm-toggle-group
-                type="single"
-                class="flex-wrap"
-                value="all"
-                (valueChange)="onPackFilterChange($event)"
-              >
-                <button hlmToggleGroupItem value="all" size="sm">Todos</button>
-                @for (pack of availablePacks(); track pack.id) {
-                  <button hlmToggleGroupItem [value]="pack.id.toString()" size="sm">
-                    {{ pack.name }}
-                  </button>
-                }
-              </hlm-toggle-group>
-            }
-            @if (packItems().length > 0) {
-              <div class="flex flex-col gap-2">
-                @for (item of packItems(); track itemKey(item)) {
+          @if (items().length > 0) {
+            <div class="flex flex-col gap-2">
+              @for (item of items(); track itemKey(item)) {
+                <div class="flex items-center gap-2">
                   <button
                     type="button"
-                    class="vp-poll-option flex flex-col gap-1"
+                    class="vp-poll-option flex-1 text-left flex flex-col gap-1"
                     [disabled]="pickingKey() !== null"
                     (click)="pick(item, ctx)"
                   >
@@ -261,7 +180,7 @@
                       @if (pickingKey() === itemKey(item)) {
                         <hlm-spinner class="size-4" />
                       }
-                      <span class="flex-1 text-left">{{ item.text }}</span>
+                      <span class="flex-1">{{ item.text }}</span>
                       <span
                         class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
                         [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
@@ -272,36 +191,54 @@
                       item.type === QuestionType.CustomPoll &&
                       item.options.length > 0
                     ) {
-                      <span class="text-xs text-muted-foreground text-left">{{
+                      <span class="text-xs text-muted-foreground">{{
                         item.options.join(' · ')
                       }}</span>
                     }
                   </button>
-                }
-              </div>
-              @if (packHasMore()) {
-                <button
-                  hlmBtn
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  class="w-full"
-                  [disabled]="packLoadingMore()"
-                  (click)="loadMorePack()"
-                >
-                  @if (packLoadingMore()) {
-                    <hlm-spinner class="size-4" />
-                  } @else {
-                    Cargar más
+                  @if (canDelete(item)) {
+                    <button
+                      type="button"
+                      hlmBtn
+                      variant="ghost"
+                      size="icon"
+                      class="size-8 shrink-0 text-destructive focus-visible:ring-2 focus-visible:ring-ring"
+                      [disabled]="deletingId() !== null"
+                      (click)="delete(item)"
+                      aria-label="Eliminar del pool"
+                    >
+                      @if (deletingId() === item.id) {
+                        <hlm-spinner class="size-4" />
+                      } @else {
+                        <ng-icon hlm name="lucideTrash2" size="16" />
+                      }
+                    </button>
                   }
-                </button>
+                </div>
               }
-            } @else {
-              <p class="text-xs text-muted-foreground">
-                No hay preguntas de pack con este filtro.
-              </p>
+            </div>
+            @if (hasMore()) {
+              <button
+                hlmBtn
+                type="button"
+                variant="outline"
+                size="sm"
+                class="w-full"
+                [disabled]="loadingMore()"
+                (click)="loadMore()"
+              >
+                @if (loadingMore()) {
+                  <hlm-spinner class="size-4" />
+                } @else {
+                  Cargar más
+                }
+              </button>
             }
-          </div>
+          } @else {
+            <p class="text-sm text-muted-foreground text-center py-6">
+              No hay preguntas con este filtro.
+            </p>
+          }
         </div>
       }
     } @else if (step() === 'assign-teams') {

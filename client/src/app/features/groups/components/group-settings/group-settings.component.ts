@@ -16,9 +16,11 @@ import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
+  lucideChevronRight,
   lucideCopy,
   lucideRefreshCw,
   lucideShield,
@@ -43,6 +45,7 @@ import { Pack } from '../../../../core/models/pack.model';
     HlmSkeletonImports,
     HlmSpinnerImports,
     HlmAlertDialogImports,
+    HlmDialogImports,
     HlmSwitchImports,
     NgIcon,
     UserAvatarComponent,
@@ -50,6 +53,7 @@ import { Pack } from '../../../../core/models/pack.model';
   providers: [
     provideIcons({
       lucideArrowLeft,
+      lucideChevronRight,
       lucideCopy,
       lucideRefreshCw,
       lucideShield,
@@ -87,6 +91,9 @@ export class GroupSettingsComponent implements OnInit {
 
   protected readonly isAdmin = computed(() =>
     this.members().find((m) => m.isCurrentUser)?.isAdmin ?? false
+  );
+  protected readonly enabledPacksCount = computed(
+    () => this.packs().filter((p) => p.enabled).length
   );
 
   ngOnInit() {
