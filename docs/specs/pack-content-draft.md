@@ -484,3 +484,31 @@ Fases vergonzosas, referencias generacionales, infancia. Nido de OpenText. Picar
 13. **Cuéntanos tu momento más cringe de la adolescencia.**
 14. **¿Cuál era tu grupo o canción favorita de joven que ahora te da vergüenza?**
 15. **¿Cuál era tu sueño de pequeño que ahora te da ternura (o risa)?**
+
+---
+
+## Pack 14 — El reparto del grupo 🔄 (in progress — 18 confirmed, + female chars pending)
+
+Todo Superlative: "¿quién sería [personaje]?". Personajes icónicos eternos + arquetipos
+narrativos. (El tipo "reparto" agrupado = rama futura, ver §13/§16 del spec.)
+
+### Confirmed (18) — todos Superlative
+
+1. ¿Quién del grupo sería el Joker (puro caos)?
+2. ¿Quién sería Batman (oscuro y va por libre)?
+3. ¿Quién sería Homer Simpson (un desastre adorable)?
+4. ¿Quién sería Gandalf (el sabio que guía a todos)?
+5. ¿Quién sería Yoda (suelta perlas de sabiduría rara)?
+6. ¿Quién sería James Bond (elegante y ligón)?
+7. ¿Quién sería Sherlock Holmes (lo deduce todo)?
+8. ¿Quién sería Mr. Bean (el desastre silencioso)?
+9. ¿Quién sería el Grinch (odia la diversión)?
+10. ¿Quién sería Peter Pan (se niega a madurar)?
+11. ¿Quién sería el héroe que salva el día?
+12. ¿Quién sería el villano de la película?
+13. ¿Quién sería el alivio cómico del grupo?
+14. ¿Quién sería el que muere en el primer capítulo?
+15. ¿Quién sería el villano secreto que nadie ve venir?
+16. ¿Quién sería el protagonista absoluto de la serie?
+17. ¿Quién sería el secundario que se roba todas las escenas?
+18. ¿Quién sería el cerebro malvado detrás de todo?
