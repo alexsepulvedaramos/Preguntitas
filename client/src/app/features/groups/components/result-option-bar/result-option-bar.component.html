@@ -39,7 +39,10 @@
         class="absolute inset-0 z-20 flex items-center overflow-hidden"
         [class]="leadUser() ? 'pl-14 pr-4' : 'pl-4 pr-4'"
       >
-        <span class="text-sm font-semibold text-white truncate">{{ label() }}</span>
+        <span
+          class="text-sm font-semibold text-white truncate"
+          style="text-shadow: 0 1px 2px rgb(0 0 0 / 0.7), 0 0 4px rgb(0 0 0 / 0.5);"
+        >{{ label() }}</span>
       </div>
 
       <!-- Voter badges: centered on bottom edge, outside overflow -->

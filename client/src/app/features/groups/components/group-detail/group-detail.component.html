@@ -74,7 +74,11 @@
       <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
         <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
         <div class="min-w-0 flex-1">
-          <app-countdown [target]="daily()?.today?.closesAt ?? null" [compact]="true" />
+          <app-countdown
+            [target]="daily()?.today?.closesAt ?? null"
+            [compact]="true"
+            (reachedZero)="refresh()"
+          />
           @if (daily()?.selection?.pendingQuestion; as q) {
             <p class="mt-0.5 truncate text-xs text-primary/70">Elegida: {{ q.text }}</p>
           }
