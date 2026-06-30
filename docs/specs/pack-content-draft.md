@@ -29,9 +29,9 @@
 | 9 | Deportes y competencia | ✅ closed — 18 |
 | 10 | Polémicas y bandos | ✅ closed — 16 |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
-| 12 | Nostalgia y cringe | 🔄 in progress |
+| 12 | Nostalgia y cringe | ✅ closed — 15 |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
-| 14 | El reparto del grupo | ⬜ pending |
+| 14 | El reparto del grupo | 🔄 in progress |
 | 15 | Guarradas y dilemas asquerosos | ✅ closed — 15 |
 | Base | Base pack (+~15 templates) | ⬜ pending |
 
@@ -451,22 +451,36 @@ batalla de gallos, mus, karaoke). Picaresco.
 
 ---
 
-## Pack 12 — Nostalgia y cringe 🔄 (in progress — 13 confirmed, needs ≥2)
+## Pack 12 — Nostalgia y cringe ✅ (15)
 
 Fases vergonzosas, referencias generacionales, infancia. Nido de OpenText. Picaresco.
 
-### Confirmed (13)
+### Superlative (5)
 
-- **(Superlative)** ¿Quién tuvo la fase más vergonzosa en la adolescencia?
-- **(Superlative)** ¿Quién era el típico empollón del colegio?
-- **(Superlative)** ¿Quién era el más gamberro de clase?
-- **(Superlative)** ¿Quién tenía el corte de pelo más cuestionable de joven?
-- **(Superlative)** ¿Quién ha pegado el mayor cambio (glow up) con los años?
-- **(CustomPoll, 1)** ¿Qué época era mejor? — Cuando no había móviles · Ahora con todo a un clic
-- **(CustomPoll, 1)** Si pudieras volver a una etapa, ¿a cuál? — La infancia sin preocupaciones · La adolescencia rebelde · Los años locos de fiesta · Ninguna, mejor el presente
-- **(CustomPoll, 1, + "Otro")** ¿Qué reliquia tecnológica echas de menos? — La videoconsola de tu infancia · El móvil de tapa y teclas · Los CDs y casetes · El MSN Messenger
-- **(CustomPoll, 1)** ¿Qué recuerdas con más cariño de pequeño? — Los dibujos del sábado por la mañana · Jugar en la calle hasta que anochecía · Las meriendas en casa de un amigo · Los veranos que no acababan nunca
-- **(SecretPairing)** ¿Qué dos personas habrían sido los pesados de la clase juntos?
-- **(Scale)** Del 1 al 10, ¿cómo de cringe era tu yo adolescente?
-- **(OpenText)** Cuéntanos tu momento más cringe de la adolescencia.
-- **(OpenText)** ¿Cuál era tu grupo o canción favorita de joven que ahora te da vergüenza?
+1. **¿Quién tuvo la fase más vergonzosa en la adolescencia?**
+2. **¿Quién era el típico empollón del colegio?**
+3. **¿Quién era el más gamberro de clase?**
+4. **¿Quién tenía el corte de pelo más cuestionable de joven?**
+5. **¿Quién ha pegado el mayor cambio (glow up) con los años?**
+
+### CustomPoll (5)
+
+6. **¿Qué época era mejor?** — Cuando no había móviles · Ahora con todo a un clic
+7. **Si pudieras volver a una etapa, ¿a cuál?** — La infancia sin preocupaciones · La adolescencia rebelde · Los años locos de fiesta · Ninguna, mejor el presente
+8. **¿Qué reliquia tecnológica echas de menos?** — La videoconsola de tu infancia · El móvil de tapa y teclas · Los CDs y casetes · El MSN Messenger _(+ "Otro")_
+9. **¿Qué recuerdas con más cariño de pequeño?** — Los dibujos del sábado por la mañana · Jugar en la calle hasta que anochecía · Las meriendas en casa de un amigo · Los veranos que no acababan nunca
+10. **Marca tu(s) tribu(s) de adolescente:** — Pijo · Friki · Rebelde/macarra · Hippie/alternativo · Skater · El normal que pasaba desapercibido _(multi)_
+
+### SecretPairing (1)
+
+11. **¿Qué dos personas habrían sido los pesados de la clase juntos?**
+
+### Scale (1)
+
+12. **Del 1 al 10, ¿cómo de cringe era tu yo adolescente?**
+
+### OpenText (3)
+
+13. **Cuéntanos tu momento más cringe de la adolescencia.**
+14. **¿Cuál era tu grupo o canción favorita de joven que ahora te da vergüenza?**
+15. **¿Cuál era tu sueño de pequeño que ahora te da ternura (o risa)?**
