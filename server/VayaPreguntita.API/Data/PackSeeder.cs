@@ -10,12 +10,49 @@ using VayaPreguntita.API.Enums;
 // Idempotent *per template*, not per pack: each pack is found-or-created by Name, and each
 // template is found-or-created by (PackId, Text). This lets content drops land safely on a
 // database where a pack already exists, instead of being skipped by a whole-pack existence
-// check. Existing templates are never edited or removed (that would orphan the
-// Question.TemplateId FKs of clones already living in real groups) — additive only.
+// check. Existing templates are never edited or removed by the normal insert-missing pass
+// (that would orphan the Question.TemplateId FKs of clones already living in real groups) —
+// additive only. The one exception is Renames below: a small, explicit list of in-place
+// wording fixes for already-shipped templates, applied as an UPDATE (same Id, same FK
+// references) instead of insert+orphan, so production clones are unaffected either way.
 public static class PackSeeder
 {
+    // Wording fixes for templates that may already exist in a live database (i.e. only the
+    // original "Base" pack — every other pack ships fresh with this branch and has no prior
+    // history to reconcile). Applied as a rename (UPDATE by old Text) before the normal
+    // insert-missing pass, so already-cloned Questions keep a valid TemplateId and no
+    // duplicate/orphaned row is created. Safe to leave here permanently — a no-op once applied
+    // (or on a fresh database that never had the old text).
+    private static readonly (string PackName, string OldText, string NewText)[] Renames =
+    [
+        (
+            "Base",
+            "Dilema ético: ¿qué equipo haría lo correcto sacrificando su éxito?",
+            "Tentación de ascenso: ¿qué equipo dice la verdad aunque les cueste el premio gordo?"
+        ),
+        (
+            "Base",
+            "Poder absoluto: ¿qué bando mantendría sus principios sin corromperse?",
+            "Trono vacío: ¿qué equipo no se corrompería ni un segundo con el poder absoluto?"
+        ),
+        (
+            "Base",
+            "Negociación crítica: ¿qué equipo evitaría un conflicto usando solo la palabra?",
+            "Rehén a punta de pistola: ¿qué equipo lo resuelve solo hablando, sin un solo golpe?"
+        ),
+        (
+            "Base",
+            "Competición de fuerza: ¿qué equipo gana en el tira y afloja?",
+            "Tira y afloja a muerte: ¿qué equipo arrastra al otro por el barro?"
+        ),
+        ("Base", "¿Preferirías vivir con...?", "Maldición elegida, ¿cuál te llevas?"),
+        ("Base", "Condena social, ¿qué prefieres?", "Tu condena social de por vida. ¿Cuál eliges?"),
+    ];
+
     public static async Task SeedAsync(AppDbContext context)
     {
+        await ApplyRenamesAsync(context);
+
         foreach (var def in BuildPacks())
         {
             var pack = await context.Packs.FirstOrDefaultAsync(p => p.Name == def.Name);
@@ -72,6 +109,27 @@ public static class PackSeeder
 
         foreach (var groupId in pendingGroupIds)
             await ApplyDefaultDisabledPacksAsync(context, groupId);
+    }
+
+    private static async Task ApplyRenamesAsync(AppDbContext context)
+    {
+        var changed = false;
+
+        foreach (var (packName, oldText, newText) in Renames)
+        {
+            var template = await context
+                .QuestionTemplates.Include(t => t.Pack)
+                .FirstOrDefaultAsync(t => t.Pack.Name == packName && t.Text == oldText);
+
+            if (template is null)
+                continue;
+
+            template.Text = newText;
+            changed = true;
+        }
+
+        if (changed)
+            await context.SaveChangesAsync();
     }
 
     // Seeds a GroupDisabledPack row for every Pack.DisabledByDefault pack the group doesn't
