@@ -43,7 +43,9 @@ export interface SelectQuestion {
     overwriteQuestionId?: number | null; // companion to newQuestion: update existing question content
 }
 
-// ── GET /daily/selection-sources ──
+// ── Unified shape the picker dialog maps both Question and PackTemplate pages into,
+// so the selection/team-assignment logic doesn't care which paginated source an item
+// came from (see select-question-dialog.component.ts). ──
 
 export type SelectionSourceType = 'pool' | 'pack';
 
@@ -54,9 +56,5 @@ export interface SelectionSourceItem {
     type: QuestionType;
     options: string[]; // only populated for CustomPoll items
     teams: number[][]; // only populated for Deathmatch items
-}
-
-export interface SelectionSources {
-    pool: SelectionSourceItem[];
-    pack: SelectionSourceItem[];
+    creatorId?: number | null; // only populated for pool items
 }

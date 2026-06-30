@@ -7,5 +7,5 @@ public enum SelectResult
     QuestionNotFound,
     AlreadyActivated,
     InvalidQuestion,
-    RecentlyUsedTemplate,
+    TemplateAlreadyUsed,
 }

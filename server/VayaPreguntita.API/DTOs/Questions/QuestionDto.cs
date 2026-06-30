@@ -12,4 +12,7 @@ public class QuestionDto
     public DateTime? DateActivated { get; set; }
     public int? CreatorId { get; set; }
     public List<OptionDto> Options { get; set; } = [];
+
+    // Only populated for Deathmatch questions so the picker can pre-fill team assignment.
+    public List<List<int>> Teams { get; set; } = [];
 }

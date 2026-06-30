@@ -19,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DailyEntry> DailyEntries { get; set; }
     public DbSet<Pack> Packs { get; set; }
     public DbSet<QuestionTemplate> QuestionTemplates { get; set; }
+    public DbSet<GroupDisabledPack> GroupDisabledPacks { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<DevicePushSubscription> DevicePushSubscriptions { get; set; }
     public DbSet<NotificationPreferences> NotificationPreferences { get; set; }
@@ -87,6 +88,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(o => o.QuestionTemplate)
             .WithMany(t => t.Options)
             .HasForeignKey(o => o.QuestionTemplateId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ==========================================
+        // GROUP DISABLED PACK (clave compuesta) — per-group pack toggle
+        // ==========================================
+        modelBuilder.Entity<GroupDisabledPack>().HasKey(gdp => new { gdp.GroupId, gdp.PackId });
+
+        modelBuilder
+            .Entity<GroupDisabledPack>()
+            .HasOne(gdp => gdp.Group)
+            .WithMany()
+            .HasForeignKey(gdp => gdp.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder
+            .Entity<GroupDisabledPack>()
+            .HasOne(gdp => gdp.Pack)
+            .WithMany()
+            .HasForeignKey(gdp => gdp.PackId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // ==========================================

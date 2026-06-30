@@ -37,7 +37,7 @@
 - Each day, **one rotating member is the *selector*** for the *following* day's question. They may pick a question from the group's pool, pick from the global **base pack**, or create a new one on the spot. If they do nothing, the system has already auto-selected one.
 - All members vote on the active daily question (the UI adapts to the question type). After voting, the member sees **live aggregated results, including who voted for what**.
 - A **history** view lets any member browse past days and see the question + results for any date, whether or not they voted that day.
-- Group admins can edit the group's name, description, and daily time, manage members, and (Phase 2) toggle which thematic packs feed the rotation.
+- Group admins can edit the group's name, description, and daily time, manage members, and toggle which thematic packs feed the rotation (rama 15, §6.5).
 
 **North-star (Phase 2):** an in-question **chat/debate thread** — generating conversation is the real goal of the game.
 
@@ -329,7 +329,7 @@ Requirement: **there must always be a question.** The **base pack** is a global,
 
 ### 6.2 Model — global template + clone-on-use (MVP)
 
-- **`Pack`** — a named collection of templates. MVP seeds one pack, **"Base"**, always active for every group. (Phase 2: more thematic packs + per-group activation.)
+- **`Pack`** — a named collection of templates. Seeds the always-on **"Base"** pack plus 14 thematic packs (rama 15, §6.5). `IsActiveByDefault` is the global master switch; per-group enable/disable lives in `GroupDisabledPack` (§6.5).
 - **`QuestionTemplate`** — a global question *template* (no votes, no group): `Text`, `Type`, type config, optional template options, `PackId`. Templates are **never voted on directly**.
 - When a template is chosen for a group's day (auto or manual), the system **clones** it into a concrete `Question` row inside that group (`GroupId` set, `Source = Pack`, `CreatorId = null`). That `Question` holds the votes. This keeps votes isolated per group and `Question.GroupId` non-nullable.
 
@@ -344,15 +344,29 @@ Superlative, Secret Pairing, and Custom Poll templates are self-contained. **Sca
 - **Scale:** `TargetUserId` ← a random active member.
 - **Deathmatch:** `Teams` ← a random split of active members into 2 teams (sizes balanced).
 
-Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Implemented in `Helpers/TemplateCloner.cs`; the seed pack is loaded at startup by `Data/BasePackSeeder.cs` (idempotent).
+Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Implemented in `Helpers/TemplateCloner.cs`; the seed packs are loaded at startup by `Data/PackSeeder.cs` (idempotent **per template** — find-or-create each pack by `Name` and each template by `(PackId, Text)`, additive only).
 
 ### 6.4 Selection sources
 
-When the selector opens the picker they can choose from: (a) the group's **user-created pool** (`!IsUsed`), and (b) the **base pack** templates. Or they create a brand-new question inline.
+When the selector opens the picker they can choose from: (a) the group's **user-created pool** (`!IsUsed`), and (b) **templates from the group's enabled packs** (§6.5). Or they create a brand-new question inline. Both lists are **cursor-paginated** with a shared type filter and a pack filter — `GET /groups/{id}/questions/pool` (`QuestionPageDto`) and `GET /groups/{id}/packs/templates` (`PackTemplatePageDto`), each `{ Items, HasMore }`, page size default 12 / max 50, `before` cursor on the last seen `Id`. The pool list renders above the pack list to preserve user-pool priority (§6.6). *(This replaced the old unpaginated `GET /daily/selection-sources`, now removed.)*
 
-### 6.5 Phase 2
+### 6.5 Thematic packs & per-group enable/disable (rama 15)
 
-Multiple thematic packs, an admin UI to enable/disable packs per group, and pack-aware preselection weighting.
+Beyond **Base**, 14 thematic packs ship seeded and active by default: Humor negro, Supervivencia y apocalipsis, Vida nocturna y resaca, Dilemas, Citas/relaciones/red flags, Crimen y misterio, Comida, Deportes y competencia, Polémicas y bandos, Confesiones y vergüenzas, Nostalgia y cringe, Hipotéticos, El reparto del grupo, and Guarradas y dilemas asquerosos.
+
+A **`GroupDisabledPack`** row (composite key `GroupId, PackId`) marks a pack disabled for a group; absence means enabled. `Pack.IsActiveByDefault` is the global master switch; effective per-group enablement is `pack.IsActiveByDefault && !GroupDisabledPacks.Any(GroupId, PackId)`. `PacksController` at `api/groups/{groupId}/packs`:
+- `GET /` — packs with `{ id, name, description, enabled }` for the group (any member).
+- `PATCH /{packId}` — `{ enabled }`, **admin-only**; rejected (400) if disabling would leave the group with **zero** enabled packs (§6.1 invariant).
+
+Admin UI: a per-pack switch list in `GroupSettingsComponent` (optimistic update, revert on error).
+
+### 6.6 Template reuse policy (rama 15)
+
+Replaces the old time-based cooldown. **A template is only ever reused when the group is exhausted** — there is no unused pool question *and* no never-used template across the group's enabled packs. Per group, `usedTemplateIds = Questions.Where(GroupId, TemplateId != null).Select(TemplateId)`; a template is *available* if its `Id` ∉ `usedTemplateIds` and its pack is enabled. Shared in `Helpers/TemplateReusePolicy.cs` across all three call sites: the picker templates list (only available ones; once exhausted, all enabled-pack templates become browsable again, least-recently-used first via `DailyEntry.ActivatedAt`), selection validation (`ResolveSelectedQuestionAsync` → `SelectResult.TemplateAlreadyUsed` unless exhausted), and the preselection fallback. Pool-first priority is unchanged: auto-preselection draws from the unused user pool while any remains, cloning a pack template only when the pool is empty.
+
+### 6.7 Phase 2
+
+Pack-aware preselection weighting, and a bundled **"Reparto/Casting"** question type that assigns a whole cast (N characters → N members) in a single question — today the reparto pack uses individual Superlatives instead (§16).
 
 ---
 
@@ -368,8 +382,9 @@ Multiple thematic packs, an admin UI to enable/disable packs per group, and pack
 - **Option** — poll option (`Id, Text, QuestionId`).
 - **Vote** — `Id, DateResponded, QuestionId, UserId`, and the polymorphic answer fields: `SelectedOptionId`, `SelectedTargetUserId`, `NumericValue`, `FreeText` (used by Open Text answers and Custom Poll "Otro" answers). Unique index `(QuestionId, UserId)`.
 - **DailyEntry** — `Id, Date, IsAutoSelected, PreselectedAt, ActivatedAt (nullable), GroupId, QuestionId, SelectorUserId`. Unique index `(GroupId, Date)`. `SelectorUserId` is set at preselection time and is the authoritative source for who may call `POST /daily/select` — the backend uses the stored value instead of re-running `CalculateSelector` at selection time, so member rejoins (which change `JoinedAt` and shift the rotation) don't break the selector authorization check.
-- **Pack** *(new)* — `Id, Name, Description, IsActiveByDefault`.
-- **QuestionTemplate** *(new)* — `Id, Text, Type, Metadata, PackId`, optional template options. Global, voteless.
+- **Pack** — `Id, Name, Description, IsActiveByDefault`. Seeds **Base** + 14 thematic packs (rama 15).
+- **QuestionTemplate** — `Id, Text, Type, Metadata, PackId`, optional template options. Global, voteless.
+- **GroupDisabledPack** *(new, rama 15)* — composite key `(GroupId, PackId)`. Presence = the pack is disabled for that group; absence = enabled. Effective enablement = `Pack.IsActiveByDefault && !GroupDisabledPacks.Any(GroupId, PackId)`.
 
 ### 7.2 `QuestionMetadata` (owned type → JSONB)
 
@@ -429,7 +444,7 @@ public class OptionResultDto
 
 Per-type build rules (rama 7, `feat/results-view`):
 - **`TotalVotes`** counts distinct `UserId`s, not `Vote` rows — CustomPoll (multi-select) and Secret Pairing both write more than one `Vote` row per logical user vote.
-- **CustomPoll:** one row per option; options with 0 votes are omitted (don't clutter results with unvoted options); sorted by `VoteCount` descending.
+- **CustomPoll:** one row per option, **always all options including zero-vote ones** (rama 15 — matches Deathmatch/Scale, which already show every option/value; an unvoted option is information, not clutter); sorted by `VoteCount` descending.
 - **Superlative:** one row per distinct target (`null` → "Nadie"); sorted by `VoteCount` descending.
 - **Secret Pairing:** each voter writes 2 `Vote` rows (one per predicted partner) sharing their `UserId`. Results are grouped by the **pair** (the unordered set of the 2 target ids), not by individual target — `"Naiara + Fockhaman"` is one combined row, not two separate 50% rows. Sorted by `VoteCount` descending.
 - **Scale:** one row per value across the full `[RangeMin, RangeMax]`, including zero-vote values (it's a distribution, not a ranking — left in ascending numeric order).
@@ -619,7 +634,7 @@ MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, optional and not st
 
 ## 13. Roadmap & Branch Plan
 
-Each branch is **backend + its Angular UI**, cut from `master`, merged before the next. The **design-system** branch (rama 4) is frontend-only and may run in parallel with the backend ramas 1–3. Packs management, gamification, chat, SignalR, OAuth, avatars, per-group time-zone logic, fair rotation, and multi-language gameplay are **Phase 2**.
+Each branch is **backend + its Angular UI**, cut from `master`, merged before the next. The **design-system** branch (rama 4) is frontend-only and may run in parallel with the backend ramas 1–3. Gamification, chat, SignalR, OAuth, avatars, per-group time-zone logic, fair rotation, and multi-language gameplay are **Phase 2**. *(Thematic packs + per-group toggle shipped in rama 15.)*
 
 | # | Branch | Scope |
 |---|---|---|
@@ -645,7 +660,7 @@ Triaged from a combined list of developer-reported bugs + the §16 backlog. Seve
 | # | Branch | Scope |
 |---|---|---|
 | 14 ✅ | `fix/results-bar-and-live-countdown` | Result-bar label legibility: the label overlay (`result-option-bar.component`) spans the full track width independent of the colored fill's `displayWidth()`, with fixed `text-white` and no backdrop — illegible when the fill is narrower than the label. Fix: `text-shadow` outline on the label text (no DOM/layout restructure). Countdown live update: `CountdownComponent` has no output; reaching zero just shows "Siguiente en cualquier momento" with no refetch until manual reload. Fix: emit an `output()` on zero, `GroupDetailComponent` listens and calls `refresh()` automatically. **Implemented on `fix/results-bar-and-live-countdown`.** |
-| 15 | `fix/question-pool-and-permissions` | Base-pack lifecycle: cloned template questions must stop reappearing in a group's pool/selection list for members it has already been shown to, and must not display as "created by the group" unless a member has actually edited the clone (§6.3). Permissions: block editing a question created by another user. Pack browsing: filter pool questions by type and by pack, with pagination (currently unpaginated). |
+| 15 ✅ | `fix/question-pool-and-permissions` | **Bug fixes:** Deathmatch history showed team colours but no member names (`GetByDateAsync` never built `usersById`) — extracted `ResultsBuilder.BuildDeathmatchUsersById`; "who voted" dialog listed voters as a comma paragraph → vertical list; CustomPoll results now include 0-vote options (§7.4). **Base-pack lifecycle:** exhaustion-based template reuse replacing the 50-day cooldown (§6.6; `SelectResult.RecentlyUsedTemplate`→`TemplateAlreadyUsed`); creator attribution on edited clones (`CreatorId ??= userId`); block editing/teams-override of a question owned by another user. **Per-group packs:** `GroupDisabledPack` entity + `AddGroupDisabledPack` migration + `PacksController` (list / admin toggle / paginated templates) + admin toggle UI (§6.5). **Picker:** cursor pagination + type/pack filters; new `GET /packs/templates` replaces `GET /daily/selection-sources` (§6.4). **Content:** `BasePackSeeder` generalized to idempotent `PackSeeder`; 14 new thematic packs + 12 Base additions (~257 questions). **Implemented on `fix/question-pool-and-permissions`.** |
 | 16 | `feat/scale-1-10` | Fix Scale question type to a fixed **1–10** range (remove configurable `Min`/`Max`); migration, validator, and frontend (`scale-create`, `scale-vote`, `scale-result`) updates; revise §5.4, §9, §11 (range/limits) accordingly once implemented. |
 | 17 | `fix/avatar-dark-mode-and-join-flow` | DiceBear "Garabatos" (`croodles-neutral`) preset is near-invisible in dark mode — black linework on a transparent SVG with no theme-aware backing circle (picker grid uses `bg-muted`, `UserAvatarComponent` uses `bg-card`; neither guarantees contrast for this style). Join flow: registering via an invite link doesn't auto-join the inviting group afterward (only works today when logging into an existing account via the link) — low priority, but closes the navigation loop. PWA: add `"id"` to `public/manifest.webmanifest` to stop Chrome's persistent "tap to copy this app's URL" notification on the installed app. |
 | 18 | `feat/mobile-group-header` | Experimental, mobile only: inside a group's routes (detail/history/settings) the global app header (logo/theme/user-menu) and group-detail's own back/history/settings row currently stack as two sticky bars — merge into one. The group-list page header is untouched. |
@@ -654,7 +669,7 @@ Triaged from a combined list of developer-reported bugs + the §16 backlog. Seve
 
 **Deferred:** caching/perf hardening (reduce repeated queries, cache layer, regulate per-platform usage/limits, cap history depth) — needs the developer's real scaling forecast and intrinsic hosting limits before it can be scoped into a branch; tracked in §16, not yet assigned a rama number.
 
-**Phase 2 backlog:** thematic packs management · "adivina el autor" · points/ranking · priority-boost + in-app currency · frame purchasing + longevity frames (streak frames confirmed and moved to rama 19, §13) · in-question chat/debate · Google OAuth · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · invitation QR · multi-language gameplay (i18n) · SSR/SEO · caching · automated tests · CI/CD. **Full developer wishlist in §16.**
+**Phase 2 backlog:** bundled "reparto/casting" question type · "adivina el autor" · points/ranking · priority-boost + in-app currency · frame purchasing + longevity frames (streak frames confirmed and moved to rama 19, §13) · in-question chat/debate · Google OAuth · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · invitation QR · multi-language gameplay (i18n) · SSR/SEO · caching · automated tests · CI/CD. **Full developer wishlist in §16.**
 
 ---
 
@@ -750,7 +765,7 @@ Read this document before writing code. If a behavior is **not** covered here, a
 - Don't let pack templates hold votes — always clone into a group `Question`.
 - Don't put business/query logic in controllers.
 - Don't modify the DB schema without a migration, and **don't run `dotnet ef database update` autonomously** — confirm first.
-- Don't implement Phase 2 items (packs management, gamification, chat, SignalR, OAuth, avatars) without explicit confirmation.
+- Don't implement Phase 2 items (gamification, chat, SignalR, OAuth, avatars) without explicit confirmation.
 
 ### Asking vs proceeding
 

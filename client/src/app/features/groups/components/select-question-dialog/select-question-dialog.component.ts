@@ -1,17 +1,20 @@
 import { Component, ElementRef, ViewChild, computed, inject, input, output, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
-import { Option, QuestionToVote } from '../../../../core/models/question.model';
-import { SelectionSourceItem, SelectionSources } from '../../../../core/models/daily.model';
+import { PacksService } from '../../../../core/services/packs.service';
+import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
+import { SelectionSourceItem } from '../../../../core/models/daily.model';
+import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
@@ -21,18 +24,30 @@ import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-creat
 
 type Step = 'sources' | 'create' | 'assign-teams';
 
-// Selector picker (rama 8, spec §13 row 8 / §6.4): lets the day's selector choose the
-// next-day question from the group pool, the base pack, or create one inline. Anyone —
-// not just the selector — can open it to suggest/save a question to the pool, but only
-// the selector sees the "elegir para mañana" actions (the backend rejects daily/select
-// from anyone else). Pool items owned by the current user (or any item, if the user is
-// the group admin) can be deleted directly from the list.
+// 'all' = group pool + every enabled pack · 'pool' = only group-created · number = one pack id.
+type SourceFilter = 'all' | 'pool' | number;
+
+const PAGE_SIZE = 10;
+
+// Selector picker (rama 8/15, spec §6.4): lets the day's selector choose the next-day question
+// from the group pool, any enabled pack, or create one inline. Anyone — not just the selector —
+// can open it to suggest/save a question to the pool, but only the selector sees the "elegir
+// para mañana" actions (the backend rejects daily/select from anyone else). Pool items owned by
+// the current user (or any item, if the user is the group admin) can be deleted from the list.
+//
+// UI: one combined, scannable list of question cards with two compact dropdowns — type and
+// source (Todas / Del grupo / a specific pack). The pool and pack template pages are fetched
+// independently and merged client-side (pool first, preserving user-pool priority — §6.6) so a
+// single "Cargar más" walks the pool pages first and then the pack pages. Both QuestionDto and
+// PackTemplateDto map into the same local SelectionSourceItem shape, so the pick/edit/team
+// logic below doesn't care which source an item came from.
 @Component({
   selector: 'app-select-question-dialog',
   imports: [
     HlmButtonImports,
     HlmDialogImports,
     HlmSpinnerImports,
+    HlmNativeSelectImports,
     NgIcon,
     CreateQuestionComponent,
     DeathmatchCreateComponent,
@@ -44,6 +59,7 @@ export class SelectQuestionDialogComponent {
   private readonly authService = inject(AuthService);
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
+  private readonly packsService = inject(PacksService);
 
   public readonly groupId = input.required<number>();
   public readonly members = input.required<GroupMember[]>();
@@ -58,20 +74,53 @@ export class SelectQuestionDialogComponent {
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
   protected readonly QUESTION_TYPE_BADGE_CLASS = QUESTION_TYPE_BADGE_CLASS;
+  protected readonly questionTypes = Object.values(QuestionType).filter(
+    (v): v is QuestionType => typeof v === 'number',
+  );
 
   protected readonly step = signal<Step>('sources');
-  protected readonly sources = signal<SelectionSources>({ pool: [], pack: [] });
-  protected readonly poolCreatorIds = signal<Record<number, number | null>>({});
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly pickingKey = signal<string | null>(null);
   protected readonly deletingId = signal<number | null>(null);
 
+  // Filters. The two string computeds back the native-select [value] bindings.
+  protected readonly typeFilter = signal<QuestionType | null>(null);
+  protected readonly typeFilterValue = computed(() => this.typeFilter()?.toString() ?? 'all');
+  protected readonly sourceFilter = signal<SourceFilter>('all');
+  protected readonly sourceFilterValue = computed(() => this.sourceFilter().toString());
+  protected readonly availablePacks = signal<Pack[]>([]);
+
+  // Pool + pack pages (fetched independently, merged for display).
+  protected readonly poolItems = signal<SelectionSourceItem[]>([]);
+  protected readonly poolHasMore = signal(false);
+  protected readonly poolLoadingMore = signal(false);
+  protected readonly packItems = signal<SelectionSourceItem[]>([]);
+  protected readonly packHasMore = signal(false);
+  protected readonly packLoadingMore = signal(false);
+
+  // The single list the template renders, plus its combined paging state.
+  protected readonly items = computed<SelectionSourceItem[]>(() => {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.poolItems();
+    if (typeof s === 'number') return this.packItems();
+    return [...this.poolItems(), ...this.packItems()];
+  });
+  protected readonly hasMore = computed(() => {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.poolHasMore();
+    if (typeof s === 'number') return this.packHasMore();
+    return this.poolHasMore() || this.packHasMore();
+  });
+  protected readonly loadingMore = computed(
+    () => this.poolLoadingMore() || this.packLoadingMore(),
+  );
+
   // Passed to app-create-question when editing an already-selected Scale/CustomPoll question.
   protected readonly pendingEditValue = signal<QuestionToVote | null>(null);
 
-  // Deathmatch-from-pack team assignment (instead of the random split in §6.3, the
-  // selector arranges the teams themselves before confirming).
+  // Deathmatch team assignment (instead of the random split in §6.3, the selector arranges
+  // the teams themselves before confirming).
   protected readonly teamAssignmentItem = signal<SelectionSourceItem | null>(null);
   protected readonly teamAssignmentTeams = signal<number[][]>([[], []]);
   protected readonly assigningTeams = signal(false);
@@ -98,8 +147,9 @@ export class SelectQuestionDialogComponent {
     this.teamAssignmentTeams.set([[], []]);
     this.assigningTeams.set(false);
     this.pendingEditValue.set(null);
+    this.typeFilter.set(null);
     if (this.isSelector()) {
-      this.loadSources();
+      this.bootstrapSources();
     }
   }
 
@@ -112,15 +162,14 @@ export class SelectQuestionDialogComponent {
     if (this.isAdmin()) return true;
 
     const currentUserId = Number(this.authService.currentUser()?.id);
-    return this.poolCreatorIds()[item.id] === currentUserId;
+    return item.creatorId === currentUserId;
   }
 
   pick(item: SelectionSourceItem, ctx: { close: () => void }) {
     if (this.pickingKey()) return;
 
-    // All Deathmatch items (pack and pool) go through the team assignment step so the
-    // selector can arrange/review teams before confirming. Pack items start fresh;
-    // pool items pre-fill from the question's stored teams.
+    // All Deathmatch items go through the team assignment step so the selector can arrange/review
+    // teams before confirming. Pack items start fresh; pool items pre-fill from stored teams.
     if (item.type === QuestionType.Deathmatch) {
       this.teamAssignmentItem.set(item);
       this.teamAssignmentTeams.set(
@@ -180,19 +229,17 @@ export class SelectQuestionDialogComponent {
             },
           };
 
-    this.dailyService
-      .select(this.groupId(), dto)
-      .subscribe({
-        next: () => {
-          this.assigningTeams.set(false);
-          this.selected.emit();
-          ctx.close();
-        },
-        error: (err) => {
-          this.assigningTeams.set(false);
-          this.error.set(err.error ?? 'No se ha podido confirmar los equipos.');
-        },
-      });
+    this.dailyService.select(this.groupId(), dto).subscribe({
+      next: () => {
+        this.assigningTeams.set(false);
+        this.selected.emit();
+        ctx.close();
+      },
+      error: (err) => {
+        this.assigningTeams.set(false);
+        this.error.set(err.error ?? 'No se ha podido confirmar los equipos.');
+      },
+    });
   }
 
   backFromTeamAssignment() {
@@ -209,7 +256,7 @@ export class SelectQuestionDialogComponent {
     this.questionsService.delete(this.groupId(), item.id).subscribe({
       next: () => {
         this.deletingId.set(null);
-        this.sources.update((s) => ({ ...s, pool: s.pool.filter((q) => q.id !== item.id) }));
+        this.poolItems.update((items) => items.filter((q) => q.id !== item.id));
       },
       error: (err) => {
         this.deletingId.set(null);
@@ -263,13 +310,6 @@ export class SelectQuestionDialogComponent {
     );
   }
 
-  // True when a pool item is the currently-pending question (already picked but not
-  // activated). We hide it from the pool list to avoid showing it twice.
-  isPendingPoolItem(item: SelectionSourceItem): boolean {
-    const pending = this.pendingQuestion();
-    return item.sourceType === 'pool' && !!pending && item.id === pending.id;
-  }
-
   onSelectedForTomorrow(ctx: { close: () => void }) {
     this.selected.emit();
     ctx.close();
@@ -278,7 +318,7 @@ export class SelectQuestionDialogComponent {
   onSavedToPool(ctx: { close: () => void }) {
     if (this.isSelector()) {
       this.step.set('sources');
-      this.loadSources();
+      this.reload();
     } else {
       ctx.close();
     }
@@ -288,19 +328,108 @@ export class SelectQuestionDialogComponent {
     return options.map((o) => o.text).join(' · ');
   }
 
-  private loadSources() {
+  onTypeChange(value: string | undefined | null) {
+    this.typeFilter.set(!value || value === 'all' ? null : (Number(value) as QuestionType));
+    this.reload();
+  }
+
+  onSourceChange(value: string | undefined | null) {
+    if (!value || value === 'all') this.sourceFilter.set('all');
+    else if (value === 'pool') this.sourceFilter.set('pool');
+    else this.sourceFilter.set(Number(value));
+    this.reload();
+  }
+
+  loadMore() {
+    const s = this.sourceFilter();
+    if (s === 'pool') return this.loadPool(false);
+    if (typeof s === 'number') return this.loadPack(false);
+    // Combined view: exhaust the pool pages first, then the pack pages.
+    return this.poolHasMore() ? this.loadPool(false) : this.loadPack(false);
+  }
+
+  // Default the source filter to the group's own pool — questions the group wrote themselves
+  // take priority over pack content. Only falls back to the Base pack (not "Todo") when the
+  // pool is empty, so a brand-new group still lands on a sensible, non-empty starting list.
+  private bootstrapSources() {
     this.loading.set(true);
     this.error.set(null);
 
     forkJoin({
-      sources: this.dailyService.getSelectionSources(this.groupId()),
-      pool: this.questionsService.getPool(this.groupId()),
+      pool: this.questionsService.getPool(this.groupId(), { pageSize: PAGE_SIZE }),
+      packs: this.packsService.getPacks(this.groupId()),
     }).subscribe({
-      next: ({ sources, pool }) => {
-        this.sources.set(sources);
-        this.poolCreatorIds.set(
-          Object.fromEntries(pool.map((q) => [q.id, q.creatorId]))
-        );
+      next: ({ pool, packs }) => {
+        const enabledPacks = packs.filter((p) => p.enabled);
+        this.availablePacks.set(enabledPacks);
+        this.poolItems.set(pool.items.map((q) => this.toPoolItem(q)));
+        this.poolHasMore.set(pool.hasMore);
+
+        if (pool.items.length > 0) {
+          this.sourceFilter.set('pool');
+          this.loading.set(false);
+        } else {
+          const basePack = enabledPacks.find((p) => p.name === 'Base');
+          this.sourceFilter.set(basePack?.id ?? 'all');
+          this.loadInitialPackPage();
+        }
+      },
+      error: () => {
+        this.error.set('No se han podido cargar las preguntas disponibles.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private loadInitialPackPage() {
+    const s = this.sourceFilter();
+
+    this.packsService
+      .getTemplates(this.groupId(), {
+        pageSize: PAGE_SIZE,
+        packId: typeof s === 'number' ? s : undefined,
+      })
+      .subscribe({
+        next: (page) => {
+          this.packItems.set(page.items.map((t) => this.toPackItem(t)));
+          this.packHasMore.set(page.hasMore);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.error.set('No se han podido cargar las preguntas disponibles.');
+          this.loading.set(false);
+        },
+      });
+  }
+
+  private reload() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const type = this.typeFilter() ?? undefined;
+    const s = this.sourceFilter();
+    const wantPool = s === 'all' || s === 'pool';
+    const wantPack = s === 'all' || typeof s === 'number';
+
+    const empty = { items: [], hasMore: false };
+
+    forkJoin({
+      pool: wantPool
+        ? this.questionsService.getPool(this.groupId(), { pageSize: PAGE_SIZE, type })
+        : of(empty as QuestionPage),
+      pack: wantPack
+        ? this.packsService.getTemplates(this.groupId(), {
+            pageSize: PAGE_SIZE,
+            type,
+            packId: typeof s === 'number' ? s : undefined,
+          })
+        : of(empty as PackTemplatePage),
+    }).subscribe({
+      next: ({ pool, pack }) => {
+        this.poolItems.set(pool.items.map((q) => this.toPoolItem(q)));
+        this.poolHasMore.set(pool.hasMore);
+        this.packItems.set(pack.items.map((t) => this.toPackItem(t)));
+        this.packHasMore.set(pack.hasMore);
         this.loading.set(false);
       },
       error: () => {
@@ -308,5 +437,73 @@ export class SelectQuestionDialogComponent {
         this.loading.set(false);
       },
     });
+  }
+
+  private loadPool(reset: boolean) {
+    if (!reset && (this.poolLoadingMore() || !this.poolHasMore())) return;
+
+    const before = reset ? undefined : this.poolItems().at(-1)?.id;
+    this.poolLoadingMore.set(true);
+
+    this.questionsService
+      .getPool(this.groupId(), { pageSize: PAGE_SIZE, type: this.typeFilter() ?? undefined, before })
+      .subscribe({
+        next: (page) => {
+          const mapped = page.items.map((q) => this.toPoolItem(q));
+          this.poolItems.update((items) => (reset ? mapped : [...items, ...mapped]));
+          this.poolHasMore.set(page.hasMore);
+          this.poolLoadingMore.set(false);
+        },
+        error: () => this.poolLoadingMore.set(false),
+      });
+  }
+
+  private loadPack(reset: boolean) {
+    if (!reset && (this.packLoadingMore() || !this.packHasMore())) return;
+
+    const s = this.sourceFilter();
+    const packId = typeof s === 'number' ? s : undefined;
+    const before = reset ? undefined : this.packItems().at(-1)?.id;
+    this.packLoadingMore.set(true);
+
+    this.packsService
+      .getTemplates(this.groupId(), {
+        pageSize: PAGE_SIZE,
+        type: this.typeFilter() ?? undefined,
+        packId,
+        before,
+      })
+      .subscribe({
+        next: (page) => {
+          const mapped = page.items.map((t) => this.toPackItem(t));
+          this.packItems.update((items) => (reset ? mapped : [...items, ...mapped]));
+          this.packHasMore.set(page.hasMore);
+          this.packLoadingMore.set(false);
+        },
+        error: () => this.packLoadingMore.set(false),
+      });
+  }
+
+  private toPoolItem(q: Question): SelectionSourceItem {
+    return {
+      sourceType: 'pool',
+      id: q.id,
+      text: q.text,
+      type: q.type,
+      options: q.options.map((o) => o.text),
+      teams: q.teams ?? [],
+      creatorId: q.creatorId,
+    };
+  }
+
+  private toPackItem(t: PackTemplate): SelectionSourceItem {
+    return {
+      sourceType: 'pack',
+      id: t.id,
+      text: t.text,
+      type: t.type,
+      options: t.options,
+      teams: [],
+    };
   }
 }

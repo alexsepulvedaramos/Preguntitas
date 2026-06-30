@@ -40,7 +40,8 @@ public class MappingProfile : Profile
         // --- Output Mappings (Entity to DTO) ---
 
         CreateMap<Option, OptionDto>();
-        CreateMap<Question, QuestionDto>();
+        CreateMap<Question, QuestionDto>()
+            .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.Metadata.Teams));
 
         CreateMap<Question, QuestionToVoteDto>()
             .ForMember(
