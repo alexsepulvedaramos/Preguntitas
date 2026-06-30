@@ -1,7 +1,7 @@
 # Vaya Preguntita — Unified Technical & Agent Guide
 
 > **Purpose:** Single source of truth for developers and AI coding agents (Claude, Copilot, etc.).
-> **Last updated:** 24 June 2026 · **Status:** MVP build in progress.
+> **Last updated:** 30 June 2026 · **Status:** MVP feature-complete; post-MVP bug-fix & optimization pass in progress (§13, ramas 14–19).
 > **Language policy:** This document and all code/comments are written in English. UI-facing copy is Spanish (it is a Spanish-language app).
 
 ---
@@ -613,7 +613,7 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 
 ### Pending (MVP)
 
-MVP feature-complete. All 11 ramas merged. Phase 2 backlog in §16.
+MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, optional and not started). A post-MVP bug-fix & optimization pass is now planned — ramas 14–19, §13. Phase 2 backlog in §16.
 
 ---
 
@@ -638,7 +638,22 @@ Each branch is **backend + its Angular UI**, cut from `master`, merged before th
 | 12 ✅ | `feat/notifications` | Web Push / VAPID notification system. Backend: `DevicePushSubscription` + `NotificationPreferences` entities + `AddNotificationsSupport` migration; `INotificationService` / `NotificationService` (Lib.Net.Http.WebPush v3.3.1); `NotificationsController` (VAPID key, subscriptions, preferences); `PATCH /groups/{id}/members/me/mute`; 4 notification types: `new_question` at T for all members, `selector_turn` at preselection + 3 h reminder, `user_voted`, `new_message`; stale-subscription cleanup on 410/404; VAPID keys in Render env vars. Angular: `PushNotificationService` + `NotificationPreferencesService`; nudge prompt banner; global preferences in `/profile`; per-group mute toggle in settings; auto-open selector dialog after voting. Quick-wins: 409 error on register, "Ya eres miembro" toast on join. **Implemented on `feat/notifications`.** |
 | 13 | `feat/realtime-signalr` | *(optional)* SignalR hub + Angular client; replaces the refresh button. |
 
-**Phase 2 backlog:** thematic packs management · "adivina el autor" · points/streaks/ranking · priority-boost + in-app currency · in-question chat/debate · Google OAuth · avatars · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · invitation QR · multi-language gameplay (i18n) · SSR/SEO · caching · automated tests · CI/CD. **Full developer wishlist in §16.**
+### Post-MVP bug-fix & optimization pass (confirmed 2026-06-30)
+
+Triaged from a combined list of developer-reported bugs + the §16 backlog. Several smaller fixes are grouped per branch (developer preference: fewer, denser branches over one-bug-one-branch). Streak/frame design and other functionally-relevant decisions below are now confirmed scope, not raw ideas — superseded entries removed from §16.
+
+| # | Branch | Scope |
+|---|---|---|
+| 14 | `fix/results-bar-and-live-countdown` | Result-bar label legibility: the label overlay (`result-option-bar.component`) spans the full track width independent of the colored fill's `displayWidth()`, with fixed `text-white` and no backdrop — illegible when the fill is narrower than the label. Fix: `text-shadow` outline on the label text (no DOM/layout restructure). Countdown live update: `CountdownComponent` has no output; reaching zero just shows "Siguiente en cualquier momento" with no refetch until manual reload. Fix: emit an `output()` on zero, `GroupDetailComponent` listens and calls `refresh()` automatically. |
+| 15 | `fix/question-pool-and-permissions` | Base-pack lifecycle: cloned template questions must stop reappearing in a group's pool/selection list for members it has already been shown to, and must not display as "created by the group" unless a member has actually edited the clone (§6.3). Permissions: block editing a question created by another user. Pack browsing: filter pool questions by type and by pack, with pagination (currently unpaginated). |
+| 16 | `feat/scale-1-10` | Fix Scale question type to a fixed **1–10** range (remove configurable `Min`/`Max`); migration, validator, and frontend (`scale-create`, `scale-vote`, `scale-result`) updates; revise §5.4, §9, §11 (range/limits) accordingly once implemented. |
+| 17 | `fix/avatar-dark-mode-and-join-flow` | DiceBear "Garabatos" (`croodles-neutral`) preset is near-invisible in dark mode — black linework on a transparent SVG with no theme-aware backing circle (picker grid uses `bg-muted`, `UserAvatarComponent` uses `bg-card`; neither guarantees contrast for this style). Join flow: registering via an invite link doesn't auto-join the inviting group afterward (only works today when logging into an existing account via the link) — low priority, but closes the navigation loop. PWA: add `"id"` to `public/manifest.webmanifest` to stop Chrome's persistent "tap to copy this app's URL" notification on the installed app. |
+| 18 | `feat/mobile-group-header` | Experimental, mobile only: inside a group's routes (detail/history/settings) the global app header (logo/theme/user-menu) and group-detail's own back/history/settings row currently stack as two sticky bars — merge into one. The group-list page header is untouched. |
+| 19 | `feat/streak-frames` | Per-group voting streak (not global, not login-based): `GroupMember` gains a streak counter, incremented in `VoteAsync` when the member has voted on consecutive active daily questions for that group, reset on a missed day. **The frame only appears once the streak reaches 3 consecutive days** (days 1–2 show no frame). Animated avatar-ring tiers by streak length: 3–6 days *(ember)* → 7–29 *(small orange flame)* → 30–99 *(intense orange flame)* → 100–181 *(blue flame)* → 182–364, i.e. 6 months+ *(purple flame)* → 365, the cap *(gold flame)*. Streak count surfaced next to each member's name in `GroupSettingsComponent`'s member list. Also: minor profile-page polish (section-title size/font). Longevity frames and frame purchasing are out of scope here — Phase 2 (§16). |
+
+**Deferred:** caching/perf hardening (reduce repeated queries, cache layer, regulate per-platform usage/limits, cap history depth) — needs the developer's real scaling forecast and intrinsic hosting limits before it can be scoped into a branch; tracked in §16, not yet assigned a rama number.
+
+**Phase 2 backlog:** thematic packs management · "adivina el autor" · points/ranking · priority-boost + in-app currency · frame purchasing + longevity frames (streak frames confirmed and moved to rama 19, §13) · in-question chat/debate · Google OAuth · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · invitation QR · multi-language gameplay (i18n) · SSR/SEO · caching · automated tests · CI/CD. **Full developer wishlist in §16.**
 
 ---
 
@@ -775,7 +790,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ✅ **Theme switch** — `theme.service` + `theme.component` exist; wire the toggle.
 - 🔵 **Evaluate "Impeccable"** for the UI.
 - ✅ **User avatar image** — `User.AvatarUrl` + Supabase Storage upload, DiceBear preset grid, circular canvas crop, `UserAvatarComponent` with `frameColor` ring. Profile settings page at `/profile`.
-- 🟡 **Adaptive frame-color palette (light/dark)** — currently `User.FrameColor` stores a hex value (`#8b5cf6`). Plan: migrate to a colour *key* (`"purple"`, `"blue"`, …) stored in DB; define CSS custom properties with distinct light/dark variants in `styles.css` (e.g. `--frame-purple: #7c3aed` in `:root`, `--frame-purple: #a78bfa` in `.dark`); `UserAvatarComponent` resolves key → `var(--frame-purple)`. This ensures good contrast in both themes without client-side branching. Requires a small EF migration + profile-page picker update. Deferred post-MVP-presentation; current hex palette is acceptable for the demo.
+- 🟡 **Adaptive frame-color palette (light/dark)** — currently `User.FrameColor` stores a hex value (`#8b5cf6`). Plan: migrate to a colour *key* (`"purple"`, `"blue"`, …) stored in DB; define CSS custom properties with distinct light/dark variants in `styles.css` (e.g. `--frame-purple: #7c3aed` in `:root`, `--frame-purple: #a78bfa` in `.dark`); `UserAvatarComponent` resolves key → `var(--frame-purple)`. This ensures good contrast in both themes without client-side branching. Requires a small EF migration + profile-page picker update. Deferred post-MVP-presentation; current hex palette is acceptable for the demo. (Distinct from the streak-tier ring confirmed in rama 19, §13 — that one is animated and driven by per-group streak length, not a user-chosen static color.)
 - 🔵 **Multi-language gameplay (i18n)** — play in other languages: Angular i18n/Transloco on the client + translated base-pack templates server-side. User-created questions stay in the author's language.
 
 ### Daily, rotation & gamification
