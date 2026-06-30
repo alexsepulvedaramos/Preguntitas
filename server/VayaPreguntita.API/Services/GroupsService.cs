@@ -96,6 +96,10 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         context.Groups.Add(newGroup);
         await context.SaveChangesAsync();
 
+        // Pre-disable any default-off packs (Pack.DisabledByDefault) for the new group; an admin
+        // can still enable them from settings.
+        await PackSeeder.ApplyDefaultDisabledPacksAsync(context, newGroup.Id);
+
         await context.Entry(newGroup).Reference(g => g.Creator).LoadAsync();
 
         return mapper.Map<GroupResponse>(newGroup);

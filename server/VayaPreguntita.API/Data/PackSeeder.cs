@@ -27,17 +27,26 @@ public static class PackSeeder
                     Name = def.Name,
                     Description = def.Description,
                     IsActiveByDefault = true,
+                    DisabledByDefault = def.DisabledByDefault,
                 };
                 context.Packs.Add(pack);
                 await context.SaveChangesAsync();
             }
-            else if (
-                await context.QuestionTemplates.CountAsync(t => t.PackId == pack.Id)
-                >= def.Templates.Count
-            )
+            else
             {
-                // Steady state: pack already fully seeded — skip without materializing any rows.
-                continue;
+                // Keep scalar config in sync with the definition (content stays append-only).
+                pack.Description = def.Description;
+                pack.DisabledByDefault = def.DisabledByDefault;
+
+                if (
+                    await context.QuestionTemplates.CountAsync(t => t.PackId == pack.Id)
+                    >= def.Templates.Count
+                )
+                {
+                    // Already fully seeded — persist the config sync and skip loading rows.
+                    await context.SaveChangesAsync();
+                    continue;
+                }
             }
 
             var existingTexts = await context
@@ -53,9 +62,50 @@ public static class PackSeeder
 
             await context.SaveChangesAsync();
         }
+
+        // One-time backfill: apply default-disabled packs to groups created before this feature.
+        // (New groups are handled at creation time — see GroupsService.CreateGroupAsync.)
+        var pendingGroupIds = await context
+            .Groups.Where(g => !g.DefaultPacksApplied)
+            .Select(g => g.Id)
+            .ToListAsync();
+
+        foreach (var groupId in pendingGroupIds)
+            await ApplyDefaultDisabledPacksAsync(context, groupId);
     }
 
-    private sealed record PackDef(string Name, string Description, List<QuestionTemplate> Templates);
+    // Seeds a GroupDisabledPack row for every Pack.DisabledByDefault pack the group doesn't
+    // already have one for, then marks the group as initialized. Idempotent and admin-safe:
+    // once DefaultPacksApplied is set, this never re-disables a pack the admin re-enabled.
+    public static async Task ApplyDefaultDisabledPacksAsync(AppDbContext context, int groupId)
+    {
+        var group = await context.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group is null)
+            return;
+
+        var defaultOffPackIds = await context
+            .Packs.Where(p => p.DisabledByDefault)
+            .Select(p => p.Id)
+            .ToListAsync();
+
+        var alreadyDisabled = await context
+            .GroupDisabledPacks.Where(gdp => gdp.GroupId == groupId)
+            .Select(gdp => gdp.PackId)
+            .ToHashSetAsync();
+
+        foreach (var packId in defaultOffPackIds.Where(id => !alreadyDisabled.Contains(id)))
+            context.GroupDisabledPacks.Add(new GroupDisabledPack { GroupId = groupId, PackId = packId });
+
+        group.DefaultPacksApplied = true;
+        await context.SaveChangesAsync();
+    }
+
+    private sealed record PackDef(
+        string Name,
+        string Description,
+        List<QuestionTemplate> Templates,
+        bool DisabledByDefault = false
+    );
 
     private static List<PackDef> BuildPacks() =>
         [
@@ -67,7 +117,8 @@ public static class PackSeeder
             new PackDef(
                 "Humor negro",
                 "Humor oscuro, morboso y gamberro. Solo para estómagos fuertes.",
-                HumorNegro()
+                HumorNegro(),
+                DisabledByDefault: true
             ),
             new PackDef(
                 "Supervivencia y apocalipsis",
@@ -132,7 +183,8 @@ public static class PackSeeder
             new PackDef(
                 "Guarradas y dilemas asquerosos",
                 "Disyuntivas asquerosas donde ninguna opción es buena.",
-                Guarradas()
+                Guarradas(),
+                DisabledByDefault: true
             ),
         ];
 

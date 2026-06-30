@@ -13,6 +13,11 @@ public class Group
     public string? TimeZoneId { get; set; } = "Europe/Madrid";
     public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
+    // One-time marker: whether the default-disabled packs (Pack.DisabledByDefault) have been
+    // seeded as GroupDisabledPack rows for this group. Prevents the startup backfill from
+    // re-disabling a pack an admin later enabled.
+    public bool DefaultPacksApplied { get; set; }
+
     public int CreatorId { get; set; }
 
     [ForeignKey(nameof(CreatorId))]
