@@ -53,8 +53,4 @@ export class ResultOptionBarComponent {
 
   // When leadUser has a frameColor, use it as bar fill; otherwise fall back to chart class
   protected readonly fillColor = computed(() => this.leadUser()?.frameColor ?? null);
-
-  protected voterNames(voters: Voter[]): string {
-    return voters.map(v => v.username).join(', ');
-  }
 }

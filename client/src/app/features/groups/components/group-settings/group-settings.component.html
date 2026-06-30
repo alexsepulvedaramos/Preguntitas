@@ -272,6 +272,36 @@
       </section>
     }
 
+    <!-- Packs (admin only) -->
+    @if (isAdmin() && packs().length > 0) {
+      <hr class="border-border" />
+
+      <section class="flex flex-col gap-3">
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Packs</h2>
+        <p class="text-xs text-muted-foreground">
+          Elige qué packs de preguntas están disponibles para este grupo. Debe quedar
+          al menos uno activo.
+        </p>
+
+        <ul class="flex flex-col gap-3">
+          @for (pack of packs(); track pack.id) {
+            <li class="flex items-center justify-between gap-3">
+              <div class="flex flex-col gap-0.5 min-w-0">
+                <p class="text-sm font-medium text-foreground truncate">{{ pack.name }}</p>
+                @if (pack.description) {
+                  <p class="text-xs text-muted-foreground truncate">{{ pack.description }}</p>
+                }
+              </div>
+              <hlm-switch
+                [checked]="pack.enabled"
+                (checkedChange)="togglePack(pack)"
+              />
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
     <!-- Notifications -->
     <section class="flex flex-col gap-3">
       <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Notificaciones</h2>

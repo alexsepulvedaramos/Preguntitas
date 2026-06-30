@@ -29,6 +29,8 @@ import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse, UpdateGroupRequest } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { HlmSwitchImports } from '@spartan-ng/helm/switch';
+import { PacksService } from '../../../../core/services/packs.service';
+import { Pack } from '../../../../core/models/pack.model';
 
 @Component({
   selector: 'app-group-settings',
@@ -58,6 +60,7 @@ import { HlmSwitchImports } from '@spartan-ng/helm/switch';
 })
 export class GroupSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
+  private readonly packsService = inject(PacksService);
   private readonly router = inject(Router);
 
   public readonly groupId = input.required<string>();
@@ -65,6 +68,7 @@ export class GroupSettingsComponent implements OnInit {
 
   protected readonly group = signal<GroupResponse | null>(null);
   protected readonly members = signal<GroupMember[]>([]);
+  protected readonly packs = signal<Pack[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
@@ -190,6 +194,22 @@ export class GroupSettingsComponent implements OnInit {
     });
   }
 
+  protected togglePack(pack: Pack) {
+    const enabled = !pack.enabled;
+    this.packs.update((list) =>
+      list.map((p) => (p.id === pack.id ? { ...p, enabled } : p))
+    );
+
+    this.packsService.setPackEnabled(this.numericGroupId(), pack.id, enabled).subscribe({
+      error: (err) => {
+        this.packs.update((list) =>
+          list.map((p) => (p.id === pack.id ? { ...p, enabled: !enabled } : p))
+        );
+        toast.error(err.error ?? 'No se ha podido cambiar el pack.');
+      },
+    });
+  }
+
   protected leaveGroup() {
     if (this.leaving()) return;
     this.leaving.set(true);
@@ -227,6 +247,13 @@ export class GroupSettingsComponent implements OnInit {
           error: () => {
             this.error.set('No se han podido cargar los miembros.');
             this.loading.set(false);
+          },
+        });
+
+        this.packsService.getPacks(this.numericGroupId()).subscribe({
+          next: (packs) => this.packs.set(packs),
+          error: () => {
+            // Non-essential for the page's main load — the Packs section just stays empty.
           },
         });
       },

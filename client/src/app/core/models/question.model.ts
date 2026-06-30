@@ -49,6 +49,13 @@ export interface Question {
     dateActivated: string | null;
     creatorId: number | null;
     options: Option[];
+    teams: number[][]; // only populated for Deathmatch items
+}
+
+// Mirrors backend QuestionPageDto — cursor-based paginated response.
+export interface QuestionPage {
+    items: Question[];
+    hasMore: boolean;
 }
 
 // Mirrors backend HistoryEntryDto — one row in the paginated history list.

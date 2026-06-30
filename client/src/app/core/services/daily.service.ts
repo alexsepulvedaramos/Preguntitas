@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { DailyStatus, SelectionSources, SelectQuestion } from '../models/daily.model';
+import { DailyStatus, SelectQuestion } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { QuestionResult } from '../models/result.model';
 import { ChatMessage } from '../models/chat-message.model';
@@ -20,11 +20,6 @@ export class DailyService {
     // Current daily state: today's voting/results AND the next-day selection panel (§4.7)
     getCurrent(groupId: number): Observable<DailyStatus> {
         return this.http.get<DailyStatus>(`${this.baseUrl}/${groupId}/daily/current`);
-    }
-
-    // Fetches the questions the day's selector can pick from: the group pool + the base pack
-    getSelectionSources(groupId: number): Observable<SelectionSources> {
-        return this.http.get<SelectionSources>(`${this.baseUrl}/${groupId}/daily/selection-sources`);
     }
 
     // The selector sets the next-day question (never activates it early)

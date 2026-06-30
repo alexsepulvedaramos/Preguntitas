@@ -2,8 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { CreateQuestion, HistoryEntry, HistoryPage, Question } from '../models/question.model';
+import { CreateQuestion, HistoryEntry, HistoryPage, Question, QuestionPage } from '../models/question.model';
 import { QuestionResult } from '../models/result.model';
+import { QuestionType } from '../enums/question-type.enum';
 import { environment } from '../../../environments/environment';
 
 // Pool of user-created questions within a group: list, create directly (without
@@ -16,9 +17,17 @@ export class QuestionsService {
     private readonly http = inject(HttpClient);
     private readonly baseUrl = `${environment.apiUrl}/groups`;
 
-    // Unused pool questions for the group, newest first
-    getPool(groupId: number): Observable<Question[]> {
-        return this.http.get<Question[]>(`${this.baseUrl}/${groupId}/questions/pool`);
+    // Unused pool questions for the group, paginated (cursor-based, newest first) and
+    // optionally filtered by type. Pass `before` (last seen Question.id) for subsequent pages.
+    getPool(
+        groupId: number,
+        opts: { type?: QuestionType; before?: number; pageSize?: number } = {},
+    ): Observable<QuestionPage> {
+        const params: Record<string, string> = {};
+        if (opts.type !== undefined) params['type'] = String(opts.type);
+        if (opts.before !== undefined) params['before'] = String(opts.before);
+        if (opts.pageSize !== undefined) params['pageSize'] = String(opts.pageSize);
+        return this.http.get<QuestionPage>(`${this.baseUrl}/${groupId}/questions/pool`, { params });
     }
 
     // Adds a question to the pool without selecting it for tomorrow

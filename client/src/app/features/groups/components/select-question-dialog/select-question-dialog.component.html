@@ -137,16 +137,33 @@
             Crear pregunta nueva
           </button>
 
-          @if (sources().pool.length > 0) {
-            <div class="flex flex-col gap-1.5">
-              <p class="text-sm text-muted-foreground">Creadas por el grupo</p>
+          <div class="flex flex-col gap-1.5">
+            <p class="text-xs uppercase tracking-wide text-muted-foreground">Tipo</p>
+            <hlm-toggle-group
+              type="single"
+              class="flex-wrap"
+              value="all"
+              (valueChange)="onTypeFilterChange($event)"
+            >
+              <button hlmToggleGroupItem value="all" size="sm">Todas</button>
+              @for (type of questionTypes; track type) {
+                <button hlmToggleGroupItem [value]="type.toString()" size="sm">
+                  {{ QUESTION_TYPE_LABELS[type] }}
+                </button>
+              }
+            </hlm-toggle-group>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <p class="text-sm text-muted-foreground">Creadas por el grupo</p>
+            @if (poolItems().length > 0) {
               <div class="flex flex-col gap-2">
-                @for (item of sources().pool; track itemKey(item)) {
+                @for (item of poolItems(); track itemKey(item)) {
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
                       class="vp-poll-option flex-1 text-left flex flex-col gap-1"
-                      [disabled]="pickingKey() !== null || isPendingPoolItem(item)"
+                      [disabled]="pickingKey() !== null"
                       (click)="pick(item, ctx)"
                     >
                       <span class="flex items-center gap-2">
@@ -167,9 +184,6 @@
                         <span class="text-xs text-muted-foreground">{{
                           item.options.join(' · ')
                         }}</span>
-                      }
-                      @if (isPendingPoolItem(item)) {
-                        <span class="text-xs text-accent-text font-medium">Elegida para mañana</span>
                       }
                     </button>
                     @if (canDelete(item)) {
@@ -193,14 +207,50 @@
                   </div>
                 }
               </div>
-            </div>
-          }
+              @if (poolHasMore()) {
+                <button
+                  hlmBtn
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  class="w-full"
+                  [disabled]="poolLoadingMore()"
+                  (click)="loadMorePool()"
+                >
+                  @if (poolLoadingMore()) {
+                    <hlm-spinner class="size-4" />
+                  } @else {
+                    Cargar más
+                  }
+                </button>
+              }
+            } @else {
+              <p class="text-xs text-muted-foreground">
+                No hay preguntas del grupo con este filtro.
+              </p>
+            }
+          </div>
 
-          @if (sources().pack.length > 0) {
-            <div class="flex flex-col gap-1.5">
-              <p class="text-sm text-muted-foreground">Pack base</p>
+          <div class="flex flex-col gap-1.5">
+            <p class="text-sm text-muted-foreground">Packs</p>
+            @if (availablePacks().length > 1) {
+              <hlm-toggle-group
+                type="single"
+                class="flex-wrap"
+                value="all"
+                (valueChange)="onPackFilterChange($event)"
+              >
+                <button hlmToggleGroupItem value="all" size="sm">Todos</button>
+                @for (pack of availablePacks(); track pack.id) {
+                  <button hlmToggleGroupItem [value]="pack.id.toString()" size="sm">
+                    {{ pack.name }}
+                  </button>
+                }
+              </hlm-toggle-group>
+            }
+            @if (packItems().length > 0) {
               <div class="flex flex-col gap-2">
-                @for (item of sources().pack; track itemKey(item)) {
+                @for (item of packItems(); track itemKey(item)) {
                   <button
                     type="button"
                     class="vp-poll-option flex flex-col gap-1"
@@ -229,8 +279,29 @@
                   </button>
                 }
               </div>
-            </div>
-          }
+              @if (packHasMore()) {
+                <button
+                  hlmBtn
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  class="w-full"
+                  [disabled]="packLoadingMore()"
+                  (click)="loadMorePack()"
+                >
+                  @if (packLoadingMore()) {
+                    <hlm-spinner class="size-4" />
+                  } @else {
+                    Cargar más
+                  }
+                </button>
+              }
+            } @else {
+              <p class="text-xs text-muted-foreground">
+                No hay preguntas de pack con este filtro.
+              </p>
+            }
+          </div>
         </div>
       }
     } @else if (step() === 'assign-teams') {
