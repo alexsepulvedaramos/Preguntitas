@@ -448,3 +448,25 @@ batalla de gallos, mus, karaoke). Picaresco.
 
 17. **Cuéntanos tu mayor momento de gloria deportiva.**
 18. **Cuéntanos tu momento más patético haciendo deporte.**
+
+---
+
+## Pack 12 — Nostalgia y cringe 🔄 (in progress — 13 confirmed, needs ≥2)
+
+Fases vergonzosas, referencias generacionales, infancia. Nido de OpenText. Picaresco.
+
+### Confirmed (13)
+
+- **(Superlative)** ¿Quién tuvo la fase más vergonzosa en la adolescencia?
+- **(Superlative)** ¿Quién era el típico empollón del colegio?
+- **(Superlative)** ¿Quién era el más gamberro de clase?
+- **(Superlative)** ¿Quién tenía el corte de pelo más cuestionable de joven?
+- **(Superlative)** ¿Quién ha pegado el mayor cambio (glow up) con los años?
+- **(CustomPoll, 1)** ¿Qué época era mejor? — Cuando no había móviles · Ahora con todo a un clic
+- **(CustomPoll, 1)** Si pudieras volver a una etapa, ¿a cuál? — La infancia sin preocupaciones · La adolescencia rebelde · Los años locos de fiesta · Ninguna, mejor el presente
+- **(CustomPoll, 1, + "Otro")** ¿Qué reliquia tecnológica echas de menos? — La videoconsola de tu infancia · El móvil de tapa y teclas · Los CDs y casetes · El MSN Messenger
+- **(CustomPoll, 1)** ¿Qué recuerdas con más cariño de pequeño? — Los dibujos del sábado por la mañana · Jugar en la calle hasta que anochecía · Las meriendas en casa de un amigo · Los veranos que no acababan nunca
+- **(SecretPairing)** ¿Qué dos personas habrían sido los pesados de la clase juntos?
+- **(Scale)** Del 1 al 10, ¿cómo de cringe era tu yo adolescente?
+- **(OpenText)** Cuéntanos tu momento más cringe de la adolescencia.
+- **(OpenText)** ¿Cuál era tu grupo o canción favorita de joven que ahora te da vergüenza?
