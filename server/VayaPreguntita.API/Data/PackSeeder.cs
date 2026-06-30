@@ -18,9 +18,7 @@ public static class PackSeeder
     {
         foreach (var def in BuildPacks())
         {
-            var pack = await context
-                .Packs.Include(p => p.Templates)
-                .FirstOrDefaultAsync(p => p.Name == def.Name);
+            var pack = await context.Packs.FirstOrDefaultAsync(p => p.Name == def.Name);
 
             if (pack is null)
             {
@@ -33,8 +31,19 @@ public static class PackSeeder
                 context.Packs.Add(pack);
                 await context.SaveChangesAsync();
             }
+            else if (
+                await context.QuestionTemplates.CountAsync(t => t.PackId == pack.Id)
+                >= def.Templates.Count
+            )
+            {
+                // Steady state: pack already fully seeded — skip without materializing any rows.
+                continue;
+            }
 
-            var existingTexts = pack.Templates.Select(t => t.Text).ToHashSet();
+            var existingTexts = await context
+                .QuestionTemplates.Where(t => t.PackId == pack.Id)
+                .Select(t => t.Text)
+                .ToHashSetAsync();
 
             foreach (var template in def.Templates.Where(t => !existingTexts.Contains(t.Text)))
             {
