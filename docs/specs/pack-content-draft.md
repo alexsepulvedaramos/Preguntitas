@@ -8,6 +8,11 @@
 > max. `AllowOther` = "Otro" free-text option. Superlative defaults `AllowNobody=false`.
 > Scale is 1–10, `TargetUserId=null` (subjective topic, not a person). Deathmatch teams + Scale
 > target are auto-resolved per group at clone time.
+>
+> Style: prefer playful/cheeky Spanish (lenguaje picaresco) whenever it keeps the meaning equally
+> clear — e.g. "que haga mu" (raw) / "como la suela de un zapato" (overcooked) instead of
+> "cruda/muy hecha". Applies to wave-2+ content; closed wave-1 packs can get a picaresque polish
+> pass at seeder-writing time.
 
 ## Status
 
@@ -19,9 +24,9 @@
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
 | 6 | Crimen y misterio | ⬜ pending |
 | 7 | Famosos y celebridades | ⬜ pending |
-| 8 | Comida | ⬜ pending (2 parked in) |
+| 8 | Comida | 🔄 in progress — 14 (+3 pending) |
 | 9 | Deportes y competencia | ⬜ pending |
-| 10 | Polémicas y bandos | ✅ closed — 15 (16 if PB-21′) |
+| 10 | Polémicas y bandos | ✅ closed — 16 |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
 | 12 | Nostalgia y cringe | ⬜ pending |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
@@ -80,7 +85,7 @@ Crudo, morboso, gallows humor; siempre en terreno hipotético/juego.
 
 ---
 
-## Pack 10 — Polémicas y bandos ✅ (15; +PB-21′ pending → 16)
+## Pack 10 — Polémicas y bandos ✅ (16)
 
 Pique puro: temas intrascendentes que se defienden a muerte. Sin respuesta correcta. (Las
 polémicas *de comida* van al pack 8 — ver parking lot.)
@@ -100,15 +105,12 @@ polémicas *de comida* van al pack 8 — ver parking lot.)
 11. **Sandalias con calcetines:** — Comodidad ante todo · Crimen de moda imperdonable _(elige 1)_
 12. **Llegar a una fiesta en casa de alguien:** — A la hora exacta que dijeron · 15-30 min tarde es lo correcto _(elige 1)_
 13. **El doble check azul de WhatsApp:** — Activado, no escondo nada · Desactivado, mi vida es mía _(elige 1)_
+14. **¿Cada cuánto lavas la toalla de baño?** — Aguanta semanas, total te secas limpio · Cada pocos usos, por higiene _(elige 1)_
 
 ### Superlative (2)
 
-14. **¿Quién es más capaz de discutir una hora por una tontería sin dar su brazo a torcer?**
-15. **¿Quién defiende las opiniones más impopulares solo por llevar la contraria?**
-
-### Pending (PB-21′ — retoque, awaiting OK)
-
-- **(CustomPoll, 1)** ¿Cada cuánto hay que lavar la toalla de baño? — Tras unos pocos usos · Aguanta semanas tranquilamente
+15. **¿Quién es más capaz de discutir una hora por una tontería sin dar su brazo a torcer?**
+16. **¿Quién defiende las opiniones más impopulares solo por llevar la contraria?**
 
 ---
 
@@ -210,3 +212,42 @@ Guilty pleasures suaves, manías, cringe. Nada turbio. ("Yo nunca" = CustomPoll 
 ### OpenText (1)
 
 16. **Confiesa tu placer culpable más vergonzoso, sin filtro.**
+
+---
+
+## Pack 8 — Comida 🔄 (in progress — 14 confirmed, +3 pending)
+
+Debates gastronómicos y manías de comer. (CO-1/CO-2 heredadas del parking de Polémicas. No
+duplicar la tortilla con/sin cebolla — ya está en Base.) Estilo picaresco.
+
+### CustomPoll (8 confirmed)
+
+1. **¿Piña en la pizza?** — Sí, y está buenísima · Un crimen contra la humanidad
+2. **¿Un hotdog es un sándwich?** — Sí, pan + relleno = sándwich · Ni de coña
+3. **¿Desayunar pizza fría del día anterior?** — Manjar de campeones · Aberración
+4. **Si solo pudieras comer un sabor el resto de tu vida:** — Dulce · Salado
+5. **¿Hay que terminar siempre todo el plato?** — Sí, no se tira la comida · Paro cuando estoy lleno
+6. **El cereal con leche:** — Primero leche, luego cereal · Primero cereal, luego leche
+7. **Marca lo que SÍ le pondrías a una pizza aunque escandalice:** — Piña · Huevo · Patatas fritas · Kebab _(multi)_
+8. **¿Tu condimento de cabecera para echarle a todo?** — Kétchup · Mostaza · Mayonesa _(elige 1, + "Otro")_
+
+### Superlative (4 confirmed)
+
+9. **¿Quién come más rápido, casi sin masticar?**
+10. **¿Quién es el más tiquismiquis para comer?**
+11. **¿Quién te robaría comida del plato sin pedir permiso?**
+12. **¿Quién mezcla comidas raras que dan grima?**
+
+### SecretPairing (1 confirmed)
+
+13. **¿Qué dos personas se pelearían por el último trozo de pizza?**
+
+### Scale (1 confirmed)
+
+14. **Del 1 al 10, ¿cómo de tiquismiquis eres comiendo?**
+
+### Pending (reformuladas, awaiting OK)
+
+- **(CustomPoll, 1)** ¿Kétchup en la tortilla de patatas? — Está de vicio · Es un atentado
+- **(CustomPoll, 1)** ¿Cómo pides el chuletón? — Que casi haga "mu" · En su punto, jugoso · Hecho pero tierno · Como la suela de un zapato
+- **(CustomPoll, multi, + "Otro")** Marca los crímenes culinarios que has cometido: — Kétchup a la paella · Pedir la carne como una suela · Partir los espaguetis antes de cocer · Pizza con cuchillo y tenedor
