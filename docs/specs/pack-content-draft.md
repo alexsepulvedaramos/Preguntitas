@@ -371,12 +371,12 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 
 ---
 
-## Pack 6 — Crimen y misterio 🔄 (in progress — 10 confirmed)
+## Pack 6 — Crimen y misterio 🔄 (in progress — 14 confirmed, needs ≥1)
 
 Crimen perfecto, sospechosos, bandas, misterios. No duplicar Base ("atraco perfecto",
 "poli bueno/malo"). Picaresco, autoexplicativo.
 
-### Confirmed (10)
+### Confirmed (14)
 
 - **(Superlative)** ¿Quién cometería el crimen perfecto y no lo pillarían jamás?
 - **(Superlative)** ¿Quién confesaría entre lágrimas al primer interrogatorio?
@@ -388,3 +388,7 @@ Crimen perfecto, sospechosos, bandas, misterios. No duplicar Base ("atraco perfe
 - **(SecretPairing)** ¿Qué dos personas se delatarían mutuamente en cuanto les apretaran un poco?
 - **(CustomPoll, 1)** ¿Qué clase de criminal serías? — El cerebro · El músculo · El de los contactos · El que conduce y poco más
 - **(Scale)** Del 1 al 10, ¿cómo de bien mientes bajo presión?
+- **(CustomPoll, 1)** Si tuvieras que cometer un crimen y salir impune, ¿cuál? — Atraco a mano armada a un banco · Hackeo millonario desde el sofá · Robo de una obra de arte en un museo · Una estafa piramidal de las gordas
+- **(CustomPoll, 1)** ¿Qué gran misterio te gustaría resolver de verdad? — Quién mató a JFK · Qué hay en el Triángulo de las Bermudas · Si estamos solos en el universo · Qué pasó de verdad con el avión MH370
+- **(OpenText)** Confiesa: ¿qué es lo más caro que has mangado alguna vez y de dónde?
+- **(OpenText)** En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver?
