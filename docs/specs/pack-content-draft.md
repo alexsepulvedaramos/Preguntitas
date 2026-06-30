@@ -33,7 +33,7 @@
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
 | 14 | El reparto del grupo | ✅ closed — 34 |
 | 15 | Guarradas y dilemas asquerosos | ✅ closed — 15 |
-| Base | Base pack (+~15 templates) | ⬜ pending |
+| Base | Base pack (+12 templates) | ✅ closed — +12 |
 
 First wave (per agreed scope): packs 1, 10, 13, 5, 11.
 
@@ -528,3 +528,34 @@ narrativos. (El tipo "reparto" agrupado = rama futura, ver §13/§16 del spec.)
 32. ¿Quién sería Marge Simpson (la que aguanta a todos con paciencia)?
 33. ¿Quién sería la reina del drama (la diva total del grupo)?
 34. ¿Quién sería Matilda (lista y con poderes ocultos)?
+
+---
+
+## Base pack — additions (+12)
+
+Additive only — never edit/remove existing Base templates (would orphan cloned
+`Question.TemplateId` FKs). Skewed to people-centered types. Picaresco.
+
+### Superlative (6)
+
+1. ¿Quién sobreviviría más tiempo sin su móvil?
+2. ¿Quién se gastaría el sueldo entero en el primer capricho que viera?
+3. ¿Quién es más probable que se haga viral por accidente?
+4. ¿Quién se perdería incluso con el GPS en la mano?
+5. ¿Quién contaría un secreto que le has pedido guardar?
+6. ¿Quién daría la charla más motivadora aunque no tenga ni idea del tema?
+
+### Deathmatch (3)
+
+7. Concurso de baile: ¿qué equipo se marca la mejor coreografía?
+8. Montar una tienda de campaña: ¿qué equipo acaba antes y sin discutir?
+9. Improvisar una obra de teatro: ¿qué equipo arranca más aplausos?
+
+### SecretPairing (1)
+
+10. ¿Qué dos personas montarían el negocio más absurdo y les iría bien?
+
+### CustomPoll (2)
+
+11. **¿Qué superpoder cotidiano eliges?** — Encontrar siempre aparcamiento · Que el semáforo esté siempre en verde · No hacer nunca cola · Wifi perfecto en todas partes
+12. **¿Qué te fastidia más para dormir?** — Una mosca zumbando en la habitación · Una gotera haciendo "ploc" toda la noche
