@@ -26,10 +26,10 @@
 | 6 | Crimen y misterio | ✅ closed — 15 |
 | 7 | Famosos y celebridades | ❌ dropped (sin sentido, no se construye) |
 | 8 | Comida | ✅ closed — 17 |
-| 9 | Deportes y competencia | 🔄 in progress |
+| 9 | Deportes y competencia | ✅ closed — 18 |
 | 10 | Polémicas y bandos | ✅ closed — 16 |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
-| 12 | Nostalgia y cringe | ⬜ pending |
+| 12 | Nostalgia y cringe | 🔄 in progress |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
 | 14 | El reparto del grupo | ⬜ pending |
 | 15 | Guarradas y dilemas asquerosos | ✅ closed — 15 |
@@ -405,3 +405,46 @@ Crimen perfecto, sospechosos, bandas, misterios. No duplicar Base ("atraco perfe
 
 14. **Confiesa: ¿qué es lo más caro que has mangado alguna vez y de dónde?**
 15. **En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver?**
+
+---
+
+## Pack 9 — Deportes y competencia ✅ (18)
+
+Mucho Deathmatch de equipos + señalar al competitivo. No duplicar Base (tira y afloja,
+batalla de gallos, mus, karaoke). Picaresco.
+
+### Deathmatch (4)
+
+1. **Partido de fútbol a muerte: ¿qué equipo gana?**
+2. **Gymkana imposible por la ciudad: ¿qué equipo llega primero a la meta?**
+3. **Concurso de cultura general: ¿qué equipo sabe más?**
+4. **Búsqueda del tesoro: ¿qué equipo lo encuentra antes?**
+
+### Superlative (6)
+
+5. **¿Quién es el peor perdedor del grupo?**
+6. **¿Quién hace trampas en cuanto te despistas?**
+7. **¿Quién se pone competitivo hasta en el Parchís?**
+8. **¿Quién celebra una victoria como si hubiera ganado el Mundial?**
+9. **¿Quién culpa siempre al árbitro o a la mala suerte cuando pierde?**
+10. **¿Quién es el más patoso para cualquier deporte?**
+
+### SecretPairing (2)
+
+11. **¿Qué dos personas formarían la pareja imbatible en un torneo de pádel?**
+12. **¿Qué dos personas acabarían enfadadas por un simple partido amistoso?**
+
+### CustomPoll (3)
+
+13. **¿Prefieres ganar haciendo trampas o perder limpiamente?** — Ganar tramposo · Perder limpio
+14. **¿Qué prefieres ser?** — El mejor de un equipo malísimo · El peor de un equipo campeón
+15. **En un juego de mesa, ¿qué eres?** — El estratega · El tramposo · El que se enfada · El que va a su bola
+
+### Scale (1)
+
+16. **Del 1 al 10, ¿cómo de competitivo eres en realidad?**
+
+### OpenText (2)
+
+17. **Cuéntanos tu mayor momento de gloria deportiva.**
+18. **Cuéntanos tu momento más patético haciendo deporte.**
