@@ -19,12 +19,12 @@
 | # | Pack | State |
 |---|---|---|
 | 1 | Humor negro | ✅ closed — 16 |
-| 3 | Vida nocturna y resaca | ⬜ pending |
+| 3 | Vida nocturna y resaca | 🔄 in progress |
 | 4 | Dilemas (éticos, filosóficos y tontos) | ⬜ pending |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
 | 6 | Crimen y misterio | ⬜ pending |
 | 7 | Famosos y celebridades | ⬜ pending |
-| 8 | Comida | 🔄 in progress — 14 (+3 pending) |
+| 8 | Comida | ✅ closed — 17 |
 | 9 | Deportes y competencia | ⬜ pending |
 | 10 | Polémicas y bandos | ✅ closed — 16 |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
@@ -215,12 +215,12 @@ Guilty pleasures suaves, manías, cringe. Nada turbio. ("Yo nunca" = CustomPoll 
 
 ---
 
-## Pack 8 — Comida 🔄 (in progress — 14 confirmed, +3 pending)
+## Pack 8 — Comida ✅ (17)
 
 Debates gastronómicos y manías de comer. (CO-1/CO-2 heredadas del parking de Polémicas. No
 duplicar la tortilla con/sin cebolla — ya está en Base.) Estilo picaresco.
 
-### CustomPoll (8 confirmed)
+### CustomPoll (11)
 
 1. **¿Piña en la pizza?** — Sí, y está buenísima · Un crimen contra la humanidad
 2. **¿Un hotdog es un sándwich?** — Sí, pan + relleno = sándwich · Ni de coña
@@ -230,24 +230,21 @@ duplicar la tortilla con/sin cebolla — ya está en Base.) Estilo picaresco.
 6. **El cereal con leche:** — Primero leche, luego cereal · Primero cereal, luego leche
 7. **Marca lo que SÍ le pondrías a una pizza aunque escandalice:** — Piña · Huevo · Patatas fritas · Kebab _(multi)_
 8. **¿Tu condimento de cabecera para echarle a todo?** — Kétchup · Mostaza · Mayonesa _(elige 1, + "Otro")_
+9. **¿Kétchup en la tortilla de patatas?** — Está de vicio · Es un atentado
+10. **¿Cómo pides el chuletón?** — Que casi haga "mu" · En su punto, jugoso · Hecho pero tierno · Como la suela de un zapato
+11. **Marca los crímenes culinarios que has cometido:** — Kétchup a la paella · Pedir la carne como una suela · Partir los espaguetis antes de cocer · Pizza con cuchillo y tenedor _(multi, + "Otro")_
 
-### Superlative (4 confirmed)
+### Superlative (4)
 
-9. **¿Quién come más rápido, casi sin masticar?**
-10. **¿Quién es el más tiquismiquis para comer?**
-11. **¿Quién te robaría comida del plato sin pedir permiso?**
-12. **¿Quién mezcla comidas raras que dan grima?**
+12. **¿Quién come más rápido, casi sin masticar?**
+13. **¿Quién es el más tiquismiquis para comer?**
+14. **¿Quién te robaría comida del plato sin pedir permiso?**
+15. **¿Quién mezcla comidas raras que dan grima?**
 
-### SecretPairing (1 confirmed)
+### SecretPairing (1)
 
-13. **¿Qué dos personas se pelearían por el último trozo de pizza?**
+16. **¿Qué dos personas se pelearían por el último trozo de pizza?**
 
-### Scale (1 confirmed)
+### Scale (1)
 
-14. **Del 1 al 10, ¿cómo de tiquismiquis eres comiendo?**
-
-### Pending (reformuladas, awaiting OK)
-
-- **(CustomPoll, 1)** ¿Kétchup en la tortilla de patatas? — Está de vicio · Es un atentado
-- **(CustomPoll, 1)** ¿Cómo pides el chuletón? — Que casi haga "mu" · En su punto, jugoso · Hecho pero tierno · Como la suela de un zapato
-- **(CustomPoll, multi, + "Otro")** Marca los crímenes culinarios que has cometido: — Kétchup a la paella · Pedir la carne como una suela · Partir los espaguetis antes de cocer · Pizza con cuchillo y tenedor
+17. **Del 1 al 10, ¿cómo de tiquismiquis eres comiendo?**
