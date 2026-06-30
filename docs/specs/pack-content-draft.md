@@ -323,12 +323,12 @@ Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zomb
 
 ---
 
-## Pack 4 — Dilemas (filosóficos y éticos) 🔄 (in progress — 7 confirmed)
+## Pack 4 — Dilemas (filosóficos y éticos) 🔄 (in progress — 13 confirmed, needs ≥2)
 
 Solo dilemas con peso, estilo "dilema del tren", sin respuesta correcta. NO guarradas (esas
 van al pack 15). Todo autoexplicativo. CustomPoll.
 
-### Confirmed (7)
+### Confirmed (13)
 
 - **(CustomPoll, 1)** Te dan mal el cambio a tu favor (10€ de más) y te das cuenta. ¿Lo dices? — Sí, siempre lo devuelvo · Depende: a una gran empresa me callo, a una tienda pequeña lo digo · Me callo y a ganar, sea quien sea
 - **(CustomPoll, 1)** Puedes salvar a 5 desconocidos o a 1 ser querido. ¿A quién salvas? — A los 5 desconocidos · A tu ser querido
@@ -337,13 +337,26 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 - **(CustomPoll, 1)** ¿Qué vida prefieres? — Corta pero intensa y que deje huella · Larga y tranquila sin pena ni gloria
 - **(CustomPoll, 1)** ¿Saber qué hay tras la muerte pero sin poder contarlo, o no saberlo jamás? — Saberlo en silencio · No saberlo nunca
 - **(CustomPoll, 1)** ¿Feliz viviendo engañado o infeliz pero sabiendo toda la verdad? — Feliz pero engañado · Infeliz pero consciente
+- **(CustomPoll, 1)** Un tren va a atropellar a 5 personas. Puedes desviarlo a otra vía donde solo hay 1. ¿Tiras de la palanca? — Sí, desvío (muere 1, salvo 5) · No intervengo (mueren 5)
+- **(CustomPoll, 1)** Para parar ese tren y salvar a 5, tendrías que empujar tú a un desconocido a la vía. ¿Lo empujas? — Sí · No
+- **(CustomPoll, 1)** Te ofrecen enchufarte para siempre a una máquina que simula una vida perfecta, sin que sepas que es mentira. ¿Entras? — Sí, dame la vida perfecta · No, prefiero la realidad aunque duela
+- **(CustomPoll, 1)** Si cambias una a una todas las piezas de un barco, ¿sigue siendo el mismo barco? — Sí, es el mismo · No, ya es otro
+- **(CustomPoll, 1)** Viajas al pasado y tienes delante a Hitler de bebé. ¿Lo matas? — Sí · No
+- **(CustomPoll, 1)** ¿El bien y el mal son universales o los decide cada cultura? — Universales · Relativos a cada cultura
 
-## Pack 15 — Guarradas y dilemas asquerosos 🔄 (in progress — 3 confirmed)
+## Pack 15 — Guarradas y dilemas asquerosos 🔄 (in progress — 10 confirmed, needs ≥5)
 
 "Qué prefieres" guarros/absurdos, ambas opciones igual de asquerosas. Picaresco.
 
-### Confirmed (3)
+### Confirmed (10)
 
 - **(CustomPoll, 1)** ¿Qué prefieres? — Sudar mayonesa · Llorar kétchup
 - **(CustomPoll, 1)** ¿Qué lames? — El suelo del metro · El pasamanos de una escalera mecánica
 - **(CustomPoll, 1)** ¿Qué prefieres tener? — Dedos de salchicha · Pelo de espagueti
+- **(CustomPoll, 1)** ¿Beberte de un trago un vaso de aceite o uno de vinagre? — Aceite · Vinagre
+- **(CustomPoll, 1)** ¿Qué prefieres que te hagan encima? — Que te caguen · Que te vomiten
+- **(CustomPoll, 1)** ¿Con qué cargas para siempre? — Mal aliento permanente · Sudar a chorros sin parar
+- **(CustomPoll, 1)** ¿Qué te tragas? — Una uña del pie · Un mechón de pelo
+- **(CustomPoll, 1)** ¿Qué bocata te comes? — De uñas · De pelos
+- **(CustomPoll, 1)** ¿Qué bebes? — El agua de fregar los platos · El agua de una bañera ajena
+- **(CustomPoll, 1)** ¿Qué prefieres tener siempre? — La piel pegajosa · Mocos colgando
