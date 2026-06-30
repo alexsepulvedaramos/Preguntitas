@@ -19,7 +19,8 @@
 | # | Pack | State |
 |---|---|---|
 | 1 | Humor negro | ✅ closed — 16 |
-| 3 | Vida nocturna y resaca | 🔄 in progress |
+| 2 | Supervivencia y apocalipsis | 🔄 in progress |
+| 3 | Vida nocturna y resaca | ✅ closed — 16 |
 | 4 | Dilemas (éticos, filosóficos y tontos) | ⬜ pending |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
 | 6 | Crimen y misterio | ⬜ pending |
@@ -248,3 +249,40 @@ duplicar la tortilla con/sin cebolla — ya está en Base.) Estilo picaresco.
 ### Scale (1)
 
 17. **Del 1 al 10, ¿cómo de tiquismiquis eres comiendo?**
+
+---
+
+## Pack 3 — Vida nocturna y resaca ✅ (16)
+
+Fiesta, borracheras, resacas, caos de madrugada. Estilo picaresco, mucho señalar al fiestero.
+
+### Superlative (7)
+
+1. **¿Quién es el primero en caer redondo de borracho?**
+2. **¿Quién acaba bailando encima de una mesa?**
+3. **¿Quién hace la "bomba de humo" y desaparece sin despedirse?**
+4. **¿Quién manda los mensajes más vergonzosos a las 4 de la mañana?**
+5. **¿Quién propone "la última" y acaban siendo las 7?**
+6. **¿Quién se pone más moñas y cariñoso cuando bebe?**
+7. **¿Quién tiene resacas de tres días y jura no beber nunca más?**
+
+### SecretPairing (1)
+
+8. **¿Qué dos personas se irían de after hasta ver el amanecer?**
+
+### CustomPoll (6)
+
+9. **La cura milagrosa de la resaca:** — Dormir hasta las 3 de la tarde · Comida grasienta de rey · Seguir bebiendo (el clavo) · Sufrir en silencio _(elige 1, + "Otro")_
+10. **¿Qué resaca prefieres?** — La física, el cuerpo hecho fosfatina · La moral, la vergüenza de lo que hiciste
+11. **A las 6 de la mañana eres:** — El que grita "¡una más!" · El que ya está pidiendo el taxi
+12. **Plan de viernes ideal:** — Salir hasta reventar · Sofá, manta y peli
+13. **La bebida que nunca te falla:** — Cerveza · Vino · Combinados · Chupitos _(elige 1, + "Otro")_
+14. **Te despiertas con resacón y 20 mensajes sin leer. ¿Qué haces?** — Leerlos de golpe y asumir el daño · Apagar el móvil y vivir en negación
+
+### Scale (1)
+
+15. **Del 1 al 10, ¿cómo de fiestero eres en realidad?**
+
+### Deathmatch (1)
+
+16. **Maratón de fiesta hasta el amanecer: ¿qué equipo aguanta en pie sin caer?**
