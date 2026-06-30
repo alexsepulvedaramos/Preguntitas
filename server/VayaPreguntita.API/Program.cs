@@ -127,7 +127,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAss
 var app = builder.Build();
 
 // ====================================================================
-// 1.b Seed the always-on "Base" pack (idempotent)
+// 1.b Seed the global question packs (idempotent per template)
 // ====================================================================
 using (var scope = app.Services.CreateScope())
 {
@@ -135,12 +135,12 @@ using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.MigrateAsync();
-        await BasePackSeeder.SeedAsync(db);
+        await PackSeeder.SeedAsync(db);
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning(ex, "Base pack seeding skipped (is the migration applied?).");
+        logger.LogWarning(ex, "Pack seeding skipped (is the migration applied?).");
     }
 }
 
