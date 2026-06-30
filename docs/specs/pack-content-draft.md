@@ -22,7 +22,7 @@
 | 8 | Comida | ⬜ pending (2 parked in) |
 | 9 | Deportes y competencia | ⬜ pending |
 | 10 | Polémicas y bandos | ✅ closed — 11 |
-| 11 | Confesiones y vergüenzas | 🔄 in progress — 14, needs ≥1 (CI-6 placed) |
+| 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
 | 12 | Nostalgia y cringe | ⬜ pending |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
 | 14 | El reparto del grupo | ⬜ pending |
@@ -166,35 +166,37 @@ ligue + CustomPoll de red/green flags universales.
 
 ---
 
-## Pack 11 — Confesiones y vergüenzas 🔄 (in progress — 14, needs ≥1)
+## Pack 11 — Confesiones y vergüenzas ✅ (16)
 
 Guilty pleasures suaves, manías, cringe. Nada turbio. ("Yo nunca" = CustomPoll de 2 opciones Sí/No.)
 
-### Superlative (5)
+### Superlative (6)
 
 1. **¿Quién tarda tres días en contestar un mensaje?** _(heredada de Citas)_
 2. **¿Quién ha llorado con un anuncio de la tele?**
 3. **¿Quién se hace el ocupado para no saludar a alguien por la calle?**
 4. **¿Quién relee sus propios mensajes riéndose de lo gracioso que es?**
 5. **¿Quién finge haber leído libros o visto pelis que no ha tocado?**
+6. **¿Quién tiene el historial de Spotify más vergonzoso?**
 
-### CustomPoll — "Yo nunca" (3)
+### CustomPoll — "Yo nunca" (4)
 
-6. **Yo nunca he cantado a grito pelado pensando que no me oía nadie** — Sí / No
-7. **Yo nunca he olido la ropa para decidir si ponérmela otra vez** — Sí / No
-8. **Yo nunca he respondido "tú también" a un "que aproveche" o "feliz cumpleaños"** — Sí / No
+7. **Yo nunca he cantado a grito pelado pensando que no me oía nadie** — Sí / No
+8. **Yo nunca he olido la ropa para decidir si ponérmela otra vez** — Sí / No
+9. **Yo nunca he respondido "tú también" a un "que aproveche" o "feliz cumpleaños"** — Sí / No
+10. **Yo nunca he fingido estar enfermo para librarme de un plan** — Sí / No
 
 ### CustomPoll (4)
 
-9. **Marca tus placeres culpables:** — Realities malísimos · Canciones de Abraham Mateo o Justin Bieber · Cotillear perfiles a las 3am · Comer de pie sobre el fregadero _(multi)_
-10. **Marca lo que has hecho alguna vez:** — Mirar el móvil 30 min en el baño · Aplicar la regla de los 5 segundos · Fingir una llamada para escapar de alguien · Hablar solo en voz alta _(multi)_
-11. **Confesión rápida: en los planes eres…** — El que siempre llega tarde · El que nunca contesta · El que desaparece sin avisar · El que cancela en el último momento _(elige 1, + "Otro")_
-12. **¿Qué te da MÁS vergüenza que te pillen haciendo?** — Hablando solo · Bailando frente al espejo · Llorando con una peli · Cantando en la ducha _(elige 1)_
+11. **Marca tus placeres culpables:** — Realities malísimos · Canciones de Abraham Mateo o Justin Bieber · Cotillear perfiles a las 3am · Comer de pie sobre el fregadero _(multi)_
+12. **Marca lo que has hecho alguna vez:** — Mirar el móvil 30 min en el baño · Aplicar la regla de los 5 segundos · Fingir una llamada para escapar de alguien · Hablar solo en voz alta _(multi)_
+13. **Confesión rápida: en los planes eres…** — El que siempre llega tarde · El que nunca contesta · El que desaparece sin avisar · El que cancela en el último momento _(elige 1, + "Otro")_
+14. **¿Qué te da MÁS vergüenza que te pillen haciendo?** — Hablando solo · Bailando frente al espejo · Llorando con una peli · Cantando en la ducha _(elige 1)_
 
 ### Scale (1)
 
-13. **Del 1 al 10, ¿cómo de cotilla eres en realidad?**
+15. **Del 1 al 10, ¿cómo de cotilla eres en realidad?**
 
 ### OpenText (1)
 
-14. **Confiesa tu placer culpable más vergonzoso, sin filtro.**
+16. **Confiesa tu placer culpable más vergonzoso, sin filtro.**
