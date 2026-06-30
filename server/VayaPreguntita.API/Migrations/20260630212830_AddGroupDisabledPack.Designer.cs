@@ -12,7 +12,7 @@ using VayaPreguntita.API.Data;
 namespace VayaPreguntita.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260630111101_AddGroupDisabledPack")]
+    [Migration("20260630212830_AddGroupDisabledPack")]
     partial class AddGroupDisabledPack
     {
         /// <inheritdoc />
@@ -172,6 +172,21 @@ namespace VayaPreguntita.API.Migrations
                     b.HasIndex("CreatorId");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.GroupDisabledPack", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PackId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("GroupId", "PackId");
+
+                    b.HasIndex("PackId");
+
+                    b.ToTable("GroupDisabledPacks");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.GroupMember", b =>
@@ -533,6 +548,25 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.GroupDisabledPack", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.Pack", "Pack")
+                        .WithMany()
+                        .HasForeignKey("PackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Pack");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.GroupMember", b =>
