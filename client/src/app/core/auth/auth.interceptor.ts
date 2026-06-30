@@ -61,8 +61,17 @@ const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, authService:
                 return next(clonedRequest);
             }),
             catchError((error) => {
-                // If the refresh token itself fails or is expired, clear state and throw
                 isRefreshing = false;
+                // Another tab may have already refreshed successfully.
+                // If localStorage now has a valid access token, use it instead of logging out.
+                if (authService.hasValidAccessToken()) {
+                    const freshToken = authService.getAccessToken()!;
+                    refreshTokenSubject.next(freshToken);
+                    const retried = req.clone({
+                        setHeaders: { Authorization: `Bearer ${freshToken}` }
+                    });
+                    return next(retried);
+                }
                 authService.logout();
                 return throwError(() => error);
             })

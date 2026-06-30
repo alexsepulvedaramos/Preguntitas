@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using VayaPreguntita.API.Options;
 
@@ -11,18 +12,33 @@ public class SupabaseStorageService(
 
     public async Task<string> UploadAvatarAsync(int userId, Stream imageStream, string contentType)
     {
+        if (string.IsNullOrWhiteSpace(_opts.Url) || string.IsNullOrWhiteSpace(_opts.ServiceKey))
+            throw new InvalidOperationException("Supabase storage is not configured (missing Url or ServiceKey).");
+
         var objectKey = $"{userId}";
         var uploadUrl = $"{_opts.Url}/storage/v1/object/{_opts.AvatarBucket}/{objectKey}";
 
-        httpClient.DefaultRequestHeaders.Clear();
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_opts.ServiceKey}");
-        httpClient.DefaultRequestHeaders.Add("x-upsert", "true");
-
         using var content = new StreamContent(imageStream);
-        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
-        var response = await httpClient.PostAsync(uploadUrl, content);
-        response.EnsureSuccessStatusCode();
+        using var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl);
+        // Supabase's gateway requires the "apikey" header on every request,
+        // independent of the Authorization bearer token.
+        request.Headers.Add("apikey", _opts.ServiceKey);
+        request.Headers.Add("Authorization", $"Bearer {_opts.ServiceKey}");
+        request.Headers.Add("x-upsert", "true");
+        request.Content = content;
+
+        var response = await httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException(
+                $"Supabase returned {(int)response.StatusCode}: {body}",
+                null,
+                response.StatusCode);
+        }
 
         var cacheBust = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         return $"{_opts.Url}/storage/v1/object/public/{_opts.AvatarBucket}/{objectKey}?v={cacheBust}";

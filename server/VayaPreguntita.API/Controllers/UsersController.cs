@@ -59,7 +59,14 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> UploadAvatar(IFormFile file)
     {
         var (success, avatarUrl, error) = await userService.UploadAvatarAsync(CurrentUserId, file);
-        if (!success) return BadRequest(error);
+        if (!success)
+        {
+            // Distinguish validation errors (400) from storage failures (503)
+            var isValidationError = error is "No file provided." or "File exceeds 5 MB limit." or "Invalid image type.";
+            return isValidationError
+                ? BadRequest(error)
+                : StatusCode(StatusCodes.Status503ServiceUnavailable, error);
+        }
         return Ok(new { avatarUrl });
     }
 }

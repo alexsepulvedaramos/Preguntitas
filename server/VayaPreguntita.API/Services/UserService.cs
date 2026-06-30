@@ -99,12 +99,19 @@ public class UserService(
         var user = await context.Users.FindAsync(userId);
         if (user is null) return (false, null, "User not found.");
 
-        using var stream = file.OpenReadStream();
-        var publicUrl = await storageService.UploadAvatarAsync(userId, stream, file.ContentType);
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var publicUrl = await storageService.UploadAvatarAsync(userId, stream, file.ContentType);
 
-        user.AvatarUrl = publicUrl;
-        await context.SaveChangesAsync();
+            user.AvatarUrl = publicUrl;
+            await context.SaveChangesAsync();
 
-        return (true, publicUrl, null);
+            return (true, publicUrl, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, null, ex.Message);
+        }
     }
 }

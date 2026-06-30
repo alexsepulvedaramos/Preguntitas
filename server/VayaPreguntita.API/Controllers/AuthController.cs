@@ -21,6 +21,8 @@ public class AuthController(
     private readonly JwtTokenService _tokenService = tokenService;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 
+    private const int MaxSessionsPerUser = 5;
+
     [HttpPost("register")]
     [EnableRateLimiting("AuthLimiter")]
     public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequestDto request)
@@ -49,18 +51,15 @@ public class AuthController(
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = JwtTokenService.HashRefreshToken(refreshToken);
-        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
-
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
+        var (refreshToken, refreshTokenExpiresAt) = await CreateRefreshTokenAsync(user.Id);
         var accessToken = _tokenService.GenerateAccessToken(user, out var accessTokenExpiresAt);
 
         return StatusCode(
             StatusCodes.Status201Created,
-            BuildResponse(user, accessToken, accessTokenExpiresAt, refreshToken)
+            BuildResponse(user, accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt)
         );
     }
 
@@ -92,17 +91,13 @@ public class AuthController(
         if (verification == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+            await _context.SaveChangesAsync();
         }
 
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = JwtTokenService.HashRefreshToken(refreshToken);
-        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
-
-        await _context.SaveChangesAsync();
-
+        var (refreshToken, refreshTokenExpiresAt) = await CreateRefreshTokenAsync(user.Id);
         var accessToken = _tokenService.GenerateAccessToken(user, out var accessTokenExpiresAt);
 
-        return Ok(BuildResponse(user, accessToken, accessTokenExpiresAt, refreshToken));
+        return Ok(BuildResponse(user, accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt));
     }
 
     [HttpPost("refresh")]
@@ -111,26 +106,29 @@ public class AuthController(
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
             return BadRequest("Refresh token is required.");
 
-        var hashedRefreshToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
+        var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
-        var user = await _context.Users.SingleOrDefaultAsync(user =>
-            user.RefreshToken == hashedRefreshToken
-            && user.RefreshTokenExpiry != null
-            && user.RefreshTokenExpiry > DateTime.UtcNow
-        );
+        var existingToken = await _context.UserRefreshTokens
+            .Include(t => t.User)
+            .SingleOrDefaultAsync(t =>
+                t.TokenHash == hashedToken
+                && t.ExpiresAt > DateTime.UtcNow);
 
-        if (user == null)
+        if (existingToken == null)
             return Unauthorized("Invalid or expired refresh token.");
 
+        var user = existingToken.User;
+
+        // Rotate the token in-place: update hash and expiry on the same row
         var newRefreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = JwtTokenService.HashRefreshToken(newRefreshToken);
-        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
+        existingToken.TokenHash = JwtTokenService.HashRefreshToken(newRefreshToken);
+        existingToken.ExpiresAt = _tokenService.GetRefreshTokenExpiry();
 
         await _context.SaveChangesAsync();
 
         var accessToken = _tokenService.GenerateAccessToken(user, out var accessTokenExpiresAt);
 
-        return Ok(BuildResponse(user, accessToken, accessTokenExpiresAt, newRefreshToken));
+        return Ok(BuildResponse(user, accessToken, accessTokenExpiresAt, newRefreshToken, existingToken.ExpiresAt));
     }
 
     [HttpPost("logout")]
@@ -140,16 +138,14 @@ public class AuthController(
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
             return BadRequest("Refresh token is required.");
 
-        var hashedRefreshToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
+        var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
-        var user = await _context.Users.SingleOrDefaultAsync(user =>
-            user.RefreshToken == hashedRefreshToken
-        );
+        var token = await _context.UserRefreshTokens
+            .SingleOrDefaultAsync(t => t.TokenHash == hashedToken);
 
-        if (user != null)
+        if (token != null)
         {
-            user.RefreshToken = null;
-            user.RefreshTokenExpiry = null;
+            _context.UserRefreshTokens.Remove(token);
             await _context.SaveChangesAsync();
         }
 
@@ -170,6 +166,41 @@ public class AuthController(
         return Ok(new { exists });
     }
 
+    // Creates a new refresh token for the user, cleaning up expired tokens and
+    // evicting the oldest active session when the per-user limit is reached.
+    private async Task<(string Token, DateTime ExpiresAt)> CreateRefreshTokenAsync(int userId)
+    {
+        // Remove expired tokens
+        var expired = await _context.UserRefreshTokens
+            .Where(t => t.UserId == userId && t.ExpiresAt <= DateTime.UtcNow)
+            .ToListAsync();
+        _context.UserRefreshTokens.RemoveRange(expired);
+
+        // Evict oldest session if at the limit
+        var active = await _context.UserRefreshTokens
+            .Where(t => t.UserId == userId)
+            .OrderBy(t => t.CreatedAt)
+            .ToListAsync();
+
+        if (active.Count >= MaxSessionsPerUser)
+            _context.UserRefreshTokens.RemoveRange(active.Take(active.Count - MaxSessionsPerUser + 1));
+
+        var rawToken = _tokenService.GenerateRefreshToken();
+        var expiresAt = _tokenService.GetRefreshTokenExpiry();
+
+        _context.UserRefreshTokens.Add(new UserRefreshToken
+        {
+            UserId = userId,
+            TokenHash = JwtTokenService.HashRefreshToken(rawToken),
+            ExpiresAt = expiresAt,
+            CreatedAt = DateTime.UtcNow,
+        });
+
+        await _context.SaveChangesAsync();
+
+        return (rawToken, expiresAt);
+    }
+
     private static bool IsValidRegistration(RegisterRequestDto request)
     {
         return !string.IsNullOrWhiteSpace(request.Username)
@@ -188,7 +219,8 @@ public class AuthController(
         User user,
         string accessToken,
         DateTime accessTokenExpiresAt,
-        string refreshToken
+        string refreshToken,
+        DateTime refreshTokenExpiresAt
     )
     {
         return new AuthResponseDto
@@ -200,7 +232,7 @@ public class AuthController(
             AccessToken = accessToken,
             AccessTokenExpiresAt = accessTokenExpiresAt,
             RefreshToken = refreshToken,
-            RefreshTokenExpiresAt = user.RefreshTokenExpiry ?? DateTime.UtcNow,
+            RefreshTokenExpiresAt = refreshTokenExpiresAt,
         };
     }
 }
