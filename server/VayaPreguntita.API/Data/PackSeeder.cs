@@ -209,13 +209,17 @@ public static class PackSeeder
             ),
             Deathmatch("Escape Room: ¿qué equipo logra salir primero sin pedir ninguna pista?"),
             Deathmatch("Duelo de cocina con sobras: ¿qué equipo prepara algo comestible?"),
-            Deathmatch("Competición de fuerza: ¿qué equipo gana en el tira y afloja?"),
+            Deathmatch("Tira y afloja a muerte: ¿qué equipo arrastra al otro por el barro?"),
             Deathmatch("Montar una rave clandestina: ¿qué equipo organiza el mejor evento?"),
             Deathmatch("Reconstrucción social: ¿qué equipo fundaría la civilización más justa?"),
-            Deathmatch("Dilema ético: ¿qué equipo haría lo correcto sacrificando su éxito?"),
-            Deathmatch("Poder absoluto: ¿qué bando mantendría sus principios sin corromperse?"),
             Deathmatch(
-                "Negociación crítica: ¿qué equipo evitaría un conflicto usando solo la palabra?"
+                "Tentación de ascenso: ¿qué equipo dice la verdad aunque les cueste el premio gordo?"
+            ),
+            Deathmatch(
+                "Trono vacío: ¿qué equipo no se corrompería ni un segundo con el poder absoluto?"
+            ),
+            Deathmatch(
+                "Rehén a punta de pistola: ¿qué equipo lo resuelve solo hablando, sin un solo golpe?"
             ),
             Deathmatch(
                 "Venta imposible: ¿qué equipo lograría venderle una idea absurda a un inversor?"
@@ -259,11 +263,11 @@ public static class PackSeeder
                 ["Los mosquitos", "Los madrugones", "Audios largos", "La resaca"]
             ),
             CustomPoll(
-                "Condena social, ¿qué prefieres?",
+                "Tu condena social de por vida. ¿Cuál eliges?",
                 ["Tener moco colgando", "Tener comida en dientes", "Sobacos siempre sudados"]
             ),
             CustomPoll(
-                "¿Preferirías vivir con...?",
+                "Maldición elegida, ¿cuál te llevas?",
                 [
                     "Decir siempre lo que piensas",
                     "Saber qué piensan de ti",
@@ -383,15 +387,13 @@ public static class PackSeeder
             Superlative(
                 "En un grupo de supervivientes a un apocalipsis, ¿quién sería el más inútil cuando llegara el caos?"
             ),
-            Superlative(
-                "¿Quién se vendría arriba e intentaría una heroicidad que los pondría a todos en peligro?"
-            ),
+            Superlative("¿Quién haría una heroicidad estúpida que pondría a todo el grupo en peligro?"),
             SecretPairing("¿Qué dos personas montarían la alianza más letal para sobrevivir?"),
             SecretPairing(
                 "Tras el fin del mundo, ¿qué dos personas serían la última esperanza para repoblar la Tierra?"
             ),
             CustomPoll(
-                "Fin del mundo en 24h, ¿qué haces?",
+                "Fin del mundo en 24 horas, ¿qué haces?",
                 ["Fiesta sin freno", "Con la familia", "Saquear tiendas", "Dormir tranquilo"],
                 allowOther: true
             ),
@@ -506,7 +508,7 @@ public static class PackSeeder
                 ["Sí, desvío (muere 1, salvo 5)", "No intervengo (mueren 5)"]
             ),
             CustomPoll(
-                "Para parar ese tren y salvar a 5, tendrías que empujar tú a un desconocido a la vía. ¿Lo empujas?",
+                "Solo puedes salvar a 5 desconocidos empujando tú mismo a otro desconocido a las vías de un tren. ¿Lo empujas?",
                 ["Sí", "No"]
             ),
             CustomPoll(
@@ -886,7 +888,7 @@ public static class PackSeeder
                 ]
             ),
             CustomPoll(
-                "Marca tu(s) tribu(s) de adolescente:",
+                "Marca las tribus en las que encajabas de adolescente:",
                 [
                     "Pijo",
                     "Friki",
@@ -939,7 +941,11 @@ public static class PackSeeder
             ),
             CustomPoll(
                 "Te reencarnas en lo que peor te caiga. ¿Qué prefieres ser?",
-                ["Cucaracha indestructible", "Mosquito que vive un día molestando", "Pez con 3 s de memoria"]
+                [
+                    "Cucaracha indestructible",
+                    "Mosquito que vive un día molestando",
+                    "Pez con memoria de 3 segundos",
+                ]
             ),
             CustomPoll("¿Qué prefieres tener?", ["Más tiempo libre", "Más dinero"]),
             CustomPoll(
