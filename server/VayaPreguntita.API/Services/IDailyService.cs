@@ -8,7 +8,6 @@ namespace VayaPreguntita.API.Services;
 public interface IDailyService
 {
     Task<DailyStatusDto> GetCurrentStatusAsync(int groupId, int userId);
-    Task<SelectionSourcesDto> GetSelectionSourcesAsync(int groupId);
     Task<SelectResult> SelectQuestionAsync(int groupId, int userId, SelectQuestionDto dto);
     Task<(VoteResult result, QuestionResultDto? results)> VoteAsync(
         int groupId,

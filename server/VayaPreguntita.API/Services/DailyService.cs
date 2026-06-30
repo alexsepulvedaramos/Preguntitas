@@ -14,10 +14,6 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
     // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
     private const int FreeTextMaxLength = 280;
 
-    // Minimum gap before the same base-pack template can be reused in a group.
-    // Matches the size of the base pack so the full catalogue rotates before any repeat.
-    private const int TemplateReuseCooldownDays = 50;
-
     // ==========================================
     // GET CURRENT STATUS (§4.7)
     // Surfaces BOTH coexisting states: today (the open question) and selection
@@ -152,50 +148,6 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
     }
 
     // ==========================================
-    // GET SELECTION SOURCES (pool del grupo + pack base)
-    // ==========================================
-    public async Task<SelectionSourcesDto> GetSelectionSourcesAsync(int groupId)
-    {
-        // Keep the already-selected (but not yet activated) pool question visible so the
-        // selector can see it and re-edit/re-pick it. It should only vanish once it activates.
-        var pendingQuestionId = await context.DailyEntries
-            .Where(d => d.GroupId == groupId && d.ActivatedAt == null)
-            .Select(d => (int?)d.QuestionId)
-            .FirstOrDefaultAsync();
-
-        var poolEntities = await context.Questions
-            .Include(q => q.Options)
-            .Where(q => q.GroupId == groupId && (!q.IsUsed || q.Id == pendingQuestionId))
-            .OrderByDescending(q => q.DateCreated)
-            .ToListAsync();
-
-        var pool = poolEntities.Select(q => new SelectionSourceItemDto
-        {
-            SourceType = "pool",
-            Id = q.Id,
-            Text = q.Text,
-            Type = q.Type,
-            Options = q.Options.Select(o => o.Text).ToList(),
-            Teams = q.Type == QuestionType.Deathmatch ? q.Metadata.Teams : [],
-        }).ToList();
-
-        var pack = await context
-            .QuestionTemplates.Where(t => t.Pack.IsActiveByDefault)
-            .OrderBy(t => t.Type)
-            .Select(t => new SelectionSourceItemDto
-            {
-                SourceType = "pack",
-                Id = t.Id,
-                Text = t.Text,
-                Type = t.Type,
-                Options = t.Options.Select(o => o.Text).ToList(),
-            })
-            .ToListAsync();
-
-        return new SelectionSourcesDto { Pool = pool, Pack = pack };
-    }
-
-    // ==========================================
     // SELECT QUESTION (§4.1, §4.2)
     // The selector chooses the NEXT-day question. It is NEVER activated here — activation
     // happens only at T in DailyPreselectionService.
@@ -310,6 +262,11 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
+            var overwriteIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
+            if (existing.CreatorId != null && existing.CreatorId != userId && !overwriteIsAdmin)
+                return (null, SelectResult.InvalidQuestion);
+            existing.CreatorId ??= userId;
+
             existing.Text = dto.NewQuestion.Text;
             existing.Type = dto.NewQuestion.Type;
             existing.Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion);
@@ -372,9 +329,18 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
+            if (dto.TeamsOverride != null)
+            {
+                var teamsIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
+                if (existing.CreatorId != null && existing.CreatorId != userId && !teamsIsAdmin)
+                    return (null, SelectResult.InvalidQuestion);
+                existing.CreatorId ??= userId;
+
+                if (existing.Type == QuestionType.Deathmatch)
+                    existing.Metadata.Teams = dto.TeamsOverride;
+            }
+
             existing.IsUsed = true;
-            if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
-                existing.Metadata.Teams = dto.TeamsOverride;
 
             return (existing, SelectResult.Success);
         }
@@ -387,13 +353,19 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
             if (template == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            var recentlyUsed = await context.DailyEntries.AnyAsync(d =>
-                d.GroupId == group.Id
-                && d.Question.TemplateId == dto.TemplateId.Value
-                && d.Date >= targetDate.AddDays(-TemplateReuseCooldownDays)
-            );
-            if (recentlyUsed)
-                return (null, SelectResult.RecentlyUsedTemplate);
+            var usedTemplateIds = await TemplateReusePolicy.GetUsedTemplateIdsAsync(context, group.Id);
+            if (usedTemplateIds.Contains(dto.TemplateId.Value))
+            {
+                var enabledPackIds = await TemplateReusePolicy.GetEnabledPackIdsAsync(context, group.Id);
+                var exhausted = await TemplateReusePolicy.IsGroupExhaustedAsync(
+                    context,
+                    group.Id,
+                    enabledPackIds,
+                    usedTemplateIds
+                );
+                if (!exhausted)
+                    return (null, SelectResult.TemplateAlreadyUsed);
+            }
 
             var memberIds = group.Members.Select(m => m.UserId).ToList();
             var cloned = TemplateCloner.CloneToGroup(template, group.Id, memberIds);
@@ -488,31 +460,23 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
 
         if (question == null)
         {
-            // Fallback: clone a base-pack template (§6 — there is always a question).
-            // Prefer templates not used in the last TemplateReuseCooldownDays days so the
-            // full catalogue rotates before any repeat. If all templates are on cooldown
-            // (pack smaller than the window), fall back to any template.
-            var recentTemplateIds = await context
-                .DailyEntries.Where(d =>
-                    d.GroupId == groupId
-                    && d.Date >= date.AddDays(-TemplateReuseCooldownDays)
-                )
-                .Select(d => d.Question.TemplateId)
-                .Where(id => id != null)
-                .Select(id => id!.Value)
-                .ToHashSetAsync();
+            // Fallback: clone a base-pack template (§6 — there is always a question). Prefer
+            // a template never used in this group (§6.4 — reuse is a last resort), falling
+            // back to any enabled-pack template only once the group is fully exhausted.
+            var enabledPackIds = await TemplateReusePolicy.GetEnabledPackIdsAsync(context, groupId);
+            var usedTemplateIds = await TemplateReusePolicy.GetUsedTemplateIdsAsync(context, groupId);
 
             var template =
                 await context
                     .QuestionTemplates.Include(t => t.Options)
                     .Where(t =>
-                        t.Pack.IsActiveByDefault && !recentTemplateIds.Contains(t.Id)
+                        enabledPackIds.Contains(t.PackId) && !usedTemplateIds.Contains(t.Id)
                     )
                     .OrderBy(_ => Guid.NewGuid())
                     .FirstOrDefaultAsync()
                 ?? await context
                     .QuestionTemplates.Include(t => t.Options)
-                    .Where(t => t.Pack.IsActiveByDefault)
+                    .Where(t => enabledPackIds.Contains(t.PackId))
                     .OrderBy(_ => Guid.NewGuid())
                     .FirstOrDefaultAsync();
 
@@ -770,14 +734,7 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
 
-        Dictionary<int, User>? usersById = null;
-        if (question.Type == QuestionType.Deathmatch)
-        {
-            var teamMemberIds = question.Metadata.Teams.SelectMany(t => t).Distinct().ToList();
-            usersById = await context
-                .Users.Where(u => teamMemberIds.Contains(u.Id))
-                .ToDictionaryAsync(u => u.Id);
-        }
+        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, question);
 
         return ResultsBuilder.Build(question, allVotes, mapper, usersById);
     }

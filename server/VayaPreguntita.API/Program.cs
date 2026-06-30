@@ -67,6 +67,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IDailyService, DailyService>();
 builder.Services.AddScoped<IQuestionsService, QuestionsService>();
+builder.Services.AddScoped<IPacksService, PacksService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHostedService<DailyPreselectionService>();

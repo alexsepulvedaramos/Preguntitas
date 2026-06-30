@@ -2,6 +2,8 @@
 namespace VayaPreguntita.API.Helpers;
 
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
@@ -9,6 +11,20 @@ using VayaPreguntita.API.Enums;
 
 public static class ResultsBuilder
 {
+    // Deathmatch results need each team member's User entity (for DisplayText/TeamMembers) —
+    // shared by the live-results path and the history-detail path so both render names.
+    public static async Task<Dictionary<int, User>?> BuildDeathmatchUsersById(
+        AppDbContext context,
+        Question question
+    )
+    {
+        if (question.Type != QuestionType.Deathmatch)
+            return null;
+
+        var teamMemberIds = question.Metadata.Teams.SelectMany(t => t).Distinct().ToList();
+        return await context.Users.Where(u => teamMemberIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id);
+    }
+
     public static QuestionResultDto Build(
         Question question,
         List<Vote> votes,
@@ -34,8 +50,6 @@ public static class ResultsBuilder
                 foreach (var option in question.Options)
                 {
                     var optionVotes = votes.Where(v => v.SelectedOptionId == option.Id).ToList();
-                    if (optionVotes.Count == 0)
-                        continue; // Don't clutter the results with unvoted options.
 
                     var optionResult = mapper.Map<OptionResultDto>(option);
                     optionResult.VoteCount = optionVotes.Count;

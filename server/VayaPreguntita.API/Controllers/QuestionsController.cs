@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
 
@@ -24,17 +25,24 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
     }
 
     // GET api/groups/{groupId}/questions/pool
-    // Lista las preguntas del pool que aún no han salido
+    // Lista paginada de las preguntas del pool que aún no han salido (cursor-based, más
+    // recientes primero). `before` es el último Id visto; omitir para la primera página.
     [HttpGet("pool")]
-    public async Task<ActionResult<IEnumerable<QuestionDto>>> GetPool(int groupId)
+    public async Task<ActionResult<QuestionPageDto>> GetPool(
+        int groupId,
+        [FromQuery] QuestionType? type = null,
+        [FromQuery] int? before = null,
+        [FromQuery] int pageSize = 12
+    )
     {
         if (!TryGetCurrentUserId(out var userId))
             return Unauthorized();
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var questions = await questionsService.GetPoolAsync(groupId);
-        return Ok(questions);
+        pageSize = Math.Min(pageSize, 50);
+        var result = await questionsService.GetPoolAsync(groupId, type, before, pageSize);
+        return Ok(result);
     }
 
     // GET api/groups/{groupId}/questions?date=2026-06-20

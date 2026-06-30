@@ -3,10 +3,19 @@
 namespace VayaPreguntita.API.Services;
 
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.Enums;
 
 public interface IQuestionsService
 {
-    Task<IEnumerable<QuestionDto>> GetPoolAsync(int groupId);
+    // Paginated, cursor-based (by Question.Id, which is monotonic and already implies
+    // insertion order) so the picker can page through a group's pool without loading it
+    // all at once. `type` optionally narrows to one QuestionType.
+    Task<QuestionPageDto> GetPoolAsync(
+        int groupId,
+        QuestionType? type = null,
+        int? before = null,
+        int pageSize = 12
+    );
     Task<QuestionResultDto?> GetByDateAsync(int groupId, DateOnly date);
 
     // Returns the created question, or an error message when membership validation fails (§9).

@@ -17,15 +17,35 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
 
     // ==========================================
     // GET POOL
-    // Devuelve las preguntas disponibles del grupo (no usadas)
+    // Devuelve las preguntas disponibles del grupo (no usadas), paginadas (cursor por Id,
+    // monótono y ya implica orden de inserción) y opcionalmente filtradas por tipo.
     // ==========================================
-    public async Task<IEnumerable<QuestionDto>> GetPoolAsync(int groupId)
+    public async Task<QuestionPageDto> GetPoolAsync(
+        int groupId,
+        QuestionType? type = null,
+        int? before = null,
+        int pageSize = 12
+    )
     {
-        return await context
-            .Questions.Where(q => q.GroupId == groupId && !q.IsUsed)
-            .OrderByDescending(q => q.DateCreated)
+        var query = context.Questions.Where(q => q.GroupId == groupId && !q.IsUsed);
+
+        if (type != null)
+            query = query.Where(q => q.Type == type);
+
+        if (before != null)
+            query = query.Where(q => q.Id < before);
+
+        var items = await query
+            .OrderByDescending(q => q.Id)
+            .Take(pageSize + 1)
             .Select(q => mapper.Map<QuestionDto>(q))
             .ToListAsync();
+
+        var hasMore = items.Count > pageSize;
+        if (hasMore)
+            items.RemoveAt(items.Count - 1);
+
+        return new QuestionPageDto { Items = items, HasMore = hasMore };
     }
 
     // ==========================================
@@ -48,7 +68,9 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         if (entry == null)
             return null;
 
-        return ResultsBuilder.Build(entry.Question, entry.Question.Votes, mapper);
+        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, entry.Question);
+
+        return ResultsBuilder.Build(entry.Question, entry.Question.Votes, mapper, usersById);
     }
 
     // ==========================================
