@@ -119,9 +119,6 @@
                   </span>
                 </div>
               }
-              <p class="text-xs text-muted-foreground">
-                Puedes cambiarla creando otra o eligiendo una de abajo.
-              </p>
             </div>
           }
 
@@ -134,36 +131,47 @@
             Crear pregunta nueva
           </button>
 
-          <div class="flex gap-2">
-            <hlm-native-select
-              size="sm"
-              class="!flex-1"
-              selectClass="rounded-xl"
-              [value]="typeFilterValue()"
-              (valueChange)="onTypeChange($event)"
-            >
-              <option hlmNativeSelectOption value="all">Todos los tipos</option>
-              @for (type of questionTypes; track type) {
-                <option hlmNativeSelectOption [value]="type.toString()">
-                  {{ QUESTION_TYPE_LABELS[type] }}
-                </option>
-              }
-            </hlm-native-select>
-            <hlm-native-select
-              size="sm"
-              class="!flex-1"
-              selectClass="rounded-xl"
-              [value]="sourceFilterValue()"
-              (valueChange)="onSourceChange($event)"
-            >
-              <option hlmNativeSelectOption value="all">Todo</option>
-              <option hlmNativeSelectOption value="pool">Del grupo</option>
-              @for (pack of availablePacks(); track pack.id) {
-                <option hlmNativeSelectOption [value]="pack.id.toString()">
-                  {{ pack.name }}
-                </option>
-              }
-            </hlm-native-select>
+          <div class="flex items-center gap-2 text-xs text-muted-foreground" aria-hidden="true">
+            <span class="h-px flex-1 bg-border"></span>
+            o elige una ya existente
+            <span class="h-px flex-1 bg-border"></span>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <p class="text-xs uppercase tracking-wide text-muted-foreground">Tipo y pack</p>
+            <div class="flex gap-2">
+              <hlm-native-select
+                size="sm"
+                class="!flex-1"
+                selectClass="rounded-xl"
+                aria-label="Filtrar por tipo de pregunta"
+                [value]="typeFilterValue()"
+                (valueChange)="onTypeChange($event)"
+              >
+                <option hlmNativeSelectOption value="all">Todos los tipos</option>
+                @for (type of questionTypes; track type) {
+                  <option hlmNativeSelectOption [value]="type.toString()">
+                    {{ QUESTION_TYPE_LABELS[type] }}
+                  </option>
+                }
+              </hlm-native-select>
+              <hlm-native-select
+                size="sm"
+                class="!flex-1"
+                selectClass="rounded-xl"
+                aria-label="Filtrar por origen de la pregunta"
+                [value]="sourceFilterValue()"
+                (valueChange)="onSourceChange($event)"
+              >
+                <option hlmNativeSelectOption value="all">Todo</option>
+                <option hlmNativeSelectOption value="pool">Del grupo</option>
+                @for (pack of availablePacks(); track pack.id) {
+                  <option hlmNativeSelectOption [value]="pack.id.toString()">
+                    {{ pack.name }}
+                  </option>
+                }
+              </hlm-native-select>
+            </div>
           </div>
 
           @if (items().length > 0) {

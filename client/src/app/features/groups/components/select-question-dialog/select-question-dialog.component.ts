@@ -148,10 +148,8 @@ export class SelectQuestionDialogComponent {
     this.assigningTeams.set(false);
     this.pendingEditValue.set(null);
     this.typeFilter.set(null);
-    this.sourceFilter.set('all');
     if (this.isSelector()) {
-      this.loadAvailablePacks();
-      this.reload();
+      this.bootstrapSources();
     }
   }
 
@@ -350,12 +348,58 @@ export class SelectQuestionDialogComponent {
     return this.poolHasMore() ? this.loadPool(false) : this.loadPack(false);
   }
 
-  private loadAvailablePacks() {
-    this.packsService.getPacks(this.groupId()).subscribe({
-      next: (packs) => this.availablePacks.set(packs.filter((p) => p.enabled)),
-      // Source dropdown is a non-essential refinement — leave it minimal on failure.
-      error: () => {},
+  // Default the source filter to the group's own pool — questions the group wrote themselves
+  // take priority over pack content. Only falls back to the Base pack (not "Todo") when the
+  // pool is empty, so a brand-new group still lands on a sensible, non-empty starting list.
+  private bootstrapSources() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    forkJoin({
+      pool: this.questionsService.getPool(this.groupId(), { pageSize: PAGE_SIZE }),
+      packs: this.packsService.getPacks(this.groupId()),
+    }).subscribe({
+      next: ({ pool, packs }) => {
+        const enabledPacks = packs.filter((p) => p.enabled);
+        this.availablePacks.set(enabledPacks);
+        this.poolItems.set(pool.items.map((q) => this.toPoolItem(q)));
+        this.poolHasMore.set(pool.hasMore);
+
+        if (pool.items.length > 0) {
+          this.sourceFilter.set('pool');
+          this.loading.set(false);
+        } else {
+          const basePack = enabledPacks.find((p) => p.name === 'Base');
+          this.sourceFilter.set(basePack?.id ?? 'all');
+          this.loadInitialPackPage();
+        }
+      },
+      error: () => {
+        this.error.set('No se han podido cargar las preguntas disponibles.');
+        this.loading.set(false);
+      },
     });
+  }
+
+  private loadInitialPackPage() {
+    const s = this.sourceFilter();
+
+    this.packsService
+      .getTemplates(this.groupId(), {
+        pageSize: PAGE_SIZE,
+        packId: typeof s === 'number' ? s : undefined,
+      })
+      .subscribe({
+        next: (page) => {
+          this.packItems.set(page.items.map((t) => this.toPackItem(t)));
+          this.packHasMore.set(page.hasMore);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.error.set('No se han podido cargar las preguntas disponibles.');
+          this.loading.set(false);
+        },
+      });
   }
 
   private reload() {
