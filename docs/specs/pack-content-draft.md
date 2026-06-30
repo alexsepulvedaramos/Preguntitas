@@ -23,8 +23,8 @@
 | 3 | Vida nocturna y resaca | ✅ closed — 16 |
 | 4 | Dilemas (filosóficos y éticos) | ✅ closed — 16 |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
-| 6 | Crimen y misterio | 🔄 in progress |
-| 7 | Famosos y celebridades | ⬜ pending |
+| 6 | Crimen y misterio | ✅ closed — 15 |
+| 7 | Famosos y celebridades | 🔄 in progress |
 | 8 | Comida | ✅ closed — 17 |
 | 9 | Deportes y competencia | ⬜ pending |
 | 10 | Polémicas y bandos | ✅ closed — 16 |
@@ -371,24 +371,37 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 
 ---
 
-## Pack 6 — Crimen y misterio 🔄 (in progress — 14 confirmed, needs ≥1)
+## Pack 6 — Crimen y misterio ✅ (15)
 
 Crimen perfecto, sospechosos, bandas, misterios. No duplicar Base ("atraco perfecto",
 "poli bueno/malo"). Picaresco, autoexplicativo.
 
-### Confirmed (14)
+### Superlative (7)
 
-- **(Superlative)** ¿Quién cometería el crimen perfecto y no lo pillarían jamás?
-- **(Superlative)** ¿Quién confesaría entre lágrimas al primer interrogatorio?
-- **(Superlative)** ¿Quién sería el cerebro de una banda criminal?
-- **(Superlative)** ¿Quién acabaría detenido por la tontería más absurda?
-- **(Superlative)** ¿Quién parece el más inocente pero esconde el lado más oscuro?
-- **(Superlative)** ¿A quién acusarían primero si apareciera un cadáver en una cena del grupo?
-- **(SecretPairing)** ¿Qué dos personas formarían el dúo criminal más temido?
-- **(SecretPairing)** ¿Qué dos personas se delatarían mutuamente en cuanto les apretaran un poco?
-- **(CustomPoll, 1)** ¿Qué clase de criminal serías? — El cerebro · El músculo · El de los contactos · El que conduce y poco más
-- **(Scale)** Del 1 al 10, ¿cómo de bien mientes bajo presión?
-- **(CustomPoll, 1)** Si tuvieras que cometer un crimen y salir impune, ¿cuál? — Atraco a mano armada a un banco · Hackeo millonario desde el sofá · Robo de una obra de arte en un museo · Una estafa piramidal de las gordas
-- **(CustomPoll, 1)** ¿Qué gran misterio te gustaría resolver de verdad? — Quién mató a JFK · Qué hay en el Triángulo de las Bermudas · Si estamos solos en el universo · Qué pasó de verdad con el avión MH370
-- **(OpenText)** Confiesa: ¿qué es lo más caro que has mangado alguna vez y de dónde?
-- **(OpenText)** En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver?
+1. **¿Quién cometería el crimen perfecto y no lo pillarían jamás?**
+2. **¿Quién confesaría entre lágrimas al primer interrogatorio?**
+3. **¿Quién sería el cerebro de una banda criminal?**
+4. **¿Quién acabaría detenido por la tontería más absurda?**
+5. **¿Quién parece el más inocente pero esconde el lado más oscuro?**
+6. **¿A quién acusarían primero si apareciera un cadáver en una cena del grupo?**
+7. **¿Quién se libraría de una multa hablándole bien al policía?**
+
+### SecretPairing (2)
+
+8. **¿Qué dos personas formarían el dúo criminal más temido?**
+9. **¿Qué dos personas se delatarían mutuamente en cuanto les apretaran un poco?**
+
+### CustomPoll (3)
+
+10. **¿Qué clase de criminal serías?** — El cerebro · El músculo · El de los contactos · El que conduce y poco más
+11. **Si tuvieras que cometer un crimen y salir impune, ¿cuál?** — Atraco a mano armada a un banco · Hackeo millonario desde el sofá · Robo de una obra de arte en un museo · Una estafa piramidal de las gordas
+12. **¿Qué gran misterio te gustaría resolver de verdad?** — Quién mató a JFK · Qué hay en el Triángulo de las Bermudas · Si estamos solos en el universo · Qué pasó de verdad con el avión MH370
+
+### Scale (1)
+
+13. **Del 1 al 10, ¿cómo de bien mientes bajo presión?**
+
+### OpenText (2)
+
+14. **Confiesa: ¿qué es lo más caro que has mangado alguna vez y de dónde?**
+15. **En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver?**
