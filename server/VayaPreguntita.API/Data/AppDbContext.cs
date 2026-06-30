@@ -22,6 +22,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<DevicePushSubscription> DevicePushSubscriptions { get; set; }
     public DbSet<NotificationPreferences> NotificationPreferences { get; set; }
+    public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -168,6 +169,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(v => v.SelectedTargetUserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ==========================================
+        // USER REFRESH TOKENS — one row per device/session
+        // ==========================================
+        modelBuilder.Entity<UserRefreshToken>(e =>
+        {
+            e.HasIndex(t => t.TokenHash).IsUnique();
+            e.HasIndex(t => new { t.UserId, t.ExpiresAt });
+            e.HasOne(t => t.User)
+             .WithMany()
+             .HasForeignKey(t => t.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     // Shared owned-type config for QuestionMetadata (JSONB), used by both

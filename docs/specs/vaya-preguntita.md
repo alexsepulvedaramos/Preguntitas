@@ -360,7 +360,8 @@ Multiple thematic packs, an admin UI to enable/disable packs per group, and pack
 
 ### 7.1 Entities (current + planned)
 
-- **User** — `Id, Username, Email, PasswordHash, RefreshToken, RefreshTokenExpiry, DateJoined`. *(Phase 2: `AvatarUrl`.)*
+- **User** — `Id, Username, Email, PasswordHash, AvatarUrl, FrameColor, DateJoined`. Refresh tokens live in `UserRefreshToken`, not on `User` (multi-device support).
+- **UserRefreshToken** — `Id, UserId, TokenHash, ExpiresAt, CreatedAt`. One row per device/session; up to 5 concurrent sessions per user (oldest evicted on new login). `Jwt:RefreshTokenDays` = 90.
 - **Group** — `Id, Name, Description, InvitationCode, DailyQuestionTime, TimeZoneId (nullable, default 'Europe/Madrid'; MVP logic uses UTC+2), DateCreated, CreatorId`, plus `Members`, `Questions`, `DailyEntries`. **Names are not unique** (labels only). `AdminId` was removed in rama 10 — admin identity lives on `GroupMember.IsAdmin`.
 - **GroupMember** — composite key `(GroupId, UserId)`, `JoinedAt` (drives rotation), `IsAdmin` (bool; exactly one member per group is admin at all times).
 - **Question** — `Id, Text, Type, Source, IsUsed, DateCreated, DateActivated, Metadata (JSONB), GroupId, CreatorId (→ nullable), Options, Votes`.

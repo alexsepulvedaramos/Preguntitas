@@ -172,6 +172,11 @@ export class AuthService {
     }
   }
 
+  public hasValidAccessToken(): boolean {
+    const token = this.getAccessToken();
+    return !!token && !this.isTokenExpired(token);
+  }
+
   public checkUsernameExists(username: string) {
     return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-username?username=${username}`);
   }
