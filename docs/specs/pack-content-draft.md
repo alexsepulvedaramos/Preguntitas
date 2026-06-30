@@ -24,9 +24,9 @@
 | 4 | Dilemas (filosóficos y éticos) | ✅ closed — 16 |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
 | 6 | Crimen y misterio | ✅ closed — 15 |
-| 7 | Famosos y celebridades | 🔄 in progress |
+| 7 | Famosos y celebridades | ❌ dropped (sin sentido, no se construye) |
 | 8 | Comida | ✅ closed — 17 |
-| 9 | Deportes y competencia | ⬜ pending |
+| 9 | Deportes y competencia | 🔄 in progress |
 | 10 | Polémicas y bandos | ✅ closed — 16 |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
 | 12 | Nostalgia y cringe | ⬜ pending |
