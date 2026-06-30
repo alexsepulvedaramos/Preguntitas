@@ -21,9 +21,9 @@
 | 1 | Humor negro | ✅ closed — 16 |
 | 2 | Supervivencia y apocalipsis | ✅ closed — 15 |
 | 3 | Vida nocturna y resaca | ✅ closed — 16 |
-| 4 | Dilemas (éticos, filosóficos y tontos) | 🔄 in progress |
+| 4 | Dilemas (filosóficos y éticos) | ✅ closed — 16 |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
-| 6 | Crimen y misterio | ⬜ pending |
+| 6 | Crimen y misterio | 🔄 in progress |
 | 7 | Famosos y celebridades | ⬜ pending |
 | 8 | Comida | ✅ closed — 17 |
 | 9 | Deportes y competencia | ⬜ pending |
@@ -32,7 +32,7 @@
 | 12 | Nostalgia y cringe | ⬜ pending |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
 | 14 | El reparto del grupo | ⬜ pending |
-| 15 | Guarradas y dilemas asquerosos | 🔄 in progress (3 moved in) |
+| 15 | Guarradas y dilemas asquerosos | ✅ closed — 15 |
 | Base | Base pack (+~15 templates) | ⬜ pending |
 
 First wave (per agreed scope): packs 1, 10, 13, 5, 11.
@@ -323,12 +323,12 @@ Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zomb
 
 ---
 
-## Pack 4 — Dilemas (filosóficos y éticos) 🔄 (in progress — 13 confirmed, needs ≥2)
+## Pack 4 — Dilemas (filosóficos y éticos) ✅ (16)
 
 Solo dilemas con peso, estilo "dilema del tren", sin respuesta correcta. NO guarradas (esas
 van al pack 15). Todo autoexplicativo. CustomPoll.
 
-### Confirmed (13)
+### CustomPoll (16)
 
 - **(CustomPoll, 1)** Te dan mal el cambio a tu favor (10€ de más) y te das cuenta. ¿Lo dices? — Sí, siempre lo devuelvo · Depende: a una gran empresa me callo, a una tienda pequeña lo digo · Me callo y a ganar, sea quien sea
 - **(CustomPoll, 1)** Puedes salvar a 5 desconocidos o a 1 ser querido. ¿A quién salvas? — A los 5 desconocidos · A tu ser querido
@@ -343,12 +343,15 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 - **(CustomPoll, 1)** Si cambias una a una todas las piezas de un barco, ¿sigue siendo el mismo barco? — Sí, es el mismo · No, ya es otro
 - **(CustomPoll, 1)** Viajas al pasado y tienes delante a Hitler de bebé. ¿Lo matas? — Sí · No
 - **(CustomPoll, 1)** ¿El bien y el mal son universales o los decide cada cultura? — Universales · Relativos a cada cultura
+- **(CustomPoll, 1)** ¿El ser humano es bueno por naturaleza o egoísta por naturaleza? — Bueno por naturaleza · Egoísta por naturaleza
+- **(CustomPoll, 1)** Al juzgar un acto, ¿qué importa más? — La intención · El resultado
+- **(CustomPoll, 1)** La paradoja de la tolerancia: ¿hay que tolerar a los intolerantes? — Sí, a todos · No, a los intolerantes no
 
-## Pack 15 — Guarradas y dilemas asquerosos 🔄 (in progress — 10 confirmed, needs ≥5)
+## Pack 15 — Guarradas y dilemas asquerosos ✅ (15)
 
 "Qué prefieres" guarros/absurdos, ambas opciones igual de asquerosas. Picaresco.
 
-### Confirmed (10)
+### CustomPoll (15)
 
 - **(CustomPoll, 1)** ¿Qué prefieres? — Sudar mayonesa · Llorar kétchup
 - **(CustomPoll, 1)** ¿Qué lames? — El suelo del metro · El pasamanos de una escalera mecánica
@@ -360,3 +363,8 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 - **(CustomPoll, 1)** ¿Qué bocata te comes? — De uñas · De pelos
 - **(CustomPoll, 1)** ¿Qué bebes? — El agua de fregar los platos · El agua de una bañera ajena
 - **(CustomPoll, 1)** ¿Qué prefieres tener siempre? — La piel pegajosa · Mocos colgando
+- **(CustomPoll, 1)** ¿Beber leche caducada en grumos o comer huevos podridos? — Leche en grumos · Huevos podridos
+- **(CustomPoll, 1)** ¿Limpiarte con papel higiénico ya usado o no usar nada? — Papel usado · Nada
+- **(CustomPoll, 1)** ¿Que se te meta una cucaracha en la oreja o una araña por la nariz? — Cucaracha en la oreja · Araña por la nariz
+- **(CustomPoll, 1)** ¿Comer un plato de mocos o beber un vaso de babas? — Plato de mocos · Vaso de babas
+- **(CustomPoll, 1)** ¿Encontrarte siempre un pelo en cada plato o una uña de vez en cuando? — Un pelo siempre · Una uña a veces
