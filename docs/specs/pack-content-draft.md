@@ -286,3 +286,21 @@ Fiesta, borracheras, resacas, caos de madrugada. Estilo picaresco, mucho señala
 ### Deathmatch (1)
 
 16. **Maratón de fiesta hasta el amanecer: ¿qué equipo aguanta en pie sin caer?**
+
+---
+
+## Pack 2 — Supervivencia y apocalipsis 🔄 (in progress — 8 confirmed, +2 reformuladas +6 top-up pending)
+
+Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zombie",
+"sobrevivir perdidos", "reconstrucción social"). Cada pregunta autoexplicativa. Picaresco.
+
+### Confirmed (8)
+
+- **(Deathmatch)** Naufragio: ¿qué equipo monta una balsa que de verdad flote?
+- **(Superlative)** ¿Quién sería el primero en palmarla en un apocalipsis zombie?
+- **(Superlative)** ¿Quién se autoproclamaría líder sin tener ni idea?
+- **(Superlative)** ¿Quién entraría en pánico nada más empezar el caos?
+- **(Superlative)** ¿Quién se quedaría dormido en su turno de guardia?
+- **(SecretPairing)** ¿Qué dos personas montarían la alianza más letal para sobrevivir?
+- **(CustomPoll, 1, + "Otro")** Fin del mundo en 24h, ¿qué haces? — Fiesta sin freno · Con la familia · Saquear tiendas · Dormir tranquilo
+- **(CustomPoll, multi)** Marca lo que NO aguantarías sin: — Café · Móvil · Ducha caliente · Tu serie favorita
