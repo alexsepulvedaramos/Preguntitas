@@ -320,3 +320,20 @@ Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zomb
 13. **Montas tu kit de supervivencia y solo cabe una cosa más en la mochila. ¿Cuál metes?** — Comida para una semana · Un buen cuchillo · Un botiquín · Un mechero
 14. **En un apocalipsis, ¿qué tipo de superviviente serías?** — El que acapara recursos · El que ayuda a todos · El llanero solitario · El que se esconde y reza
 15. **Si el mundo se fuera a acabar, ¿qué final prefieres?** — Meteorito instantáneo · Invasión zombie · Pandemia lenta · Guerra nuclear _(+ "Otro")_
+
+---
+
+## Pack 4 — Dilemas (éticos, filosóficos y tontos) 🔄 (in progress — 7 confirmed)
+
+Muy CustomPoll: dilemas morales con chicha + filosóficos accesibles + "qué prefieres" guarros
+(estilo sudar mayonesa). Todo autoexplicativo, picaresco. DI-2 reformulándose.
+
+### Confirmed (7)
+
+- **(CustomPoll, 1)** Puedes salvar a 5 desconocidos o a 1 ser querido. ¿A quién salvas? — A los 5 desconocidos · A tu ser querido
+- **(CustomPoll, 1)** ¿Mentirías a un amigo para no hacerle daño? — Sí, mentira piadosa · No, la verdad por delante
+- **(CustomPoll, 1)** ¿El fin justifica los medios? — Sí, si el resultado es bueno · No, nunca
+- **(CustomPoll, 1)** ¿Qué vida prefieres? — Corta pero intensa y que deje huella · Larga y tranquila sin pena ni gloria
+- **(CustomPoll, 1)** ¿Saber qué hay tras la muerte pero sin poder contarlo, o no saberlo jamás? — Saberlo en silencio · No saberlo nunca
+- **(CustomPoll, 1)** ¿Feliz viviendo engañado o infeliz pero sabiendo toda la verdad? — Feliz pero engañado · Infeliz pero consciente
+- **(CustomPoll, 1)** ¿Qué prefieres? — Sudar mayonesa · Llorar kétchup
