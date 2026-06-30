@@ -368,3 +368,23 @@ van al pack 15). Todo autoexplicativo. CustomPoll.
 - **(CustomPoll, 1)** ¿Que se te meta una cucaracha en la oreja o una araña por la nariz? — Cucaracha en la oreja · Araña por la nariz
 - **(CustomPoll, 1)** ¿Comer un plato de mocos o beber un vaso de babas? — Plato de mocos · Vaso de babas
 - **(CustomPoll, 1)** ¿Encontrarte siempre un pelo en cada plato o una uña de vez en cuando? — Un pelo siempre · Una uña a veces
+
+---
+
+## Pack 6 — Crimen y misterio 🔄 (in progress — 10 confirmed)
+
+Crimen perfecto, sospechosos, bandas, misterios. No duplicar Base ("atraco perfecto",
+"poli bueno/malo"). Picaresco, autoexplicativo.
+
+### Confirmed (10)
+
+- **(Superlative)** ¿Quién cometería el crimen perfecto y no lo pillarían jamás?
+- **(Superlative)** ¿Quién confesaría entre lágrimas al primer interrogatorio?
+- **(Superlative)** ¿Quién sería el cerebro de una banda criminal?
+- **(Superlative)** ¿Quién acabaría detenido por la tontería más absurda?
+- **(Superlative)** ¿Quién parece el más inocente pero esconde el lado más oscuro?
+- **(Superlative)** ¿A quién acusarían primero si apareciera un cadáver en una cena del grupo?
+- **(SecretPairing)** ¿Qué dos personas formarían el dúo criminal más temido?
+- **(SecretPairing)** ¿Qué dos personas se delatarían mutuamente en cuanto les apretaran un poco?
+- **(CustomPoll, 1)** ¿Qué clase de criminal serías? — El cerebro · El músculo · El de los contactos · El que conduce y poco más
+- **(Scale)** Del 1 al 10, ¿cómo de bien mientes bajo presión?
