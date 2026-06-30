@@ -13,7 +13,7 @@
 
 | # | Pack | State |
 |---|---|---|
-| 1 | Humor negro | ✅ closed — 14 |
+| 1 | Humor negro | ✅ closed — 16 |
 | 3 | Vida nocturna y resaca | ⬜ pending |
 | 4 | Dilemas (éticos, filosóficos y tontos) | ⬜ pending |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
@@ -21,7 +21,7 @@
 | 7 | Famosos y celebridades | ⬜ pending |
 | 8 | Comida | ⬜ pending (2 parked in) |
 | 9 | Deportes y competencia | ⬜ pending |
-| 10 | Polémicas y bandos | ✅ closed — 11 |
+| 10 | Polémicas y bandos | ✅ closed — 15 (16 if PB-21′) |
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
 | 12 | Nostalgia y cringe | ⬜ pending |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
@@ -43,11 +43,11 @@ First wave (per agreed scope): packs 1, 10, 13, 5, 11.
 
 ---
 
-## Pack 1 — Humor negro ✅ (14)
+## Pack 1 — Humor negro ✅ (16)
 
 Crudo, morboso, gallows humor; siempre en terreno hipotético/juego.
 
-### CustomPoll (6)
+### CustomPoll (7)
 
 1. **Te obligan a elegir cómo palmarla. ¿Qué prefieres?** — Quemado vivo · Enterrado vivo · Congelado poco a poco · Devorado por tiburones _(elige 1)_
 2. **Por 1 millón de euros, ¿qué estarías dispuesto a hacer?** — Noche entera en una morgue · No volver a hablar con tu mejor amigo · Donar el meñique · Comer algo asqueroso a diario durante un año _(multi, max 4)_
@@ -55,35 +55,37 @@ Crudo, morboso, gallows humor; siempre en terreno hipotético/juego.
 4. **En tu funeral, ¿qué prefieres provocar?** — Que todos lloren a mares · Que todos se partan de risa recordándote _(elige 1)_
 5. **Te toca un superpoder maldito. ¿Cuál aguantas?** — Resucitar siempre, pero con un dolor atroz cada vez · Ser inmortal viendo morir a todos los que quieres _(elige 1)_
 6. **¿Qué serías capaz de hacer con tal de no morir?** — Comer carne humana · Cortarte un brazo · Matar a un desconocido · Pasar el resto de tu vida en una celda _(multi, max 4)_
+7. **Si pudieras presenciar tu propia muerte como mero espectador (sin dolor), ¿lo harías?** — Sí · No _(elige 1)_
 
-### Superlative (4)
+### Superlative (5)
 
-7. **¿Quién recurriría al canibalismo primero si el avión se estrellara en los Andes?**
-8. **¿Quién fingiría su propia muerte para librarse de un marrón?**
-9. **¿A quién le darías un puñetazo por un millón de euros?**
-10. **¿Quién se reiría sin poder parar en pleno funeral?**
+8. **¿Quién recurriría al canibalismo primero si el avión se estrellara en los Andes?**
+9. **¿Quién fingiría su propia muerte para librarse de un marrón?**
+10. **¿A quién le darías un puñetazo por un millón de euros?**
+11. **¿Quién se reiría sin poder parar en pleno funeral?**
+12. **¿Quién sobreviviría más tiempo en *La Purga*?**
 
 ### SecretPairing (2)
 
-11. **¿Qué dos personas esconderían un cadáver juntas sin que les pillaran?**
-12. **¿Qué dos personas se comerían la una a la otra primero en un naufragio?**
+13. **¿Qué dos personas esconderían un cadáver juntas sin que les pillaran?**
+14. **¿Qué dos personas se comerían la una a la otra primero en un naufragio?**
 
 ### Scale 1–10 (1)
 
-13. **Del 1 al 10, ¿qué probabilidad hay de que acabes en el infierno?**
+15. **Del 1 al 10, ¿qué probabilidad hay de que acabes en el infierno?**
 
 ### Deathmatch (1)
 
-14. **Os toca limpiar la escena de un crimen. ¿Qué equipo no deja ni una prueba?**
+16. **Os toca limpiar la escena de un crimen. ¿Qué equipo no deja ni una prueba?**
 
 ---
 
-## Pack 10 — Polémicas y bandos ✅ (11)
+## Pack 10 — Polémicas y bandos ✅ (15; +PB-21′ pending → 16)
 
 Pique puro: temas intrascendentes que se defienden a muerte. Sin respuesta correcta. (Las
 polémicas *de comida* van al pack 8 — ver parking lot.)
 
-### CustomPoll (9)
+### CustomPoll (13)
 
 1. **El papel higiénico se coloca…** — Con la hoja por delante · Con la hoja por detrás _(elige 1)_
 2. **Marca TODAS las posturas que defenderías a muerte:** — El finde empieza el viernes · El verano es mejor que el invierno · El café sin azúcar está mejor · Madrugar el finde es de locos _(multi, max 4)_
@@ -94,11 +96,19 @@ polémicas *de comida* van al pack 8 — ver parking lot.)
 7. **A la hora de dormir:** — Con calcetines · Jamás con calcetines _(elige 1)_
 8. **Nada más levantarte:** — Hago la cama siempre · ¿Para qué, si me vuelvo a meter? _(elige 1)_
 9. **Mandar audios de 3 minutos por WhatsApp:** — Cómodo y normal · Una falta de respeto _(elige 1)_
+10. **En el avión, reclinar tu asiento hacia atrás:** — Para eso está, es tu derecho · Es de egoístas _(elige 1)_
+11. **Sandalias con calcetines:** — Comodidad ante todo · Crimen de moda imperdonable _(elige 1)_
+12. **Llegar a una fiesta en casa de alguien:** — A la hora exacta que dijeron · 15-30 min tarde es lo correcto _(elige 1)_
+13. **El doble check azul de WhatsApp:** — Activado, no escondo nada · Desactivado, mi vida es mía _(elige 1)_
 
 ### Superlative (2)
 
-10. **¿Quién es más capaz de discutir una hora por una tontería sin dar su brazo a torcer?**
-11. **¿Quién defiende las opiniones más impopulares solo por llevar la contraria?**
+14. **¿Quién es más capaz de discutir una hora por una tontería sin dar su brazo a torcer?**
+15. **¿Quién defiende las opiniones más impopulares solo por llevar la contraria?**
+
+### Pending (PB-21′ — retoque, awaiting OK)
+
+- **(CustomPoll, 1)** ¿Cada cuánto hay que lavar la toalla de baño? — Tras unos pocos usos · Aguanta semanas tranquilamente
 
 ---
 
