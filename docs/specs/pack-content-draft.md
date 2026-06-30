@@ -32,6 +32,7 @@
 | 12 | Nostalgia y cringe | ⬜ pending |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
 | 14 | El reparto del grupo | ⬜ pending |
+| 15 | Guarradas y dilemas asquerosos | 🔄 in progress (3 moved in) |
 | Base | Base pack (+~15 templates) | ⬜ pending |
 
 First wave (per agreed scope): packs 1, 10, 13, 5, 11.
@@ -44,8 +45,7 @@ First wave (per agreed scope): packs 1, 10, 13, 5, 11.
 
 ## Reserve ideas (developer-flagged, slot into the right pack when built)
 
-- **Sudar mayonesa / llorar kétchup** (gross-out absurd) → Dilemas (4), the silly/gross subset.
-- **(Superlative) ¿Quién tarda tres días en contestar un mensaje?** → place in Confesiones (11).
+- _(Placed: sudar mayonesa & gross-out absurds → new Pack 15; CI-6 → Confesiones.)_
 
 ---
 
@@ -323,17 +323,27 @@ Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zomb
 
 ---
 
-## Pack 4 — Dilemas (éticos, filosóficos y tontos) 🔄 (in progress — 7 confirmed)
+## Pack 4 — Dilemas (filosóficos y éticos) 🔄 (in progress — 7 confirmed)
 
-Muy CustomPoll: dilemas morales con chicha + filosóficos accesibles + "qué prefieres" guarros
-(estilo sudar mayonesa). Todo autoexplicativo, picaresco. DI-2 reformulándose.
+Solo dilemas con peso, estilo "dilema del tren", sin respuesta correcta. NO guarradas (esas
+van al pack 15). Todo autoexplicativo. CustomPoll.
 
 ### Confirmed (7)
 
+- **(CustomPoll, 1)** Te dan mal el cambio a tu favor (10€ de más) y te das cuenta. ¿Lo dices? — Sí, siempre lo devuelvo · Depende: a una gran empresa me callo, a una tienda pequeña lo digo · Me callo y a ganar, sea quien sea
 - **(CustomPoll, 1)** Puedes salvar a 5 desconocidos o a 1 ser querido. ¿A quién salvas? — A los 5 desconocidos · A tu ser querido
 - **(CustomPoll, 1)** ¿Mentirías a un amigo para no hacerle daño? — Sí, mentira piadosa · No, la verdad por delante
 - **(CustomPoll, 1)** ¿El fin justifica los medios? — Sí, si el resultado es bueno · No, nunca
 - **(CustomPoll, 1)** ¿Qué vida prefieres? — Corta pero intensa y que deje huella · Larga y tranquila sin pena ni gloria
 - **(CustomPoll, 1)** ¿Saber qué hay tras la muerte pero sin poder contarlo, o no saberlo jamás? — Saberlo en silencio · No saberlo nunca
 - **(CustomPoll, 1)** ¿Feliz viviendo engañado o infeliz pero sabiendo toda la verdad? — Feliz pero engañado · Infeliz pero consciente
+
+## Pack 15 — Guarradas y dilemas asquerosos 🔄 (in progress — 3 confirmed)
+
+"Qué prefieres" guarros/absurdos, ambas opciones igual de asquerosas. Picaresco.
+
+### Confirmed (3)
+
 - **(CustomPoll, 1)** ¿Qué prefieres? — Sudar mayonesa · Llorar kétchup
+- **(CustomPoll, 1)** ¿Qué lames? — El suelo del metro · El pasamanos de una escalera mecánica
+- **(CustomPoll, 1)** ¿Qué prefieres tener? — Dedos de salchicha · Pelo de espagueti
