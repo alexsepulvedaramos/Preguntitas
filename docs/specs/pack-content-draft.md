@@ -31,7 +31,7 @@
 | 11 | Confesiones y vergüenzas | ✅ closed — 16 (CI-6 placed) |
 | 12 | Nostalgia y cringe | ✅ closed — 15 |
 | 13 | Hipotéticos: ¿qué harías? | ✅ closed — 16 |
-| 14 | El reparto del grupo | 🔄 in progress |
+| 14 | El reparto del grupo | ✅ closed — 34 |
 | 15 | Guarradas y dilemas asquerosos | ✅ closed — 15 |
 | Base | Base pack (+~15 templates) | ⬜ pending |
 
@@ -487,12 +487,12 @@ Fases vergonzosas, referencias generacionales, infancia. Nido de OpenText. Picar
 
 ---
 
-## Pack 14 — El reparto del grupo 🔄 (in progress — 18 confirmed, + female chars pending)
+## Pack 14 — El reparto del grupo ✅ (34)
 
 Todo Superlative: "¿quién sería [personaje]?". Personajes icónicos eternos + arquetipos
 narrativos. (El tipo "reparto" agrupado = rama futura, ver §13/§16 del spec.)
 
-### Confirmed (18) — todos Superlative
+### Superlative (34)
 
 1. ¿Quién del grupo sería el Joker (puro caos)?
 2. ¿Quién sería Batman (oscuro y va por libre)?
@@ -512,3 +512,19 @@ narrativos. (El tipo "reparto" agrupado = rama futura, ver §13/§16 del spec.)
 16. ¿Quién sería el protagonista absoluto de la serie?
 17. ¿Quién sería el secundario que se roba todas las escenas?
 18. ¿Quién sería el cerebro malvado detrás de todo?
+19. ¿Quién sería Wonder Woman (la heroína que puede con todo)?
+20. ¿Quién sería Hermione Granger (la lista que se lo sabe todo)?
+21. ¿Quién sería Cruella de Vil (malvada con muchísimo estilo)?
+22. ¿Quién sería Mary Poppins (perfecta y lo arregla todo)?
+23. ¿Quién sería Lara Croft (la aventurera intrépida)?
+24. ¿Quién sería Catwoman (felina y va a su rollo)?
+25. ¿Quién sería la Reina de Corazones (manda y mete miedo)?
+26. ¿Quién sería Campanilla (pequeña pero con un genio de cuidado)?
+27. ¿Quién sería Elsa (distante pero con muchísimo poder)?
+28. ¿Quién sería Mulan (guerrera que rompe todas las reglas)?
+29. ¿Quién sería la princesa Leia (líder y rebelde)?
+30. ¿Quién sería Maléfica (villana elegante y temible)?
+31. ¿Quién sería Lisa Simpson (la lista que nadie escucha)?
+32. ¿Quién sería Marge Simpson (la que aguanta a todos con paciencia)?
+33. ¿Quién sería la reina del drama (la diva total del grupo)?
+34. ¿Quién sería Matilda (lista y con poderes ocultos)?
