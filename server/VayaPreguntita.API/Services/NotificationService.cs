@@ -154,7 +154,18 @@ public class NotificationService(
                 body,
                 icon = IconPath,
                 badge = IconPath,
-                data = new { url }
+                // `onActionClick.default` tells the Angular service worker what to do when
+                // the notification body is clicked while the app is closed/backgrounded:
+                // focus an existing window (or open a new one at `url`). `url` is kept at
+                // the top level too for the in-app SwPush.notificationClicks handler.
+                data = new
+                {
+                    url,
+                    onActionClick = new
+                    {
+                        @default = new { operation = "focusLastFocusedOrOpen", url }
+                    }
+                }
             }
         });
 }
