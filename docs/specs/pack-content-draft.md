@@ -19,9 +19,9 @@
 | # | Pack | State |
 |---|---|---|
 | 1 | Humor negro | ✅ closed — 16 |
-| 2 | Supervivencia y apocalipsis | 🔄 in progress |
+| 2 | Supervivencia y apocalipsis | ✅ closed — 15 |
 | 3 | Vida nocturna y resaca | ✅ closed — 16 |
-| 4 | Dilemas (éticos, filosóficos y tontos) | ⬜ pending |
+| 4 | Dilemas (éticos, filosóficos y tontos) | 🔄 in progress |
 | 5 | Citas, relaciones y red flags | ✅ closed — 20 |
 | 6 | Crimen y misterio | ⬜ pending |
 | 7 | Famosos y celebridades | ⬜ pending |
@@ -289,18 +289,34 @@ Fiesta, borracheras, resacas, caos de madrugada. Estilo picaresco, mucho señala
 
 ---
 
-## Pack 2 — Supervivencia y apocalipsis 🔄 (in progress — 8 confirmed, +2 reformuladas +6 top-up pending)
+## Pack 2 — Supervivencia y apocalipsis ✅ (15)
 
 Isla desierta, naufragio, zombieland. No duplicar lo de Base ("abrazar a un zombie",
 "sobrevivir perdidos", "reconstrucción social"). Cada pregunta autoexplicativa. Picaresco.
 
-### Confirmed (8)
+### Deathmatch (1)
 
-- **(Deathmatch)** Naufragio: ¿qué equipo monta una balsa que de verdad flote?
-- **(Superlative)** ¿Quién sería el primero en palmarla en un apocalipsis zombie?
-- **(Superlative)** ¿Quién se autoproclamaría líder sin tener ni idea?
-- **(Superlative)** ¿Quién entraría en pánico nada más empezar el caos?
-- **(Superlative)** ¿Quién se quedaría dormido en su turno de guardia?
-- **(SecretPairing)** ¿Qué dos personas montarían la alianza más letal para sobrevivir?
-- **(CustomPoll, 1, + "Otro")** Fin del mundo en 24h, ¿qué haces? — Fiesta sin freno · Con la familia · Saquear tiendas · Dormir tranquilo
-- **(CustomPoll, multi)** Marca lo que NO aguantarías sin: — Café · Móvil · Ducha caliente · Tu serie favorita
+1. **Naufragio: ¿qué equipo monta una balsa que de verdad flote?**
+
+### Superlative (6)
+
+2. **¿Quién sería el primero en palmarla en un apocalipsis zombie?**
+3. **¿Quién se autoproclamaría líder sin tener ni idea?**
+4. **¿Quién entraría en pánico nada más empezar el caos?**
+5. **¿Quién se quedaría dormido en su turno de guardia?**
+6. **En un grupo de supervivientes a un apocalipsis, ¿quién sería el más inútil cuando llegara el caos?**
+7. **¿Quién se vendría arriba e intentaría una heroicidad que los pondría a todos en peligro?**
+
+### SecretPairing (2)
+
+8. **¿Qué dos personas montarían la alianza más letal para sobrevivir?**
+9. **Tras el fin del mundo, ¿qué dos personas serían la última esperanza para repoblar la Tierra?**
+
+### CustomPoll (6)
+
+10. **Fin del mundo en 24h, ¿qué haces?** — Fiesta sin freno · Con la familia · Saquear tiendas · Dormir tranquilo _(elige 1, + "Otro")_
+11. **Marca lo que NO aguantarías sin:** — Café · Móvil · Ducha caliente · Tu serie favorita _(multi)_
+12. **Solo puedes coger un arma cuerpo a cuerpo para el apocalipsis zombie. ¿Cuál?** — Bate de béisbol · Katana · Machete · Sartén de hierro
+13. **Montas tu kit de supervivencia y solo cabe una cosa más en la mochila. ¿Cuál metes?** — Comida para una semana · Un buen cuchillo · Un botiquín · Un mechero
+14. **En un apocalipsis, ¿qué tipo de superviviente serías?** — El que acapara recursos · El que ayuda a todos · El llanero solitario · El que se esconde y reza
+15. **Si el mundo se fuera a acabar, ¿qué final prefieres?** — Meteorito instantáneo · Invasión zombie · Pandemia lenta · Guerra nuclear _(+ "Otro")_
