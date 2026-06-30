@@ -12,14 +12,15 @@ using VayaPreguntita.API.Enums;
 // database where a pack already exists, instead of being skipped by a whole-pack existence
 // check. Existing templates are never edited or removed by the normal insert-missing pass
 // (that would orphan the Question.TemplateId FKs of clones already living in real groups) —
-// additive only. The one exception is Renames below: a small, explicit list of in-place
+// additive only. The exceptions are Renames/OptionRenames below: explicit lists of in-place
 // wording fixes for already-shipped templates, applied as an UPDATE (same Id, same FK
-// references) instead of insert+orphan, so production clones are unaffected either way.
+// references) instead of insert+orphan. There is only one database (no separate
+// dev/production) — so any wording fix here must go through these lists, never a plain Text
+// edit in the *Templates() builders below, or it silently creates a duplicate/orphaned row
+// the next time the app starts.
 public static class PackSeeder
 {
-    // Wording fixes for templates that may already exist in a live database (i.e. only the
-    // original "Base" pack — every other pack ships fresh with this branch and has no prior
-    // history to reconcile). Applied as a rename (UPDATE by old Text) before the normal
+    // Question-stem wording fixes. Applied as a rename (UPDATE by old Text) before the normal
     // insert-missing pass, so already-cloned Questions keep a valid TemplateId and no
     // duplicate/orphaned row is created. Safe to leave here permanently — a no-op once applied
     // (or on a fresh database that never had the old text).
@@ -47,11 +48,49 @@ public static class PackSeeder
         ),
         ("Base", "¿Preferirías vivir con...?", "Maldición elegida, ¿cuál te llevas?"),
         ("Base", "Condena social, ¿qué prefieres?", "Tu condena social de por vida. ¿Cuál eliges?"),
+        (
+            "Dilemas",
+            "Para parar ese tren y salvar a 5, tendrías que empujar tú a un desconocido a la vía. ¿Lo empujas?",
+            "Solo puedes salvar a 5 desconocidos empujando tú mismo a otro desconocido a las vías de un tren. ¿Lo empujas?"
+        ),
+        (
+            "Supervivencia y apocalipsis",
+            "Fin del mundo en 24h, ¿qué haces?",
+            "Fin del mundo en 24 horas, ¿qué haces?"
+        ),
+        (
+            "Supervivencia y apocalipsis",
+            "¿Quién se vendría arriba e intentaría una heroicidad que los pondría a todos en peligro?",
+            "¿Quién haría una heroicidad estúpida que pondría a todo el grupo en peligro?"
+        ),
+        (
+            "Nostalgia y cringe",
+            "Marca tu(s) tribu(s) de adolescente:",
+            "Marca las tribus en las que encajabas de adolescente:"
+        ),
+    ];
+
+    // Wording fixes scoped to a single CustomPoll option, where the question stem itself is
+    // unchanged (so it wouldn't be caught by Renames above — the stem already "exists").
+    private static readonly (
+        string PackName,
+        string StemText,
+        string OldOptionText,
+        string NewOptionText
+    )[] OptionRenames =
+    [
+        (
+            "Hipotéticos: ¿qué harías?",
+            "Te reencarnas en lo que peor te caiga. ¿Qué prefieres ser?",
+            "Pez con 3 s de memoria",
+            "Pez con memoria de 3 segundos"
+        ),
     ];
 
     public static async Task SeedAsync(AppDbContext context)
     {
         await ApplyRenamesAsync(context);
+        await ApplyOptionRenamesAsync(context);
 
         foreach (var def in BuildPacks())
         {
@@ -125,6 +164,29 @@ public static class PackSeeder
                 continue;
 
             template.Text = newText;
+            changed = true;
+        }
+
+        if (changed)
+            await context.SaveChangesAsync();
+    }
+
+    private static async Task ApplyOptionRenamesAsync(AppDbContext context)
+    {
+        var changed = false;
+
+        foreach (var (packName, stemText, oldOptionText, newOptionText) in OptionRenames)
+        {
+            var template = await context
+                .QuestionTemplates.Include(t => t.Pack)
+                .Include(t => t.Options)
+                .FirstOrDefaultAsync(t => t.Pack.Name == packName && t.Text == stemText);
+
+            var option = template?.Options.FirstOrDefault(o => o.Text == oldOptionText);
+            if (option is null)
+                continue;
+
+            option.Text = newOptionText;
             changed = true;
         }
 
