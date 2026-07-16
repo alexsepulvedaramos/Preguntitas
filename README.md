@@ -80,15 +80,18 @@ flowchart LR
 
 ## Status & roadmap
 
-The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, all question types, voting, results, history, group admin, notifications, thematic packs). A post-MVP polish pass is planned and specced:
+The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, all question types, voting, results, history, group admin, notifications, thematic packs). The next passes are specced and prioritized:
 
-- Fixed 1–10 Scale range (rama 16)
-- Avatar dark-mode contrast + invite-link register flow (rama 17)
-- Unified mobile group header (rama 18)
-- Per-group voting streaks with animated avatar frames (rama 19)
-- Mid-cycle daily-time change re-anchoring (rama 20)
+1. Mid-cycle daily-time change re-anchoring (rama 20)
+2. Avatar dark-mode contrast + invite-link register flow (rama 17)
+3. Fixed 1–10 Scale range (rama 16)
+4. Public landing page + demo experience for solo visitors (rama 21)
+5. Core-domain test coverage + full CI on PRs (rama 22)
+6. **Play in English & German** — UI and all 300+ seeded questions, defaulting to the browser's language with a per-user override (ramas 23–24)
+7. Per-group voting streaks with animated avatar frames (rama 19)
+8. Unified mobile group header (rama 18)
 
-**Phase 2 backlog** includes in-question chat/debate threads (the product's north star), Google OAuth, points & rankings, monthly stats, email verification/password recovery, and i18n. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
+**Phase 2 backlog** includes in-question chat/debate threads (the product's north star), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
 
 ## Engineering practices
 
