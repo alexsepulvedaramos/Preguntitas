@@ -9,7 +9,7 @@
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
 [![Deploy Backend](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/deploy-backend.yml/badge.svg)](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/deploy-backend.yml)
 
-**🎮 Live demo:** [preguntitas-gamma.vercel.app](https://preguntitas-gamma.vercel.app)
+**🎮 Live demo:** [vayapreguntita.vercel.app](https://vayapreguntita.vercel.app)
 *(runs on free-tier hosting — the very first request may take up to a minute while the API wakes up)*
 
 ---
