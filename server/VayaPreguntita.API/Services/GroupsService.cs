@@ -123,6 +123,8 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         if (group == null)
             return null;
 
+        var timeChanged = group.DailyQuestionTime != request.DailyQuestionTime;
+
         group.Name = request.Name;
         group.Description = request.Description;
         group.DailyQuestionTime = request.DailyQuestionTime;
@@ -130,7 +132,28 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         context.Groups.Update(group);
         await context.SaveChangesAsync();
 
-        return mapper.Map<GroupResponse>(group);
+        var response = mapper.Map<GroupResponse>(group);
+
+        // If the time changed but today's question has already activated, the new time only
+        // takes effect next cycle (§4.8) — today's slot is already consumed, so we neither
+        // re-anchor nor close it early. Surface that so the UI can inform the admin.
+        // "Activated today" is measured off ActivatedAt within the local (UTC+2) day, not the
+        // entry's Date, so the bootstrap entry (dated one day earlier, §4.1) still counts.
+        if (timeChanged)
+        {
+            var today = DailyClock.Today();
+            var todayStartUtc = DailyClock.ToUtc(today, TimeOnly.MinValue);
+            var tomorrowStartUtc = DailyClock.ToUtc(today.AddDays(1), TimeOnly.MinValue);
+
+            response.DailyTimeChangeAppliesFromTomorrow = await context.DailyEntries.AnyAsync(d =>
+                d.GroupId == groupId
+                && d.ActivatedAt != null
+                && d.ActivatedAt >= todayStartUtc
+                && d.ActivatedAt < tomorrowStartUtc
+            );
+        }
+
+        return response;
     }
 
     public async Task<bool> TransferAdminAsync(int groupId, int newAdminId)
