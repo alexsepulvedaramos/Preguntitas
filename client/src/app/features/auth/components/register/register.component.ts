@@ -17,10 +17,11 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { RegisterRequest } from '../../models/register-request.interface';
 import { AuthValidators } from '../../validators/auth.validators';
+import { ResultsShowcaseComponent } from '../showcase/results-showcase.component';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
+  imports: [ReactiveFormsModule, RouterLink, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports, ResultsShowcaseComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',

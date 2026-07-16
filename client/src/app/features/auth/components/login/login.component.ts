@@ -9,10 +9,11 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 
 import { LoginRequest } from '../../models/login-request.interface';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { RotatingQuestionComponent } from '../showcase/rotating-question.component';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports],
+  imports: [ReactiveFormsModule, RouterLink, HlmCardImports, HlmFieldImports, HlmInputImports, HlmButtonImports, RotatingQuestionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.component.html',
 })

@@ -56,14 +56,6 @@ export const routes: Routes = [
                 title: 'Mi perfil',
                 loadComponent: () => import('./features/profile/profile-page.component').then(m => m.ProfilePageComponent),
             },
-            // {
-            //     path: 'questions',
-            //     loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent),
-            // },
-            // {
-            //     path: 'questions/:groupId',
-            //     loadComponent: () => import('./features/questions/question-list/question-list.component').then(m => m.QuestionListComponent)
-            // }
         ]
     },
     {
