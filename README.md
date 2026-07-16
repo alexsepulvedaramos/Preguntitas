@@ -20,11 +20,21 @@
 
 Each day one rotating member becomes the **selector** for the next day's question: they can pick from the group's own pool, browse 15 thematic packs, or create a question on the spot. If they do nothing, the system has already auto-selected one — **there is always a question**.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/login.png" width="210" alt="Login" />
+  <img src="docs/screenshots/groups.png" width="210" alt="Tus grupos" />
+  <img src="docs/screenshots/group-detail.png" width="210" alt="Pregunta del día y resultados" />
+  <img src="docs/screenshots/history.png" width="210" alt="Historial" />
+</p>
+
 ## Features
 
 - 📅 **Daily lifecycle engine** — a background worker preselects tomorrow's question and activates today's at each group's configured time, per group, with rotating selector turns.
 - 🗳️ **Six question types**, each with its own voting UI and results visualization (see below).
 - 👀 **Transparent results** — live aggregates including exactly who voted for whom, revealed after you vote.
+- 💬 **Group chat** right under the daily question, with push notifications for new messages.
 - 📦 **15 thematic question packs** (300+ curated questions in Spanish), toggleable per group, with clone-on-use templates and auto-resolution of member-dependent questions.
 - 🔔 **Web Push notifications** (VAPID) — new question, your turn to pick, votes on your question; per-type preferences and per-group mute.
 - 📱 **Installable PWA** — dark mode, pull-to-refresh, mobile-first layouts.
@@ -91,7 +101,7 @@ The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, 
 7. Unified mobile group header (rama 18)
 8. Core-domain test coverage + full CI on PRs (rama 22); demo experience for solo visitors (rama 25)
 
-**Phase 2 backlog** includes in-question chat/debate threads (the product's north star), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
+**Phase 2 backlog** includes richer in-question debate threads (evolving the shipped chat), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
 
 ## Engineering practices
 
