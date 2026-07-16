@@ -12,6 +12,9 @@ export interface GroupResponse {
     creatorUsername: string;
     dailyQuestionTime: string;
     dailyStatus?: 'voting' | 'selector' | 'results' | 'no_question';
+    // Set only on the update response: the daily time changed but today's question had
+    // already activated, so the new time takes effect from the next cycle (§4.8).
+    dailyTimeChangeAppliesFromTomorrow?: boolean;
 }
 
 export interface GroupMember {

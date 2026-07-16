@@ -118,7 +118,13 @@ export class GroupSettingsComponent implements OnInit {
       next: (updated) => {
         this.group.set(updated);
         this.saving.set(false);
-        toast.success('Información del grupo actualizada');
+        if (updated.dailyTimeChangeAppliesFromTomorrow) {
+          toast.success(
+            'Grupo actualizado. El nuevo horario se aplicará a partir de mañana, porque la pregunta de hoy ya está activa.'
+          );
+        } else {
+          toast.success('Información del grupo actualizada');
+        }
       },
       error: () => {
         this.saving.set(false);
