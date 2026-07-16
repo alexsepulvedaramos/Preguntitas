@@ -85,11 +85,11 @@ The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, 
 1. Mid-cycle daily-time change re-anchoring (rama 20)
 2. Avatar dark-mode contrast + invite-link register flow (rama 17)
 3. Fixed 1–10 Scale range (rama 16)
-4. Public landing page + demo experience for solo visitors (rama 21)
-5. Core-domain test coverage + full CI on PRs (rama 22)
-6. **Play in English & German** — UI and all 300+ seeded questions, defaulting to the browser's language with a per-user override (ramas 23–24)
-7. Per-group voting streaks with animated avatar frames (rama 19)
-8. Unified mobile group header (rama 18)
+4. Public landing page for visitors without an account (rama 21)
+5. **Play in English & German** — UI and all 300+ seeded questions, defaulting to the browser's language with a per-user override (ramas 23–24)
+6. Per-group voting streaks with animated avatar frames (rama 19)
+7. Unified mobile group header (rama 18)
+8. Core-domain test coverage + full CI on PRs (rama 22); demo experience for solo visitors (rama 25)
 
 **Phase 2 backlog** includes in-question chat/debate threads (the product's north star), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
 
@@ -108,3 +108,7 @@ The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, 
 | Run the API locally | [server/README.md](server/README.md) |
 | Run the Angular client locally | [client/README.md](client/README.md) |
 | Understand the product & data model | [docs/specs/vaya-preguntita.md](docs/specs/vaya-preguntita.md) |
+
+## License
+
+All rights reserved — published for portfolio viewing and evaluation only. See [LICENSE](LICENSE).
