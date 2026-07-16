@@ -626,9 +626,11 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 
 | Push notifications (Web Push / VAPID): `DevicePushSubscription` + `NotificationPreferences` entities + migration (`AddNotificationsSupport`); `INotificationService` / `NotificationService` (Lib.Net.Http.WebPush); `NotificationsController` (`GET /vapid-key`, `POST/DELETE /subscriptions`, `GET/PUT /preferences`); `PATCH /groups/{id}/members/me/mute`; 4 notification types — `new_question` (fired at T for all members), `selector_turn` (fired at preselection time + 3 h reminder if still auto-selected), `user_voted` (fire-and-forget on `VoteAsync`), `new_message` (fire-and-forget on `SendMessageAsync`); stale subscription cleanup (410/404); VAPID keys in Render env vars (`Vapid__PublicKey/PrivateKey/Subject`). Angular: `PushNotificationService` (SwPush wrapper, VAPID fetch, subscribe/unsubscribe, notification-click routing, 7-day dismiss cooldown); `NotificationPreferencesService`; `PushNotificationPromptComponent` nudge banner; "Notificaciones" section in `/profile` (master toggle + 4 per-type switches); "Silenciar este grupo" switch in group settings; `SelectQuestionDialogComponent.triggerOpen()` (auto-opens after voting if current user is selector). Quick-wins: register form shows 409 conflict error; join-group shows "Ya eres miembro" toast. | ✅ — `feat/notifications` |
 
+| Portfolio & onboarding pass: product-first root `README.md` (live demo link, features, architecture diagram, honest roadmap, engineering practices); `server/README.md` (local setup moved from root) + real `client/README.md`; `index.html` → `lang="es"`, meta description + Open Graph/Twitter cards (WhatsApp/LinkedIn link previews); product pitch tagline on the auth layout (login/register); dead code removed (unused `styles-ambar/arcade/neon.css`, `features/questions/question-list`, commented routes and font experiments) | ✅ — `feat/portfolio-polish` |
+
 ### Pending (MVP)
 
-MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, optional and not started). A post-MVP bug-fix & optimization pass is now planned — ramas 14–19, §13. Phase 2 backlog in §16.
+MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, optional and not started). Of the post-MVP bug-fix & optimization pass (§13), ramas 14–15 are merged; ramas 16–20 remain pending. Phase 2 backlog in §16.
 
 ---
 
