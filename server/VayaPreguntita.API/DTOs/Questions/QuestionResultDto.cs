@@ -22,6 +22,10 @@ public class QuestionResultDto
 
 public class FreeTextResponseDto
 {
+    // Author, so the answer bubble can show their avatar and streak frame (rama 19).
+    public int UserId { get; set; }
     public string Username { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
+    public string? FrameColor { get; set; }
     public string Text { get; set; } = string.Empty;
 }

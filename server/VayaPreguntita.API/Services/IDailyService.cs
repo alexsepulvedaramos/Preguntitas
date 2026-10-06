@@ -9,7 +9,7 @@ public interface IDailyService
 {
     Task<DailyStatusDto> GetCurrentStatusAsync(int groupId, int userId);
     Task<SelectResult> SelectQuestionAsync(int groupId, int userId, SelectQuestionDto dto);
-    Task<(VoteResult result, QuestionResultDto? results)> VoteAsync(
+    Task<(VoteResult result, VoteResponseDto? response)> VoteAsync(
         int groupId,
         int userId,
         CreateVoteDto dto

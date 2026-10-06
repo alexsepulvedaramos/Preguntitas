@@ -74,6 +74,22 @@ public class NotificationService(
         await SendToManyAsync(context, recipients, payload);
     }
 
+    public async Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime)
+    {
+        using var scope = scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var subscriptions = await context.DevicePushSubscriptions
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
+        var payload = BuildPayload(
+            "🔥 ¡Tu racha está en peligro!",
+            $"Tu racha de {streak} días en {groupName} termina a las {dailyTime.ToString("HH:mm")}. ¡Vota antes!",
+            $"/groups/{groupId}"
+        );
+        await SendToManyAsync(context, subscriptions, payload);
+    }
+
     // Returns subscriptions for eligible members: in the group, not muted, pref enabled (or no pref row = default true).
     private async Task<List<DevicePushSubscription>> GetEligibleMembersAsync(
         AppDbContext context,

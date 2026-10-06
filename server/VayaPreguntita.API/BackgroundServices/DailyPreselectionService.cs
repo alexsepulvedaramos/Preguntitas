@@ -121,5 +121,9 @@ public class DailyPreselectionService(
 
         if (pendingWithoutSelection.Count > 0)
             await context.SaveChangesAsync();
+
+        // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
+        var streakService = scope.ServiceProvider.GetRequiredService<IStreakService>();
+        await streakService.SendDangerRemindersAsync();
     }
 }

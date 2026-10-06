@@ -8,8 +8,12 @@ using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
 
-public class GroupsService(AppDbContext context, IMapper mapper, IDailyService dailyService)
-    : IGroupsService
+public class GroupsService(
+    AppDbContext context,
+    IMapper mapper,
+    IDailyService dailyService,
+    IStreakService streakService
+) : IGroupsService
 {
     public async Task<bool> IsUserInGroupAsync(int userId, int groupId)
     {
@@ -191,6 +195,10 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
         group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = false });
         await context.SaveChangesAsync();
 
+        // A member who left and comes back gets their streak rebuilt from vote history
+        // (cycles spent outside count as missed, so the record survives but the streak doesn't).
+        await streakService.RecalculateMemberAsync(group.Id, userId);
+
         // Seed the group's first DailyEntry once it reaches 2 members. Bootstrap exception to
         // the "daily time is sacred" rule (§4.1): the very first question activates
         // immediately so members aren't left waiting up to 24h with nothing to do, but it
@@ -230,8 +238,21 @@ public class GroupsService(AppDbContext context, IMapper mapper, IDailyService d
             .ProjectTo<GroupMemberDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
+        var streaks = await streakService.GetEffectiveStreaksAsync(groupId);
+        var crownHolder = await streakService.GetCrownHolderAsync(groupId);
+        var memberIds = members.Select(m => m.Id).ToList();
+        var titles = await context
+            .Users.Where(u => memberIds.Contains(u.Id))
+            .Select(u => new { u.Id, u.HighestStreakEver, u.SelectedTitleKey })
+            .ToDictionaryAsync(u => u.Id);
         foreach (var m in members)
+        {
             m.IsCurrentUser = m.Id == currentUserId;
+            m.CurrentStreak = streaks.GetValueOrDefault(m.Id);
+            m.HasCrown = m.Id == crownHolder;
+            if (titles.TryGetValue(m.Id, out var t))
+                m.Title = StreakTiers.DisplayedTitle(t.HighestStreakEver, t.SelectedTitleKey);
+        }
 
         return members;
     }

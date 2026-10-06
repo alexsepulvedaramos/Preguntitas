@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
@@ -6,6 +6,9 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { OptionResult, Voter } from '../../../../core/models/result.model';
 import { User } from '../../../../core/models/user.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { isHexFrame } from '../../../../core/constants/streak-tiers';
+import { MemberCardService } from '../../../../core/services/member-card.service';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 
 // Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
 // Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
@@ -51,6 +54,19 @@ export class ResultOptionBarComponent {
     () => `var(--color-chart-${(this.index() % CHART_COLORS.length) + 1})`
   );
 
-  // When leadUser has a frameColor, use it as bar fill; otherwise fall back to chart class
-  protected readonly fillColor = computed(() => this.leadUser()?.frameColor ?? null);
+  // Members' streak rings inside the group (rama 19) and the member card on tap.
+  protected readonly groupStreaks = inject(GroupStreaksService);
+  private readonly memberCard = inject(MemberCardService);
+
+  // When leadUser has a fixed (hex) frame colour, use it as bar fill; otherwise fall back
+  // to the chart class ("streak"/"none" frames aren't colours).
+  protected readonly fillColor = computed(() => {
+    const frame = this.leadUser()?.frameColor;
+    return isHexFrame(frame) ? frame : null;
+  });
+
+  openMemberCard(userId: number) {
+    const groupId = this.groupStreaks.currentGroupId();
+    if (groupId != null) this.memberCard.open(groupId, userId);
+  }
 }

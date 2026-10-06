@@ -9,6 +9,7 @@ public class ChatMessage
     public int DailyEntryId { get; set; }
     public DailyEntry DailyEntry { get; set; } = null!;
 
-    public int UserId { get; set; }
-    public User User { get; set; } = null!;
+    // null => automatic system message (e.g. streak milestones)
+    public int? UserId { get; set; }
+    public User? User { get; set; }
 }

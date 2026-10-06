@@ -11,4 +11,13 @@ public class GroupMemberDto
     public bool IsAdmin { get; set; }
     public bool IsCurrentUser { get; set; }
     public bool NotificationsMuted { get; set; }
+
+    // Effective voting streak in this group (rama 19).
+    public int CurrentStreak { get; set; }
+
+    // Holds the group's best current streak (ties: whoever reached it first).
+    public bool HasCrown { get; set; }
+
+    // The title the member chose to show (null when none is unlocked or it's hidden).
+    public string? Title { get; set; }
 }

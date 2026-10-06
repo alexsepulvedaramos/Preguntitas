@@ -10,8 +10,15 @@
   } @else {
     <div class="flex flex-col gap-2">
       @for (msg of messages(); track msg.id; let idx = $index) {
-        @let showLabel = idx === 0 || messages()[idx - 1].userId !== msg.userId;
-        @if (msg.isCurrentUser) {
+        @let showLabel = idx === 0 || messages()[idx - 1].userId !== msg.userId || messages()[idx - 1].isSystem;
+        @if (msg.isSystem) {
+          <!-- Automatic message (streak milestones, rama 19) -->
+          <div class="flex justify-center py-1">
+            <p class="max-w-[90%] rounded-full bg-sand px-3 py-1 text-center text-xs font-medium text-sand-foreground">
+              {{ msg.body }}
+            </p>
+          </div>
+        } @else if (msg.isCurrentUser) {
           <div class="flex flex-col items-end gap-0.5">
             @if (showLabel) {
               <span class="px-1 text-xs font-medium text-muted-foreground">Tú</span>

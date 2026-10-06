@@ -184,7 +184,10 @@ public static class ResultsBuilder
             .Where(v => !string.IsNullOrWhiteSpace(v.FreeText))
             .Select(v => new FreeTextResponseDto
             {
+                UserId = v.UserId,
                 Username = v.User?.Username ?? "Unknown",
+                AvatarUrl = v.User?.AvatarUrl,
+                FrameColor = v.User?.FrameColor,
                 Text = v.FreeText!,
             })
             .ToList();

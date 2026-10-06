@@ -14,7 +14,11 @@ namespace VayaPreguntita.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/groups")]
-public class GroupsController(IGroupsService groupsService, AppDbContext context) : ControllerBase
+public class GroupsController(
+    IGroupsService groupsService,
+    IStreakService streakService,
+    AppDbContext context
+) : ControllerBase
 {
     /// <summary>
     /// GET /api/groups
@@ -105,6 +109,24 @@ public class GroupsController(IGroupsService groupsService, AppDbContext context
 
         var members = await groupsService.GetGroupMembersAsync(groupId, userId);
         return Ok(members);
+    }
+
+    /// <summary>
+    /// GET /api/groups/{groupId}/members/{memberId}/stats
+    /// Member detail card: streak, best streak, votes, participation, selector turns and
+    /// questions created in this group (rama 19).
+    /// </summary>
+    [HttpGet("{groupId}/members/{memberId}/stats")]
+    public async Task<IActionResult> GetMemberStats(int groupId, int memberId)
+    {
+        var userId = User.GetUserId();
+
+        var hasAccess = await groupsService.IsUserInGroupAsync(userId, groupId);
+        if (!hasAccess)
+            return Forbid();
+
+        var stats = await streakService.GetMemberStatsAsync(groupId, memberId);
+        return stats == null ? NotFound() : Ok(stats);
     }
 
     /// <summary>

@@ -31,7 +31,10 @@ import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse, UpdateGroupRequest } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { HlmSwitchImports } from '@spartan-ng/helm/switch';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { PacksService } from '../../../../core/services/packs.service';
+import { MemberCardService } from '../../../../core/services/member-card.service';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 import { Pack } from '../../../../core/models/pack.model';
 
 @Component({
@@ -47,6 +50,7 @@ import { Pack } from '../../../../core/models/pack.model';
     HlmAlertDialogImports,
     HlmDialogImports,
     HlmSwitchImports,
+    HlmBadgeImports,
     NgIcon,
     UserAvatarComponent,
   ],
@@ -65,6 +69,8 @@ import { Pack } from '../../../../core/models/pack.model';
 export class GroupSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly packsService = inject(PacksService);
+  private readonly groupStreaks = inject(GroupStreaksService);
+  protected readonly memberCard = inject(MemberCardService);
   private readonly router = inject(Router);
 
   public readonly groupId = input.required<string>();
@@ -253,6 +259,7 @@ export class GroupSettingsComponent implements OnInit {
         this.groupsService.getGroupMembers(this.numericGroupId()).subscribe({
           next: (members) => {
             this.members.set(members);
+            this.groupStreaks.set(this.numericGroupId(), members);
             const me = members.find(m => m.isCurrentUser);
             if (me) this.notifMuted.set(me.notificationsMuted);
             this.loading.set(false);

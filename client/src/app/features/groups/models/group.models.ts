@@ -26,6 +26,9 @@ export interface GroupMember {
     isAdmin: boolean;
     isCurrentUser: boolean;
     notificationsMuted: boolean;
+    currentStreak: number; // effective voting streak in this group (rama 19)
+    hasCrown: boolean; // holds the group's best current streak
+    title: string | null; // the title the member chose to show
 }
 
 export interface JoinGroupRequest {

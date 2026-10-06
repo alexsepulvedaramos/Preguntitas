@@ -3,6 +3,7 @@
 import { QuestionType } from '../enums/question-type.enum';
 import { CreateQuestion, QuestionToVote } from './question.model';
 import { QuestionResult } from './result.model';
+import { MyStreak } from './streak.model';
 
 // ── GET /daily/current — the redesigned { today, selection } shape (spec §4.7) ──
 
@@ -31,6 +32,7 @@ export interface SelectionState {
 export interface DailyStatus {
     today: TodayState;
     selection: SelectionState | null; // null before the group has started (< 2 members)
+    myStreak: MyStreak; // the current user's streak in this group (rama 19)
 }
 
 // ── POST /daily/select — exactly one source must be provided ──

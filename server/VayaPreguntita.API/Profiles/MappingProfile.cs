@@ -26,7 +26,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl))
             .ForMember(dest => dest.FrameColor, opt => opt.MapFrom(src => src.User.FrameColor))
             .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt))
-            .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin));
+            .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin))
+            .ForMember(dest => dest.CurrentStreak, opt => opt.Ignore()) // streak, crown and title set by the service
+            .ForMember(dest => dest.HasCrown, opt => opt.Ignore())
+            .ForMember(dest => dest.Title, opt => opt.Ignore());
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))

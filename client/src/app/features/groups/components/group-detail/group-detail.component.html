@@ -70,6 +70,27 @@
     </div>
   } @else {
 
+    @if (daily()?.myStreak?.lostStreak; as lost) {
+      <div hlmAlert class="relative pr-10">
+        <ng-icon hlm name="lucideFlame" />
+        <h4 hlmAlertTitle>Has perdido tu racha de {{ lost }} días</h4>
+        <p hlmAlertDescription>
+          Tu récord: {{ daily()!.myStreak.best }} · Vota hoy para empezar una nueva.
+        </p>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="dismissLostStreak()"
+          aria-label="Cerrar aviso"
+        >
+          <ng-icon hlm name="lucideX" class="size-4!" />
+          <span class="sr-only">Cerrar aviso</span>
+        </button>
+      </div>
+    }
+
     @if (daily()?.today?.status !== 'no_question') {
       <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
         <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
@@ -143,3 +164,7 @@
 
   }
 </div>
+
+@if (celebration(); as update) {
+  <app-streak-celebration [update]="update" (dismissed)="onCelebrationDismissed()" />
+}

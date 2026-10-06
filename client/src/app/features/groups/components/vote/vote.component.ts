@@ -5,7 +5,7 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
-import { QuestionResult } from '../../../../core/models/result.model';
+import { VoteResponse } from '../../../../core/models/streak.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
@@ -41,7 +41,7 @@ export class VoteComponent {
   public readonly question = input.required<QuestionToVote>();
   public readonly members = input.required<GroupMember[]>();
 
-  public readonly voted = output<QuestionResult>();
+  public readonly voted = output<VoteResponse>();
 
   public readonly submitting = signal(false);
   public readonly error = signal<string | null>(null);
@@ -61,9 +61,9 @@ export class VoteComponent {
     this.submitting.set(true);
 
     this.dailyService.vote(this.groupId(), dto).subscribe({
-      next: (result) => {
+      next: (response) => {
         this.submitting.set(false);
-        this.voted.emit(result);
+        this.voted.emit(response);
       },
       error: (err) => {
         this.submitting.set(false);

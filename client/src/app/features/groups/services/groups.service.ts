@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { MemberStats } from '../../../core/models/streak.model';
 import {
     CreateGroupRequest,
     GroupMember,
@@ -60,6 +61,11 @@ export class GroupsService {
     // Fetches the members of a group, including who the admin is
     getGroupMembers(groupId: number): Observable<GroupMember[]> {
         return this.http.get<GroupMember[]>(`${this.baseUrl}/${groupId}/members`);
+    }
+
+    // Member detail card stats (rama 19)
+    getMemberStats(groupId: number, userId: number): Observable<MemberStats> {
+        return this.http.get<MemberStats>(`${this.baseUrl}/${groupId}/members/${userId}/stats`);
     }
 
     // Updates basic information of an existing group

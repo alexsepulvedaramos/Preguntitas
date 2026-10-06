@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { DailyStatus, SelectQuestion } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
-import { QuestionResult } from '../models/result.model';
+import { VoteResponse } from '../models/streak.model';
 import { ChatMessage } from '../models/chat-message.model';
 import { environment } from '../../../environments/environment';
 
@@ -27,9 +27,15 @@ export class DailyService {
         return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/select`, dto);
     }
 
-    // Submit a vote on the currently-open question; returns the fresh results
-    vote(groupId: number, dto: CreateVote): Observable<QuestionResult> {
-        return this.http.post<QuestionResult>(`${this.baseUrl}/${groupId}/daily/vote`, dto);
+    // Submit a vote on the currently-open question; returns the fresh results plus the
+    // voter's streak change (rama 19)
+    vote(groupId: number, dto: CreateVote): Observable<VoteResponse> {
+        return this.http.post<VoteResponse>(`${this.baseUrl}/${groupId}/daily/vote`, dto);
+    }
+
+    // Acknowledge the "Has perdido tu racha…" notice so it isn't shown again
+    dismissLostStreak(groupId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/streak/dismiss-lost`, {});
     }
 
     // Chat messages for the currently-open daily question

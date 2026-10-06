@@ -18,6 +18,7 @@ import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-t
 import { ResultsComponent } from '../results/results.component';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
+import { GroupStreaksService } from '../../services/group-streaks.service';
 @Component({
   selector: 'app-history',
   imports: [
@@ -35,6 +36,7 @@ import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 })
 export class HistoryComponent implements OnInit {
   private readonly questionsService = inject(QuestionsService);
+  private readonly groupStreaks = inject(GroupStreaksService);
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -69,6 +71,8 @@ export class HistoryComponent implements OnInit {
   protected readonly QuestionType = QuestionType;
 
   ngOnInit() {
+    // Results avatars read members' streak rings from here (rama 19).
+    this.groupStreaks.ensure(this.numericGroupId());
     this.loadHistory();
   }
 

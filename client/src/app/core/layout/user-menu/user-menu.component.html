@@ -11,6 +11,7 @@
       [avatarUrl]="authService.currentUser()?.avatarUrl"
       [username]="authService.currentUser()?.username ?? ''"
       [frameColor]="authService.currentUser()?.frameColor"
+      [streak]="authService.currentUser()?.highestStreak"
       size="sm"
     />
   </button>
@@ -48,12 +49,16 @@
           [avatarUrl]="authService.currentUser()?.avatarUrl"
           [username]="authService.currentUser()?.username ?? ''"
           [frameColor]="authService.currentUser()?.frameColor"
+          [streak]="authService.currentUser()?.highestStreak"
           size="lg"
         />
         <div class="flex flex-col min-w-0">
           <span class="font-semibold text-foreground truncate">
             {{ authService.currentUser()?.username }}
           </span>
+          @if (authService.currentUser()?.title; as title) {
+            <span class="text-xs font-medium text-primary truncate">{{ title }}</span>
+          }
           <span class="text-xs text-muted-foreground truncate">
             {{ authService.currentUser()?.email }}
           </span>

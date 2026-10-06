@@ -70,6 +70,7 @@ builder.Services.AddScoped<IQuestionsService, QuestionsService>();
 builder.Services.AddScoped<IPacksService, PacksService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddHostedService<DailyPreselectionService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
@@ -141,6 +142,17 @@ using (var scope = app.Services.CreateScope())
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogWarning(ex, "Pack seeding skipped (is the migration applied?).");
+    }
+
+    // Streak backfill from vote history (rama 19) — only touches never-computed members.
+    try
+    {
+        await scope.ServiceProvider.GetRequiredService<IStreakService>().BackfillAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Streak backfill skipped.");
     }
 }
 

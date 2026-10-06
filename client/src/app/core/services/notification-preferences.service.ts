@@ -7,7 +7,11 @@ export interface NotificationPreferences {
   selectorTurn: boolean;
   userVoted: boolean;
   newMessage: boolean;
+  streakDanger: boolean;
+  streakDangerHoursBefore: number; // one of STREAK_DANGER_HOURS
 }
+
+export const STREAK_DANGER_HOURS = [1, 2, 3, 4, 6, 8] as const;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationPreferencesService {
