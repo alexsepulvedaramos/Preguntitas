@@ -52,6 +52,7 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
   // ── Touch handlers ────────────────────────────────────────────────────────
 
   private onStart(e: TouchEvent) {
+    if (this.belongsElsewhere(e.target)) return;
     if ((this.doc.defaultView?.scrollY ?? 0) === 0) {
       this.startY = e.touches[0].clientY;
       this.active = true;
@@ -82,6 +83,25 @@ export class PullToRefreshDirective implements OnInit, OnDestroy {
       this.hideIndicator();
     }
     this.currentPull = 0;
+  }
+
+  // The gesture only belongs to the page itself. Touches inside overlays (drawers, dialogs,
+  // the member card, the question picker, the streak celebration) or inside any inner list
+  // that is scrolled away from its top are left alone — otherwise swiping a drawer down
+  // reloads the page and a scrolled list can't scroll back up.
+  private belongsElsewhere(target: EventTarget | null): boolean {
+    if (this.doc.documentElement.classList.contains('cdk-global-scrollblock')) return true;
+    if (!(target instanceof Element)) return false;
+    if (target.closest('.cdk-overlay-container, [role="dialog"], [data-vaul-drawer-direction]')) return true;
+
+    const win = this.doc.defaultView;
+    for (let el: Element | null = target; el && el !== this.doc.body; el = el.parentElement) {
+      if (el.scrollTop > 0 && el.scrollHeight > el.clientHeight) {
+        const overflowY = win?.getComputedStyle(el).overflowY;
+        if (overflowY === 'auto' || overflowY === 'scroll') return true;
+      }
+    }
+    return false;
   }
 
   // ── Indicator DOM ─────────────────────────────────────────────────────────
