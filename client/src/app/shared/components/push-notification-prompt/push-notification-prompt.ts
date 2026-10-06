@@ -1,4 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { toast } from '@spartan-ng/brain/sonner';
+import { AuthService } from '../../../core/auth/auth.service';
 import { PushNotificationService } from '../../../core/services/push-notification.service';
 
 @Component({
@@ -50,21 +52,26 @@ import { PushNotificationService } from '../../../core/services/push-notificatio
 })
 export class PushNotificationPromptComponent implements OnInit {
   private readonly pushService = inject(PushNotificationService);
+  private readonly auth = inject(AuthService);
 
   protected visible = signal(false);
   protected loading = signal(false);
 
   ngOnInit() {
     // Small delay so it doesn't compete with the PWA install prompt visually.
+    // Only for logged-in users: registering the subscription needs an authenticated call.
     setTimeout(() => {
-      if (this.pushService.shouldShowPrompt) this.visible.set(true);
+      if (this.auth.isAuthenticated() && this.pushService.shouldShowPrompt) this.visible.set(true);
     }, 4000);
   }
 
   protected async activate() {
     this.loading.set(true);
-    await this.pushService.requestAndSubscribe();
+    const ok = await this.pushService.requestAndSubscribe();
     this.loading.set(false);
+    if (!ok && this.pushService.permission() !== 'denied') {
+      toast.error('No se han podido activar las notificaciones. Puedes hacerlo desde tu perfil.');
+    }
     this.visible.set(false);
   }
 
