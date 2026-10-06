@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { MemberStats } from '../models/streak.model';
+import { MemberStats, TitleOption } from '../models/streak.model';
 
 export interface UserProfileDto {
   id: number;
@@ -10,6 +10,10 @@ export interface UserProfileDto {
   avatarUrl: string | null;
   frameColor: string | null;
   highestStreak: number;
+  highestStreakEver: number;
+  selectedTitleKey: string | null; // null = automatic (highest unlocked), 'none' = hidden
+  title: string | null;
+  unlockedTitles: TitleOption[];
 }
 
 export interface UpdateProfileRequest {
@@ -17,6 +21,7 @@ export interface UpdateProfileRequest {
   email?: string;
   avatarUrl?: string | null;
   frameColor?: string | null;
+  titleKey?: string; // 'auto', 'none' or an unlocked tier key
 }
 
 export interface ChangePasswordRequest {

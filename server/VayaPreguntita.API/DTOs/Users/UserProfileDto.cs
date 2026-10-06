@@ -10,4 +10,10 @@ public class UserProfileDto
 
     // Highest current streak across all the user's groups — drives the ring outside a group.
     public int HighestStreak { get; set; }
+
+    // Titles (rama 19): unlocked forever by the best streak ever reached.
+    public int HighestStreakEver { get; set; }
+    public string? SelectedTitleKey { get; set; }
+    public string? Title { get; set; }
+    public List<Streaks.TitleOptionDto> UnlockedTitles { get; set; } = [];
 }

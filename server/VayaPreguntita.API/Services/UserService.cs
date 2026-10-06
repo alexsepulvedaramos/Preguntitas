@@ -31,6 +31,13 @@ public class UserService(
             AvatarUrl = user.AvatarUrl,
             FrameColor = user.FrameColor ?? FrameColors.Streak,
             HighestStreak = await streakService.GetHighestStreakAsync(userId),
+            HighestStreakEver = user.HighestStreakEver,
+            SelectedTitleKey = user.SelectedTitleKey,
+            Title = StreakTiers.DisplayedTitle(user.HighestStreakEver, user.SelectedTitleKey),
+            UnlockedTitles = StreakTiers
+                .UnlockedBy(user.HighestStreakEver)
+                .Select(t => new DTOs.Streaks.TitleOptionDto(t.Key, t.Title, t.Material, t.MinDays))
+                .ToList(),
         };
     }
 
@@ -76,6 +83,19 @@ public class UserService(
             if (frame != FrameColors.Streak && frame != FrameColors.None && !HexColor.IsMatch(frame))
                 return (false, "Invalid frame color.");
             user.FrameColor = frame;
+        }
+
+        if (request.TitleKey is not null)
+        {
+            var key = request.TitleKey.Trim();
+            if (key == "auto")
+                user.SelectedTitleKey = null;
+            else if (key == StreakTiers.NoTitle)
+                user.SelectedTitleKey = StreakTiers.NoTitle;
+            else if (StreakTiers.UnlockedBy(user.HighestStreakEver).Any(t => t.Key == key))
+                user.SelectedTitleKey = key;
+            else
+                return (false, "Title not unlocked.");
         }
 
         await context.SaveChangesAsync();

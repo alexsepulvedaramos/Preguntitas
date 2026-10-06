@@ -42,6 +42,10 @@ public class StreakService(
         member.BestStreak = Math.Max(member.BestStreak, current);
         member.LastStreakEntryId = openEntry.Id;
 
+        // Titles unlock forever the first time a tier is reached in any group.
+        var titleUnlocked = StreakTiers.IsTierStart(current) && current > member.User.HighestStreakEver;
+        member.User.HighestStreakEver = Math.Max(member.User.HighestStreakEver, current);
+
         if (current >= StreakTiers.All[0].MinDays)
             ApplyStreakFrameOnce(member.User);
 
@@ -58,7 +62,7 @@ public class StreakService(
             );
 
         await context.SaveChangesAsync();
-        return BuildUpdate(previous, current, member.BestStreak);
+        return BuildUpdate(previous, current, member.BestStreak, titleUnlocked);
     }
 
     // ==========================================
@@ -69,6 +73,46 @@ public class StreakService(
         var (openId, previousId) = await GetLastTwoActivatedEntryIdsAsync(groupId);
         var members = await context.GroupMembers.Where(m => m.GroupId == groupId).ToListAsync();
         return members.ToDictionary(m => m.UserId, m => Effective(m, openId, previousId));
+    }
+
+    public async Task<int?> GetCrownHolderAsync(int groupId)
+    {
+        var (openId, previousId) = await GetLastTwoActivatedEntryIdsAsync(groupId);
+        var members = await context.GroupMembers.Where(m => m.GroupId == groupId).ToListAsync();
+        var streaks = members
+            .Select(m => (member: m, streak: Effective(m, openId, previousId)))
+            .Where(x => x.streak > 0)
+            .ToList();
+        if (streaks.Count == 0)
+            return null;
+
+        var top = streaks.Max(x => x.streak);
+        var tied = streaks.Where(x => x.streak == top).Select(x => x.member).ToList();
+        if (tied.Count == 1)
+            return tied[0].UserId;
+
+        // Tie: whoever reached that streak first, i.e. cast the vote that got them there earliest.
+        var entryIds = tied.Select(m => m.LastStreakEntryId!.Value).Distinct().ToList();
+        var questionByEntry = await context
+            .DailyEntries.Where(d => entryIds.Contains(d.Id))
+            .ToDictionaryAsync(d => d.Id, d => d.QuestionId);
+        var userIds = tied.Select(m => m.UserId).ToList();
+        var questionIds = questionByEntry.Values.Distinct().ToList();
+        var voteTimes = await context
+            .Votes.Where(v => userIds.Contains(v.UserId) && questionIds.Contains(v.QuestionId))
+            .GroupBy(v => new { v.UserId, v.QuestionId })
+            .Select(g => new { g.Key.UserId, g.Key.QuestionId, At = g.Min(v => v.DateResponded) })
+            .ToListAsync();
+
+        return tied
+            .OrderBy(m =>
+                voteTimes.FirstOrDefault(v =>
+                    v.UserId == m.UserId && v.QuestionId == questionByEntry[m.LastStreakEntryId!.Value]
+                )?.At ?? DateTime.MaxValue
+            )
+            .ThenBy(m => m.JoinedAt)
+            .First()
+            .UserId;
     }
 
     public async Task<MyStreakDto> GetMyStreakAsync(int groupId, int userId)
@@ -157,6 +201,8 @@ public class StreakService(
             FrameColor = member.User.FrameColor,
             CurrentStreak = Effective(member, openId, previousId),
             BestStreak = member.BestStreak,
+            HasCrown = await GetCrownHolderAsync(groupId) == userId,
+            Title = StreakTiers.DisplayedTitle(member.User.HighestStreakEver, member.User.SelectedTitleKey),
             TotalVotes = voted.Count,
             ActiveQuestions = active,
             ParticipationPercent = active == 0 ? 0 : (int)Math.Round(100.0 * votedActive / active),
@@ -219,6 +265,9 @@ public class StreakService(
         ).ToHashSet();
 
         ApplyHistory(member, entries, votedQuestionIds);
+        var user = await context.Users.FindAsync(userId);
+        if (user != null)
+            user.HighestStreakEver = Math.Max(user.HighestStreakEver, member.BestStreak);
         await context.SaveChangesAsync();
     }
 
@@ -249,6 +298,18 @@ public class StreakService(
             foreach (var member in group)
                 ApplyHistory(member, entries, votesByUser.GetValueOrDefault(member.UserId) ?? []);
         }
+        await context.SaveChangesAsync();
+
+        // Unlocked titles follow the best streak ever reached in any group.
+        var bestByUser = await context
+            .GroupMembers.GroupBy(m => m.UserId)
+            .Select(g => new { UserId = g.Key, Best = g.Max(m => m.BestStreak) })
+            .Where(x => x.Best > 0)
+            .ToListAsync();
+        var bestUserIds = bestByUser.Select(x => x.UserId).ToList();
+        var usersToRaise = await context.Users.Where(u => bestUserIds.Contains(u.Id)).ToListAsync();
+        foreach (var u in usersToRaise)
+            u.HighestStreakEver = Math.Max(u.HighestStreakEver, bestByUser.First(x => x.UserId == u.Id).Best);
         await context.SaveChangesAsync();
 
         // One-time switch to the streak frame for anyone already at ≥ 3 days.
@@ -396,13 +457,13 @@ public class StreakService(
     private static string? BuildMilestoneChatMessage(string username, int streak)
     {
         if (StreakTiers.IsTierStart(streak))
-            return $"🔥 {username} lleva {streak} días seguidos · ¡{StreakTiers.TierFor(streak)!.Name}!";
+            return $"🔥 {username} lleva {streak} días seguidos · ¡{StreakTiers.TierFor(streak)!.Title}!";
         if (StreakTiers.Milestones.TryGetValue(streak, out var label))
             return $"🎉 {username} lleva {streak} días seguidos · {label}";
         return null;
     }
 
-    private static StreakUpdateDto BuildUpdate(int previous, int current, int best)
+    private static StreakUpdateDto BuildUpdate(int previous, int current, int best, bool titleUnlocked = false)
     {
         var tier = StreakTiers.TierFor(current);
         var next = StreakTiers.NextTier(current);
@@ -412,11 +473,14 @@ public class StreakService(
             Current = current,
             Best = best,
             TierKey = tier?.Key,
-            TierName = tier?.Name,
+            TierTitle = tier?.Title,
+            TierMaterial = tier?.Material,
             IsTierUp = current > previous && StreakTiers.IsTierStart(current),
+            TitleUnlocked = titleUnlocked,
             MilestoneLabel = current > previous ? StreakTiers.Milestones.GetValueOrDefault(current) : null,
             NextTierKey = next?.Key,
-            NextTierName = next?.Name,
+            NextTierTitle = next?.Title,
+            NextTierMaterial = next?.Material,
             NextTierAt = next?.MinDays,
             DaysToNextTier = next == null ? null : next.MinDays - current,
         };

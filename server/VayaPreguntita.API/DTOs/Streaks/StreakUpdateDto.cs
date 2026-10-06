@@ -7,19 +7,24 @@ public class StreakUpdateDto
     public int Current { get; set; }
     public int Best { get; set; }
 
-    // Current tier (null on days 1–2: no ring yet).
+    // Current tier (null on days 1–2: no frame yet).
     public string? TierKey { get; set; }
-    public string? TierName { get; set; }
+    public string? TierTitle { get; set; }
+    public string? TierMaterial { get; set; }
 
-    // True when this vote reached a new tier (days 3, 7, 30, 100, 182, 365).
+    // True when this vote reached a new tier (days 3, 7, 15, 30, 100, 182, 365).
     public bool IsTierUp { get; set; }
 
-    // Set on milestone days (14, 50, 200, 300), e.g. "¡2 semanas!".
+    // True when the tier's title was unlocked for the first time ever.
+    public bool TitleUnlocked { get; set; }
+
+    // Set on milestone days (21, 50, 200, 300), e.g. "¡3 semanas!".
     public string? MilestoneLabel { get; set; }
 
     // Next tier to reach (null at the top tier).
     public string? NextTierKey { get; set; }
-    public string? NextTierName { get; set; }
+    public string? NextTierTitle { get; set; }
+    public string? NextTierMaterial { get; set; }
     public int? NextTierAt { get; set; }
     public int? DaysToNextTier { get; set; }
 }

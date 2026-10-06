@@ -28,7 +28,10 @@ import {
   STREAK_DANGER_HOURS,
 } from '../../core/services/notification-preferences.service';
 import { MemberCardService } from '../../core/services/member-card.service';
-import { FRAME_NONE, FRAME_STREAK, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
+import {
+  FRAME_NONE, FRAME_STREAK, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor,
+} from '../../core/constants/streak-tiers';
+import { UserProfileDto } from '../../core/services/user.service';
 
 const FRAME_COLORS = [
   { label: 'Racha', value: FRAME_STREAK },
@@ -97,9 +100,16 @@ export class ProfilePageComponent implements OnInit {
     return frameFollowsStreak(frame) ? FRAME_STREAK : frame;
   });
 
-  protected readonly streakTierName = computed(
-    () => streakTierFor(this.user()?.highestStreak)?.name ?? null
+  protected readonly streakFrameMaterial = computed(
+    () => streakTierFor(this.user()?.highestStreak)?.material ?? null
   );
+
+  // Titles (rama 19): unlocked forever by the best streak ever; the user picks which to show.
+  protected readonly profile = signal<UserProfileDto | null>(null);
+  protected readonly isSavingTitle = signal(false);
+  protected readonly titleAuto = TITLE_AUTO;
+  protected readonly titleNone = TITLE_NONE;
+  protected readonly selectedTitle = computed(() => this.profile()?.selectedTitleKey ?? TITLE_AUTO);
 
   protected readonly profileForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
@@ -118,6 +128,7 @@ export class ProfilePageComponent implements OnInit {
       this.profileForm.patchValue({ username: user.username, email: user.email });
     }
     this.prefsService.get().subscribe(prefs => this.notifPrefs.set(prefs));
+    this.userService.getProfile().subscribe(profile => this.profile.set(profile));
   }
 
   setStreakDangerHours(hours: number | number[] | null | undefined): void {
@@ -125,6 +136,21 @@ export class ProfilePageComponent implements OnInit {
     const updated = { ...this.notifPrefs(), streakDangerHoursBefore: hours };
     this.notifPrefs.set(updated);
     this.prefsService.update(updated).subscribe();
+  }
+
+  selectTitle(key: string): void {
+    this.isSavingTitle.set(true);
+    this.userService.updateProfile({ titleKey: key }).subscribe({
+      next: profile => {
+        this.profile.set(profile);
+        this.authService.patchCurrentUser({ title: profile.title });
+        this.isSavingTitle.set(false);
+      },
+      error: () => {
+        toast.error('No se ha podido cambiar el título.');
+        this.isSavingTitle.set(false);
+      },
+    });
   }
 
   openMyStats(): void {

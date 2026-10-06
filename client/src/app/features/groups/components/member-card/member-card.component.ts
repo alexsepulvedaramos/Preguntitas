@@ -70,8 +70,9 @@ export class MemberCardComponent {
     this.cardService.close();
   }
 
-  tierName(streak: number): string {
-    return streakTierFor(streak)?.name ?? 'Sin anillo todavía';
+  frameLabel(streak: number): string {
+    const tier = streakTierFor(streak);
+    return tier ? `Marco de ${tier.material.toLowerCase()}` : 'Sin marco todavía';
   }
 
   dots(streak: number): boolean[] {

@@ -19,6 +19,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                             avatarUrl: profile.avatarUrl,
                             frameColor: profile.frameColor,
                             highestStreak: profile.highestStreak,
+                            title: profile.title,
                         });
                     },
                     error: () => {

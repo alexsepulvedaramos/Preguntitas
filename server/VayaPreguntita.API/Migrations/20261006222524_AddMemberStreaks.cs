@@ -10,6 +10,19 @@ namespace VayaPreguntita.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<int>(
+                name: "HighestStreakEver",
+                table: "Users",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<string>(
+                name: "SelectedTitleKey",
+                table: "Users",
+                type: "text",
+                nullable: true);
+
             migrationBuilder.AddColumn<bool>(
                 name: "StreakFrameAutoApplied",
                 table: "Users",
@@ -75,6 +88,14 @@ namespace VayaPreguntita.API.Migrations
             // System chat messages have no author and can't survive UserId becoming required.
             migrationBuilder.Sql(@"DELETE FROM ""ChatMessages"" WHERE ""UserId"" IS NULL;");
             migrationBuilder.Sql(@"UPDATE ""Users"" SET ""FrameColor"" = NULL WHERE ""FrameColor"" IN ('streak', 'none');");
+
+            migrationBuilder.DropColumn(
+                name: "HighestStreakEver",
+                table: "Users");
+
+            migrationBuilder.DropColumn(
+                name: "SelectedTitleKey",
+                table: "Users");
 
             migrationBuilder.DropColumn(
                 name: "StreakFrameAutoApplied",

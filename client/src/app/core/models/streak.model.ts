@@ -7,11 +7,14 @@ export interface StreakUpdate {
   current: number;
   best: number;
   tierKey: StreakTierKey | null;
-  tierName: string | null;
+  tierTitle: string | null;
+  tierMaterial: string | null;
   isTierUp: boolean;
+  titleUnlocked: boolean; // the tier's title was unlocked for the first time ever
   milestoneLabel: string | null;
   nextTierKey: StreakTierKey | null;
-  nextTierName: string | null;
+  nextTierTitle: string | null;
+  nextTierMaterial: string | null;
   nextTierAt: number | null;
   daysToNextTier: number | null;
 }
@@ -39,9 +42,19 @@ export interface MemberStats {
   frameColor: string | null;
   currentStreak: number;
   bestStreak: number;
+  hasCrown: boolean;
+  title: string | null;
   totalVotes: number;
   activeQuestions: number;
   participationPercent: number;
   timesSelector: number;
   questionsCreated: number;
+}
+
+// An unlocked title the user can choose to show (GET users/me → unlockedTitles).
+export interface TitleOption {
+  key: StreakTierKey;
+  title: string;
+  material: string;
+  minDays: number;
 }

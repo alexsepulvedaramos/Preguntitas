@@ -13,6 +13,8 @@ public class MemberStatsDto
 
     public int CurrentStreak { get; set; }
     public int BestStreak { get; set; }
+    public bool HasCrown { get; set; }
+    public string? Title { get; set; }
 
     // Distinct questions the member voted on in this group.
     public int TotalVotes { get; set; }

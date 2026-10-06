@@ -14,10 +14,19 @@
         [username]="head.username"
         [frameColor]="head.frameColor"
         [streak]="head.currentStreak"
+        [crown]="!allGroups() && head.hasCrown"
         size="xl"
       />
       <p class="mt-2 font-display text-2xl italic text-foreground">{{ head.username }}</p>
-      <p class="text-sm font-medium text-muted-foreground">{{ tierName(head.currentStreak) }}</p>
+      @if (head.title) {
+        <p class="text-sm font-semibold text-primary">{{ head.title }}</p>
+      }
+      <p class="text-xs text-muted-foreground">
+        {{ frameLabel(head.currentStreak) }}
+        @if (!allGroups() && head.hasCrown) {
+          · 👑 Mejor racha del grupo
+        }
+      </p>
 
       @if (isOwnCard() && head.currentStreak > 0 && head.currentStreak < firstRingDays) {
         <div class="flex items-center gap-2" aria-label="Progreso hacia tu primer anillo">

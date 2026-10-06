@@ -417,8 +417,14 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("FrameColor")
                         .HasColumnType("text");
 
+                    b.Property<int>("HighestStreakEver")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SelectedTitleKey")
                         .HasColumnType("text");
 
                     b.Property<bool>("StreakFrameAutoApplied")

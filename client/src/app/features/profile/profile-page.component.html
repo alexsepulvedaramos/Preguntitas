@@ -47,6 +47,9 @@
         </hlm-drawer-content>
       </hlm-drawer>
 
+      @if (user()?.title; as title) {
+        <p class="-mt-1 text-sm font-semibold text-primary">{{ title }}</p>
+      }
       <p class="text-sm text-muted-foreground">Toca para cambiar tu avatar</p>
 
       <button hlmBtn variant="outline" size="sm" class="gap-2" (click)="openMyStats()">
@@ -84,8 +87,8 @@
       <p class="text-xs text-muted-foreground">
         @if (selectedFrame() === frameStreak) {
           Tu marco sigue tu mejor racha actual
-          @if (streakTierName(); as tier) {
-            · {{ tier }}
+          @if (streakFrameMaterial(); as material) {
+            · {{ material }}
           } @else {
             · aparece a partir de 3 días seguidos votando
           }
@@ -93,6 +96,58 @@
           Elige «Racha» para que tu marco arda con tus días seguidos votando
         }
       </p>
+    </section>
+
+    <div hlmSeparator></div>
+
+    <!-- ===== TÍTULO (rama 19) ===== -->
+    <section class="flex flex-col gap-3">
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">Título</h2>
+      @if (profile(); as p) {
+        @if (p.unlockedTitles.length === 0) {
+          <p class="text-sm text-muted-foreground">
+            Consigue una racha de 3 días votando en un grupo para desbloquear tu primer título.
+          </p>
+        } @else {
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Título que se muestra">
+            <button
+              hlmBtn
+              size="sm"
+              [variant]="selectedTitle() === titleAuto ? 'default' : 'outline'"
+              [attr.aria-pressed]="selectedTitle() === titleAuto"
+              [disabled]="isSavingTitle()"
+              (click)="selectTitle(titleAuto)"
+            >
+              Automático
+            </button>
+            @for (t of p.unlockedTitles; track t.key) {
+              <button
+                hlmBtn
+                size="sm"
+                [variant]="selectedTitle() === t.key ? 'default' : 'outline'"
+                [attr.aria-pressed]="selectedTitle() === t.key"
+                [disabled]="isSavingTitle()"
+                (click)="selectTitle(t.key)"
+              >
+                {{ t.title }}
+              </button>
+            }
+            <button
+              hlmBtn
+              size="sm"
+              [variant]="selectedTitle() === titleNone ? 'default' : 'outline'"
+              [attr.aria-pressed]="selectedTitle() === titleNone"
+              [disabled]="isSavingTitle()"
+              (click)="selectTitle(titleNone)"
+            >
+              Ninguno
+            </button>
+          </div>
+          <p class="text-xs text-muted-foreground">
+            Los títulos se desbloquean para siempre al alcanzar cada racha. «Automático» muestra el más alto.
+          </p>
+        }
+      }
     </section>
 
     <div hlmSeparator></div>

@@ -15,6 +15,7 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { DailyStatus } from '../../../../core/models/daily.model';
 import { StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { UserService } from '../../../../core/services/user.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -61,6 +62,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly dailyService = inject(DailyService);
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -129,6 +131,9 @@ export class GroupDetailComponent implements OnInit {
       myStreak: { current: streak.current, best: streak.best, lostStreak: null },
     });
     this.applyOwnStreak(streak.current);
+    // A newly unlocked title may become the one shown (automatic selection).
+    if (streak.titleUnlocked)
+      this.userService.getProfile().subscribe({ next: (p) => this.authService.patchCurrentUser({ title: p.title }) });
     // A tier change or milestone posts an automatic chat message — show it right away.
     if (streak.isTierUp || streak.milestoneLabel) this.chat()?.reload();
 
@@ -158,11 +163,18 @@ export class GroupDetailComponent implements OnInit {
     this.dailyService.dismissLostStreak(this.numericGroupId()).subscribe();
   }
 
-  // Keeps the member list, the in-group rings and the header ring in sync with the new streak.
+  // Keeps the member list, the in-group frames (the crown may change hands) and the header
+  // frame in sync with the new streak.
   private applyOwnStreak(current: number) {
     const members = this.members().map((m) => (m.isCurrentUser ? { ...m, currentStreak: current } : m));
     this.members.set(members);
     this.groupStreaks.set(this.numericGroupId(), members);
+    this.groupsService.getGroupMembers(this.numericGroupId()).subscribe({
+      next: (fresh) => {
+        this.members.set(fresh);
+        this.groupStreaks.set(this.numericGroupId(), fresh);
+      },
+    });
 
     const highest = this.authService.currentUser()?.highestStreak ?? 0;
     if (current > highest) this.authService.patchCurrentUser({ highestStreak: current });

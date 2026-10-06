@@ -50,19 +50,6 @@
     --success: oklch(0.5 0.15 152);
     --success-foreground: oklch(0.98 0.005 140);
 
-    /* Streak ring tiers (rama 19) — a = body, b = tip/highlight */
-    --streak-ember-a: oklch(0.55 0.19 35);
-    --streak-ember-b: oklch(0.72 0.17 55);
-    --streak-flame-small-a: oklch(0.68 0.19 50);
-    --streak-flame-small-b: oklch(0.84 0.16 85);
-    --streak-flame-intense-a: oklch(0.62 0.23 35);
-    --streak-flame-intense-b: oklch(0.8 0.18 65);
-    --streak-flame-blue-a: oklch(0.58 0.19 255);
-    --streak-flame-blue-b: oklch(0.82 0.11 215);
-    --streak-flame-purple-a: oklch(0.52 0.24 300);
-    --streak-flame-purple-b: oklch(0.78 0.14 320);
-    --streak-flame-gold-a: oklch(0.74 0.16 80);
-    --streak-flame-gold-b: oklch(0.93 0.1 95);
 
     /* Destructive Actions */
     /* Darkened the red slightly to guarantee contrast against the light foreground */
@@ -148,19 +135,6 @@
     --success: oklch(0.75 0.14 150);
     --success-foreground: oklch(0.15 0.02 155);
 
-    /* Streak ring tiers — brighter so they read on dark surfaces */
-    --streak-ember-a: oklch(0.62 0.19 35);
-    --streak-ember-b: oklch(0.78 0.16 55);
-    --streak-flame-small-a: oklch(0.74 0.18 50);
-    --streak-flame-small-b: oklch(0.88 0.15 85);
-    --streak-flame-intense-a: oklch(0.68 0.22 35);
-    --streak-flame-intense-b: oklch(0.85 0.17 65);
-    --streak-flame-blue-a: oklch(0.66 0.18 255);
-    --streak-flame-blue-b: oklch(0.87 0.1 215);
-    --streak-flame-purple-a: oklch(0.62 0.22 300);
-    --streak-flame-purple-b: oklch(0.84 0.12 320);
-    --streak-flame-gold-a: oklch(0.8 0.15 80);
-    --streak-flame-gold-b: oklch(0.95 0.08 95);
 
     /* Destructive Actions */
     --destructive: oklch(0.6 0.2 27);
@@ -412,112 +386,197 @@
   }
 
   /*
-   * Streak rings (rama 19). Pure CSS: a masked conic-gradient band + small inline-SVG
-   * flame tongues, rendered by UserAvatarComponent. Only transform/opacity animate,
-   * since 10–15 avatars can be on screen at once.
+   * Streak frames (rama 19), rendered by StreakFrameComponent. The frame box is twice the
+   * avatar's size; the rim spans 49–59 % of its radius. Wood and stone stay still; from
+   * bronze on a light sweeps the rim. Only transform/opacity animate.
    */
-  .vp-streak {
-    --streak-w: 3px;
+  .vp-frame {
     position: absolute;
-    inset: calc(var(--streak-w) * -1 - 1px);
-    border-radius: 9999px;
+    inset: -50%;
     pointer-events: none;
   }
 
-  .vp-streak-size-xs { --streak-w: 2px; }
-  .vp-streak-size-sm { --streak-w: 2.5px; }
-  .vp-streak-size-md { --streak-w: 3px; }
-  .vp-streak-size-lg { --streak-w: 3.5px; }
-  .vp-streak-size-xl { --streak-w: 5px; }
-
-  .vp-streak-ember { --streak-a: var(--streak-ember-a); --streak-b: var(--streak-ember-b); }
-  .vp-streak-flame-small { --streak-a: var(--streak-flame-small-a); --streak-b: var(--streak-flame-small-b); }
-  .vp-streak-flame-intense { --streak-a: var(--streak-flame-intense-a); --streak-b: var(--streak-flame-intense-b); }
-  .vp-streak-flame-blue { --streak-a: var(--streak-flame-blue-a); --streak-b: var(--streak-flame-blue-b); }
-  .vp-streak-flame-purple { --streak-a: var(--streak-flame-purple-a); --streak-b: var(--streak-flame-purple-b); }
-  .vp-streak-flame-gold { --streak-a: var(--streak-flame-gold-a); --streak-b: var(--streak-flame-gold-b); }
-
-  .vp-streak__band,
-  .vp-streak__glow {
+  .vp-frame > * {
     position: absolute;
+  }
+
+  .vp-frame svg {
     inset: 0;
-    border-radius: inherit;
-  }
-
-  .vp-streak__band {
-    background: conic-gradient(
-      var(--streak-a),
-      var(--streak-b),
-      var(--streak-a),
-      var(--streak-b),
-      var(--streak-a)
-    );
-    mask: radial-gradient(
-      farthest-side,
-      transparent calc(100% - var(--streak-w)),
-      #000 calc(100% - var(--streak-w) + 0.5px)
-    );
-    animation: vp-streak-spin 6s linear infinite;
-  }
-
-  .vp-streak__glow {
-    box-shadow: 0 0 calc(var(--streak-w) * 2.5) calc(var(--streak-w) * 0.4) var(--streak-a);
-    opacity: 0.35;
-    animation: vp-streak-glow 1.8s ease-in-out infinite alternate;
-  }
-
-  /* Ember: no tongues, a slow smouldering pulse instead. */
-  .vp-streak-ember .vp-streak__band { animation-duration: 10s; }
-  .vp-streak-ember .vp-streak__glow { animation-duration: 2.6s; }
-
-  /* Gold, the cap: faster shimmer and a stronger glow. */
-  .vp-streak-flame-gold .vp-streak__band { animation-duration: 3.5s; }
-  .vp-streak-flame-gold .vp-streak__glow { opacity: 0.55; }
-
-  .vp-streak__tongue {
-    position: absolute;
-    inset: 0;
-    transform: rotate(var(--angle, 0deg));
-  }
-
-  .vp-streak__tongue svg {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: calc(var(--streak-w) * 3);
-    height: calc(var(--streak-w) * 4.6);
-    transform-origin: 50% 100%;
-    transform: translate(-50%, -78%);
-    animation: vp-streak-flicker var(--dur, 0.9s) ease-in-out infinite alternate;
-    animation-delay: var(--delay, 0s);
+    width: 100%;
+    height: 100%;
     overflow: visible;
   }
 
-  .vp-streak__tongue .vp-streak__outer { fill: var(--streak-a); }
-  .vp-streak__tongue .vp-streak__inner { fill: var(--streak-b); }
+  .vp-frame__back { z-index: 1; }
+  .vp-frame__front { z-index: 6; }
 
-  /* Tongues would be unreadable specks on the smallest avatars. */
-  .vp-streak-size-xs .vp-streak__tongue { display: none; }
-
-  @keyframes vp-streak-spin {
-    to { transform: rotate(360deg); }
+  .vp-frame__aura {
+    inset: 6%;
+    border-radius: 9999px;
+    z-index: 0;
+    filter: blur(16px);
+    animation: vp-frame-breathe 3.2s ease-in-out infinite alternate;
   }
 
-  @keyframes vp-streak-glow {
-    from { opacity: 0.2; }
-    to { opacity: 0.6; }
+  .vp-frame__rays {
+    inset: -36%;
+    border-radius: 9999px;
+    z-index: 0;
+    opacity: 0.55;
+    mask: radial-gradient(circle closest-side, #000 30%, transparent 100%);
+    animation: vp-frame-spin 40s linear infinite;
   }
 
-  @keyframes vp-streak-flicker {
-    from { transform: translate(-50%, -78%) scale(0.92, 0.8); opacity: 0.8; }
-    to { transform: translate(-50%, -78%) scale(1, 1.12); opacity: 1; }
+  .vp-frame__band {
+    inset: 0;
+    border-radius: 9999px;
+    mask: radial-gradient(circle closest-side, transparent 48.5%, #000 49.5%, #000 58.5%, transparent 59.5%);
+  }
+
+  .vp-frame__nebula {
+    z-index: 0;
+    animation: vp-frame-spin 14s linear infinite;
+  }
+
+  .vp-frame__sheen {
+    z-index: 4;
+    mix-blend-mode: screen;
+    animation: vp-frame-sweep var(--d, 5s) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+
+  .vp-frame__pulse { animation: vp-frame-pulse 2.6s ease-in-out infinite alternate; }
+
+  .vp-frame__spark {
+    opacity: 0;
+    animation: vp-frame-rise var(--d, 2s) ease-out infinite;
+    animation-delay: var(--dl, 0s);
+  }
+
+  .vp-frame__twinkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: vp-frame-twinkle var(--d, 2.4s) ease-in-out infinite;
+    animation-delay: var(--dl, 0s);
+  }
+
+  .vp-frame__orbit {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    animation: vp-frame-spin var(--d, 18s) linear infinite;
+  }
+
+  @keyframes vp-frame-spin { to { transform: rotate(360deg); } }
+  @keyframes vp-frame-sweep {
+    0% { transform: rotate(-40deg); opacity: 0; }
+    10% { opacity: 1; }
+    45% { transform: rotate(320deg); opacity: 1; }
+    55%, 100% { transform: rotate(320deg); opacity: 0; }
+  }
+  @keyframes vp-frame-breathe {
+    from { opacity: 0.4; transform: scale(0.95); }
+    to { opacity: 0.85; transform: scale(1.06); }
+  }
+  @keyframes vp-frame-pulse { from { opacity: 0.35; } to { opacity: 0.9; } }
+  @keyframes vp-frame-rise {
+    0% { transform: translate(0, 0); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translate(var(--dx, 0px), var(--dy, -50px)); opacity: 0; }
+  }
+  @keyframes vp-frame-twinkle {
+    0%, 100% { transform: scale(0.15) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1) rotate(45deg); opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .vp-streak__band,
-    .vp-streak__glow,
-    .vp-streak__tongue svg {
-      animation: none;
+    .vp-frame *,
+    .vp-frame {
+      animation: none !important;
+    }
+    .vp-frame__spark,
+    .vp-frame__twinkle,
+    .vp-frame__sheen {
+      opacity: 0;
+    }
+  }
+
+  /*
+   * Streak celebration scene (rama 19). Deliberately dark in both themes: the frames and
+   * particles read best on black. --c-a / --c-b come from the tier's frame colours.
+   */
+  .vp-celebration {
+    color: oklch(0.97 0.01 90);
+    background:
+      radial-gradient(circle at 50% 36%, color-mix(in oklch, var(--c-a) 45%, transparent) 0%, transparent 55%),
+      oklch(0.12 0.02 160);
+    animation: vp-cel-fade 0.35s ease both;
+    cursor: pointer;
+  }
+
+  .vp-celebration__burst {
+    position: absolute;
+    left: 50%;
+    top: 36%;
+    width: 160vmax;
+    height: 160vmax;
+    translate: -50% -50%;
+    background: repeating-conic-gradient(from 0deg, color-mix(in oklch, var(--c-b) 14%, transparent) 0deg 5deg, transparent 5deg 16deg);
+    mask: radial-gradient(circle, #000 0%, transparent 45%);
+    opacity: 0.5;
+    animation: vp-frame-spin 36s linear infinite, vp-cel-burst 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .vp-celebration__forge { animation: vp-cel-forge 1.1s cubic-bezier(0.2, 1.3, 0.3, 1) both; }
+
+  .vp-celebration__count {
+    text-shadow: 0 0 40px var(--c-a), 0 0 12px var(--c-b);
+    animation: vp-cel-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.6s both;
+  }
+
+  .vp-celebration__title {
+    background: linear-gradient(100deg, var(--c-b) 20%, #fff 50%, var(--c-b) 80%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: vp-cel-shimmer 2.4s linear 1s infinite, vp-cel-up 0.6s ease 0.8s both;
+  }
+
+  .vp-celebration__in { animation: vp-cel-up 0.6s ease 1s both; }
+
+  .vp-celebration__fill {
+    background: linear-gradient(90deg, var(--c-a), var(--c-b));
+    box-shadow: 0 0 14px var(--c-a);
+    animation: vp-cel-fill 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.3s both;
+  }
+
+  .vp-celebration__dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    border: 2px solid var(--c-b);
+  }
+
+  .vp-celebration__dot--on {
+    background: var(--c-b);
+    box-shadow: 0 0 14px var(--c-a);
+  }
+
+  @keyframes vp-cel-fade { from { opacity: 0; } }
+  @keyframes vp-cel-burst { from { opacity: 0; scale: 0.3; } }
+  @keyframes vp-cel-forge {
+    0% { transform: scale(0.35); filter: brightness(4) blur(8px); opacity: 0; }
+    55% { filter: brightness(1.8) blur(0); opacity: 1; }
+    100% { transform: scale(1); filter: none; }
+  }
+  @keyframes vp-cel-pop { from { transform: scale(0.4); opacity: 0; } }
+  @keyframes vp-cel-up { from { transform: translateY(14px); opacity: 0; } }
+  @keyframes vp-cel-shimmer { to { background-position: -250% 0; } }
+  @keyframes vp-cel-fill { from { width: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vp-celebration,
+    .vp-celebration * {
+      animation: none !important;
     }
   }
 }

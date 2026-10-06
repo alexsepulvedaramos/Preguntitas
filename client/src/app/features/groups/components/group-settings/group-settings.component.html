@@ -112,6 +112,7 @@
               [username]="member.username"
               [frameColor]="member.frameColor"
               [streak]="member.currentStreak"
+              [crown]="member.hasCrown"
               size="sm"
             />
 
@@ -125,8 +126,10 @@
                   </span>
                 }
               </span>
-              @if (member.isAdmin) {
-                <span class="text-xs text-muted-foreground">Administrador</span>
+              @if (member.title || member.isAdmin) {
+                <span class="text-xs text-muted-foreground truncate">
+                  {{ member.title }}{{ member.title && member.isAdmin ? ' · ' : '' }}{{ member.isAdmin ? 'Administrador' : '' }}
+                </span>
               }
             </div>
             </button>

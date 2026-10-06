@@ -15,6 +15,10 @@ public interface IStreakService
     // userId → effective current streak, for every member of the group.
     Task<Dictionary<int, int>> GetEffectiveStreaksAsync(int groupId);
 
+    // The member holding the group's best current streak (ties: whoever reached it first);
+    // null when nobody has a streak.
+    Task<int?> GetCrownHolderAsync(int groupId);
+
     Task<MyStreakDto> GetMyStreakAsync(int groupId, int userId);
 
     // Acknowledges the "lost streak" notice so it isn't shown again.

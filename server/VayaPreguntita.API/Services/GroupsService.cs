@@ -239,10 +239,19 @@ public class GroupsService(
             .ToListAsync();
 
         var streaks = await streakService.GetEffectiveStreaksAsync(groupId);
+        var crownHolder = await streakService.GetCrownHolderAsync(groupId);
+        var memberIds = members.Select(m => m.Id).ToList();
+        var titles = await context
+            .Users.Where(u => memberIds.Contains(u.Id))
+            .Select(u => new { u.Id, u.HighestStreakEver, u.SelectedTitleKey })
+            .ToDictionaryAsync(u => u.Id);
         foreach (var m in members)
         {
             m.IsCurrentUser = m.Id == currentUserId;
             m.CurrentStreak = streaks.GetValueOrDefault(m.Id);
+            m.HasCrown = m.Id == crownHolder;
+            if (titles.TryGetValue(m.Id, out var t))
+                m.Title = StreakTiers.DisplayedTitle(t.HighestStreakEver, t.SelectedTitleKey);
         }
 
         return members;

@@ -30,6 +30,7 @@
             [username]="leadUser()!.username"
             [frameColor]="leadUser()!.frameColor"
             [streak]="groupStreaks.streakFor(leadUser()!.id)"
+            [crown]="groupStreaks.hasCrown(leadUser()!.id)"
             size="md"
             class="ring-2 ring-background rounded-full"
           />
@@ -56,6 +57,7 @@
               [username]="voter.username"
               [frameColor]="voter.frameColor"
               [streak]="groupStreaks.streakFor(voter.id)"
+              [crown]="groupStreaks.hasCrown(voter.id)"
               size="xs"
               class="ring-2 ring-background rounded-full"
             />
@@ -115,6 +117,7 @@
                       [username]="option.targetUser.username"
                       [frameColor]="option.targetUser.frameColor"
                       [streak]="groupStreaks.streakFor(option.targetUser.id)"
+                      [crown]="groupStreaks.hasCrown(option.targetUser.id)"
                       size="md"
                     />
                   </button>

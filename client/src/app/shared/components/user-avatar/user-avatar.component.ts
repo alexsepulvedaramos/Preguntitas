@@ -7,31 +7,21 @@ import {
   isHexFrame,
   streakTierFor,
 } from '../../../core/constants/streak-tiers';
+import { StreakFrameComponent } from '../streak-frame/streak-frame.component';
 
-interface FlameTongue {
-  angle: number;
-  delay: number;
-  duration: number;
-}
-
-// Flame tongues around the top of the ring per tier (ember has none).
-const TONGUE_ANGLES: Record<StreakTierKey, number[]> = {
-  ember: [],
-  'flame-small': [-30, 0, 30],
-  'flame-intense': [-60, -30, 0, 30, 60],
-  'flame-blue': [-60, -30, 0, 30, 60],
-  'flame-purple': [-90, -60, -30, 0, 30, 60, 90],
-  'flame-gold': [-90, -60, -30, 0, 30, 60, 90],
-};
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'app-user-avatar',
   standalone: true,
-  imports: [HlmAvatarImports],
+  imports: [HlmAvatarImports, StreakFrameComponent],
   template: `
-    <div class="relative rounded-full shrink-0" [class]="sizeClass()">
+    <div class="relative isolate rounded-full shrink-0" [class]="sizeClass()">
+      @if (tier() || crown()) {
+        <app-streak-frame [tier]="tier()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
+      }
       <div
-        class="rounded-full shrink-0 overflow-hidden bg-card ring-1 ring-border/40"
+        class="relative z-[5] rounded-full shrink-0 overflow-hidden bg-card ring-1 ring-border/40"
         [class]="sizeClass()"
         [style.box-shadow]="hexFrame() ? '0 0 0 3px ' + hexFrame() : null"
       >
@@ -48,38 +38,22 @@ const TONGUE_ANGLES: Record<StreakTierKey, number[]> = {
           </span>
         </hlm-avatar>
       </div>
-
-      @if (tier(); as t) {
-        <span class="vp-streak" [class]="'vp-streak-' + t + ' vp-streak-size-' + size()" aria-hidden="true">
-          <span class="vp-streak__glow"></span>
-          <span class="vp-streak__band"></span>
-          @for (tongue of tongues(); track $index) {
-            <span
-              class="vp-streak__tongue"
-              [style.--angle]="tongue.angle + 'deg'"
-              [style.--delay]="tongue.delay + 's'"
-              [style.--dur]="tongue.duration + 's'"
-            >
-              <svg viewBox="0 0 10 16">
-                <path class="vp-streak__outer" d="M5 0C7 4 10 7 10 11a5 5 0 0 1-10 0C0 7 3 4 5 0Z" />
-                <path class="vp-streak__inner" d="M5 6C6 8 7.5 9.5 7.5 11.5a2.5 2.5 0 0 1-5 0C2.5 9.5 4 8 5 6Z" />
-              </svg>
-            </span>
-          }
-        </span>
-      }
     </div>
   `,
 })
 export class UserAvatarComponent {
   readonly avatarUrl = input<string | null | undefined>(null);
   readonly username = input<string>('');
-  // A hex colour, 'streak' (or null: ring follows the streak tier) or 'none'.
+  // A hex colour, 'streak' (or null: frame follows the streak tier) or 'none'.
   readonly frameColor = input<string | null | undefined>(null);
   // The member's streak in the current context (rama 19): their streak in the group
   // when shown inside one, their highest current streak outside. null = unknown.
   readonly streak = input<number | null | undefined>(null);
-  readonly size = input<'xs' | 'sm' | 'md' | 'lg' | 'xl'>('md');
+  // Crown for the group's best current streak — shown whatever the frame setting.
+  readonly crown = input<boolean | null | undefined>(false);
+  // Day-count ribbon on the largest size (off where the count is already shown).
+  readonly showRibbon = input(true);
+  readonly size = input<AvatarSize>('md');
 
   protected readonly initials = computed(() =>
     this.username().slice(0, 2).toUpperCase()
@@ -94,16 +68,12 @@ export class UserAvatarComponent {
     frameFollowsStreak(this.frameColor()) ? (streakTierFor(this.streak())?.key ?? null) : null
   );
 
-  protected readonly tongues = computed<FlameTongue[]>(() => {
-    const tier = this.tier();
-    if (!tier) return [];
-    // Deterministic per-tongue variation so the flames don't flicker in sync.
-    return TONGUE_ANGLES[tier].map((angle, i) => ({
-      angle,
-      delay: (i * 0.37) % 0.9,
-      duration: 0.7 + ((i * 0.23) % 0.5),
-    }));
-  });
+  // Full frames (particles, ornaments) only where the avatar is big enough to show them.
+  protected readonly lite = computed(() => this.size() !== 'lg' && this.size() !== 'xl');
+
+  protected readonly ribbon = computed(() =>
+    this.size() === 'xl' && this.showRibbon() && this.tier() ? (this.streak() ?? null) : null
+  );
 
   protected readonly sizeClass = computed(() => ({
     xs: 'size-6',

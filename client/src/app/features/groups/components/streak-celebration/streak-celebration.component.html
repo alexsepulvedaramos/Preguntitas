@@ -1,64 +1,49 @@
 <div
-  class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-background/95 px-6 text-center backdrop-blur-sm animate-in fade-in-0 duration-300 motion-reduce:animate-none"
+  class="vp-celebration fixed inset-0 z-50 grid place-items-center overflow-hidden px-4 py-6 text-center"
+  [style.--c-a]="colors().a"
+  [style.--c-b]="colors().b"
   role="dialog"
   aria-modal="true"
   aria-labelledby="streak-celebration-title"
   tabindex="-1"
   (click)="dismiss()"
 >
-  <div class="animate-in zoom-in-50 duration-500 motion-reduce:animate-none">
-    <app-user-avatar
-      [avatarUrl]="authService.currentUser()?.avatarUrl"
-      [username]="authService.currentUser()?.username ?? ''"
-      [frameColor]="frameStreak"
-      [streak]="update().current"
-      size="xl"
-    />
-  </div>
+  <div class="vp-celebration__burst" aria-hidden="true"></div>
+  <canvas #particles class="pointer-events-none absolute inset-0 z-[1] size-full" aria-hidden="true"></canvas>
 
-  <div class="flex flex-col items-center gap-1">
-    <span class="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-      🔥 Día
-    </span>
-    <span
-      class="font-display text-7xl italic leading-none text-foreground tabular-nums"
-      aria-live="polite"
-    >
-      @if (displayedCount() === update().current) {
-        <span class="inline-block animate-pop motion-reduce:animate-none">{{ displayedCount() }}</span>
-      } @else {
-        <span class="inline-block opacity-60">{{ displayedCount() }}</span>
-      }
-    </span>
-  </div>
+  <div class="relative z-[2] flex max-w-sm flex-col items-center gap-3.5">
+    <div class="vp-celebration__forge mb-6 mt-4">
+      <app-user-avatar
+        [avatarUrl]="authService.currentUser()?.avatarUrl"
+        [username]="authService.currentUser()?.username ?? ''"
+        [frameColor]="frameStreak"
+        [streak]="update().current"
+        size="xl"
+      />
+    </div>
 
-  <div class="flex flex-col gap-1">
-    <h2 id="streak-celebration-title" class="font-display text-3xl italic text-foreground">
+    <span class="text-xs font-semibold uppercase tracking-[0.25em] opacity-80">🔥 Día</span>
+    <span class="vp-celebration__count font-display text-8xl italic leading-[0.9] tabular-nums" aria-live="polite">
+      {{ displayedCount() }}
+    </span>
+
+    <h2 id="streak-celebration-title" class="vp-celebration__title font-display text-4xl italic leading-tight text-balance">
       {{ title() }}
     </h2>
-    <p class="text-sm text-muted-foreground">{{ subtitle() }}</p>
-  </div>
+    <p class="vp-celebration__in text-sm opacity-80">{{ subtitle() }}</p>
 
-  <div class="flex w-full max-w-xs flex-col items-center gap-2">
     @if (update().current < firstRingDays) {
-      <div class="flex gap-3" aria-hidden="true">
+      <div class="vp-celebration__in flex gap-3" aria-hidden="true">
         @for (filled of dots(); track $index) {
-          <span
-            class="size-4 rounded-full border-2 border-primary transition-colors duration-500"
-            [class.bg-primary]="filled"
-          ></span>
+          <span class="vp-celebration__dot" [class.vp-celebration__dot--on]="filled"></span>
         }
       </div>
     } @else {
-      <div class="h-2.5 w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
-        <div
-          class="h-full rounded-full bg-primary transition-[width] duration-700 ease-out motion-reduce:transition-none"
-          [style.width.%]="progressPercent()"
-        ></div>
+      <div class="vp-celebration__in h-2.5 w-72 max-w-[80vw] overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+        <div class="vp-celebration__fill h-full rounded-full" [style.width.%]="progressPercent()"></div>
       </div>
     }
-    <p class="text-xs text-muted-foreground">{{ nextTierLabel() }}</p>
+    <p class="vp-celebration__in text-xs opacity-75">{{ nextTierLabel() }}</p>
+    <p class="vp-celebration__in mt-1 text-xs opacity-45">Toca para continuar</p>
   </div>
-
-  <p class="text-xs text-muted-foreground/70">Toca para continuar</p>
 </div>
