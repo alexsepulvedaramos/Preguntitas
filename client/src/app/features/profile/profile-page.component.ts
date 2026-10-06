@@ -14,6 +14,7 @@ import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSwitchImports } from '@spartan-ng/helm/switch';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { UserService } from '../../core/services/user.service';
@@ -102,10 +103,14 @@ export class ProfilePageComponent implements OnInit {
   }
 
   async togglePushSubscription(): Promise<void> {
-    if (this.pushService.permission() === 'granted') {
+    if (this.pushService.enabled()) {
       await this.pushService.unsubscribe();
-    } else {
-      await this.pushService.requestAndSubscribe();
+    } else if (!(await this.pushService.requestAndSubscribe())) {
+      toast.error(
+        this.pushService.permission() === 'denied'
+          ? 'Has bloqueado las notificaciones en el navegador'
+          : 'No se han podido activar las notificaciones. Inténtalo de nuevo.'
+      );
     }
   }
 

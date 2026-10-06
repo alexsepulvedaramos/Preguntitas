@@ -226,7 +226,7 @@
             <p class="text-xs text-muted-foreground">
               @if (pushService.permission() === 'denied') {
                 Bloqueadas en tu navegador. Actívalas desde la configuración del navegador.
-              } @else if (pushService.permission() === 'granted') {
+              } @else if (pushService.enabled()) {
                 Activadas en este dispositivo.
               } @else {
                 Toca para activar en este dispositivo.
@@ -235,7 +235,7 @@
           </div>
           @if (pushService.permission() !== 'denied') {
             <hlm-switch
-              [checked]="pushService.permission() === 'granted'"
+              [checked]="pushService.enabled()"
               (checkedChange)="togglePushSubscription()"
             />
           }
