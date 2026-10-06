@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideArrowLeft, lucideCheck, lucideEye, lucideEyeOff
+  lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame
 } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -14,6 +14,7 @@ import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSwitchImports } from '@spartan-ng/helm/switch';
+import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -21,9 +22,16 @@ import { UserService } from '../../core/services/user.service';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { AvatarPickerComponent } from './components/avatar-picker/avatar-picker.component';
 import { PushNotificationService } from '../../core/services/push-notification.service';
-import { NotificationPreferencesService, NotificationPreferences } from '../../core/services/notification-preferences.service';
+import {
+  NotificationPreferencesService,
+  NotificationPreferences,
+  STREAK_DANGER_HOURS,
+} from '../../core/services/notification-preferences.service';
+import { MemberCardService } from '../../core/services/member-card.service';
+import { FRAME_NONE, FRAME_STREAK, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
 
 const FRAME_COLORS = [
+  { label: 'Racha', value: FRAME_STREAK },
   { label: 'Morado', value: '#8b5cf6' },
   { label: 'Azul', value: '#3b82f6' },
   { label: 'Verde', value: '#22c55e' },
@@ -31,7 +39,7 @@ const FRAME_COLORS = [
   { label: 'Naranja', value: '#f97316' },
   { label: 'Rojo', value: '#ef4444' },
   { label: 'Rosa', value: '#ec4899' },
-  { label: 'Ninguno', value: null },
+  { label: 'Ninguno', value: FRAME_NONE },
 ];
 
 @Component({
@@ -45,11 +53,12 @@ const FRAME_COLORS = [
     HlmDrawerImports,
     HlmSeparatorImports,
     HlmSwitchImports,
+    HlmToggleGroupImports,
     NgIcon,
     UserAvatarComponent,
     AvatarPickerComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCheck, lucideEye, lucideEyeOff })],
+  providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame })],
   templateUrl: './profile-page.component.html',
 })
 export class ProfilePageComponent implements OnInit {
@@ -59,8 +68,12 @@ export class ProfilePageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   protected readonly pushService = inject(PushNotificationService);
   private readonly prefsService = inject(NotificationPreferencesService);
+  private readonly memberCard = inject(MemberCardService);
 
   protected readonly frameColors = FRAME_COLORS;
+  protected readonly frameNone = FRAME_NONE;
+  protected readonly frameStreak = FRAME_STREAK;
+  protected readonly streakDangerHours = STREAK_DANGER_HOURS;
   protected readonly isSavingProfile = signal(false);
   protected readonly isSavingPassword = signal(false);
   protected readonly isSavingFrame = signal(false);
@@ -73,9 +86,20 @@ export class ProfilePageComponent implements OnInit {
 
   protected readonly notifPrefs = signal<NotificationPreferences>({
     newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
+    streakDanger: true, streakDangerHoursBefore: 3,
   });
 
   protected readonly user = computed(() => this.authService.currentUser());
+
+  // null is treated as "streak" (the default since rama 19).
+  protected readonly selectedFrame = computed(() => {
+    const frame = this.user()?.frameColor;
+    return frameFollowsStreak(frame) ? FRAME_STREAK : frame;
+  });
+
+  protected readonly streakTierName = computed(
+    () => streakTierFor(this.user()?.highestStreak)?.name ?? null
+  );
 
   protected readonly profileForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
@@ -96,7 +120,19 @@ export class ProfilePageComponent implements OnInit {
     this.prefsService.get().subscribe(prefs => this.notifPrefs.set(prefs));
   }
 
-  togglePref(key: keyof NotificationPreferences): void {
+  setStreakDangerHours(hours: number | number[] | null | undefined): void {
+    if (typeof hours !== 'number') return;
+    const updated = { ...this.notifPrefs(), streakDangerHoursBefore: hours };
+    this.notifPrefs.set(updated);
+    this.prefsService.update(updated).subscribe();
+  }
+
+  openMyStats(): void {
+    const id = this.user()?.id;
+    if (id != null) this.memberCard.openOwn(id);
+  }
+
+  togglePref(key: 'newQuestion' | 'selectorTurn' | 'userVoted' | 'newMessage' | 'streakDanger'): void {
     const updated = { ...this.notifPrefs(), [key]: !this.notifPrefs()[key] };
     this.notifPrefs.set(updated);
     this.prefsService.update(updated).subscribe();
@@ -118,9 +154,9 @@ export class ProfilePageComponent implements OnInit {
     this.router.navigate(['/groups']);
   }
 
-  selectFrame(color: string | null): void {
+  selectFrame(color: string): void {
     this.isSavingFrame.set(true);
-    this.userService.updateProfile({ frameColor: color ?? '' }).subscribe({
+    this.userService.updateProfile({ frameColor: color }).subscribe({
       next: profile => {
         this.authService.patchCurrentUser({ frameColor: profile.frameColor });
         this.isSavingFrame.set(false);

@@ -40,7 +40,7 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("DailyEntryId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -197,14 +197,26 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("BestStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("LastStreakEntryId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("NotificationsMuted")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("StreakDangerNotifiedEntryId")
+                        .HasColumnType("integer");
 
                     b.HasKey("GroupId", "UserId");
 
@@ -226,6 +238,12 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<bool>("SelectorTurn")
                         .HasColumnType("boolean");
+
+                    b.Property<bool>("StreakDanger")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("StreakDangerHoursBefore")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("UserVoted")
                         .HasColumnType("boolean");
@@ -403,6 +421,9 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("StreakFrameAutoApplied")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
@@ -496,8 +517,7 @@ namespace VayaPreguntita.API.Migrations
                     b.HasOne("VayaPreguntita.API.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("DailyEntry");
 

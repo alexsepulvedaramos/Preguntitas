@@ -26,7 +26,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AvatarUrl, opt => opt.MapFrom(src => src.User.AvatarUrl))
             .ForMember(dest => dest.FrameColor, opt => opt.MapFrom(src => src.User.FrameColor))
             .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt))
-            .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin));
+            .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin))
+            .ForMember(dest => dest.CurrentStreak, opt => opt.Ignore()); // effective value set by StreakService
 
         CreateMap<CreateQuestionDto, Question>()
             .ForMember(dest => dest.DateCreated, opt => opt.MapFrom(src => DateTime.UtcNow))

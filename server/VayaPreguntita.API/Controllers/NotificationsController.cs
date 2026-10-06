@@ -75,15 +75,16 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
         var prefs = await context.NotificationPreferences.FindAsync(userId);
 
         // Return defaults if no row exists yet.
-        return Ok(prefs != null
-            ? new NotificationPreferencesDto(prefs.NewQuestion, prefs.SelectorTurn, prefs.UserVoted, prefs.NewMessage)
-            : new NotificationPreferencesDto(true, true, true, true));
+        return Ok(prefs != null ? ToDto(prefs) : new NotificationPreferencesDto(true, true, true, true));
     }
 
     [HttpPut("preferences")]
     [Authorize]
     public async Task<IActionResult> UpdatePreferences([FromBody] NotificationPreferencesDto dto)
     {
+        if (!NotificationPreferencesDto.AllowedStreakDangerHours.Contains(dto.StreakDangerHoursBefore))
+            return BadRequest("Invalid streak reminder lead time.");
+
         var userId = User.GetUserId();
         var prefs = await context.NotificationPreferences.FindAsync(userId);
 
@@ -97,8 +98,20 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
         prefs.SelectorTurn = dto.SelectorTurn;
         prefs.UserVoted = dto.UserVoted;
         prefs.NewMessage = dto.NewMessage;
+        prefs.StreakDanger = dto.StreakDanger;
+        prefs.StreakDangerHoursBefore = dto.StreakDangerHoursBefore;
 
         await context.SaveChangesAsync();
-        return Ok(new NotificationPreferencesDto(prefs.NewQuestion, prefs.SelectorTurn, prefs.UserVoted, prefs.NewMessage));
+        return Ok(ToDto(prefs));
     }
+
+    private static NotificationPreferencesDto ToDto(NotificationPreferences prefs) =>
+        new(
+            prefs.NewQuestion,
+            prefs.SelectorTurn,
+            prefs.UserVoted,
+            prefs.NewMessage,
+            prefs.StreakDanger,
+            prefs.StreakDangerHoursBefore
+        );
 }

@@ -68,7 +68,6 @@ public class ChatService(AppDbContext context, INotificationService notification
 
     private async Task<IEnumerable<ChatMessageDto>> BuildMessageDtosAsync(int dailyEntryId, int currentUserId) =>
         await context.ChatMessages
-            .Include(m => m.User)
             .Where(m => m.DailyEntryId == dailyEntryId)
             .OrderBy(m => m.CreatedAt)
             .Select(m => new ChatMessageDto
@@ -77,7 +76,8 @@ public class ChatService(AppDbContext context, INotificationService notification
                 Body = m.Body,
                 CreatedAt = m.CreatedAt,
                 UserId = m.UserId,
-                Username = m.User.Username,
+                Username = m.User != null ? m.User.Username : null,
+                IsSystem = m.UserId == null,
                 IsCurrentUser = m.UserId == currentUserId,
             })
             .ToListAsync();

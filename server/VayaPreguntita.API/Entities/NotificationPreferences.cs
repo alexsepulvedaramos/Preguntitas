@@ -9,4 +9,6 @@ public class NotificationPreferences
     public bool SelectorTurn { get; set; } = true;
     public bool UserVoted { get; set; } = true;
     public bool NewMessage { get; set; } = true;
+    public bool StreakDanger { get; set; } = true;
+    public int StreakDangerHoursBefore { get; set; } = 3;
 }

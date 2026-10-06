@@ -7,4 +7,7 @@ public class UserProfileDto
     public string Email { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public string? FrameColor { get; set; }
+
+    // Highest current streak across all the user's groups — drives the ring outside a group.
+    public int HighestStreak { get; set; }
 }

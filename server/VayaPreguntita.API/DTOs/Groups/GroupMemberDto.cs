@@ -11,4 +11,7 @@ public class GroupMemberDto
     public bool IsAdmin { get; set; }
     public bool IsCurrentUser { get; set; }
     public bool NotificationsMuted { get; set; }
+
+    // Effective voting streak in this group (rama 19).
+    public int CurrentStreak { get; set; }
 }

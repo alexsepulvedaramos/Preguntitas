@@ -5,14 +5,17 @@ import { forkJoin } from 'rxjs';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideClock, lucideHistory, lucideRefreshCw, lucideSettings } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideX } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
 import { DailyStatus } from '../../../../core/models/daily.model';
-import { QuestionResult } from '../../../../core/models/result.model';
+import { StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
@@ -23,6 +26,7 @@ import { SelectQuestionDialogComponent } from '../select-question-dialog/select-
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-refresh.directive';
 import { GroupChatComponent } from '../group-chat/group-chat.component';
+import { StreakCelebrationComponent } from '../streak-celebration/streak-celebration.component';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -43,14 +47,20 @@ import { GroupChatComponent } from '../group-chat/group-chat.component';
     WordStaggerPipe,
     PullToRefreshDirective,
     GroupChatComponent,
+    HlmAlertImports,
+    StreakCelebrationComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideClock, lucideHistory, lucideRefreshCw, lucideSettings })],
+  providers: [
+    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideX }),
+  ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
 })
 export class GroupDetailComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dailyService = inject(DailyService);
+  private readonly groupStreaks = inject(GroupStreaksService);
+  private readonly authService = inject(AuthService);
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -64,6 +74,10 @@ export class GroupDetailComponent implements OnInit {
   public readonly loading = signal(true);
   public readonly refreshing = signal(false);
   public readonly error = signal<string | null>(null);
+
+  // Streak celebration after a vote that extends the streak (rama 19).
+  public readonly celebration = signal<StreakUpdate | null>(null);
+  private openSelectorAfterCelebration = false;
 
   ngOnInit() {
     this.loadAll();
@@ -97,26 +111,61 @@ export class GroupDetailComponent implements OnInit {
     return `${verb} votado ${totalVotes} de ${this.members().length}`;
   }
 
-  // The backend already returns the fresh QuestionResultDto from POST vote, so update
-  // the local state in place instead of re-fetching daily/current.
-  onVoted(result: QuestionResult) {
+  // The backend already returns the fresh QuestionResultDto (plus the streak change) from
+  // POST vote, so update the local state in place instead of re-fetching daily/current.
+  onVoted(response: VoteResponse) {
     const daily = this.daily();
     if (!daily) return;
 
+    const { results, streak } = response;
     this.daily.set({
       ...daily,
       today: {
         ...daily.today,
         status: 'results',
         userHasVoted: true,
-        results: result,
+        results,
       },
+      myStreak: { current: streak.current, best: streak.best, lostStreak: null },
     });
+    this.applyOwnStreak(streak.current);
+    // A tier change or milestone posts an automatic chat message — show it right away.
+    if (streak.isTierUp || streak.milestoneLabel) this.chat()?.reload();
 
-    // If this user is the selector for the next question, auto-open the picker.
-    if (daily.selection?.isCurrentUserSelector) {
+    // If this user is the selector for the next question, auto-open the picker —
+    // after the celebration when one is shown.
+    const isSelector = !!daily.selection?.isCurrentUserSelector;
+    if (streak.current > streak.previous) {
+      this.openSelectorAfterCelebration = isSelector;
+      this.celebration.set(streak);
+    } else if (isSelector) {
       setTimeout(() => this.selectDialog()?.triggerOpen(), 600);
     }
+  }
+
+  onCelebrationDismissed() {
+    this.celebration.set(null);
+    if (this.openSelectorAfterCelebration) {
+      this.openSelectorAfterCelebration = false;
+      setTimeout(() => this.selectDialog()?.triggerOpen(), 300);
+    }
+  }
+
+  dismissLostStreak() {
+    const daily = this.daily();
+    if (!daily) return;
+    this.daily.set({ ...daily, myStreak: { ...daily.myStreak, lostStreak: null } });
+    this.dailyService.dismissLostStreak(this.numericGroupId()).subscribe();
+  }
+
+  // Keeps the member list, the in-group rings and the header ring in sync with the new streak.
+  private applyOwnStreak(current: number) {
+    const members = this.members().map((m) => (m.isCurrentUser ? { ...m, currentStreak: current } : m));
+    this.members.set(members);
+    this.groupStreaks.set(this.numericGroupId(), members);
+
+    const highest = this.authService.currentUser()?.highestStreak ?? 0;
+    if (current > highest) this.authService.patchCurrentUser({ highestStreak: current });
   }
 
   private loadAll() {
@@ -133,6 +182,7 @@ export class GroupDetailComponent implements OnInit {
         this.group.set(res.group);
         this.daily.set(res.daily);
         this.members.set(res.members);
+        this.groupStreaks.set(this.numericGroupId(), res.members);
         this.loading.set(false);
       },
       error: (err) => {

@@ -28,6 +28,8 @@
           <app-user-avatar
             [avatarUrl]="leadUser()!.avatarUrl"
             [username]="leadUser()!.username"
+            [frameColor]="leadUser()!.frameColor"
+            [streak]="groupStreaks.streakFor(leadUser()!.id)"
             size="md"
             class="ring-2 ring-background rounded-full"
           />
@@ -52,6 +54,8 @@
             <app-user-avatar
               [avatarUrl]="voter.avatarUrl"
               [username]="voter.username"
+              [frameColor]="voter.frameColor"
+              [streak]="groupStreaks.streakFor(voter.id)"
               size="xs"
               class="ring-2 ring-background rounded-full"
             />
@@ -100,12 +104,20 @@
             <div class="flex flex-col gap-0.5 rounded-xl bg-muted/50 px-4 py-3">
               <div class="flex items-center gap-2.5">
                 @if (option.targetUser) {
-                  <app-user-avatar
-                    [avatarUrl]="option.targetUser.avatarUrl"
-                    [username]="option.targetUser.username"
-                    [frameColor]="option.targetUser.frameColor"
-                    size="md"
-                  />
+                  <button
+                    type="button"
+                    class="shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    (click)="openMemberCard(option.targetUser.id)"
+                    [attr.aria-label]="'Ver estadísticas de ' + option.targetUser.username"
+                  >
+                    <app-user-avatar
+                      [avatarUrl]="option.targetUser.avatarUrl"
+                      [username]="option.targetUser.username"
+                      [frameColor]="option.targetUser.frameColor"
+                      [streak]="groupStreaks.streakFor(option.targetUser.id)"
+                      size="md"
+                    />
+                  </button>
                 }
                 <p class="text-base font-bold text-foreground leading-tight">
                   {{ option.displayText }}

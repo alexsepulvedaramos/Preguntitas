@@ -9,7 +9,7 @@ namespace VayaPreguntita.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IStreakService streakService) : ControllerBase
 {
     private int CurrentUserId => int.Parse(
         User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -21,6 +21,11 @@ public class UsersController(IUserService userService) : ControllerBase
         if (profile is null) return NotFound();
         return Ok(profile);
     }
+
+    // The current user's streak and stats in each of their groups (profile card, rama 19).
+    [HttpGet("me/group-stats")]
+    public async Task<IActionResult> GetMyGroupStats() =>
+        Ok(await streakService.GetUserGroupStatsAsync(CurrentUserId));
 
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile(UpdateProfileRequestDto request)

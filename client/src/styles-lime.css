@@ -50,6 +50,20 @@
     --success: oklch(0.5 0.15 152);
     --success-foreground: oklch(0.98 0.005 140);
 
+    /* Streak ring tiers (rama 19) — a = body, b = tip/highlight */
+    --streak-ember-a: oklch(0.55 0.19 35);
+    --streak-ember-b: oklch(0.72 0.17 55);
+    --streak-flame-small-a: oklch(0.68 0.19 50);
+    --streak-flame-small-b: oklch(0.84 0.16 85);
+    --streak-flame-intense-a: oklch(0.62 0.23 35);
+    --streak-flame-intense-b: oklch(0.8 0.18 65);
+    --streak-flame-blue-a: oklch(0.58 0.19 255);
+    --streak-flame-blue-b: oklch(0.82 0.11 215);
+    --streak-flame-purple-a: oklch(0.52 0.24 300);
+    --streak-flame-purple-b: oklch(0.78 0.14 320);
+    --streak-flame-gold-a: oklch(0.74 0.16 80);
+    --streak-flame-gold-b: oklch(0.93 0.1 95);
+
     /* Destructive Actions */
     /* Darkened the red slightly to guarantee contrast against the light foreground */
     --destructive: oklch(0.5 0.2 27);
@@ -133,6 +147,20 @@
     /* Success States */
     --success: oklch(0.75 0.14 150);
     --success-foreground: oklch(0.15 0.02 155);
+
+    /* Streak ring tiers — brighter so they read on dark surfaces */
+    --streak-ember-a: oklch(0.62 0.19 35);
+    --streak-ember-b: oklch(0.78 0.16 55);
+    --streak-flame-small-a: oklch(0.74 0.18 50);
+    --streak-flame-small-b: oklch(0.88 0.15 85);
+    --streak-flame-intense-a: oklch(0.68 0.22 35);
+    --streak-flame-intense-b: oklch(0.85 0.17 65);
+    --streak-flame-blue-a: oklch(0.66 0.18 255);
+    --streak-flame-blue-b: oklch(0.87 0.1 215);
+    --streak-flame-purple-a: oklch(0.62 0.22 300);
+    --streak-flame-purple-b: oklch(0.84 0.12 320);
+    --streak-flame-gold-a: oklch(0.8 0.15 80);
+    --streak-flame-gold-b: oklch(0.95 0.08 95);
 
     /* Destructive Actions */
     --destructive: oklch(0.6 0.2 27);
@@ -381,5 +409,115 @@
    */
   .vp-poll-option-selected {
     @apply border-accent bg-accent/5 shadow-sm shadow-accent/20 animate-pop;
+  }
+
+  /*
+   * Streak rings (rama 19). Pure CSS: a masked conic-gradient band + small inline-SVG
+   * flame tongues, rendered by UserAvatarComponent. Only transform/opacity animate,
+   * since 10–15 avatars can be on screen at once.
+   */
+  .vp-streak {
+    --streak-w: 3px;
+    position: absolute;
+    inset: calc(var(--streak-w) * -1 - 1px);
+    border-radius: 9999px;
+    pointer-events: none;
+  }
+
+  .vp-streak-size-xs { --streak-w: 2px; }
+  .vp-streak-size-sm { --streak-w: 2.5px; }
+  .vp-streak-size-md { --streak-w: 3px; }
+  .vp-streak-size-lg { --streak-w: 3.5px; }
+  .vp-streak-size-xl { --streak-w: 5px; }
+
+  .vp-streak-ember { --streak-a: var(--streak-ember-a); --streak-b: var(--streak-ember-b); }
+  .vp-streak-flame-small { --streak-a: var(--streak-flame-small-a); --streak-b: var(--streak-flame-small-b); }
+  .vp-streak-flame-intense { --streak-a: var(--streak-flame-intense-a); --streak-b: var(--streak-flame-intense-b); }
+  .vp-streak-flame-blue { --streak-a: var(--streak-flame-blue-a); --streak-b: var(--streak-flame-blue-b); }
+  .vp-streak-flame-purple { --streak-a: var(--streak-flame-purple-a); --streak-b: var(--streak-flame-purple-b); }
+  .vp-streak-flame-gold { --streak-a: var(--streak-flame-gold-a); --streak-b: var(--streak-flame-gold-b); }
+
+  .vp-streak__band,
+  .vp-streak__glow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .vp-streak__band {
+    background: conic-gradient(
+      var(--streak-a),
+      var(--streak-b),
+      var(--streak-a),
+      var(--streak-b),
+      var(--streak-a)
+    );
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - var(--streak-w)),
+      #000 calc(100% - var(--streak-w) + 0.5px)
+    );
+    animation: vp-streak-spin 6s linear infinite;
+  }
+
+  .vp-streak__glow {
+    box-shadow: 0 0 calc(var(--streak-w) * 2.5) calc(var(--streak-w) * 0.4) var(--streak-a);
+    opacity: 0.35;
+    animation: vp-streak-glow 1.8s ease-in-out infinite alternate;
+  }
+
+  /* Ember: no tongues, a slow smouldering pulse instead. */
+  .vp-streak-ember .vp-streak__band { animation-duration: 10s; }
+  .vp-streak-ember .vp-streak__glow { animation-duration: 2.6s; }
+
+  /* Gold, the cap: faster shimmer and a stronger glow. */
+  .vp-streak-flame-gold .vp-streak__band { animation-duration: 3.5s; }
+  .vp-streak-flame-gold .vp-streak__glow { opacity: 0.55; }
+
+  .vp-streak__tongue {
+    position: absolute;
+    inset: 0;
+    transform: rotate(var(--angle, 0deg));
+  }
+
+  .vp-streak__tongue svg {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: calc(var(--streak-w) * 3);
+    height: calc(var(--streak-w) * 4.6);
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -78%);
+    animation: vp-streak-flicker var(--dur, 0.9s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+    overflow: visible;
+  }
+
+  .vp-streak__tongue .vp-streak__outer { fill: var(--streak-a); }
+  .vp-streak__tongue .vp-streak__inner { fill: var(--streak-b); }
+
+  /* Tongues would be unreadable specks on the smallest avatars. */
+  .vp-streak-size-xs .vp-streak__tongue { display: none; }
+
+  @keyframes vp-streak-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes vp-streak-glow {
+    from { opacity: 0.2; }
+    to { opacity: 0.6; }
+  }
+
+  @keyframes vp-streak-flicker {
+    from { transform: translate(-50%, -78%) scale(0.92, 0.8); opacity: 0.8; }
+    to { transform: translate(-50%, -78%) scale(1, 1.12); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vp-streak__band,
+    .vp-streak__glow,
+    .vp-streak__tongue svg {
+      animation: none;
+    }
   }
 }

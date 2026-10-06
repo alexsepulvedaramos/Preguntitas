@@ -100,23 +100,36 @@
       <ul class="flex flex-col gap-2">
         @for (member of members(); track member.id) {
           <li class="flex items-center gap-3 py-2">
-            <!-- Avatar -->
+            <!-- Avatar + name: opens the member card (rama 19) -->
+            <button
+              type="button"
+              class="flex items-center gap-3 min-w-0 flex-1 rounded-default text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              (click)="memberCard.open(numericGroupId(), member.id)"
+              [attr.aria-label]="'Ver estadísticas de ' + member.username"
+            >
             <app-user-avatar
               [avatarUrl]="member.avatarUrl"
               [username]="member.username"
               [frameColor]="member.frameColor"
+              [streak]="member.currentStreak"
               size="sm"
             />
 
             <!-- Name + badge -->
             <div class="flex flex-col min-w-0 flex-1">
-              <span class="text-sm font-medium text-foreground truncate">
-                {{ member.username }}
+              <span class="flex items-center gap-2 text-sm font-medium text-foreground">
+                <span class="truncate">{{ member.username }}</span>
+                @if (member.currentStreak > 0) {
+                  <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="'Racha de ' + member.currentStreak + ' días'">
+                    🔥 {{ member.currentStreak }}
+                  </span>
+                }
               </span>
               @if (member.isAdmin) {
                 <span class="text-xs text-muted-foreground">Administrador</span>
               }
             </div>
+            </button>
 
             <!-- Admin actions for non-admin members -->
             @if (isAdmin() && !member.isAdmin) {

@@ -4,6 +4,7 @@
 //   - selection: the next-day question being chosen (the "te toca elegir" panel).
 
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.DTOs.Streaks;
 
 namespace VayaPreguntita.API.DTOs.Daily;
 
@@ -13,6 +14,9 @@ public class DailyStatusDto
 
     // null before the group has started a cycle (< 2 members).
     public SelectionStateDto? Selection { get; set; }
+
+    // The current user's streak in this group (rama 19).
+    public MyStreakDto MyStreak { get; set; } = new();
 }
 
 public class TodayStateDto

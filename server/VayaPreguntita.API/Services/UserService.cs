@@ -3,16 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Users;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Helpers;
+using System.Text.RegularExpressions;
 
 namespace VayaPreguntita.API.Services;
 
 public class UserService(
     AppDbContext context,
     IPasswordHasher<User> passwordHasher,
-    SupabaseStorageService storageService) : IUserService
+    SupabaseStorageService storageService,
+    IStreakService streakService) : IUserService
 {
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+    private static readonly Regex HexColor = new("^#[0-9a-fA-F]{6}$", RegexOptions.Compiled);
 
     public async Task<UserProfileDto?> GetProfileAsync(int userId)
     {
@@ -25,7 +29,8 @@ public class UserService(
             Username = user.Username,
             Email = user.Email,
             AvatarUrl = user.AvatarUrl,
-            FrameColor = user.FrameColor,
+            FrameColor = user.FrameColor ?? FrameColors.Streak,
+            HighestStreak = await streakService.GetHighestStreakAsync(userId),
         };
     }
 
@@ -62,9 +67,16 @@ public class UserService(
         if (request.AvatarUrl is not null)
             user.AvatarUrl = string.IsNullOrWhiteSpace(request.AvatarUrl) ? null : request.AvatarUrl;
 
-        // FrameColor: explicit null resets to no frame
+        // FrameColor: a hex colour, "streak" or "none"; an empty string also means no frame.
         if (request.FrameColor is not null)
-            user.FrameColor = string.IsNullOrWhiteSpace(request.FrameColor) ? null : request.FrameColor;
+        {
+            var frame = request.FrameColor.Trim();
+            if (frame.Length == 0)
+                frame = FrameColors.None;
+            if (frame != FrameColors.Streak && frame != FrameColors.None && !HexColor.IsMatch(frame))
+                return (false, "Invalid frame color.");
+            user.FrameColor = frame;
+        }
 
         await context.SaveChangesAsync();
         return (true, null);

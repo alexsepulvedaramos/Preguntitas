@@ -22,6 +22,7 @@
             [avatarUrl]="user()?.avatarUrl"
             [username]="user()?.username ?? ''"
             [frameColor]="user()?.frameColor"
+            [streak]="user()?.highestStreak"
             size="xl"
           />
           <div
@@ -47,39 +48,58 @@
       </hlm-drawer>
 
       <p class="text-sm text-muted-foreground">Toca para cambiar tu avatar</p>
+
+      <button hlmBtn variant="outline" size="sm" class="gap-2" (click)="openMyStats()">
+        <ng-icon hlm name="lucideChartColumn" class="size-4!" />
+        Mis estadísticas
+      </button>
     </section>
 
     <!-- ===== MARCO DE COLOR ===== -->
     <section class="flex flex-col gap-3">
-      <h2 class="font-semibold text-sm text-foreground">Marco de color</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">Marco</h2>
       <div class="flex gap-2 flex-wrap">
         @for (color of frameColors; track color.value) {
           <button
-            class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center"
-            [class]="user()?.frameColor === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
-            [style.background-color]="color.value ?? 'transparent'"
-            [style.border]="color.value ? 'none' : '2px dashed var(--border)'"
+            class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none"
+            [class]="selectedFrame() === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
+            [class.bg-muted]="color.value === frameStreak"
+            [style.background-color]="color.value.startsWith('#') ? color.value : null"
+            [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
             [attr.aria-label]="color.label"
+            [attr.aria-pressed]="selectedFrame() === color.value"
             [disabled]="isSavingFrame()"
             (click)="selectFrame(color.value)"
           >
-            @if (color.value === null) {
+            @if (color.value === frameStreak) {
+              <ng-icon hlm name="lucideFlame" class="size-4! text-primary" />
+            } @else if (color.value === frameNone) {
               <span class="text-xs text-muted-foreground leading-none">✕</span>
-            }
-            @if (user()?.frameColor === color.value && color.value !== null) {
+            } @else if (selectedFrame() === color.value) {
               <ng-icon hlm name="lucideCheck" class="size-4! text-white" />
             }
           </button>
         }
       </div>
-      <p class="text-xs text-muted-foreground">Pronto habrá marcos especiales desbloqueables</p>
+      <p class="text-xs text-muted-foreground">
+        @if (selectedFrame() === frameStreak) {
+          Tu marco sigue tu mejor racha actual
+          @if (streakTierName(); as tier) {
+            · {{ tier }}
+          } @else {
+            · aparece a partir de 3 días seguidos votando
+          }
+        } @else {
+          Elige «Racha» para que tu marco arda con tus días seguidos votando
+        }
+      </p>
     </section>
 
     <div hlmSeparator></div>
 
     <!-- ===== INFORMACIÓN DE PERFIL ===== -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-semibold text-sm text-foreground">Información</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">Información</h2>
 
       <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
@@ -128,7 +148,7 @@
 
     <!-- ===== CONTRASEÑA ===== -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-semibold text-sm text-foreground">Contraseña</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">Contraseña</h2>
 
       <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
@@ -214,7 +234,7 @@
 
     <!-- Notificaciones -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-semibold text-sm text-foreground">Notificaciones</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">Notificaciones</h2>
 
       @if (!pushService.isSupported) {
         <p class="text-xs text-muted-foreground">Tu navegador no admite notificaciones push.</p>
@@ -285,6 +305,37 @@
             (checkedChange)="togglePref('newMessage')"
           />
         </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">Racha en peligro</p>
+            <p class="text-xs text-muted-foreground">Si llevas 3 días o más y aún no has votado</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().streakDanger"
+            (checkedChange)="togglePref('streakDanger')"
+          />
+        </div>
+
+        @if (notifPrefs().streakDanger) {
+          <div class="flex flex-col gap-2">
+            <p id="streak-danger-hours" class="text-xs text-muted-foreground">Avisarme antes del cierre:</p>
+            <hlm-toggle-group
+              type="single"
+              variant="outline"
+              size="sm"
+              [nullable]="false"
+              [value]="notifPrefs().streakDangerHoursBefore"
+              (valueChange)="setStreakDangerHours($event)"
+              aria-labelledby="streak-danger-hours"
+              class="flex-wrap"
+            >
+              @for (h of streakDangerHours; track h) {
+                <button hlmToggleGroupItem [value]="h" [attr.aria-label]="h + ' horas antes'">{{ h }} h</button>
+              }
+            </hlm-toggle-group>
+          </div>
+        }
       }
     </section>
 

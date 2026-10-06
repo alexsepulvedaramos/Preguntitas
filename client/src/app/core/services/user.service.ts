@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { MemberStats } from '../models/streak.model';
 
 export interface UserProfileDto {
   id: number;
@@ -8,6 +9,7 @@ export interface UserProfileDto {
   email: string;
   avatarUrl: string | null;
   frameColor: string | null;
+  highestStreak: number;
 }
 
 export interface UpdateProfileRequest {
@@ -29,6 +31,11 @@ export class UserService {
 
   getProfile() {
     return this.http.get<UserProfileDto>(`${this.apiUrl}/me`);
+  }
+
+  // Own streak and stats in each group (profile card, rama 19)
+  getMyGroupStats() {
+    return this.http.get<MemberStats[]>(`${this.apiUrl}/me/group-stats`);
   }
 
   updateProfile(request: UpdateProfileRequest) {

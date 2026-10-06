@@ -1,0 +1,99 @@
+<ng-template #body>
+  @if (loading()) {
+    <div class="flex flex-col items-center gap-4 py-2">
+      <div hlmSkeleton class="size-24 rounded-full"></div>
+      <div hlmSkeleton class="h-5 w-32"></div>
+      <div hlmSkeleton class="h-24 w-full rounded-default"></div>
+    </div>
+  } @else if (error()) {
+    <p class="py-6 text-center text-sm text-destructive">No se han podido cargar las estadísticas.</p>
+  } @else if (headline(); as head) {
+    <div class="flex flex-col items-center gap-2 pt-2">
+      <app-user-avatar
+        [avatarUrl]="head.avatarUrl"
+        [username]="head.username"
+        [frameColor]="head.frameColor"
+        [streak]="head.currentStreak"
+        size="xl"
+      />
+      <p class="mt-2 font-display text-2xl italic text-foreground">{{ head.username }}</p>
+      <p class="text-sm font-medium text-muted-foreground">{{ tierName(head.currentStreak) }}</p>
+
+      @if (isOwnCard() && head.currentStreak > 0 && head.currentStreak < firstRingDays) {
+        <div class="flex items-center gap-2" aria-label="Progreso hacia tu primer anillo">
+          @for (filled of dots(head.currentStreak); track $index) {
+            <span class="size-3 rounded-full border-2 border-primary" [class.bg-primary]="filled"></span>
+          }
+        </div>
+      }
+    </div>
+
+    @if (allGroups()) {
+      <div class="flex max-h-[45vh] flex-col gap-3 overflow-y-auto">
+        @for (s of stats(); track s.groupId) {
+          <div class="flex flex-col gap-2 rounded-xl bg-muted/50 p-3">
+            <p class="truncate text-sm font-semibold text-foreground">{{ s.groupName }}</p>
+            <ng-container *ngTemplateOutlet="grid; context: { $implicit: s }" />
+          </div>
+        } @empty {
+          <p class="text-center text-sm text-muted-foreground">Aún no estás en ningún grupo.</p>
+        }
+      </div>
+    } @else {
+      <ng-container *ngTemplateOutlet="grid; context: { $implicit: head }" />
+    }
+  }
+</ng-template>
+
+<ng-template #grid let-s>
+  <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Racha actual</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">🔥 {{ s.currentStreak }}</dd>
+    </div>
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Mejor racha</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.bestStreak }}</dd>
+    </div>
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Votos</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.totalVotes }}</dd>
+    </div>
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Participación</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.participationPercent }}%</dd>
+    </div>
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Veces selector</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.timesSelector }}</dd>
+    </div>
+    <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
+      <dt class="text-xs text-muted-foreground">Preguntas creadas</dt>
+      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.questionsCreated }}</dd>
+    </div>
+  </dl>
+</ng-template>
+
+@if (isDesktop()) {
+  <hlm-dialog [state]="state()" (closed)="close()">
+    <hlm-dialog-content *hlmDialogPortal class="w-md max-w-[95vw]">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle class="sr-only">{{ allGroups() ? 'Mis estadísticas' : 'Estadísticas del miembro' }}</h3>
+      </hlm-dialog-header>
+      <div class="flex flex-col gap-4">
+        <ng-container *ngTemplateOutlet="body" />
+      </div>
+    </hlm-dialog-content>
+  </hlm-dialog>
+} @else {
+  <hlm-drawer [state]="state()" (closed)="close()">
+    <hlm-drawer-content *hlmDrawerPortal class="px-4 pb-8">
+      <hlm-drawer-header>
+        <h3 hlmDrawerTitle class="sr-only">{{ allGroups() ? 'Mis estadísticas' : 'Estadísticas del miembro' }}</h3>
+      </hlm-drawer-header>
+      <div class="flex flex-col gap-4">
+        <ng-container *ngTemplateOutlet="body" />
+      </div>
+    </hlm-drawer-content>
+  </hlm-drawer>
+}

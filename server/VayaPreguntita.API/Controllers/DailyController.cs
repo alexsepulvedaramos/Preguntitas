@@ -14,7 +14,11 @@ using VayaPreguntita.API.Services;
 [Authorize]
 [ApiController]
 [Route("api/groups/{groupId}/daily")]
-public class DailyController(IDailyService dailyService, IGroupsService groupsService)
+public class DailyController(
+    IDailyService dailyService,
+    IGroupsService groupsService,
+    IStreakService streakService
+)
     : ControllerBase
 {
     private bool TryGetCurrentUserId(out int userId)
@@ -78,15 +82,29 @@ public class DailyController(IDailyService dailyService, IGroupsService groupsSe
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var (result, results) = await dailyService.VoteAsync(groupId, userId, dto);
+        var (result, response) = await dailyService.VoteAsync(groupId, userId, dto);
 
         return result switch
         {
-            VoteResult.Success => Ok(results),
+            VoteResult.Success => Ok(response),
             VoteResult.NoActiveQuestion => NotFound("No hay pregunta activa hoy."),
             VoteResult.AlreadyVoted => BadRequest("Ya has votado hoy."),
             VoteResult.InvalidPayload => BadRequest("Voto inválido para este tipo de pregunta."),
             _ => StatusCode(500),
         };
+    }
+
+    // POST api/groups/{groupId}/daily/streak/dismiss-lost
+    // Acknowledges the "Has perdido tu racha…" notice (rama 19).
+    [HttpPost("streak/dismiss-lost")]
+    public async Task<ActionResult> DismissLostStreak(int groupId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        await streakService.DismissLostStreakAsync(groupId, userId);
+        return NoContent();
     }
 }

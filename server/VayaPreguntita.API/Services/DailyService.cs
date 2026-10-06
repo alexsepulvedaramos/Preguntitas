@@ -9,7 +9,12 @@ using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
 
-public class DailyService(AppDbContext context, IMapper mapper, INotificationService notificationService) : IDailyService
+public class DailyService(
+    AppDbContext context,
+    IMapper mapper,
+    INotificationService notificationService,
+    IStreakService streakService
+) : IDailyService
 {
     // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
     private const int FreeTextMaxLength = 280;
@@ -50,6 +55,7 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
         {
             Today = await BuildTodayStateAsync(openEntry, group, userId),
             Selection = BuildSelectionState(pendingEntry, openEntry, group, userId),
+            MyStreak = await streakService.GetMyStreakAsync(groupId, userId),
         };
     }
 
@@ -380,9 +386,10 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
 
     // ==========================================
     // VOTE
-    // Votes on the currently-open question (latest activated entry). Returns fresh results.
+    // Votes on the currently-open question (latest activated entry). Returns fresh results
+    // plus the voter's streak change (rama 19).
     // ==========================================
-    public async Task<(VoteResult result, QuestionResultDto? results)> VoteAsync(
+    public async Task<(VoteResult result, VoteResponseDto? response)> VoteAsync(
         int groupId,
         int userId,
         CreateVoteDto dto
@@ -416,13 +423,15 @@ public class DailyService(AppDbContext context, IMapper mapper, INotificationSer
         context.Votes.AddRange(BuildVotes(dto, question, userId));
         await context.SaveChangesAsync();
 
+        var streak = await streakService.RegisterVoteAsync(groupId, userId, openEntry);
+
         var group = await context.Groups.FindAsync(groupId);
         var voter = await context.Users.FindAsync(userId);
         if (group != null && voter != null)
             _ = notificationService.SendUserVotedAsync(groupId, userId, group.Name, voter.Username);
 
         var results = await CalculateResultsAsync(question);
-        return (VoteResult.Success, results);
+        return (VoteResult.Success, new VoteResponseDto { Results = results, Streak = streak });
     }
 
     // ==========================================

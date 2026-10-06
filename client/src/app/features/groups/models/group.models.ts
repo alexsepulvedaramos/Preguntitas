@@ -26,6 +26,7 @@ export interface GroupMember {
     isAdmin: boolean;
     isCurrentUser: boolean;
     notificationsMuted: boolean;
+    currentStreak: number; // effective voting streak in this group (rama 19)
 }
 
 export interface JoinGroupRequest {
