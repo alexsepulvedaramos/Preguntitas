@@ -19,7 +19,10 @@ export interface OptionResult {
 }
 
 export interface FreeTextResponse {
+    userId: number;
     username: string;
+    avatarUrl: string | null;
+    frameColor: string | null;
     text: string;
 }
 
