@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using VayaPreguntita.API.Data;
 
 namespace VayaPreguntita.API.Tests.Testing;
@@ -26,7 +25,18 @@ public class CustomWebAppFactory(string connectionString) : WebApplicationFactor
             );
 
             // EF Core 9+ also keeps the original UseNpgsql(...) callback in this registration
-            services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();
+            // (the interface is in an internal EF namespace, so match it by name)
+            var optionsConfigurations = services
+                .Where(d =>
+                    d.ServiceType.IsGenericType
+                    && d.ServiceType.GetGenericTypeDefinition().Name.StartsWith("IDbContextOptionsConfiguration")
+                    && d.ServiceType.GenericTypeArguments[0] == typeof(AppDbContext)
+                )
+                .ToList();
+            foreach (var configuration in optionsConfigurations)
+            {
+                services.Remove(configuration);
+            }
 
             // 2. Remove the default configuration to prevent connecting to the development database
             if (descriptor != null)
