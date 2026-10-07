@@ -1,12 +1,8 @@
-import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { throwError, BehaviorSubject, Observable } from 'rxjs';
-import { catchError, filter, switchMap, take } from 'rxjs';
+import { throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
-
-// State variables declared outside to maintain state across all HTTP requests
-let isRefreshing = false;
-let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
@@ -29,66 +25,20 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     // Pass the request and attach catchError to intercept the response
     return next(authReq).pipe(
         catchError((error) => {
-            // Intercept 401 Unauthorized errors
+            // On 401, refresh the access token and retry the request once.
+            // AuthService deduplicates concurrent refreshes (in this tab and across tabs) and
+            // only ends the session when the server rejects the refresh token; transient
+            // failures (offline, backend waking up) just propagate as an error.
             if (error instanceof HttpErrorResponse && error.status === 401) {
-                return handle401Error(authReq, next, authService);
+                return authService.refreshToken().pipe(
+                    switchMap((accessToken) => next(req.clone({
+                        setHeaders: { Authorization: `Bearer ${accessToken}` }
+                    })))
+                );
             }
 
             // Propagate any other errors
             return throwError(() => error);
         })
     );
-};
-
-// Helper function to manage the token refresh concurrency
-const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, authService: AuthService): Observable<any> => {
-    if (!isRefreshing) {
-        // Scenario A: No refresh is currently in progress
-        isRefreshing = true;
-        // Reset the subject so incoming requests will pause and wait
-        refreshTokenSubject.next(null);
-
-        return authService.refreshToken().pipe(
-            switchMap((response) => {
-                isRefreshing = false;
-                // Emit the new token, which unlocks all paused requests
-                refreshTokenSubject.next(response.accessToken);
-
-                // Retry the original request with the new access token
-                const clonedRequest = req.clone({
-                    setHeaders: { Authorization: `Bearer ${response.accessToken}` }
-                });
-                return next(clonedRequest);
-            }),
-            catchError((error) => {
-                isRefreshing = false;
-                // Another tab may have already refreshed successfully.
-                // If localStorage now has a valid access token, use it instead of logging out.
-                if (authService.hasValidAccessToken()) {
-                    const freshToken = authService.getAccessToken()!;
-                    refreshTokenSubject.next(freshToken);
-                    const retried = req.clone({
-                        setHeaders: { Authorization: `Bearer ${freshToken}` }
-                    });
-                    return next(retried);
-                }
-                authService.logout();
-                return throwError(() => error);
-            })
-        );
-    } else {
-        // Scenario B: A refresh is already in progress
-        // Subscribe to the subject and wait for a non-null token
-        return refreshTokenSubject.pipe(
-            filter((token) => token !== null),
-            take(1),
-            switchMap((token) => {
-                // Once the new token is emitted, clone and retry the request
-                const clonedRequest = req.clone({
-                    setHeaders: { Authorization: `Bearer ${token}` }
-                });
-                return next(clonedRequest);
-            })
-        );
-    }
 };

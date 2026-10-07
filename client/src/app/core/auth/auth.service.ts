@@ -1,8 +1,8 @@
 import { Injectable, signal, inject, computed, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, finalize, map, share, tap } from 'rxjs/operators';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, defer, firstValueFrom, from, of, throwError } from 'rxjs';
 
 import { AuthResponse } from '../../features/auth/models/auth-response.interface';
 import { LoginRequest } from '../../features/auth/models/login-request.interface';
@@ -28,13 +28,15 @@ export class AuthService {
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
 
+  // Name of the Web Lock that serialises refreshes across tabs of the same origin
+  private readonly REFRESH_LOCK = 'vp-auth-refresh';
+
   // Deduplicates concurrent refresh calls so token rotation can't race with itself
-  private _refreshInFlight: Observable<AuthResponse> | null = null;
+  private _refreshInFlight: Observable<string> | null = null;
 
   constructor() {
     // Listen for changes in localStorage from other tabs
     window.addEventListener('storage', (event) => {
-      console.log('Storage event intercepted. Key:', event.key, 'New Value:', event.newValue);
       if (event.key === 'access_token' && !event.newValue) {
         // Token was removed in another tab, clean up state immediately
         this.ngZone.run(() => {
@@ -65,16 +67,22 @@ export class AuthService {
     // 3. Token is expired or missing, but we have a refresh token. Try to refresh.
     if (refresh) {
       return this.refreshToken().pipe(
-        map(response => {
+        map(accessToken => {
           // Token refreshed successfully, update state
-          const user = this.extractUserFromToken(response.accessToken);
+          const user = this.extractUserFromToken(accessToken);
           this.currentUser.set(user);
           return true;
         }),
-        catchError(() => {
-          // Refresh failed, clean up
-          this.clearStorage();
-          return of(false);
+        catchError(error => {
+          // The server rejected the refresh token: the session is over (already cleared)
+          if (AuthService.isSessionRejection(error)) return of(false);
+
+          // Transient failure (offline, backend waking up, 5xx...): keep the session and
+          // restore the user from the expired token's claims; the next API call retries.
+          const user = token ? this.extractUserFromToken(token) : null;
+          if (!user) return of(false);
+          this.currentUser.set(user);
+          return of(true);
         })
       );
     }
@@ -108,31 +116,83 @@ export class AuthService {
     );
   }
 
-  public refreshToken(): Observable<AuthResponse> {
-    const refresh = this.getRefreshToken();
-
-    if (!refresh) {
-      this.logout();
-      return throwError(() => new Error('No refresh token available'));
-    }
-
+  // Exchanges the refresh token for a new access token and returns it.
+  // Only a definitive rejection from the server (400/401) ends the session; network errors,
+  // timeouts and 5xx (e.g. the backend cold-starting) propagate without touching the stored tokens.
+  public refreshToken(): Observable<string> {
     if (this._refreshInFlight) {
       return this._refreshInFlight;
     }
 
-    this._refreshInFlight = this.http
-      .post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: refresh })
-      .pipe(
-        tap(response => {
-          this.saveTokens(response.accessToken, response.refreshToken);
-        }),
-        finalize(() => {
-          this._refreshInFlight = null;
-        }),
-        share()
-      );
+    const staleAccessToken = this.getAccessToken();
+
+    this._refreshInFlight = defer(() =>
+      from(this.withRefreshLock(() => this.performRefresh(staleAccessToken)))
+    ).pipe(
+      catchError(error => {
+        if (AuthService.isSessionRejection(error)) this.endSessionLocally();
+        return throwError(() => error);
+      }),
+      finalize(() => {
+        this._refreshInFlight = null;
+      }),
+      share()
+    );
 
     return this._refreshInFlight;
+  }
+
+  // True when the error means the refresh token is no longer valid (vs. a transient failure)
+  public static isSessionRejection(error: unknown): boolean {
+    return error instanceof HttpErrorResponse && (error.status === 400 || error.status === 401);
+  }
+
+  private async performRefresh(staleAccessToken: string | null): Promise<string> {
+    // Another tab may have refreshed while we waited for the lock: reuse its token
+    const current = this.getAccessToken();
+    if (current && current !== staleAccessToken && !this.isTokenExpired(current)) {
+      return current;
+    }
+
+    const refresh = this.getRefreshToken();
+    if (!refresh) {
+      throw new HttpErrorResponse({ status: 401, statusText: 'No refresh token available' });
+    }
+
+    try {
+      return await this.postRefresh(refresh);
+    } catch (error) {
+      // Without Web Locks another tab can rotate the token mid-flight; retry once with its token
+      const latest = this.getRefreshToken();
+      if (AuthService.isSessionRejection(error) && latest && latest !== refresh) {
+        return await this.postRefresh(latest);
+      }
+      throw error;
+    }
+  }
+
+  private async postRefresh(refresh: string): Promise<string> {
+    const response = await firstValueFrom(
+      this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken: refresh })
+    );
+    this.saveTokens(response.accessToken, response.refreshToken);
+    return response.accessToken;
+  }
+
+  // Runs the task under a cross-tab lock so two tabs never rotate the same refresh token at once
+  private withRefreshLock<T>(task: () => Promise<T>): Promise<T> {
+    const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+    if (!locks) return task();
+    return locks.request(this.REFRESH_LOCK, task);
+  }
+
+  // Ends the session client-side only. The refresh token is already invalid on the server, and
+  // calling /logout here could revoke a token another tab has just obtained.
+  private endSessionLocally(): void {
+    this.clearStorage();
+    this.currentUser.set(null);
+    this._profileRefreshed = false;
+    this.router.navigate(['/auth/login']);
   }
 
   public logout(): void {
@@ -141,19 +201,11 @@ export class AuthService {
     if (refresh) {
       // Notify the backend to revoke the refresh token in the database
       this.http.post(`${this.apiUrl}/logout`, { refreshToken: refresh }).pipe(
-        finalize(() => {
-          this.clearStorage();
-          this.currentUser.set(null);
-          this._profileRefreshed = false;
-          this.router.navigate(['/auth/login']);
-        })
+        finalize(() => this.endSessionLocally())
       ).subscribe();
     } else {
       // If there is no token, just clear the local state
-      this.clearStorage();
-      this.currentUser.set(null);
-      this._profileRefreshed = false;
-      this.router.navigate(['/auth/login']);
+      this.endSessionLocally();
     }
   }
 
