@@ -167,7 +167,7 @@ public class AuthController(
     }
 
     // Creates a new refresh token for the user, cleaning up expired tokens and
-    // evicting the oldest active session when the per-user limit is reached.
+    // evicting the least recently used session when the per-user limit is reached.
     private async Task<(string Token, DateTime ExpiresAt)> CreateRefreshTokenAsync(int userId)
     {
         // Remove expired tokens
@@ -176,10 +176,12 @@ public class AuthController(
             .ToListAsync();
         _context.UserRefreshTokens.RemoveRange(expired);
 
-        // Evict oldest session if at the limit
+        // Evict the least recently used session if at the limit. Expiry slides forward on every
+        // refresh, so the earliest ExpiresAt is the session that has been idle the longest —
+        // a device the user opens daily is never kicked out by an abandoned browser.
         var active = await _context.UserRefreshTokens
             .Where(t => t.UserId == userId)
-            .OrderBy(t => t.CreatedAt)
+            .OrderBy(t => t.ExpiresAt)
             .ToListAsync();
 
         if (active.Count >= MaxSessionsPerUser)
