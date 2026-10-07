@@ -107,7 +107,7 @@ describe('AuthService', () => {
       expect(service.currentUser()?.username).toBe('testuser');
     });
 
-    it('keeps the session when the refresh fails transiently (offline / backend waking up)', async () => {
+    it('keeps the session when the refresh fails transiently (offline / backend redeploying)', async () => {
       const result = firstValueFrom(service.verifySession());
 
       httpMock.expectOne(`${AUTH_API}/refresh`)

@@ -77,7 +77,7 @@ export class AuthService {
           // The server rejected the refresh token: the session is over (already cleared)
           if (AuthService.isSessionRejection(error)) return of(false);
 
-          // Transient failure (offline, backend waking up, 5xx...): keep the session and
+          // Transient failure (offline, backend redeploying, 5xx...): keep the session and
           // restore the user from the expired token's claims; the next API call retries.
           const user = token ? this.extractUserFromToken(token) : null;
           if (!user) return of(false);
@@ -118,7 +118,7 @@ export class AuthService {
 
   // Exchanges the refresh token for a new access token and returns it.
   // Only a definitive rejection from the server (400/401) ends the session; network errors,
-  // timeouts and 5xx (e.g. the backend cold-starting) propagate without touching the stored tokens.
+  // timeouts and 5xx (e.g. during a backend redeploy) propagate without touching the stored tokens.
   public refreshToken(): Observable<string> {
     if (this._refreshInFlight) {
       return this._refreshInFlight;

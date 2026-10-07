@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             // On 401, refresh the access token and retry the request once.
             // AuthService deduplicates concurrent refreshes (in this tab and across tabs) and
             // only ends the session when the server rejects the refresh token; transient
-            // failures (offline, backend waking up) just propagate as an error.
+            // failures (offline, backend redeploying) just propagate as an error.
             if (error instanceof HttpErrorResponse && error.status === 401) {
                 return authService.refreshToken().pipe(
                     switchMap((accessToken) => next(req.clone({
