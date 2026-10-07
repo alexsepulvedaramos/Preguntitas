@@ -46,7 +46,7 @@ builder.Services.AddRateLimiter(options =>
         opt =>
         {
             opt.Window = TimeSpan.FromMinutes(5);
-            opt.PermitLimit = 10;
+            opt.PermitLimit = builder.Configuration.GetValue("RateLimiting:AuthPermitLimit", 10);
             opt.QueueLimit = 0;
         }
     );
@@ -183,3 +183,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Exposed so WebApplicationFactory<Program> can reach the entry point from the test project.
+public partial class Program;
