@@ -7,9 +7,10 @@ using VayaPreguntita.API.Enums;
 public static class TemplateCloner
 {
     // Clones a global QuestionTemplate into a concrete group Question (votes live here).
-    // Dynamic base-pack fields (Scale target, Deathmatch teams) are auto-resolved from
-    // the membership snapshot passed in (see spec §6.3). The returned Question is NOT
-    // tracked — the caller adds it to the context.
+    // The one dynamic base-pack field (Deathmatch teams) is auto-resolved from the membership
+    // snapshot passed in (see spec §6.3). Scale templates are self-assessments or plain opinions,
+    // so they never get a target member. The returned Question is NOT tracked — the caller adds
+    // it to the context.
     public static Question CloneToGroup(
         QuestionTemplate template,
         int groupId,
@@ -30,11 +31,7 @@ public static class TemplateCloner
         };
 
         // Auto-resolution (§6.3) — resolved at instantiation time.
-        if (template.Type == QuestionType.Scale && activeMemberIds.Count > 0)
-        {
-            metadata.TargetUserId = activeMemberIds[Random.Shared.Next(activeMemberIds.Count)];
-        }
-        else if (template.Type == QuestionType.Deathmatch && activeMemberIds.Count >= 2)
+        if (template.Type == QuestionType.Deathmatch && activeMemberIds.Count >= 2)
         {
             metadata.Teams = SplitIntoTwoTeams(activeMemberIds);
         }
