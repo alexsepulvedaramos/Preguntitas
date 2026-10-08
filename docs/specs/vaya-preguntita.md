@@ -809,7 +809,7 @@ Read this document before writing code. If a behavior is **not** covered here, a
 
 ## 16. Developer Wishlist & Backlog (raw ideas)
 
-Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · 🟡 MVP-small (polish on existing flow) · 🔵 Phase 2 · ✅ already in code.
+Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · 🟡 MVP-small (polish on existing flow) · 🔵 Phase 2 · ⚪ confirmed idea, no priority or rama assigned yet · ✅ already in code.
 
 ### Auth & security
 - ✅ **Login with username** — `Login` already accepts username *or* email via `Identifier`; just surface it in the UI.
@@ -842,6 +842,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - 🔵 **History gating + late voting** — require having answered to see past results; let users answer *late* to unlock. Pairs with coins. **Open decision:** do late votes count in the tally? (MVP leaves history open — §4.6.)
 - 🔵 **Activity-aware selector rotation** — weight rotation by recent participation; a member inactive for weeks shouldn't keep being picked and defaulting to an auto-question. Replaces the MVP modulo rotation (§4.4).
 - 🔵 **"Race to select"** — if the selector hasn't chosen in the last 10 min before T, notify everyone; the first to pick a question wins coins and becomes the selector. Needs notifications + coins.
+- ⚪ **Auto-deactivate dead groups + admin reactivation** *(confirmed 2026-10-08, no priority or rama yet)* — if nobody answers, or only one member does, for several consecutive days, the group is **deactivated**: the daily cycle stops (no more preselection or activation of questions) until the group's **admin manually reactivates it**. On reactivation, **every member gets a push notification** that the group is active again (new notification type, e.g. `group_reactivated`, alongside the existing ones). *Why:* (1) abandoned groups keep burning compute and database space for nothing; (2) a dormant group keeps consuming its question stock — if its members ever come back to really play, ~100 questions would already have been used up (cloned, marked as used by §6.6) without anyone having seen them. Two real groups already show this pattern (played only on day one). **Open decisions, to settle when this is scheduled:** the inactivity threshold (how many days) and what exactly counts as "inactive" (zero voters vs. at most one voter — mirrors the ≥2-member start gate, §4.3); counted from the last day with ≥2 voters or the last day with any vote; what happens to the already-pending `DailyEntry` and the currently open question at the moment of deactivation; whether the admin is warned before deactivation and which UI shows the paused state to non-admin members; whether group mute also silences the reactivation push.
 - 🔵 **Re-enable `Vote.GuessedCreatorId`** when "adivina el autor" ships (fields already stubbed in `Vote`).
 - 🔵 **Monthly statistics** per group/member.
 - ✅ **Notification system** (push) — Web Push / VAPID; 4 types (`new_question`, `selector_turn`, `user_voted`, `new_message`); global preferences + per-group mute; nudge prompt; auto-open selector after voting (`feat/notifications`).
