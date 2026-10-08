@@ -282,7 +282,7 @@ All six types are **in MVP scope** (UI + backend). Metadata is stored in the `Qu
 
 - **Vote:** `{ "NumericValue": 7 }` — a raw integer in `[RangeMin, RangeMax]`, **not** an option id.
 - **Target is optional:** a Scale can rate a group member (`TargetUserId` set) *or* any free subject described by the text (`TargetUserId` null). The create form offers a "¿Es sobre alguien del grupo?" toggle.
-- **Base-pack variant:** when a template defines a target, `TargetUserId` is auto-assigned to a random member at activation (§6.3).
+- **Base-pack variant:** pack templates never rate a member — they are self-assessments (*"¿qué tan buen conductor te consideras?"*) or plain opinions, so the clone keeps `TargetUserId` null and the vote screen shows no "Sobre …" line (confirmed 2026-10-08: a random target made first-person texts unreadable).
 
 ### 5.4 The Secret Pairing (Matchmaking) — *dynamic*
 
@@ -338,8 +338,8 @@ Requirement: **there must always be a question.** The **base pack** is a global,
 
 ### 6.2 Model — global template + clone-on-use (MVP)
 
-- **`Pack`** — a named collection of templates. Seeds the always-on **"Base"** pack plus 14 thematic packs (rama 15, §6.5). `IsActiveByDefault` is the global master switch; per-group enable/disable lives in `GroupDisabledPack` (§6.5).
-- **`QuestionTemplate`** — a global question *template* (no votes, no group): `Text`, `Type`, type config, optional template options, `PackId`. Templates are **never voted on directly**.
+- **`Pack`** — a named collection of templates. Seeds the always-on **"Base"** pack plus 17 thematic packs (14 from rama 15, 3 from the October 2026 content pass; §6.5). `IsActiveByDefault` is the global master switch; per-group enable/disable lives in `GroupDisabledPack` (§6.5).
+- **`QuestionTemplate`** — a global question *template* (no votes, no group): `Key` (stable catalog identifier, §6.8), `Text`, `Type`, type config, optional template options, `PackId`, `IsRetired`. Templates are **never voted on directly**.
 - When a template is chosen for a group's day (auto or manual), the system **clones** it into a concrete `Question` row inside that group (`GroupId` set, `Source = Pack`, `CreatorId = null`). That `Question` holds the votes. This keeps votes isolated per group and `Question.GroupId` non-nullable.
 
 > Schema change: `Question.CreatorId` becomes **nullable** (`null` ⇒ came from a pack, no human author).
@@ -348,12 +348,11 @@ Requirement: **there must always be a question.** The **base pack** is a global,
 
 ### 6.3 Auto-resolution of dynamic base questions
 
-Superlative, Secret Pairing, and Custom Poll templates are self-contained. **Scale and Deathmatch are not** (they need a target person / teams). For base-pack instances these are resolved **automatically at clone/instantiation time** from the group's current active members:
+Superlative, Secret Pairing, Custom Poll, Scale, and Open Text templates are self-contained (a pack Scale is a self-assessment or a plain opinion; it never rates a member — §5.3). **Deathmatch is not** (it needs teams). For base-pack instances it is resolved **automatically at clone/instantiation time** from the group's current active members:
 
-- **Scale:** `TargetUserId` ← a random active member.
 - **Deathmatch:** `Teams` ← a random split of active members into 2 teams (sizes balanced).
 
-Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Static template metadata (including Custom Poll `AllowOther`) is copied verbatim into the clone. *(Bug fixed on `fix/template-cloner-allow-other`: clones used to drop `AllowOther`. Clones created before the fix keep `AllowOther = false` — confirmed by the developer, no backfill.)* Implemented in `Helpers/TemplateCloner.cs`; the seed packs are loaded at startup by `Data/PackSeeder.cs` (idempotent **per template** — find-or-create each pack by `Name` and each template by `(PackId, Text)`, additive only).
+Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Static template metadata (including Custom Poll `AllowOther`) is copied verbatim into the clone. *(Bug fixed on `fix/template-cloner-allow-other`: clones used to drop `AllowOther`. Clones created before the fix keep `AllowOther = false` — confirmed by the developer, no backfill.)* Implemented in `Helpers/TemplateCloner.cs`; the seed packs are synced at startup by `Data/PackSeeder.cs` from the JSON pack catalog (§6.8).
 
 ### 6.4 Selection sources
 
@@ -361,7 +360,7 @@ When the selector opens the picker they can choose from: (a) the group's **user-
 
 ### 6.5 Thematic packs & per-group enable/disable (rama 15)
 
-Beyond **Base**, 14 thematic packs ship seeded and active by default: Humor negro, Supervivencia y apocalipsis, Vida nocturna y resaca, Dilemas, Citas/relaciones/red flags, Crimen y misterio, Comida, Deportes y competencia, Polémicas y bandos, Confesiones y vergüenzas, Nostalgia y cringe, Hipotéticos, El reparto del grupo, and Guarradas y dilemas asquerosos.
+Beyond **Base**, 17 thematic packs ship seeded (Humor negro and Guarradas start disabled for new groups): Humor negro, Supervivencia y apocalipsis, Vida nocturna y resaca, Dilemas, Citas/relaciones/red flags, Crimen y misterio, Comida, Deportes y competencia, Polémicas y bandos, Confesiones y vergüenzas, Nostalgia y cringe, Hipotéticos, El reparto del grupo, Guarradas y dilemas asquerosos, and — added in the October 2026 content pass — Qué prefieres: absurdos, Talentos del grupo, and Viajes y planes.
 
 A **`GroupDisabledPack`** row (composite key `GroupId, PackId`) marks a pack disabled for a group; absence means enabled. `Pack.IsActiveByDefault` is the global master switch; effective per-group enablement is `pack.IsActiveByDefault && !GroupDisabledPacks.Any(GroupId, PackId)`. `PacksController` at `api/groups/{groupId}/packs`:
 - `GET /` — packs with `{ id, name, description, enabled }` for the group (any member).
@@ -371,11 +370,24 @@ Admin UI: a per-pack switch list in `GroupSettingsComponent` (optimistic update,
 
 ### 6.6 Template reuse policy (rama 15)
 
-Replaces the old time-based cooldown. **A template is only ever reused when the group is exhausted** — there is no unused pool question *and* no never-used template across the group's enabled packs. Per group, `usedTemplateIds = Questions.Where(GroupId, TemplateId != null).Select(TemplateId)`; a template is *available* if its `Id` ∉ `usedTemplateIds` and its pack is enabled. Shared in `Helpers/TemplateReusePolicy.cs` across all three call sites: the picker templates list (only available ones; once exhausted, all enabled-pack templates become browsable again, least-recently-used first via `DailyEntry.ActivatedAt`), selection validation (`ResolveSelectedQuestionAsync` → `SelectResult.TemplateAlreadyUsed` unless exhausted), and the preselection fallback. Pool-first priority is unchanged: auto-preselection draws from the unused user pool while any remains, cloning a pack template only when the pool is empty.
+Replaces the old time-based cooldown. **A template is only ever reused when the group is exhausted** — there is no unused pool question *and* no never-used template across the group's enabled packs. Per group, `usedTemplateIds = Questions.Where(GroupId, TemplateId != null).Select(TemplateId)`; a template is *available* if its `Id` ∉ `usedTemplateIds`, its pack is enabled and it is not retired (§6.8). Shared in `Helpers/TemplateReusePolicy.cs` across all three call sites: the picker templates list (only available ones; once exhausted, all enabled-pack templates become browsable again, least-recently-used first via `DailyEntry.ActivatedAt`), selection validation (`ResolveSelectedQuestionAsync` → `SelectResult.TemplateAlreadyUsed` unless exhausted), and the preselection fallback. Pool-first priority is unchanged: auto-preselection draws from the unused user pool while any remains, cloning a pack template only when the pool is empty.
 
 ### 6.7 Phase 2
 
 Pack-aware preselection weighting, and a bundled **"Reparto/Casting"** question type that assigns a whole cast (N characters → N members) in a single question — today the reparto pack uses individual Superlatives instead (§16).
+
+### 6.8 Pack catalog (JSON) & template retirement
+
+The pack content lives in `server/VayaPreguntita.API/Data/Packs/*.json` (one file per pack, embedded in the assembly; format and editing rules in `Data/Packs/README.md`). `PackSeeder.SyncCatalogAsync` runs at startup after `MigrateAsync` and syncs it into the database:
+
+- **Identity is `QuestionTemplate.Key`** (unique, never changes), not the text. Editing a wording or moving a template between packs updates the same row, so `Question.TemplateId` references of clones already living in real groups stay valid.
+- **Packs** are found-or-created by `Name`; `Description` and `DisabledByDefault` follow the catalog. `Order` fixes the creation order.
+- **Rows are never deleted.** An entry marked `"retired": true` sets `QuestionTemplate.IsRetired`: it is never offered in the picker, never auto-selected and never counts as available for the reuse policy (§6.6). Removing the flag brings it back.
+- **Rows created before the catalog existed** have no `Key`. The first sync *adopts* them by matching `(pack, text)` — or the entry's one-time `legacyPack` / `legacyText` hints when the wording or pack has changed since — and stamps the key.
+- A template's `Type` cannot change in place (the sync fails loudly): add a new entry and retire the old one.
+- The catalog is validated on load (unique keys and texts, poll option counts, selection limits, unknown properties…); an invalid catalog aborts the sync without breaking startup (logged as a warning).
+
+Retiring a template is a content decision, not a data migration: it needs no EF migration, only a catalog edit and a deploy.
 
 ---
 
@@ -391,8 +403,8 @@ Pack-aware preselection weighting, and a bundled **"Reparto/Casting"** question 
 - **Option** — poll option (`Id, Text, QuestionId`).
 - **Vote** — `Id, DateResponded, QuestionId, UserId`, and the polymorphic answer fields: `SelectedOptionId`, `SelectedTargetUserId`, `NumericValue`, `FreeText` (used by Open Text answers and Custom Poll "Otro" answers). Unique index `(QuestionId, UserId)`.
 - **DailyEntry** — `Id, Date, IsAutoSelected, PreselectedAt, ActivatedAt (nullable), GroupId, QuestionId, SelectorUserId`. Unique index `(GroupId, Date)`. `SelectorUserId` is set at preselection time and is the authoritative source for who may call `POST /daily/select` — the backend uses the stored value instead of re-running `CalculateSelector` at selection time, so member rejoins (which change `JoinedAt` and shift the rotation) don't break the selector authorization check.
-- **Pack** — `Id, Name, Description, IsActiveByDefault`. Seeds **Base** + 14 thematic packs (rama 15).
-- **QuestionTemplate** — `Id, Text, Type, Metadata, PackId`, optional template options. Global, voteless.
+- **Pack** — `Id, Name, Description, IsActiveByDefault`. Seeds **Base** + 17 thematic packs (14 from rama 15, 3 added October 2026).
+- **QuestionTemplate** — `Id, Key, Text, Type, Metadata, PackId, IsRetired`, optional template options. Global, voteless. `Key` is the stable catalog identifier (§6.8).
 - **GroupDisabledPack** *(new, rama 15)* — composite key `(GroupId, PackId)`. Presence = the pack is disabled for that group; absence = enabled. Effective enablement = `Pack.IsActiveByDefault && !GroupDisabledPacks.Any(GroupId, PackId)`.
 
 ### 7.2 `QuestionMetadata` (owned type → JSONB)
@@ -643,6 +655,7 @@ Free-tier quotas (Render/Vercel/Supabase) must not be exhausted. Enforce server-
 | Pull-to-refresh touch fixes (2026-10-06): the group-detail pull-to-refresh listened to every touch on the window, so swiping the member-card drawer down reloaded the group instead of closing it, and lists inside overlays (the question picker) couldn't scroll back up — the gesture cancelled the scroll whenever the page behind was at the top. It now ignores touches inside overlays/dialogs/drawers and inside inner lists scrolled away from their top; the member-card drawer gets `touch-action: none` (its group list keeps `pan-y`) so drag-to-close works on touch screens. | ✅ |
 | Unexpected-logout fix (2026-10-07): the client cleared the session on *any* failed `/refresh` — so when the 15-min access token had expired, a transient failure on the next refresh logged the user out: reopening/unlocking the mobile PWA before the network was back, or hitting the API during a Render redeploy (502s while the new instance boots; the backend itself is kept awake by an UptimeRobot ping to `/healthz` every 10 min, so idle cold starts are not a factor); two tabs refreshing at once could also rotate the same token and the loser then called `/logout` with the winner's new token. Now only a 400/401 from `/refresh` ends the session (locally, no `/logout` call); transient failures keep the tokens and restore the user from the expired token's claims; refreshes are serialised across tabs with the Web Locks API and retried once with a token another tab rotated mid-flight. Refresh tokens last 365 days sliding (was 90) and the session cap evicts the least recently used device instead of the oldest login. | ✅ |
 | Daily-time-change transparency (§4.8): editing `Group.DailyQuestionTime` mid-cycle — confirmed the live `closesAt`/`activatesAt` already reschedule today's still-pending question to the new T; when today already activated, the change applies next cycle (no re-anchor / no early close). `PUT /groups/{id}` now returns `GroupResponse.DailyTimeChangeAppliesFromTomorrow` (time changed **and** a question activated during today's local UTC+2 day, measured off `ActivatedAt`); group-settings shows an informational toast. | ✅ — rama 20 (`fix/daily-question-time-change`) |
+| Pack catalog & template retirement (§6.8): pack content moved from C# builders to embedded JSON (`Data/Packs/*.json`); `PackSeeder` now syncs by a stable `QuestionTemplate.Key` (adopts legacy rows by `(pack, text)`, rewrites/moves in place, never deletes) and `IsRetired` hides templates everywhere (picker, preselection, reuse policy) — migration `AddQuestionTemplateKeyAndIsRetired`. First content pass (confirmed 2026-10-08): 43 weak/duplicate templates retired and 9 reworded in place (6 open-text prompts shortened to a one-sentence answer, 3 rewritten for wider audiences), one of them moved to Humor negro. The same day 74 templates were added: three new packs (Qué prefieres: absurdos, Talentos del grupo, Viajes y planes) and additions to Base, Comida, Confesiones, Deportes, Polémicas and Vida nocturna. Pack Scale questions no longer get a random target member (`TemplateCloner`; §5.3/§6.3) — they are self-assessments. Catalog + seeder + cloner covered by `PackCatalogTests` / `PackSeederTests` / `TemplateClonerTests`. **Implemented on `refactor/pack-catalog`** (migration pending apply). | ✅ |
 
 ### Pending (MVP)
 
