@@ -7,6 +7,16 @@ using VayaPreguntita.API.Enums;
 public class QuestionTemplate
 {
     public int Id { get; set; }
+
+    // Stable identifier from the pack catalog (Data/Packs/*.json). Never changes once
+    // assigned, so wording can be edited and a template can move between packs without
+    // creating a duplicate. Null only for rows not yet adopted by the catalog sync.
+    public string? Key { get; set; }
+
+    // Retired templates are never offered or auto-selected again, but the row stays so that
+    // already-cloned Questions (Question.TemplateId) keep their reference.
+    public bool IsRetired { get; set; }
+
     public string Text { get; set; } = string.Empty;
     public QuestionType Type { get; set; }
 

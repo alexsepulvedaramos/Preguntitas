@@ -355,7 +355,7 @@ public class DailyService(
         {
             var template = await context
                 .QuestionTemplates.Include(t => t.Options)
-                .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value);
+                .FirstOrDefaultAsync(t => t.Id == dto.TemplateId.Value && !t.IsRetired);
             if (template == null)
                 return (null, SelectResult.QuestionNotFound);
 
@@ -479,13 +479,15 @@ public class DailyService(
                 await context
                     .QuestionTemplates.Include(t => t.Options)
                     .Where(t =>
-                        enabledPackIds.Contains(t.PackId) && !usedTemplateIds.Contains(t.Id)
+                        !t.IsRetired
+                        && enabledPackIds.Contains(t.PackId)
+                        && !usedTemplateIds.Contains(t.Id)
                     )
                     .OrderBy(_ => Guid.NewGuid())
                     .FirstOrDefaultAsync()
                 ?? await context
                     .QuestionTemplates.Include(t => t.Options)
-                    .Where(t => enabledPackIds.Contains(t.PackId))
+                    .Where(t => !t.IsRetired && enabledPackIds.Contains(t.PackId))
                     .OrderBy(_ => Guid.NewGuid())
                     .FirstOrDefaultAsync();
 

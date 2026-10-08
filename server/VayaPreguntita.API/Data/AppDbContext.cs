@@ -62,6 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // ==========================================
         modelBuilder.Entity<Question>().OwnsOne(q => q.Metadata, ConfigureMetadata);
         modelBuilder.Entity<QuestionTemplate>().OwnsOne(t => t.Metadata, ConfigureMetadata);
+        modelBuilder.Entity<QuestionTemplate>().HasIndex(t => t.Key).IsUnique();
 
         // ==========================================
         // QUESTION → QUESTION TEMPLATE (optional back-link for pack clones)

@@ -1,0 +1,22 @@
+{
+  "name": "Crimen y misterio",
+  "description": "Crímenes perfectos, sospechosos y grandes misterios.",
+  "order": 7,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "crimen-quien-cometeria-el-crimen-perfecto-y-no", "type": "Superlative", "text": "¿Quién cometería el crimen perfecto y no lo pillarían jamás?" },
+    { "key": "crimen-quien-confesaria-entre-lagrimas-al-primer-interrogatorio", "type": "Superlative", "text": "¿Quién confesaría entre lágrimas al primer interrogatorio?" },
+    { "key": "crimen-quien-seria-el-cerebro-de-una-banda", "type": "Superlative", "text": "¿Quién sería el cerebro de una banda criminal?" },
+    { "key": "crimen-quien-acabaria-detenido-por-la-tonteria-mas", "type": "Superlative", "text": "¿Quién acabaría detenido por la tontería más absurda?" },
+    { "key": "crimen-quien-parece-el-mas-inocente-pero-esconde", "type": "Superlative", "text": "¿Quién parece el más inocente pero esconde el lado más oscuro?" },
+    { "key": "crimen-a-quien-acusarian-primero-si-apareciera-un", "type": "Superlative", "text": "¿A quién acusarían primero si apareciera un cadáver en una cena del grupo?" },
+    { "key": "crimen-quien-se-libraria-de-una-multa-hablandole", "type": "Superlative", "text": "¿Quién se libraría de una multa hablándole bien al policía?" },
+    { "key": "crimen-que-dos-personas-formarian-el-duo-criminal", "type": "SecretPairing", "text": "¿Qué dos personas formarían el dúo criminal más temido?" },
+    { "key": "crimen-que-dos-personas-se-delatarian-mutuamente-en", "type": "SecretPairing", "text": "¿Qué dos personas se delatarían mutuamente en cuanto les apretaran un poco?" },
+    { "key": "crimen-que-clase-de-criminal-serias", "type": "CustomPoll", "text": "¿Qué clase de criminal serías?", "options": ["El cerebro", "El músculo", "El de los contactos", "El que conduce y poco más"] },
+    { "key": "crimen-si-tuvieras-que-cometer-un-crimen-y", "type": "CustomPoll", "text": "Si tuvieras que cometer un crimen y salir impune, ¿cuál?", "options": ["Atraco a mano armada a un banco", "Hackeo millonario desde el sofá", "Robo de una obra de arte en un museo", "Una estafa piramidal de las gordas"] },
+    { "key": "crimen-que-gran-misterio-te-gustaria-resolver-de", "type": "CustomPoll", "text": "¿Qué gran misterio te gustaría resolver de verdad?", "options": ["Quién mató a JFK", "Qué hay en el Triángulo de las Bermudas", "Si estamos solos en el universo", "Qué pasó de verdad con el avión MH370"] },
+    { "key": "crimen-del-1-al-10-como-de-bien", "type": "Scale", "text": "Del 1 al 10, ¿cómo de bien mientes bajo presión?" },
+    { "key": "crimen-confiesa-que-es-lo-mas-caro-que", "type": "OpenText", "text": "Confiesa: ¿qué es lo más caro que has mangado alguna vez y de dónde?" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Qué prefieres: absurdos",
+  "description": "Disyuntivas absurdas de andar por casa, sin asco ni drama.",
+  "order": 16,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "que-prefieres-absurdos-desayunar-toda-la-vida", "type": "CustomPoll", "text": "Desayunar toda la vida:", "options": ["Solo tortilla de patatas", "Solo cereales"] },
+    { "key": "que-prefieres-absurdos-elige-tu-efecto-sonoro-de-por-vida", "type": "CustomPoll", "text": "Elige tu efecto sonoro de por vida:", "options": ["Una bocina cada vez que te ríes", "Una trompeta triste cada vez que te enfadas"] },
+    { "key": "que-prefieres-absurdos-tu-rareza-corporal", "type": "CustomPoll", "text": "Tu rareza corporal:", "options": ["Estornudar purpurina", "Tener un hipo que suena a pato"] },
+    { "key": "que-prefieres-absurdos-tu-voz-te-delata", "type": "CustomPoll", "text": "Tu voz te delata:", "options": ["Voz de pitufo cuando mientes", "Voz de Darth Vader cuando dices la verdad"] },
+    { "key": "que-prefieres-absurdos-molestia-constante-elige-una", "type": "CustomPoll", "text": "Molestia constante, elige una:", "options": ["Una piedrita en el zapato", "Un calcetín mojado"] },
+    { "key": "que-prefieres-absurdos-clima-extremo-en-casa", "type": "CustomPoll", "text": "Clima extremo en casa:", "options": ["Un verano entero a 40 °C sin aire acondicionado", "Un invierno entero a 5 °C sin calefacción"] },
+    { "key": "que-prefieres-absurdos-tu-movil-tu-eleccion", "type": "CustomPoll", "text": "Tu móvil, tu elección:", "options": ["Batería infinita pero internet lentísimo", "Internet perfecto pero batería de solo 1 hora"] },
+    { "key": "que-prefieres-absurdos-como-te-tratan-los-demas", "type": "CustomPoll", "text": "Cómo te tratan los demás:", "options": ["Todos te hablan de usted", "Todos te llaman por un mote ridículo"] },
+    { "key": "que-prefieres-absurdos-tu-entrada-y-tu-salida", "type": "CustomPoll", "text": "Tu entrada y tu salida:", "options": ["Al entrar a un sitio suena tu canción de entrada", "Al salir te despiden con aplausos"] },
+    { "key": "que-prefieres-absurdos-comer-toda-la-vida", "type": "CustomPoll", "text": "Comer toda la vida:", "options": ["Solo pizza", "Solo hamburguesas"] },
+    { "key": "que-prefieres-absurdos-elige-tu-mini-maldicion", "type": "CustomPoll", "text": "Elige tu mini maldición:", "options": ["Que se te caiga siempre el móvil con la pantalla hacia abajo", "Que se te acabe siempre el papel en el baño", "Que te toque siempre la cola más lenta del súper"] },
+    { "key": "que-prefieres-absurdos-pequeno-lujo-cotidiano", "type": "CustomPoll", "text": "Pequeño lujo cotidiano:", "options": ["Saltarte siempre los anuncios de YouTube", "Que el ascensor esté siempre en tu piso cuando lo llamas"] },
+    { "key": "que-prefieres-absurdos-una-hora-al-dia-obligatoria", "type": "CustomPoll", "text": "Una hora al día obligatoria:", "options": ["Hablar en rima", "Hablar en susurros"] },
+    { "key": "que-prefieres-absurdos-delegar-en-tu-mejor-amigo", "type": "CustomPoll", "text": "Delegar en tu mejor amigo:", "options": ["Que elija siempre tu ropa", "Que elija siempre tu comida"] },
+    { "key": "que-prefieres-absurdos-con-que-mundo-te-quedas", "type": "CustomPoll", "text": "¿Con qué mundo te quedas?", "options": ["Un mundo sin patatas", "Un mundo sin ninguna salsa"] }
+  ]
+}

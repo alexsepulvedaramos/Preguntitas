@@ -1,0 +1,24 @@
+{
+  "name": "Hipotéticos: ¿qué harías?",
+  "description": "Superpoderes, golpes de suerte y trueques de vida.",
+  "order": 13,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "hipoteticos-el-superpoder-definitivo", "type": "CustomPoll", "text": "El superpoder definitivo:", "options": ["Volar", "Ser invisible"] },
+    { "key": "hipoteticos-si-pudieras-elegir-un-poder", "type": "CustomPoll", "text": "Si pudieras elegir un poder:", "options": ["Teletransportarte a cualquier sitio", "Viajar en el tiempo"] },
+    { "key": "hipoteticos-como-prefieres-el-dinero", "type": "CustomPoll", "text": "¿Cómo prefieres el dinero?", "options": ["1 millón de golpe ahora mismo", "4.000 € cada mes el resto de tu vida"] },
+    { "key": "hipoteticos-trato-de-paciencia", "type": "CustomPoll", "text": "Trato de paciencia:", "options": ["1 millón mañana", "10 millones dentro de 10 años"], "retired": true },
+    { "key": "hipoteticos-tu-vida-laboral-ideal", "type": "CustomPoll", "text": "Tu vida laboral ideal:", "options": ["Forrado haciendo algo que odias", "Justo a fin de mes amando lo que haces"] },
+    { "key": "hipoteticos-que-vida-prefieres-sano-y-en-forma", "type": "CustomPoll", "text": "¿Qué vida prefieres? (sano y en forma todo el tiempo)", "options": ["Una sola vida de 800 años", "8 vidas de 100 años"] },
+    { "key": "hipoteticos-te-dan-un-mando-para-tu-vida", "type": "CustomPoll", "text": "Te dan un mando para tu vida. ¿Cuál?", "options": ["Botón de pausa", "Botón de rebobinar"] },
+    { "key": "hipoteticos-te-toca-la-eternidad-en-uno-cual", "type": "CustomPoll", "text": "Te toca la eternidad en uno. ¿Cuál eliges?", "options": ["Un cielo perfecto pero aburridísimo para siempre", "Un infierno entretenido pero con dolor constante"] },
+    { "key": "hipoteticos-te-reencarnas-en-lo-que-peor-te", "type": "CustomPoll", "text": "Te reencarnas en lo que peor te caiga. ¿Qué prefieres ser?", "options": ["Cucaracha indestructible", "Mosquito que vive un día molestando", "Pez con memoria de 3 segundos"] },
+    { "key": "hipoteticos-que-prefieres-tener", "type": "CustomPoll", "text": "¿Qué prefieres tener?", "options": ["Más tiempo libre", "Más dinero"], "retired": true },
+    { "key": "hipoteticos-pacto-con-el-universo", "type": "CustomPoll", "text": "Pacto con el universo:", "options": ["Cancelar todas tus deudas hoy", "Duplicar tu sueldo para siempre"] },
+    { "key": "hipoteticos-una-llamada-imposible", "type": "CustomPoll", "text": "Una llamada imposible:", "options": ["1 minuto con tu yo del pasado", "1 minuto con tu yo del futuro"] },
+    { "key": "hipoteticos-si-tu-cuerpo-no-necesitara-una-cosa", "type": "CustomPoll", "text": "Si tu cuerpo no necesitara una cosa:", "options": ["No volver a dormir nunca", "No volver a comer nunca"] },
+    { "key": "hipoteticos-quien-usaria-sus-superpoderes-para-el-mal", "type": "Superlative", "text": "¿Quién usaría sus superpoderes para el mal sin pensárselo?" },
+    { "key": "hipoteticos-quien-se-gastaria-un-millon-de-euros", "type": "Superlative", "text": "¿Quién se gastaría un millón de euros en menos de un mes?" },
+    { "key": "hipoteticos-quien-malgastaria-un-deseo-magico-en-una", "type": "Superlative", "text": "¿Quién malgastaría un deseo mágico en una absoluta chorrada?" }
+  ]
+}

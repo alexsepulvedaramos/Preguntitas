@@ -1,0 +1,23 @@
+{
+  "name": "Supervivencia y apocalipsis",
+  "description": "Isla desierta, naufragios y fin del mundo. ¿Sobrevivirías?",
+  "order": 3,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "supervivencia-naufragio-que-equipo-monta-una-balsa-que", "type": "Deathmatch", "text": "Naufragio: ¿qué equipo monta una balsa que de verdad flote?" },
+    { "key": "supervivencia-quien-seria-el-primero-en-palmarla-en", "type": "Superlative", "text": "¿Quién sería el primero en palmarla en un apocalipsis zombie?" },
+    { "key": "supervivencia-quien-se-autoproclamaria-lider-sin-tener-ni", "type": "Superlative", "text": "¿Quién se autoproclamaría líder sin tener ni idea?" },
+    { "key": "supervivencia-quien-entraria-en-panico-nada-mas-empezar", "type": "Superlative", "text": "¿Quién entraría en pánico nada más empezar el caos?" },
+    { "key": "supervivencia-quien-se-quedaria-dormido-en-su-turno", "type": "Superlative", "text": "¿Quién se quedaría dormido en su turno de guardia?" },
+    { "key": "supervivencia-en-un-grupo-de-supervivientes-a-un", "type": "Superlative", "text": "En un grupo de supervivientes a un apocalipsis, ¿quién sería el más inútil cuando llegara el caos?", "retired": true },
+    { "key": "supervivencia-quien-haria-una-heroicidad-estupida-que-pondria", "type": "Superlative", "text": "¿Quién haría una heroicidad estúpida que pondría a todo el grupo en peligro?" },
+    { "key": "supervivencia-que-dos-personas-montarian-la-alianza-mas", "type": "SecretPairing", "text": "¿Qué dos personas montarían la alianza más letal para sobrevivir?" },
+    { "key": "supervivencia-tras-el-fin-del-mundo-que-dos", "type": "SecretPairing", "text": "Tras el fin del mundo, ¿qué dos personas serían la última esperanza para reconstruir la civilización?", "legacyText": "Tras el fin del mundo, ¿qué dos personas serían la última esperanza para repoblar la Tierra?" },
+    { "key": "supervivencia-fin-del-mundo-en-24-horas-que", "type": "CustomPoll", "text": "Fin del mundo en 24 horas, ¿qué haces?", "options": ["Fiesta sin freno", "Con la familia", "Saquear tiendas", "Dormir tranquilo"], "allowOther": true },
+    { "key": "supervivencia-marca-lo-que-no-aguantarias-sin", "type": "CustomPoll", "text": "Marca lo que NO aguantarías sin:", "options": ["Café", "Móvil", "Ducha caliente", "Tu serie favorita"], "maxSelections": 4 },
+    { "key": "supervivencia-solo-puedes-coger-un-arma-cuerpo-a", "type": "CustomPoll", "text": "Solo puedes coger un arma cuerpo a cuerpo para el apocalipsis zombie. ¿Cuál?", "options": ["Bate de béisbol", "Katana", "Machete", "Sartén de hierro"] },
+    { "key": "supervivencia-montas-tu-kit-de-supervivencia-y-solo", "type": "CustomPoll", "text": "Montas tu kit de supervivencia y solo cabe una cosa más en la mochila. ¿Cuál metes?", "options": ["Comida para una semana", "Un buen cuchillo", "Un botiquín", "Un mechero"] },
+    { "key": "supervivencia-en-un-apocalipsis-que-tipo-de-superviviente", "type": "CustomPoll", "text": "En un apocalipsis, ¿qué tipo de superviviente serías?", "options": ["El que acapara recursos", "El que ayuda a todos", "El llanero solitario", "El que se esconde y reza"] },
+    { "key": "supervivencia-si-el-mundo-se-fuera-a-acabar", "type": "CustomPoll", "text": "Si el mundo se fuera a acabar, ¿qué final prefieres?", "options": ["Meteorito instantáneo", "Invasión zombie", "Pandemia lenta", "Guerra nuclear"], "allowOther": true }
+  ]
+}

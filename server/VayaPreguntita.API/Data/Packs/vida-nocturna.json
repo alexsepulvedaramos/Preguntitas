@@ -1,0 +1,25 @@
+{
+  "name": "Vida nocturna y resaca",
+  "description": "Fiesta, borracheras y resacas épicas.",
+  "order": 4,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "vida-nocturna-quien-es-el-primero-en-caer-redondo", "type": "Superlative", "text": "¿Quién es el primero en caer redondo de borracho?" },
+    { "key": "vida-nocturna-quien-acaba-bailando-encima-de-una-mesa", "type": "Superlative", "text": "¿Quién acaba bailando encima de una mesa?" },
+    { "key": "vida-nocturna-quien-hace-la-bomba-de-humo-y", "type": "Superlative", "text": "¿Quién hace la \"bomba de humo\" y desaparece sin despedirse?" },
+    { "key": "vida-nocturna-quien-manda-los-mensajes-mas-vergonzosos-a", "type": "Superlative", "text": "¿Quién manda los mensajes más vergonzosos a las 4 de la mañana?" },
+    { "key": "vida-nocturna-quien-propone-la-ultima-y-acaban-siendo", "type": "Superlative", "text": "¿Quién propone \"la última\" y acaban siendo las 7?" },
+    { "key": "vida-nocturna-quien-se-pone-mas-monas-y-carinoso", "type": "Superlative", "text": "¿Quién se pone más moñas y cariñoso cuando bebe?" },
+    { "key": "vida-nocturna-quien-tiene-resacas-de-tres-dias-y", "type": "Superlative", "text": "¿Quién tiene resacas de tres días y jura no beber nunca más?" },
+    { "key": "vida-nocturna-que-dos-personas-se-irian-de-after", "type": "SecretPairing", "text": "¿Qué dos personas se irían de after hasta ver el amanecer?" },
+    { "key": "vida-nocturna-la-cura-milagrosa-de-la-resaca", "type": "CustomPoll", "text": "La cura milagrosa de la resaca:", "options": ["Dormir hasta las 3 de la tarde", "Comida grasienta de rey", "Seguir bebiendo (el clavo)", "Sufrir en silencio"], "allowOther": true },
+    { "key": "vida-nocturna-que-resaca-prefieres", "type": "CustomPoll", "text": "¿Qué resaca prefieres?", "options": ["La física, el cuerpo hecho fosfatina", "La moral, la vergüenza de lo que hiciste"] },
+    { "key": "vida-nocturna-a-las-6-de-la-manana-eres", "type": "CustomPoll", "text": "A las 6 de la mañana eres:", "options": ["El que grita \"¡una más!\"", "El que ya está pidiendo el taxi"] },
+    { "key": "vida-nocturna-plan-de-viernes-ideal", "type": "CustomPoll", "text": "Plan de viernes ideal:", "options": ["Salir hasta reventar", "Sofá, manta y peli"] },
+    { "key": "vida-nocturna-la-bebida-que-nunca-te-falla", "type": "CustomPoll", "text": "La bebida que nunca te falla:", "options": ["Cerveza", "Vino", "Combinados", "Chupitos"], "allowOther": true },
+    { "key": "vida-nocturna-te-despiertas-con-resacon-y-20-mensajes", "type": "CustomPoll", "text": "Te despiertas con resacón y 20 mensajes sin leer. ¿Qué haces?", "options": ["Leerlos de golpe y asumir el daño", "Apagar el móvil y vivir en negación"] },
+    { "key": "vida-nocturna-del-1-al-10-como-de-fiestero", "type": "Scale", "text": "Del 1 al 10, ¿cómo de fiestero eres en realidad?" },
+    { "key": "vida-nocturna-maraton-de-fiesta-hasta-el-amanecer-que", "type": "Deathmatch", "text": "Maratón de fiesta hasta el amanecer: ¿qué equipo aguanta en pie sin caer?" },
+    { "key": "vida-nocturna-del-1-al-10-que-tal-bailas", "type": "Scale", "text": "Del 1 al 10, ¿qué tal bailas cuando nadie te mira?" }
+  ]
+}

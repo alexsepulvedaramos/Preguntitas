@@ -46,7 +46,7 @@ public static class TemplateReusePolicy
             return false;
 
         var hasAvailableTemplate = await context.QuestionTemplates.AnyAsync(t =>
-            enabledPackIds.Contains(t.PackId) && !usedTemplateIds.Contains(t.Id)
+            !t.IsRetired && enabledPackIds.Contains(t.PackId) && !usedTemplateIds.Contains(t.Id)
         );
 
         return !hasAvailableTemplate;

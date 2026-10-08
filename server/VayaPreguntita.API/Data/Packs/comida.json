@@ -1,0 +1,29 @@
+{
+  "name": "Comida",
+  "description": "Debates gastronómicos y manías de comer que separan amistades.",
+  "order": 8,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "comida-pina-en-la-pizza", "type": "CustomPoll", "text": "¿Piña en la pizza?", "options": ["Sí, y está buenísima", "Un crimen contra la humanidad"] },
+    { "key": "comida-un-hotdog-es-un-sandwich", "type": "CustomPoll", "text": "¿Un hotdog es un sándwich?", "options": ["Sí, pan + relleno = sándwich", "Ni de coña"] },
+    { "key": "comida-desayunar-pizza-fria-del-dia-anterior", "type": "CustomPoll", "text": "¿Desayunar pizza fría del día anterior?", "options": ["Manjar de campeones", "Aberración"] },
+    { "key": "comida-si-solo-pudieras-comer-un-sabor-el", "type": "CustomPoll", "text": "Si solo pudieras comer un sabor el resto de tu vida:", "options": ["Dulce", "Salado"] },
+    { "key": "comida-hay-que-terminar-siempre-todo-el-plato", "type": "CustomPoll", "text": "¿Hay que terminar siempre todo el plato?", "options": ["Sí, no se tira la comida", "Paro cuando estoy lleno"] },
+    { "key": "comida-el-cereal-con-leche", "type": "CustomPoll", "text": "El cereal con leche:", "options": ["Primero leche, luego cereal", "Primero cereal, luego leche"] },
+    { "key": "comida-marca-lo-que-si-le-pondrias-a", "type": "CustomPoll", "text": "Marca lo que SÍ le pondrías a una pizza aunque escandalice:", "options": ["Piña", "Huevo", "Patatas fritas", "Kebab"], "maxSelections": 4, "retired": true },
+    { "key": "comida-tu-condimento-de-cabecera-para-echarle-a", "type": "CustomPoll", "text": "¿Tu condimento de cabecera para echarle a todo?", "options": ["Kétchup", "Mostaza", "Mayonesa"], "allowOther": true },
+    { "key": "comida-ketchup-en-la-tortilla-de-patatas", "type": "CustomPoll", "text": "¿Kétchup en la tortilla de patatas?", "options": ["Está de vicio", "Es un atentado"] },
+    { "key": "comida-como-pides-el-chuleton", "type": "CustomPoll", "text": "¿Cómo pides el chuletón?", "options": ["Que casi haga \"mu\"", "En su punto, jugoso", "Hecho pero tierno", "Como la suela de un zapato"] },
+    { "key": "comida-marca-los-crimenes-culinarios-que-has-cometido", "type": "CustomPoll", "text": "Marca los crímenes culinarios que has cometido:", "options": ["Kétchup a la paella", "Pedir la carne como una suela", "Partir los espaguetis antes de cocer", "Pizza con cuchillo y tenedor"], "maxSelections": 4, "allowOther": true },
+    { "key": "comida-quien-come-mas-rapido-casi-sin-masticar", "type": "Superlative", "text": "¿Quién come más rápido, casi sin masticar?" },
+    { "key": "comida-quien-es-el-mas-tiquismiquis-para-comer", "type": "Superlative", "text": "¿Quién es el más tiquismiquis para comer?" },
+    { "key": "comida-quien-te-robaria-comida-del-plato-sin", "type": "Superlative", "text": "¿Quién te robaría comida del plato sin pedir permiso?" },
+    { "key": "comida-quien-mezcla-comidas-raras-que-dan-grima", "type": "Superlative", "text": "¿Quién mezcla comidas raras que dan grima?" },
+    { "key": "comida-que-dos-personas-se-pelearian-por-el", "type": "SecretPairing", "text": "¿Qué dos personas se pelearían por el último trozo de pizza?" },
+    { "key": "comida-del-1-al-10-como-de-tiquismiquis", "type": "Scale", "text": "Del 1 al 10, ¿cómo de tiquismiquis eres comiendo?", "retired": true },
+    { "key": "comida-top-3-snacks-para-una-tarde-de", "type": "OpenText", "text": "Top 3 snacks para una tarde de peli." },
+    { "key": "comida-top-3-platos-que-pedirias-en-un", "type": "OpenText", "text": "Top 3 platos que pedirías en un restaurante chino." },
+    { "key": "comida-tu-comida-para-consolarte-cuando-estas-mal", "type": "OpenText", "text": "Tu comida para consolarte cuando estás mal, en una frase." },
+    { "key": "comida-un-plato-especialmente-memorable-que-hayas-comido", "type": "OpenText", "text": "Un plato especialmente memorable que hayas comido en tu vida (¿y dónde?)." }
+  ]
+}

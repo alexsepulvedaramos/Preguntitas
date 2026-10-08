@@ -1,0 +1,25 @@
+{
+  "name": "Polémicas y bandos",
+  "description": "Temas intrascendentes que defenderás a muerte.",
+  "order": 10,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "polemicas-el-papel-higienico-se-coloca", "type": "CustomPoll", "text": "El papel higiénico se coloca…", "options": ["Con la hoja por delante", "Con la hoja por detrás"] },
+    { "key": "polemicas-marca-todas-las-posturas-que-defenderias-a", "type": "CustomPoll", "text": "Marca TODAS las posturas que defenderías a muerte:", "options": ["El finde empieza el viernes", "El verano es mejor que el invierno", "El café sin azúcar está mejor", "Madrugar el finde es de locos"], "maxSelections": 4 },
+    { "key": "polemicas-la-peor-de-estas-costumbres-ajenas-es", "type": "CustomPoll", "text": "La peor de estas costumbres ajenas es:", "options": ["Hablar en el cine", "Masticar con la boca abierta", "Poner el manos libres en público", "Dejar el carrito en mitad del súper"], "allowOther": true },
+    { "key": "polemicas-para-vacacionar-de-verdad", "type": "CustomPoll", "text": "Para vacacionar de verdad:", "options": ["Playa", "Montaña"] },
+    { "key": "polemicas-para-ver-una-serie-o-peli-extranjera", "type": "CustomPoll", "text": "Para ver una serie o peli extranjera:", "options": ["Versión original subtitulada", "Doblada a tu idioma"] },
+    { "key": "polemicas-en-una-casa-compartida-la-tapa-del", "type": "CustomPoll", "text": "En una casa compartida, la tapa del váter:", "options": ["Siempre bajada", "Da igual, se deja como esté"] },
+    { "key": "polemicas-a-la-hora-de-dormir", "type": "CustomPoll", "text": "A la hora de dormir:", "options": ["Con calcetines", "Jamás con calcetines"] },
+    { "key": "polemicas-nada-mas-levantarte", "type": "CustomPoll", "text": "Nada más levantarte:", "options": ["Hago la cama siempre", "¿Para qué, si me vuelvo a meter?"] },
+    { "key": "polemicas-mandar-audios-de-3-minutos-por-whatsapp", "type": "CustomPoll", "text": "Mandar audios de 3 minutos por WhatsApp:", "options": ["Cómodo y normal", "Una falta de respeto"] },
+    { "key": "polemicas-en-el-avion-reclinar-tu-asiento-hacia", "type": "CustomPoll", "text": "En el avión, reclinar tu asiento hacia atrás:", "options": ["Para eso está, es tu derecho", "Es de egoístas"] },
+    { "key": "polemicas-sandalias-con-calcetines", "type": "CustomPoll", "text": "Sandalias con calcetines:", "options": ["Comodidad ante todo", "Crimen de moda imperdonable"] },
+    { "key": "polemicas-llegar-a-una-fiesta-en-casa-de", "type": "CustomPoll", "text": "Llegar a una fiesta en casa de alguien:", "options": ["A la hora exacta que dijeron", "15-30 min tarde es lo correcto"] },
+    { "key": "polemicas-el-doble-check-azul-de-whatsapp", "type": "CustomPoll", "text": "El doble check azul de WhatsApp:", "options": ["Activado, no escondo nada", "Desactivado, mi vida es mía"] },
+    { "key": "polemicas-cada-cuanto-lavas-la-toalla-de-bano", "type": "CustomPoll", "text": "¿Cada cuánto lavas la toalla de baño?", "options": ["Aguanta semanas, total te secas limpio", "Cada pocos usos, por higiene"] },
+    { "key": "polemicas-quien-es-mas-capaz-de-discutir-una", "type": "Superlative", "text": "¿Quién es más capaz de discutir una hora por una tontería sin dar su brazo a torcer?" },
+    { "key": "polemicas-quien-defiende-las-opiniones-mas-impopulares-solo", "type": "Superlative", "text": "¿Quién defiende las opiniones más impopulares solo por llevar la contraria?" },
+    { "key": "polemicas-el-turron", "type": "CustomPoll", "text": "El turrón:", "options": ["Duro", "Blando", "Ninguno, gracias"] }
+  ]
+}

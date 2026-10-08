@@ -1,0 +1,25 @@
+{
+  "name": "Talentos del grupo",
+  "description": "Quién es el mejor en qué: habilidades, mañas y talentos ocultos.",
+  "order": 17,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "talentos-quien-ganaria-un-concurso-de-comer-mas", "type": "Superlative", "text": "¿Quién ganaría un concurso de comer más rápido?" },
+    { "key": "talentos-quien-montaria-un-mueble-de-ikea-sin", "type": "Superlative", "text": "¿Quién montaría un mueble de IKEA sin mirar las instrucciones… y le saldría bien?" },
+    { "key": "talentos-quien-aguantaria-mas-tiempo-sin-reirse-en", "type": "Superlative", "text": "¿Quién aguantaría más tiempo sin reírse en un duelo de caras?" },
+    { "key": "talentos-quien-seria-el-mejor-guia-turistico-improvisado", "type": "Superlative", "text": "¿Quién sería el mejor guía turístico improvisado?" },
+    { "key": "talentos-quien-sacaria-mejor-nota-en-un-examen", "type": "Superlative", "text": "¿Quién sacaría mejor nota en un examen sobre la vida de todos los demás?" },
+    { "key": "talentos-quien-ganaria-una-discusion-aunque-no-tuviera", "type": "Superlative", "text": "¿Quién ganaría una discusión aunque no tuviera razón?" },
+    { "key": "talentos-quien-es-el-mejor-para-sacar-la", "type": "Superlative", "text": "¿Quién es el mejor para sacar la foto perfecta en el momento justo?" },
+    { "key": "talentos-quien-se-sabe-mas-canciones-de-memoria", "type": "Superlative", "text": "¿Quién se sabe más canciones de memoria?" },
+    { "key": "talentos-quien-ganaria-un-concurso-de-imitaciones", "type": "Superlative", "text": "¿Quién ganaría un concurso de imitaciones?" },
+    { "key": "talentos-quien-presentaria-mejor-un-programa-de-television", "type": "Superlative", "text": "¿Quién presentaría mejor un programa de televisión?" },
+    { "key": "talentos-quien-conseguiria-mesa-en-el-restaurante-mas", "type": "Superlative", "text": "¿Quién conseguiría mesa en el restaurante más lleno sin reserva?" },
+    { "key": "talentos-quien-convenceria-al-grupo-de-hacer-cualquier", "type": "Superlative", "text": "¿Quién convencería al grupo de hacer cualquier plan?" },
+    { "key": "talentos-que-dos-personas-ganarian-un-concurso-de", "type": "SecretPairing", "text": "¿Qué dos personas ganarían un concurso de cocina por parejas?" },
+    { "key": "talentos-que-dos-personas-serian-el-mejor-duo", "type": "SecretPairing", "text": "¿Qué dos personas serían el mejor dúo cómico?" },
+    { "key": "talentos-del-1-al-10-que-tal-das", "type": "Scale", "text": "Del 1 al 10, ¿qué tal das consejos?" },
+    { "key": "talentos-del-1-al-10-que-tal-anfitrion", "type": "Scale", "text": "Del 1 al 10, ¿qué tal anfitrión serías en una fiesta en tu casa?" },
+    { "key": "talentos-del-1-al-10-que-tal-cuentas", "type": "Scale", "text": "Del 1 al 10, ¿qué tal cuentas una anécdota?" }
+  ]
+}
