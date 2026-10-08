@@ -1,0 +1,26 @@
+{
+  "name": "Confesiones y vergüenzas",
+  "description": "Placeres culpables, manías y momentos cringe.",
+  "order": 11,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "confesiones-quien-tarda-tres-dias-en-contestar-un", "type": "Superlative", "text": "¿Quién tarda tres días en contestar un mensaje?" },
+    { "key": "confesiones-quien-ha-llorado-con-un-anuncio-de", "type": "Superlative", "text": "¿Quién ha llorado con un anuncio de la tele?" },
+    { "key": "confesiones-quien-se-hace-el-ocupado-para-no", "type": "Superlative", "text": "¿Quién se hace el ocupado para no saludar a alguien por la calle?" },
+    { "key": "confesiones-quien-relee-sus-propios-mensajes-riendose-de", "type": "Superlative", "text": "¿Quién relee sus propios mensajes riéndose de lo gracioso que es?" },
+    { "key": "confesiones-quien-finge-haber-leido-libros-o-visto", "type": "Superlative", "text": "¿Quién finge haber leído libros o visto pelis que no ha tocado?" },
+    { "key": "confesiones-quien-tiene-el-historial-de-spotify-mas", "type": "Superlative", "text": "¿Quién tiene el historial de Spotify más vergonzoso?" },
+    { "key": "confesiones-yo-nunca-he-cantado-a-grito-pelado", "type": "CustomPoll", "text": "Yo nunca he cantado a grito pelado pensando que no me oía nadie", "options": ["Sí", "No"] },
+    { "key": "confesiones-yo-nunca-he-olido-la-ropa-para", "type": "CustomPoll", "text": "Yo nunca he olido la ropa para decidir si ponérmela otra vez", "options": ["Sí", "No"] },
+    { "key": "confesiones-yo-nunca-he-respondido-tu-tambien-a", "type": "CustomPoll", "text": "Yo nunca he respondido \"tú también\" a un \"que aproveche\" o \"feliz cumpleaños\"", "options": ["Sí", "No"] },
+    { "key": "confesiones-yo-nunca-he-fingido-estar-enfermo-para", "type": "CustomPoll", "text": "Yo nunca he fingido estar enfermo para librarme de un plan", "options": ["Sí", "No"] },
+    { "key": "confesiones-marca-tus-placeres-culpables", "type": "CustomPoll", "text": "Marca tus placeres culpables:", "options": ["Realities malísimos", "Canciones de Abraham Mateo o Justin Bieber", "Cotillear perfiles a las 3am", "Comer de pie sobre el fregadero"], "maxSelections": 4 },
+    { "key": "confesiones-marca-lo-que-has-hecho-alguna-vez", "type": "CustomPoll", "text": "Marca lo que has hecho alguna vez:", "options": ["Mirar el móvil 30 min en el baño", "Aplicar la regla de los 5 segundos", "Fingir una llamada para escapar de alguien", "Hablar solo en voz alta"], "maxSelections": 4 },
+    { "key": "confesiones-confesion-rapida-en-los-planes-eres", "type": "CustomPoll", "text": "Confesión rápida: en los planes eres…", "options": ["El que siempre llega tarde", "El que nunca contesta", "El que desaparece sin avisar", "El que cancela en el último momento"], "allowOther": true },
+    { "key": "confesiones-que-te-da-mas-verguenza-que-te", "type": "CustomPoll", "text": "¿Qué te da MÁS vergüenza que te pillen haciendo?", "options": ["Hablando solo", "Bailando frente al espejo", "Llorando con una peli", "Cantando en la ducha"] },
+    { "key": "confesiones-del-1-al-10-como-de-cotilla", "type": "Scale", "text": "Del 1 al 10, ¿cómo de cotilla eres en realidad?" },
+    { "key": "confesiones-confiesa-tu-placer-culpable-mas-vergonzoso-sin", "type": "OpenText", "text": "Tu placer culpable más vergonzoso, sin filtro y en una frase.", "legacyText": "Confiesa tu placer culpable más vergonzoso, sin filtro." },
+    { "key": "confesiones-del-1-al-10-cuanto-aguantarias-sin", "type": "Scale", "text": "Del 1 al 10, ¿cuánto aguantarías sin mirar el móvil?" },
+    { "key": "confesiones-del-1-al-10-cuanta-paciencia-tienes", "type": "Scale", "text": "Del 1 al 10, ¿cuánta paciencia tienes en la cola del súper?" }
+  ]
+}

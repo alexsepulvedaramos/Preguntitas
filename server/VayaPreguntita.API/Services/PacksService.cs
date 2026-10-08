@@ -86,7 +86,7 @@ public class PacksService(AppDbContext context) : IPacksService
             usedTemplateIds
         );
 
-        var query = context.QuestionTemplates.Include(t => t.Options).Where(t => enabledPackIds.Contains(t.PackId));
+        var query = context.QuestionTemplates.Include(t => t.Options).Where(t => !t.IsRetired && enabledPackIds.Contains(t.PackId));
 
         if (type != null)
             query = query.Where(t => t.Type == type);

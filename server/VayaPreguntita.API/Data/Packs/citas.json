@@ -1,0 +1,28 @@
+{
+  "name": "Citas, relaciones y red flags",
+  "description": "Amor, ligues, parejas y banderas rojas.",
+  "order": 6,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "citas-que-dos-personas-del-grupo-harian-la", "type": "SecretPairing", "text": "¿Qué dos personas del grupo harían la mejor pareja?" },
+    { "key": "citas-que-dos-personas-acabarian-liandose-en-una", "type": "SecretPairing", "text": "¿Qué dos personas acabarían liándose en una boda?" },
+    { "key": "citas-que-dos-personas-serian-la-pareja-mas", "type": "SecretPairing", "text": "¿Qué dos personas serían la pareja más tóxica?" },
+    { "key": "citas-que-dos-personas-ligan-fatal-por-separado", "type": "SecretPairing", "text": "¿Qué dos personas ligan fatal por separado pero juntas serían perfectas?" },
+    { "key": "citas-que-dos-personas-seguro-que-se-han", "type": "SecretPairing", "text": "¿Qué dos personas seguro que se han mandado un mensajito subido de tono alguna vez?" },
+    { "key": "citas-que-dos-personas-discutirian-a-diario-pero", "type": "SecretPairing", "text": "¿Qué dos personas discutirían a diario pero no podrían vivir la una sin la otra?" },
+    { "key": "citas-que-dos-personas-tendrian-el-romance-de", "type": "SecretPairing", "text": "¿Qué dos personas tendrían el romance de verano más intenso?" },
+    { "key": "citas-quien-volveria-con-su-ex-por-enesima", "type": "Superlative", "text": "¿Quién volvería con su ex por enésima vez jurando que esta vez sí?" },
+    { "key": "citas-quien-tiene-el-peor-gusto-eligiendo-con", "type": "Superlative", "text": "¿Quién tiene el peor gusto eligiendo con quién sale?" },
+    { "key": "citas-quien-stalkea-mas-a-su-crush-en", "type": "Superlative", "text": "¿Quién stalkea más a su crush en redes?" },
+    { "key": "citas-quien-ligaria-mas-en-una-noche-de", "type": "Superlative", "text": "¿Quién ligaría más en una noche de fiesta?" },
+    { "key": "citas-quien-se-pillaria-a-las-dos-semanas", "type": "Superlative", "text": "¿Quién se pillaría a las dos semanas de conocer a alguien?" },
+    { "key": "citas-quien-seria-el-mas-celoso-en-una", "type": "Superlative", "text": "¿Quién sería el más celoso en una relación?" },
+    { "key": "citas-la-red-flag-mas-imperdonable-en-una", "type": "CustomPoll", "text": "La red flag más imperdonable en una primera cita:", "options": ["Llega 40 min tarde sin avisar", "Habla solo de su ex", "Es borde con el camarero", "No suelta el móvil"], "allowOther": true },
+    { "key": "citas-que-prefieres-vivir", "type": "CustomPoll", "text": "¿Qué prefieres vivir?", "options": ["Una mala cita y que no pase de ahí", "Tres citas geniales y que acabe en ghosting"] },
+    { "key": "citas-quien-crea-tu-proximo-perfil-de-citas", "type": "CustomPoll", "text": "¿Quién crea tu próximo perfil de citas?", "options": ["Tu madre", "Tu ex"] },
+    { "key": "citas-con-quien-sales", "type": "CustomPoll", "text": "¿Con quién sales?", "options": ["Alguien que odia a los animales", "Alguien con siete perros y que los antepone a todo"] },
+    { "key": "citas-que-duele-mas", "type": "CustomPoll", "text": "¿Qué duele más?", "options": ["Que te dejen por un mensaje", "Que te hagan ghosting sin explicación"], "retired": true },
+    { "key": "citas-el-green-flag-definitivo", "type": "CustomPoll", "text": "El green flag definitivo:", "options": ["Trata bien al camarero", "Se lleva genial con sus amigos", "Contesta rápido los mensajes", "Le va bien estando solo"], "allowOther": true },
+    { "key": "citas-en-una-ruptura-que-prefieres", "type": "CustomPoll", "text": "En una ruptura, ¿qué prefieres?", "options": ["Dejar tú", "Que te dejen a ti"] }
+  ]
+}

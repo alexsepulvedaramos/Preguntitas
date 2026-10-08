@@ -1,0 +1,25 @@
+{
+  "name": "Humor negro",
+  "description": "Humor oscuro, morboso y gamberro. Solo para estómagos fuertes.",
+  "order": 2,
+  "disabledByDefault": true,
+  "templates": [
+    { "key": "humor-negro-te-obligan-a-elegir-como-palmarla-que", "type": "CustomPoll", "text": "Te obligan a elegir cómo palmarla. ¿Qué prefieres?", "options": ["Quemado vivo", "Enterrado vivo", "Congelado poco a poco", "Devorado por tiburones"] },
+    { "key": "humor-negro-por-1-millon-de-euros-que-estarias", "type": "CustomPoll", "text": "Por 1 millón de euros, ¿qué estarías dispuesto a hacer?", "options": ["Pasar una noche entera en una morgue", "No volver a hablar con tu mejor amigo", "Donar el dedo meñique", "Comer algo asqueroso a diario durante un año"], "maxSelections": 4 },
+    { "key": "humor-negro-apocalipsis-y-hay-hambre-cual-cruzas-antes", "type": "CustomPoll", "text": "Apocalipsis y hay hambre. ¿Cuál cruzas antes?", "options": ["Comerte a tu mascota", "Comerte a tu vecino"] },
+    { "key": "humor-negro-en-tu-funeral-que-prefieres-provocar", "type": "CustomPoll", "text": "En tu funeral, ¿qué prefieres provocar?", "options": ["Que todos lloren a mares", "Que todos se partan de risa recordándote"] },
+    { "key": "humor-negro-te-toca-un-superpoder-maldito-cual-aguantas", "type": "CustomPoll", "text": "Te toca un superpoder maldito. ¿Cuál aguantas?", "options": ["Resucitar siempre, pero con un dolor atroz cada vez", "Ser inmortal viendo morir a todos los que quieres"] },
+    { "key": "humor-negro-que-serias-capaz-de-hacer-con-tal", "type": "CustomPoll", "text": "¿Qué serías capaz de hacer con tal de no morir?", "options": ["Comer carne humana", "Cortarte un brazo", "Matar a un desconocido", "Pasar el resto de tu vida en una celda"], "maxSelections": 4 },
+    { "key": "humor-negro-si-pudieras-presenciar-tu-propia-muerte-como", "type": "CustomPoll", "text": "Si pudieras presenciar tu propia muerte como mero espectador (sin dolor), ¿lo harías?", "options": ["Sí", "No"] },
+    { "key": "humor-negro-quien-recurriria-al-canibalismo-primero-si-el", "type": "Superlative", "text": "¿Quién recurriría al canibalismo primero si el avión se estrellara en los Andes?", "retired": true },
+    { "key": "humor-negro-quien-fingiria-su-propia-muerte-para-librarse", "type": "Superlative", "text": "¿Quién fingiría su propia muerte para librarse de un marrón?" },
+    { "key": "humor-negro-a-quien-le-darias-un-punetazo-por", "type": "Superlative", "text": "¿A quién le darías un puñetazo por un millón de euros?" },
+    { "key": "humor-negro-quien-se-reiria-sin-poder-parar-en", "type": "Superlative", "text": "¿Quién se reiría sin poder parar en pleno funeral?" },
+    { "key": "humor-negro-quien-sobreviviria-mas-tiempo-en-la-purga", "type": "Superlative", "text": "¿Quién sobreviviría más tiempo en La Purga?" },
+    { "key": "humor-negro-que-dos-personas-esconderian-un-cadaver-juntas", "type": "SecretPairing", "text": "¿Qué dos personas esconderían un cadáver juntas sin que les pillaran?" },
+    { "key": "humor-negro-que-dos-personas-se-comerian-la-una", "type": "SecretPairing", "text": "¿Qué dos personas se comerían la una a la otra primero en un naufragio?", "retired": true },
+    { "key": "humor-negro-del-1-al-10-que-probabilidad-hay", "type": "Scale", "text": "Del 1 al 10, ¿qué probabilidad hay de que acabes en el infierno?" },
+    { "key": "humor-negro-os-toca-limpiar-la-escena-de-un", "type": "Deathmatch", "text": "Os toca limpiar la escena de un crimen. ¿Qué equipo no deja ni una prueba?" },
+    { "key": "humor-negro-en-teoria-eh-cual-seria-la-mejor", "type": "OpenText", "text": "En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver? (en una frase)", "legacyText": "En teoría, eh... ¿cuál sería la mejor manera de deshacerte de un cadáver?", "legacyPack": "Crimen y misterio" }
+  ]
+}

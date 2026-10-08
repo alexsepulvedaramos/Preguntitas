@@ -1,0 +1,23 @@
+{
+  "name": "Nostalgia y cringe",
+  "description": "Infancia, adolescencia y vergüenzas del pasado.",
+  "order": 12,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "nostalgia-quien-tuvo-la-fase-mas-vergonzosa-en", "type": "Superlative", "text": "¿Quién tuvo la fase más vergonzosa en la adolescencia?" },
+    { "key": "nostalgia-quien-era-el-tipico-empollon-del-colegio", "type": "Superlative", "text": "¿Quién era el típico empollón del colegio?" },
+    { "key": "nostalgia-quien-era-el-mas-gamberro-de-clase", "type": "Superlative", "text": "¿Quién era el más gamberro de clase?" },
+    { "key": "nostalgia-quien-tenia-el-corte-de-pelo-mas", "type": "Superlative", "text": "¿Quién tenía el corte de pelo más cuestionable de joven?" },
+    { "key": "nostalgia-quien-ha-pegado-el-mayor-cambio-glow", "type": "Superlative", "text": "¿Quién ha pegado el mayor cambio (glow up) con los años?" },
+    { "key": "nostalgia-que-epoca-era-mejor", "type": "CustomPoll", "text": "¿Qué época era mejor?", "options": ["Cuando no había móviles", "Ahora con todo a un clic"] },
+    { "key": "nostalgia-si-pudieras-volver-a-una-etapa-a", "type": "CustomPoll", "text": "Si pudieras volver a una etapa, ¿a cuál?", "options": ["La infancia sin preocupaciones", "La adolescencia rebelde", "Los años locos de fiesta", "Ninguna, mejor el presente"] },
+    { "key": "nostalgia-que-reliquia-tecnologica-echas-de-menos", "type": "CustomPoll", "text": "¿Qué reliquia tecnológica echas de menos?", "options": ["La videoconsola de tu infancia", "El móvil de tapa y teclas", "Los CDs y casetes", "El MSN Messenger"], "allowOther": true },
+    { "key": "nostalgia-que-recuerdas-con-mas-carino-de-pequeno", "type": "CustomPoll", "text": "¿Qué recuerdas con más cariño de pequeño?", "options": ["Los dibujos del sábado por la mañana", "Jugar en la calle hasta que anochecía", "Las meriendas en casa de un amigo", "Los veranos que no acababan nunca"] },
+    { "key": "nostalgia-marca-las-tribus-en-las-que-encajabas", "type": "CustomPoll", "text": "Marca las tribus en las que encajabas de adolescente:", "options": ["Pijo", "Friki", "Rebelde/macarra", "Hippie/alternativo", "Skater", "El normal que pasaba desapercibido"], "maxSelections": 6 },
+    { "key": "nostalgia-que-dos-personas-habrian-sido-los-pesados", "type": "SecretPairing", "text": "¿Qué dos personas habrían sido los pesados de la clase juntos?" },
+    { "key": "nostalgia-del-1-al-10-como-de-cringe", "type": "Scale", "text": "Del 1 al 10, ¿cómo de cringe era tu yo adolescente?" },
+    { "key": "nostalgia-cuentanos-tu-momento-mas-cringe-de-la", "type": "OpenText", "text": "Tu momento más cringe de la adolescencia, en una frase.", "legacyText": "Cuéntanos tu momento más cringe de la adolescencia." },
+    { "key": "nostalgia-cual-era-tu-grupo-o-cancion-favorita", "type": "OpenText", "text": "¿Cuál era tu grupo o canción favorita de joven que ahora te da vergüenza?" },
+    { "key": "nostalgia-cual-era-tu-sueno-de-pequeno-que", "type": "OpenText", "text": "¿Cuál era tu sueño de pequeño que ahora te da ternura (o risa)? Responde en una frase.", "legacyText": "¿Cuál era tu sueño de pequeño que ahora te da ternura (o risa)?" }
+  ]
+}

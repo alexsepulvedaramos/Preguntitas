@@ -1,0 +1,24 @@
+{
+  "name": "Dilemas",
+  "description": "Dilemas filosóficos y éticos sin respuesta correcta.",
+  "order": 5,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "dilemas-te-dan-mal-el-cambio-a-tu", "type": "CustomPoll", "text": "Te dan mal el cambio a tu favor (10€ de más) y te das cuenta. ¿Lo dices?", "options": ["Sí, siempre lo devuelvo", "Depende: a una gran empresa me callo, a una tienda pequeña lo digo", "Me callo y a ganar, sea quien sea"] },
+    { "key": "dilemas-puedes-salvar-a-5-desconocidos-o-a", "type": "CustomPoll", "text": "Puedes salvar a 5 desconocidos o a 1 ser querido. ¿A quién salvas?", "options": ["A los 5 desconocidos", "A tu ser querido"] },
+    { "key": "dilemas-mentirias-a-un-amigo-para-no-hacerle", "type": "CustomPoll", "text": "¿Mentirías a un amigo para no hacerle daño?", "options": ["Sí, mentira piadosa", "No, la verdad por delante"] },
+    { "key": "dilemas-el-fin-justifica-los-medios", "type": "CustomPoll", "text": "¿El fin justifica los medios?", "options": ["Sí, si el resultado es bueno", "No, nunca"] },
+    { "key": "dilemas-que-vida-prefieres", "type": "CustomPoll", "text": "¿Qué vida prefieres?", "options": ["Corta pero intensa y que deje huella", "Larga y tranquila sin pena ni gloria"] },
+    { "key": "dilemas-saber-que-hay-tras-la-muerte-pero", "type": "CustomPoll", "text": "¿Saber qué hay tras la muerte pero sin poder contarlo, o no saberlo jamás?", "options": ["Saberlo en silencio", "No saberlo nunca"] },
+    { "key": "dilemas-feliz-viviendo-enganado-o-infeliz-pero-sabiendo", "type": "CustomPoll", "text": "¿Feliz viviendo engañado o infeliz pero sabiendo toda la verdad?", "options": ["Feliz pero engañado", "Infeliz pero consciente"], "retired": true },
+    { "key": "dilemas-un-tren-va-a-atropellar-a-5", "type": "CustomPoll", "text": "Un tren va a atropellar a 5 personas. Puedes desviarlo a otra vía donde solo hay 1. ¿Tiras de la palanca?", "options": ["Sí, desvío (muere 1, salvo 5)", "No intervengo (mueren 5)"] },
+    { "key": "dilemas-solo-puedes-salvar-a-5-desconocidos-empujando", "type": "CustomPoll", "text": "Solo puedes salvar a 5 desconocidos empujando tú mismo a otro desconocido a las vías de un tren. ¿Lo empujas?", "options": ["Sí", "No"] },
+    { "key": "dilemas-te-ofrecen-enchufarte-para-siempre-a-una", "type": "CustomPoll", "text": "Te ofrecen enchufarte para siempre a una máquina que simula una vida perfecta, sin que sepas que es mentira. ¿Entras?", "options": ["Sí, dame la vida perfecta", "No, prefiero la realidad aunque duela"] },
+    { "key": "dilemas-si-cambias-una-a-una-todas-las", "type": "CustomPoll", "text": "Si cambias una a una todas las piezas de un barco, ¿sigue siendo el mismo barco?", "options": ["Sí, es el mismo", "No, ya es otro"], "retired": true },
+    { "key": "dilemas-viajas-al-pasado-y-tienes-delante-a", "type": "CustomPoll", "text": "Viajas al pasado y tienes delante a Hitler de bebé. ¿Lo matas?", "options": ["Sí", "No"] },
+    { "key": "dilemas-el-bien-y-el-mal-son-universales", "type": "CustomPoll", "text": "¿El bien y el mal son universales o los decide cada cultura?", "options": ["Universales", "Relativos a cada cultura"], "retired": true },
+    { "key": "dilemas-el-ser-humano-es-bueno-por-naturaleza", "type": "CustomPoll", "text": "¿El ser humano es bueno por naturaleza o egoísta por naturaleza?", "options": ["Bueno por naturaleza", "Egoísta por naturaleza"], "retired": true },
+    { "key": "dilemas-al-juzgar-un-acto-que-importa-mas", "type": "CustomPoll", "text": "Al juzgar un acto, ¿qué importa más?", "options": ["La intención", "El resultado"], "retired": true },
+    { "key": "dilemas-la-paradoja-de-la-tolerancia-hay-que", "type": "CustomPoll", "text": "La paradoja de la tolerancia: ¿hay que tolerar a los intolerantes?", "options": ["Sí, a todos", "No, a los intolerantes no"], "retired": true }
+  ]
+}

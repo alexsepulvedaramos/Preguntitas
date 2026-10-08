@@ -1,0 +1,23 @@
+{
+  "name": "Guarradas y dilemas asquerosos",
+  "description": "Disyuntivas asquerosas donde ninguna opción es buena.",
+  "order": 15,
+  "disabledByDefault": true,
+  "templates": [
+    { "key": "guarradas-que-prefieres", "type": "CustomPoll", "text": "¿Qué prefieres?", "options": ["Sudar mayonesa", "Llorar kétchup"] },
+    { "key": "guarradas-que-lames", "type": "CustomPoll", "text": "¿Qué lames?", "options": ["El suelo del metro", "El pasamanos de una escalera mecánica"] },
+    { "key": "guarradas-que-prefieres-tener", "type": "CustomPoll", "text": "¿Qué prefieres tener?", "options": ["Dedos de salchicha", "Pelo de espagueti"] },
+    { "key": "guarradas-beberte-de-un-trago-un-vaso-de", "type": "CustomPoll", "text": "¿Beberte de un trago un vaso de aceite o uno de vinagre?", "options": ["Aceite", "Vinagre"] },
+    { "key": "guarradas-que-prefieres-que-te-hagan-encima", "type": "CustomPoll", "text": "¿Qué prefieres que te hagan encima?", "options": ["Que te caguen", "Que te vomiten"] },
+    { "key": "guarradas-con-que-cargas-para-siempre", "type": "CustomPoll", "text": "¿Con qué cargas para siempre?", "options": ["Mal aliento permanente", "Sudar a chorros sin parar"] },
+    { "key": "guarradas-que-te-tragas", "type": "CustomPoll", "text": "¿Qué te tragas?", "options": ["Una uña del pie", "Un mechón de pelo"], "retired": true },
+    { "key": "guarradas-que-bocata-te-comes", "type": "CustomPoll", "text": "¿Qué bocata te comes?", "options": ["De uñas", "De pelos"] },
+    { "key": "guarradas-que-bebes", "type": "CustomPoll", "text": "¿Qué bebes?", "options": ["El agua de fregar los platos", "El agua de una bañera ajena"] },
+    { "key": "guarradas-que-prefieres-tener-siempre", "type": "CustomPoll", "text": "¿Qué prefieres tener siempre?", "options": ["La piel pegajosa", "Mocos colgando"], "retired": true },
+    { "key": "guarradas-beber-leche-caducada-en-grumos-o-comer", "type": "CustomPoll", "text": "¿Beber leche caducada en grumos o comer huevos podridos?", "options": ["Leche en grumos", "Huevos podridos"] },
+    { "key": "guarradas-limpiarte-con-papel-higienico-ya-usado-o", "type": "CustomPoll", "text": "¿Limpiarte con papel higiénico ya usado o no usar nada?", "options": ["Papel usado", "Nada"] },
+    { "key": "guarradas-que-se-te-meta-una-cucaracha-en", "type": "CustomPoll", "text": "¿Que se te meta una cucaracha en la oreja o una araña por la nariz?", "options": ["Cucaracha en la oreja", "Araña por la nariz"] },
+    { "key": "guarradas-comer-un-plato-de-mocos-o-beber", "type": "CustomPoll", "text": "¿Comer un plato de mocos o beber un vaso de babas?", "options": ["Plato de mocos", "Vaso de babas"] },
+    { "key": "guarradas-encontrarte-siempre-un-pelo-en-cada-plato", "type": "CustomPoll", "text": "¿Encontrarte siempre un pelo en cada plato o una uña de vez en cuando?", "options": ["Un pelo siempre", "Una uña a veces"], "retired": true }
+  ]
+}

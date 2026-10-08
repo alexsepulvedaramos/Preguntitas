@@ -1,0 +1,28 @@
+{
+  "name": "Viajes y planes",
+  "description": "Escapadas, rutas y quién se pierde primero.",
+  "order": 18,
+  "disabledByDefault": false,
+  "templates": [
+    { "key": "viajes-escapada-de-fin-de-semana", "type": "CustomPoll", "text": "Escapada de fin de semana:", "options": ["Cabaña en la montaña", "Apartamento en la playa", "Ciudad europea", "Camping"] },
+    { "key": "viajes-en-un-viaje-en-grupo-tu-eres", "type": "CustomPoll", "text": "En un viaje en grupo, tú eres:", "options": ["El que lo organiza todo", "El que se apunta a todo", "El que pregunta «¿falta mucho?»", "El que se pierde"] },
+    { "key": "viajes-vacaciones-perfectas", "type": "CustomPoll", "text": "Vacaciones perfectas:", "options": ["Relax total sin moverte", "Aventura sin parar"] },
+    { "key": "viajes-alojamiento-ideal", "type": "CustomPoll", "text": "Alojamiento ideal:", "options": ["Hotel con desayuno buffet", "Casa rural con barbacoa"] },
+    { "key": "viajes-en-el-coche", "type": "CustomPoll", "text": "En el coche:", "options": ["Conduzco yo", "Copiloto con el control de la música", "Me duermo nada más arrancar", "Voy atrás comentando el tráfico"] },
+    { "key": "viajes-como-planificas-un-viaje", "type": "CustomPoll", "text": "Cómo planificas un viaje:", "options": ["Viaje improvisado, sin plan", "Viaje con el 70 % del tiempo planificado por horas"] },
+    { "key": "viajes-quien-perderia-el-vuelo-por-ir-un", "type": "Superlative", "text": "¿Quién perdería el vuelo por ir «un momento» al baño?" },
+    { "key": "viajes-quien-organizaria-el-mejor-itinerario-de-viaje", "type": "Superlative", "text": "¿Quién organizaría el mejor itinerario de viaje?" },
+    { "key": "viajes-quien-acabaria-hablando-con-medio-pueblo-nada", "type": "Superlative", "text": "¿Quién acabaría hablando con medio pueblo nada más llegar?" },
+    { "key": "viajes-quien-se-dormiria-en-el-coche-en", "type": "Superlative", "text": "¿Quién se dormiría en el coche en el primer minuto?" },
+    { "key": "viajes-quien-llevaria-la-maleta-mas-pesada", "type": "Superlative", "text": "¿Quién llevaría la maleta más pesada?" },
+    { "key": "viajes-quien-haria-amigos-con-los-locales-y", "type": "Superlative", "text": "¿Quién haría amigos con los locales y acabaría invitado a una boda?" },
+    { "key": "viajes-quien-seria-el-ultimo-en-estar-listo", "type": "Superlative", "text": "¿Quién sería el último en estar listo cada mañana del viaje?" },
+    { "key": "viajes-a-donde-deberia-ser-el-proximo-viaje", "type": "OpenText", "text": "¿A dónde debería ser el próximo viaje del grupo? (ciudad y por qué)" },
+    { "key": "viajes-en-que-ciudad-vivirias-si-no-vivieses", "type": "OpenText", "text": "¿En qué ciudad vivirías si no vivieses en la tuya?" },
+    { "key": "viajes-top-3-canciones-para-un-viaje-en", "type": "OpenText", "text": "Top 3 canciones para un viaje en coche." },
+    { "key": "viajes-top-3-sitios-del-mundo-a-los", "type": "OpenText", "text": "Top 3 sitios del mundo a los que irías mañana mismo." },
+    { "key": "viajes-del-1-al-10-que-tal-copiloto", "type": "Scale", "text": "Del 1 al 10, ¿qué tal copiloto eres en un viaje largo?" },
+    { "key": "viajes-del-1-al-10-que-tan-puntual", "type": "Scale", "text": "Del 1 al 10, ¿qué tan puntual te consideras?" },
+    { "key": "viajes-del-1-al-10-que-tal-te", "type": "Scale", "text": "Del 1 al 10, ¿qué tal te orientas sin GPS?" }
+  ]
+}
