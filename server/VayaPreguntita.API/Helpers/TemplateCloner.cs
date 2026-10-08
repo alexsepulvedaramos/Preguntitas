@@ -25,6 +25,7 @@ public static class TemplateCloner
             TargetUserId = template.Metadata.TargetUserId,
             MinSelections = template.Metadata.MinSelections,
             MaxSelections = template.Metadata.MaxSelections,
+            AllowOther = template.Metadata.AllowOther,
             Teams = template.Metadata.Teams.Select(t => t.ToList()).ToList(),
         };
 

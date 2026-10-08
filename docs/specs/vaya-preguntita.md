@@ -353,7 +353,7 @@ Superlative, Secret Pairing, and Custom Poll templates are self-contained. **Sca
 - **Scale:** `TargetUserId` ← a random active member.
 - **Deathmatch:** `Teams` ← a random split of active members into 2 teams (sizes balanced).
 
-Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Implemented in `Helpers/TemplateCloner.cs`; the seed packs are loaded at startup by `Data/PackSeeder.cs` (idempotent **per template** — find-or-create each pack by `Name` and each template by `(PackId, Text)`, additive only).
+Resolution uses the membership snapshot at the moment of instantiation (clone time), which is why minor staleness (a member joining before T) is accepted in the MVP. Static template metadata (including Custom Poll `AllowOther`) is copied verbatim into the clone. *(Bug fixed on `fix/template-cloner-allow-other`: clones used to drop `AllowOther`. Clones created before the fix keep `AllowOther = false` — confirmed by the developer, no backfill.)* Implemented in `Helpers/TemplateCloner.cs`; the seed packs are loaded at startup by `Data/PackSeeder.cs` (idempotent **per template** — find-or-create each pack by `Name` and each template by `(PackId, Text)`, additive only).
 
 ### 6.4 Selection sources
 
