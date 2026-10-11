@@ -1,0 +1,162 @@
+<div class="min-h-dvh flex flex-col bg-background">
+  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
+    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="nav.back()">
+      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
+      <span class="sr-only">Volver</span>
+    </button>
+    <h1 class="font-display text-lg italic tracking-tight text-foreground">Cómo funciona</h1>
+  </header>
+
+  <div class="flex flex-col gap-12 p-4 pb-12 max-w-2xl mx-auto w-full">
+
+    <!-- ===== INTRO ===== -->
+    <section class="flex flex-col gap-4 pt-4 text-center items-center">
+      <h2 class="font-display text-3xl sm:text-4xl italic tracking-tight text-foreground text-balance">
+        Una pregunta al día para tu grupo
+      </h2>
+      <p class="text-muted-foreground max-w-prose">
+        Vaya Preguntita es un juego para grupos de amigos. Cada día sale una pregunta sobre
+        vosotros, todo el mundo vota y los resultados enseñan quién ha votado qué.
+        Lo demás lo pone el grupo.
+      </p>
+      <app-results-showcase class="w-full max-w-md text-left" />
+    </section>
+
+    <!-- ===== DAILY CYCLE ===== -->
+    <section class="flex flex-col gap-4" aria-labelledby="about-cycle">
+      <h2 id="about-cycle" class="font-display text-2xl italic tracking-tight text-foreground">El día a día</h2>
+      <ol class="flex flex-col gap-3">
+        @for (step of steps; track step.title; let i = $index) {
+          <li hlmCard size="sm">
+            <div hlmCardContent class="flex gap-4 items-start">
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xl" aria-hidden="true">
+                {{ step.emoji }}
+              </span>
+              <div class="flex flex-col gap-1 min-w-0">
+                <h3 class="font-semibold text-foreground">{{ i + 1 }}. {{ step.title }}</h3>
+                <p class="text-muted-foreground">{{ step.text }}</p>
+              </div>
+            </div>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- ===== QUESTION TYPES ===== -->
+    <section class="flex flex-col gap-4" aria-labelledby="about-types">
+      <h2 id="about-types" class="font-display text-2xl italic tracking-tight text-foreground">Seis tipos de pregunta</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        @for (item of types; track item.type) {
+          <article hlmCard size="sm">
+            <div hlmCardHeader>
+              <span class="w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold" [class]="typeBadge[item.type]">
+                {{ typeLabels[item.type] }}
+              </span>
+            </div>
+            <div hlmCardContent class="flex flex-col gap-2">
+              <p class="text-foreground">{{ item.how }}</p>
+              <p class="vp-question-text text-base text-muted-foreground">«{{ item.example }}»</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ===== PACKS ===== -->
+    <section class="flex flex-col gap-4" aria-labelledby="about-packs">
+      <h2 id="about-packs" class="font-display text-2xl italic tracking-tight text-foreground">De dónde salen las preguntas</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div hlmCard size="sm">
+          <div hlmCardHeader>
+            <h3 hlmCardTitle>✍️ Las vuestras</h3>
+          </div>
+          <p hlmCardContent class="text-muted-foreground">
+            Cualquiera puede crear preguntas para su grupo. Quedan guardadas hasta que a alguien
+            le toque elegir y las use.
+          </p>
+        </div>
+        <div hlmCard size="sm">
+          <div hlmCardHeader>
+            <h3 hlmCardTitle>📦 Los packs</h3>
+          </div>
+          <p hlmCardContent class="text-muted-foreground">
+            Cientos de preguntas listas, por temas: Comida, Dilemas, Supervivencia, Citas…
+            El admin decide qué packs usa el grupo, y no se repite ninguna hasta gastarlas todas.
+            Humor negro y Guarradas vienen apagados: hay que encenderlos a propósito.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STREAKS ===== -->
+    <section class="flex flex-col gap-4" aria-labelledby="about-streaks">
+      <h2 id="about-streaks" class="font-display text-2xl italic tracking-tight text-foreground">Rachas, marcos y títulos</h2>
+      <p class="text-muted-foreground">
+        Cada día que votas, tu racha en ese grupo sube uno. Si hay pregunta y no votas, vuelve a cero;
+        los días sin pregunta no cuentan. Desde el tercer día tu avatar lleva un marco, y cada marco
+        trae un título que es tuyo para siempre, aunque luego pierdas la racha. Desde tu perfil
+        eliges cuál enseñar.
+      </p>
+
+      <ul hlmCard size="sm" class="divide-y divide-border">
+        @for (tier of tiers; track tier.key) {
+          <li class="flex items-center gap-5 px-4 py-4">
+            <span class="p-3 shrink-0">
+              <app-user-avatar
+                [username]="tier.username"
+                [frameColor]="frameStreak"
+                [streak]="tier.minDays"
+                size="lg"
+              />
+            </span>
+            <div class="flex flex-col min-w-0">
+              <span class="font-display text-lg italic text-foreground leading-tight">{{ tier.title }}</span>
+              <span class="text-xs uppercase tracking-wider text-muted-foreground">
+                {{ tier.material }} ·
+                @if (tier.maxDays) {
+                  {{ tier.minDays }}–{{ tier.maxDays }} días
+                } @else {
+                  {{ tier.minDays }} días o más
+                }
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <div hlmCard size="sm">
+        <div hlmCardContent class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+          <span class="px-6 pt-10 pb-6 shrink-0">
+            <app-user-avatar username="bea" [frameColor]="frameStreak" [streak]="45" [crown]="true" size="xl" />
+          </span>
+          <div class="flex flex-col gap-2">
+            <h3 class="font-semibold text-foreground">👑 La corona</h3>
+            <p class="text-muted-foreground">
+              Quien lleve la racha más larga del grupo lleva la corona en todos sus avatares dentro
+              del grupo. Si hay empate, se la queda quien llegó antes a ese número.
+            </p>
+            <p class="text-muted-foreground">
+              Si tienes racha y aún no has votado, te avisamos unas horas antes de que cierre la
+              pregunta, para que no la pierdas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== APP & NOTIFICATIONS ===== -->
+    <section class="flex flex-col gap-4" aria-labelledby="about-app">
+      <h2 id="about-app" class="font-display text-2xl italic tracking-tight text-foreground">En tu móvil</h2>
+      <p class="text-muted-foreground">
+        Instálala en la pantalla de inicio y activa las notificaciones: te avisamos cuando sale la
+        pregunta, cuando te toca elegir, cuando alguien vota y cuando hay mensajes en el debate.
+        Cada aviso se puede apagar, y cada grupo se puede silenciar.
+      </p>
+    </section>
+
+    <footer class="flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
+      <a hlmBtn variant="outline" routerLink="/releases">Ver las novedades</a>
+      <span>Versión {{ version }}</span>
+    </footer>
+  </div>
+</div>

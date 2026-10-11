@@ -59,6 +59,23 @@ export const routes: Routes = [
         ]
     },
     {
+        // Public info pages (rama 26): readable without an account, inside the same layout.
+        path: '',
+        loadComponent: () => import('./core/layout/main-layout.component').then(m => m.MainLayoutComponent),
+        children: [
+            {
+                path: 'about',
+                title: 'Cómo funciona',
+                loadComponent: () => import('./features/info/about-page.component').then(m => m.AboutPageComponent),
+            },
+            {
+                path: 'releases',
+                title: 'Novedades',
+                loadComponent: () => import('./features/info/releases-page.component').then(m => m.ReleasesPageComponent),
+            },
+        ]
+    },
+    {
         path: 'join/:code',
         title: 'Unirse al grupo',
         loadComponent: () => import('./features/groups/components/join-by-link/join-by-link.component').then(m => m.JoinByLinkComponent),

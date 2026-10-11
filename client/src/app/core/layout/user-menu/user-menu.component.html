@@ -4,8 +4,8 @@
     hlmBtn
     size="icon"
     variant="ghost"
-    class="rounded-full hover:bg-muted w-9 h-9 p-0 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring outline-none"
-    aria-label="Menú de usuario"
+    class="relative rounded-full hover:bg-muted w-9 h-9 p-0 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring outline-none"
+    [attr.aria-label]="releaseNotes.hasUnseen() ? 'Menú de usuario (hay novedades)' : 'Menú de usuario'"
   >
     <app-user-avatar
       [avatarUrl]="authService.currentUser()?.avatarUrl"
@@ -14,6 +14,9 @@
       [streak]="authService.currentUser()?.highestStreak"
       size="sm"
     />
+    @if (releaseNotes.hasUnseen()) {
+      <span class="absolute top-0 right-0 z-10 size-2.5 rounded-full bg-primary ring-2 ring-card" aria-hidden="true"></span>
+    }
   </button>
 
   <hlm-drawer-overlay hlm />
@@ -71,10 +74,31 @@
           hlmBtn
           variant="outline"
           class="w-full justify-start gap-3"
-          (click)="goToProfile(ctx)"
+          (click)="navigate(ctx, '/profile')"
         >
           <ng-icon hlm name="lucideSettings" class="size-4!" />
           Configuración de perfil
+        </button>
+        <button
+          hlmBtn
+          variant="outline"
+          class="w-full justify-start gap-3"
+          (click)="navigate(ctx, '/about')"
+        >
+          <ng-icon hlm name="lucideBookOpen" class="size-4!" />
+          Cómo funciona
+        </button>
+        <button
+          hlmBtn
+          variant="outline"
+          class="w-full justify-start gap-3"
+          (click)="navigate(ctx, '/releases')"
+        >
+          <ng-icon hlm name="lucideMegaphone" class="size-4!" />
+          Novedades
+          @if (releaseNotes.hasUnseen()) {
+            <span hlmBadge class="ml-auto">Nuevo</span>
+          }
         </button>
       </div>
 
