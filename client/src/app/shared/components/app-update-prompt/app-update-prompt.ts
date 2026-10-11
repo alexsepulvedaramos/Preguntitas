@@ -1,39 +1,39 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SwUpdate } from '@angular/service-worker';
-import { filter } from 'rxjs';
+import { Component, inject, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideRefreshCw } from '@ng-icons/lucide';
 
-const HOURLY = 60 * 60 * 1000;
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
-// "New version" prompt (release 1.6.1). The service worker downloads a new build in the
-// background but keeps serving the cached one until every tab is closed — and an installed
-// PWA on a phone is resumed, not reopened, so players were stuck on old versions. This checks
-// for updates whenever the app returns to the foreground and offers a one-tap reload.
-// Plain buttons like the sibling root prompts: Helm here would add ~35 kB to the initial bundle.
+import { AppUpdateService } from '../../../core/services/app-update.service';
+
+// "New version" card (release 1.6.1). The app root imports it dynamically only once
+// AppUpdateService reports a version ready, so its Helm imports stay out of the initial bundle.
 @Component({
   selector: 'app-update-prompt',
+  imports: [NgIcon, HlmButtonImports, HlmIconImports, HlmSpinnerImports],
+  providers: [provideIcons({ lucideRefreshCw })],
   template: `
-    @if (visible()) {
+    @if (appUpdate.ready()) {
       <div class="fixed top-3 left-4 right-4 z-[60] sm:left-auto sm:right-4 sm:w-80" role="status" aria-live="polite">
-        <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl flex items-center gap-3">
-          <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-lg" aria-hidden="true">✨</span>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-foreground leading-tight">Hay una versión nueva</p>
-            <p class="text-xs text-muted-foreground mt-0.5">Actualiza para ver las novedades.</p>
+        <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-2xl">
+          <div class="flex items-start gap-3">
+            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <ng-icon hlm name="lucideRefreshCw" size="20px" />
+            </span>
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <p class="text-sm font-semibold leading-tight text-foreground">Hay una versión nueva</p>
+              <p class="text-xs text-muted-foreground">Actualiza para ver las novedades. Solo tarda un segundo.</p>
+            </div>
           </div>
-          <div class="flex flex-col gap-1.5 shrink-0">
-            <button
-              (click)="update()"
-              [disabled]="updating()"
-              class="text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
-            >
+          <div class="flex justify-end gap-2">
+            <button hlmBtn variant="ghost" size="sm" [disabled]="updating()" (click)="appUpdate.dismiss()">Luego</button>
+            <button hlmBtn size="sm" [disabled]="updating()" (click)="update()">
+              @if (updating()) {
+                <hlm-spinner />
+              }
               Actualizar
-            </button>
-            <button
-              (click)="visible.set(false)"
-              class="text-xs text-muted-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-center"
-            >
-              Luego
             </button>
           </div>
         </div>
@@ -42,40 +42,11 @@ const HOURLY = 60 * 60 * 1000;
   `,
 })
 export class AppUpdatePromptComponent {
-  private readonly swUpdate = inject(SwUpdate);
-
-  protected readonly visible = signal(false);
+  protected readonly appUpdate = inject(AppUpdateService);
   protected readonly updating = signal(false);
 
-  constructor() {
-    if (!this.swUpdate.isEnabled) return;
-
-    this.swUpdate.versionUpdates
-      .pipe(filter(event => event.type === 'VERSION_READY'), takeUntilDestroyed())
-      .subscribe(() => this.visible.set(true));
-
-    // A broken cache can't be repaired in place: reload onto the server's version.
-    this.swUpdate.unrecoverable
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => document.location.reload());
-
-    const check = () => {
-      if (document.visibilityState === 'visible') this.swUpdate.checkForUpdate().catch(() => {});
-    };
-    document.addEventListener('visibilitychange', check);
-    const timer = setInterval(check, HOURLY);
-    inject(DestroyRef).onDestroy(() => {
-      document.removeEventListener('visibilitychange', check);
-      clearInterval(timer);
-    });
-  }
-
-  protected async update(): Promise<void> {
+  protected update(): void {
     this.updating.set(true);
-    try {
-      await this.swUpdate.activateUpdate();
-    } finally {
-      document.location.reload();
-    }
+    this.appUpdate.update();
   }
 }
