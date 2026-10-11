@@ -10,6 +10,7 @@ namespace VayaPreguntita.API.Services;
 public class StreakService(
     AppDbContext context,
     INotificationService notificationService,
+    TimeProvider clock,
     ILogger<StreakService> logger
 ) : IStreakService
 {
@@ -57,7 +58,7 @@ public class StreakService(
                     Body = chatBody,
                     DailyEntryId = openEntry.Id,
                     UserId = null,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DailyClock.UtcNow(clock),
                 }
             );
 
@@ -370,7 +371,7 @@ public class StreakService(
     // ==========================================
     public async Task SendDangerRemindersAsync()
     {
-        var nowUtc = DateTime.UtcNow;
+        var nowUtc = DailyClock.UtcNow(clock);
         var maxLead = TimeSpan.FromHours(NotificationPreferencesDto.AllowedStreakDangerHours.Max());
 
         // Open entry per group = latest activated one. Only groups whose cycle closes

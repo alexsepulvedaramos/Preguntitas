@@ -12,7 +12,8 @@ public class GroupsService(
     AppDbContext context,
     IMapper mapper,
     IDailyService dailyService,
-    IStreakService streakService
+    IStreakService streakService,
+    TimeProvider clock
 ) : IGroupsService
 {
     public async Task<bool> IsUserInGroupAsync(int userId, int groupId)
@@ -97,7 +98,8 @@ public class GroupsService(
             Description = request.Description,
             DailyQuestionTime = request.DailyQuestionTime,
             InvitationCode = invitationCode,
-            Members = [new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = true }],
+            DateCreated = DailyClock.UtcNow(clock),
+            Members = [new GroupMember { UserId = userId, JoinedAt = DailyClock.UtcNow(clock), IsAdmin = true }],
         };
 
         context.Groups.Add(newGroup);
@@ -148,7 +150,7 @@ public class GroupsService(
         // entry's Date, so the bootstrap entry (dated one day earlier, §4.1) still counts.
         if (timeChanged)
         {
-            var today = DailyClock.Today();
+            var today = DailyClock.Today(clock);
             var todayStartUtc = DailyClock.ToUtc(today, TimeOnly.MinValue);
             var tomorrowStartUtc = DailyClock.ToUtc(today.AddDays(1), TimeOnly.MinValue);
 
@@ -195,7 +197,7 @@ public class GroupsService(
         if (!userExists)
             return (false, false);
 
-        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DateTime.UtcNow, IsAdmin = false });
+        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DailyClock.UtcNow(clock), IsAdmin = false });
         await context.SaveChangesAsync();
 
         // A member who left and comes back gets their streak rebuilt from vote history
@@ -212,13 +214,13 @@ public class GroupsService(
         // ClosesAt/ActivatesAt (Date+1@T) and CalculateSelector both work unmodified off that.
         if (group.Members.Count == 2)
         {
-            var today = DailyClock.Today();
+            var today = DailyClock.Today(clock);
             var hasEntries = await context.DailyEntries.AnyAsync(d => d.GroupId == group.Id);
 
             if (!hasEntries)
             {
                 var nextActivation =
-                    DailyClock.TimeOfDay() < group.DailyQuestionTime ? today : today.AddDays(1);
+                    DailyClock.TimeOfDay(clock) < group.DailyQuestionTime ? today : today.AddDays(1);
                 var bootstrapDate = nextActivation.AddDays(-1);
 
                 await dailyService.PreselectForGroupAsync(
