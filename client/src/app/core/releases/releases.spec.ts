@@ -1,0 +1,32 @@
+import packageJson from '../../../../package.json';
+import { APP_VERSION, RELEASES, compareVersions } from './releases';
+
+// Guards the release checklist (spec §14 "Releases"): the newest entry is the app version
+// and must match package.json.
+describe('releases', () => {
+  it('the app version is the one in package.json', () => {
+    expect(APP_VERSION).toBe(packageJson.version);
+  });
+
+  it('lists releases newest first, each version once', () => {
+    for (let i = 0; i < RELEASES.length - 1; i++) {
+      const [newer, older] = [RELEASES[i], RELEASES[i + 1]];
+      expect(compareVersions(newer.version, older.version), `${newer.version} after ${older.version}`).toBeGreaterThan(0);
+      expect(newer.date >= older.date, `${newer.version} dated before ${older.version}`).toBe(true);
+    }
+  });
+
+  it('gives every release a semver version, an ISO date and at least one note', () => {
+    for (const release of RELEASES) {
+      expect(release.version).toMatch(/^\d+\.\d+\.\d+$/);
+      expect(release.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(release.items.length, release.version).toBeGreaterThan(0);
+    }
+  });
+
+  it('compares versions numerically, not as text', () => {
+    expect(compareVersions('1.10.0', '1.9.1')).toBeGreaterThan(0);
+    expect(compareVersions('1.9.1', '1.9.10')).toBeLessThan(0);
+    expect(compareVersions('2.0.0', '2.0.0')).toBe(0);
+  });
+});

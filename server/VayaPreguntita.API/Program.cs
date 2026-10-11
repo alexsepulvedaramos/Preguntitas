@@ -71,6 +71,8 @@ builder.Services.AddScoped<IPacksService, PacksService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IStreakService, StreakService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<DailyCycleRunner>();
 builder.Services.AddHostedService<DailyPreselectionService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

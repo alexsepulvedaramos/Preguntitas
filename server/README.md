@@ -46,16 +46,16 @@ The API listens on `http://localhost:5212` (matching the Angular client's `envir
 
 ## 3. Tests
 
-Integration tests live in `VayaPreguntita.API.Tests` (xUnit + `WebApplicationFactory` + Testcontainers PostgreSQL). With Docker running:
+Tests live in `VayaPreguntita.API.Tests` (xUnit + Testcontainers PostgreSQL). Domain tests run the services against a real database at fixed instants (the services take a `TimeProvider`; tests pass a `TestClock`): the daily cycle tick, selection, voting, streaks, pool quotas. Results aggregation and template cloning are pure unit tests, and the auth endpoints are covered through `WebApplicationFactory`. With Docker running:
 
 ```bash
 cd server
 dotnet test
 ```
 
-## 4. Deployment
+## 4. CI & deployment
 
-Pushes to `master` touching `server/**` trigger the [GitHub Actions workflow](../.github/workflows/deploy-backend.yml): build → test → Render deploy hook. Render builds the [Dockerfile](Dockerfile) in this folder. Secrets (connection string, JWT key, VAPID keys) are Render environment variables.
+Every PR runs the [CI workflow](../.github/workflows/ci.yml) (build + tests for the API and the Angular client). Pushes to `master` touching `server/**` also trigger the [GitHub Actions workflow](../.github/workflows/deploy-backend.yml): build → test → Render deploy hook. Render builds the [Dockerfile](Dockerfile) in this folder. Secrets (connection string, JWT key, VAPID keys) are Render environment variables.
 
 ## 5. Project conventions
 

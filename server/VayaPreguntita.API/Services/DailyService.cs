@@ -13,7 +13,8 @@ public class DailyService(
     AppDbContext context,
     IMapper mapper,
     INotificationService notificationService,
-    IStreakService streakService
+    IStreakService streakService,
+    TimeProvider clock
 ) : IDailyService
 {
     // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
@@ -143,14 +144,14 @@ public class DailyService(
     }
 
     // The next date that will activate, when no pending entry exists yet.
-    private static DateOnly NextActivationDate(DailyEntry? openEntry, Group group)
+    private DateOnly NextActivationDate(DailyEntry? openEntry, Group group)
     {
         if (openEntry != null)
             return openEntry.Date.AddDays(1);
 
         // Brand-new group: the first question activates today if T hasn't passed, else tomorrow.
-        var today = DailyClock.Today();
-        return DailyClock.TimeOfDay() < group.DailyQuestionTime ? today : today.AddDays(1);
+        var today = DailyClock.Today(clock);
+        return DailyClock.TimeOfDay(clock) < group.DailyQuestionTime ? today : today.AddDays(1);
     }
 
     // ==========================================
@@ -211,7 +212,7 @@ public class DailyService(
                     QuestionId = question!.Id,
                     ActivatedAt = null, // NEVER activate here — only the background service at T.
                     IsAutoSelected = false,
-                    PreselectedAt = DateTime.UtcNow,
+                    PreselectedAt = DailyClock.UtcNow(clock),
                 }
             );
         }
@@ -506,8 +507,9 @@ public class DailyService(
         }
         // DateActivated/ActivatedAt stay null here unless activateImmediately — the bootstrap
         // exception (§4.1) for a group's very first question. Every later cycle activates at T.
+        var nowUtc = DailyClock.UtcNow(clock);
         if (activateImmediately)
-            question.DateActivated = DateTime.UtcNow;
+            question.DateActivated = nowUtc;
 
         context.DailyEntries.Add(
             new DailyEntry
@@ -517,8 +519,8 @@ public class DailyService(
                 QuestionId = question.Id,
                 SelectorUserId = selector.UserId,
                 IsAutoSelected = true,
-                PreselectedAt = DateTime.UtcNow,
-                ActivatedAt = activateImmediately ? DateTime.UtcNow : null,
+                PreselectedAt = nowUtc,
+                ActivatedAt = activateImmediately ? nowUtc : null,
             }
         );
 

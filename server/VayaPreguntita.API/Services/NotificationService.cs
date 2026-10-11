@@ -18,6 +18,7 @@ namespace VayaPreguntita.API.Services;
 public class NotificationService(
     IServiceScopeFactory scopeFactory,
     PushServiceClient pushClient,
+    TimeProvider clock,
     ILogger<NotificationService> logger
 ) : INotificationService
 {
@@ -104,11 +105,12 @@ public class NotificationService(
     }
 
     // Selector turn and streak danger only matter until the cycle closes at the next T.
-    private static TimeSpan UntilNextDailyTime(TimeOnly dailyTime)
+    private TimeSpan UntilNextDailyTime(TimeOnly dailyTime)
     {
-        var nextT = DailyClock.ToUtc(DailyClock.Today(), dailyTime);
-        if (nextT <= DateTime.UtcNow) nextT = nextT.AddDays(1);
-        var remaining = nextT - DateTime.UtcNow;
+        var nowUtc = DailyClock.UtcNow(clock);
+        var nextT = DailyClock.ToUtc(DailyClock.Today(clock), dailyTime);
+        if (nextT <= nowUtc) nextT = nextT.AddDays(1);
+        var remaining = nextT - nowUtc;
         return remaining < TimeSpan.FromMinutes(5) ? TimeSpan.FromMinutes(5) : remaining;
     }
 

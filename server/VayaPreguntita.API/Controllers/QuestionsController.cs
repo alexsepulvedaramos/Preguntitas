@@ -14,8 +14,11 @@ using VayaPreguntita.API.Services;
 [Authorize]
 [ApiController]
 [Route("api/groups/{groupId}/questions")]
-public class QuestionsController(IQuestionsService questionsService, IGroupsService groupsService)
-    : ControllerBase
+public class QuestionsController(
+    IQuestionsService questionsService,
+    IGroupsService groupsService,
+    TimeProvider clock
+) : ControllerBase
 {
     private bool TryGetCurrentUserId(out int userId)
     {
@@ -60,7 +63,7 @@ public class QuestionsController(IQuestionsService questionsService, IGroupsServ
 
         var result = await questionsService.GetByDateAsync(
             groupId,
-            date ?? DailyClock.Today()
+            date ?? DailyClock.Today(clock)
         );
         if (result == null)
             return NotFound("No hay pregunta para esa fecha.");
