@@ -7,7 +7,8 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideX } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX } from '@ng-icons/lucide';
+import { toast } from '@spartan-ng/brain/sonner';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -28,6 +29,7 @@ import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-refresh.directive';
 import { GroupChatComponent } from '../group-chat/group-chat.component';
 import { StreakCelebrationComponent } from '../streak-celebration/streak-celebration.component';
+import { shareInvite } from '../../utils/invite-share';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -52,7 +54,7 @@ import { StreakCelebrationComponent } from '../streak-celebration/streak-celebra
     StreakCelebrationComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideX }),
+    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
@@ -161,6 +163,15 @@ export class GroupDetailComponent implements OnInit {
     if (!daily) return;
     this.daily.set({ ...daily, myStreak: { ...daily.myStreak, lostStreak: null } });
     this.dailyService.dismissLostStreak(this.numericGroupId()).subscribe();
+  }
+
+  // Pre-start prompt (rama 21): share the invite so the group reaches its 2nd member.
+  async inviteFriend() {
+    const group = this.group();
+    if (!group) return;
+    const result = await shareInvite(group.name, group.invitationCode);
+    if (result === 'copied') toast.success('Enlace de invitación copiado');
+    else if (result === 'failed') toast.error('No se ha podido compartir la invitación');
   }
 
   // Keeps the member list, the in-group frames (the crown may change hands) and the header

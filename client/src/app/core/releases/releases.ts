@@ -18,6 +18,28 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.6.0',
+    date: '2026-10-11',
+    title: 'Una portada para los nuevos',
+    items: [
+      {
+        emoji: '🏠',
+        title: 'Portada nueva',
+        text: 'Quien entre en la web sin cuenta ve primero de qué va el juego, en tres pasos y con ejemplos, antes de registrarse. Ideal para mandársela a quien quieras invitar.',
+      },
+      {
+        emoji: '👋',
+        title: 'Más fácil empezar',
+        text: 'Si aún no tienes grupo te explicamos cómo arrancar, y un grupo con una sola persona te deja compartir la invitación con un toque: el juego empieza en cuanto sois dos.',
+      },
+      {
+        emoji: '🔗',
+        title: 'Invitaciones en español',
+        text: 'El mensaje al compartir la invitación de un grupo ya no sale en inglés.',
+      },
+    ],
+  },
+  {
     version: '1.5.0',
     date: '2026-10-11',
     title: 'Cómo funciona y novedades',

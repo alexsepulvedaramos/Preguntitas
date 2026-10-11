@@ -142,11 +142,31 @@
         </section>
       }
       @case ('no_question') {
-        <div class="text-center py-8">
-          <p class="font-display italic text-lg text-primary/70">Aún no hay pregunta activa</p>
-          <p class="text-sm text-muted-foreground mt-1">
-            El grupo necesita al menos 2 miembros para empezar
-          </p>
+        <!-- Pre-start state: the group has fewer than 2 members (§4.3, §4.5) -->
+        <div class="flex flex-col items-center gap-4 py-8 text-center">
+          <div class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ng-icon hlm name="lucideUserPlus" class="size-6!" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <p class="font-display italic text-xl text-foreground">Invita a un amigo para empezar</p>
+            <p class="text-sm text-muted-foreground max-w-xs text-balance">
+              El juego arranca en cuanto el grupo tiene dos personas: en ese mismo momento sale la
+              primera pregunta.
+            </p>
+          </div>
+          @if (group(); as g) {
+            <button
+              hlmBtn
+              class="gap-2 focus-visible:ring-2 focus-visible:ring-ring"
+              (click)="inviteFriend()"
+            >
+              <ng-icon hlm name="lucideShare2" />
+              Compartir invitación
+            </button>
+            <p class="text-xs text-muted-foreground">
+              O pásale el código <span class="font-mono font-semibold text-foreground">{{ g.invitationCode }}</span>
+            </p>
+          }
         </div>
       }
     }

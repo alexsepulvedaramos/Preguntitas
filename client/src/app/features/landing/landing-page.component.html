@@ -1,0 +1,132 @@
+<div class="flex min-h-dvh flex-col bg-background">
+  <header
+    class="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-border bg-card/90 px-4 py-3 backdrop-blur-md"
+  >
+    <a routerLink="/" aria-label="Vaya Preguntita" class="min-w-0">
+      <app-logo-wordmark />
+    </a>
+    <div class="flex items-center gap-1.5">
+      <app-theme />
+      <a hlmBtn variant="ghost" size="sm" routerLink="/auth/login">Entrar</a>
+    </div>
+  </header>
+
+  <main class="flex grow flex-col">
+    <!-- ===== HERO ===== -->
+    <section
+      class="mx-auto grid w-full max-w-5xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20"
+      aria-labelledby="landing-title"
+    >
+      <div class="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
+        <p class="text-xs font-medium uppercase tracking-widest text-primary">
+          Un juego diario para grupos de amigos
+        </p>
+        <h1
+          id="landing-title"
+          class="font-display text-4xl italic tracking-tight text-foreground text-balance sm:text-5xl"
+        >
+          La pregunta del día que lía a tu grupo
+        </h1>
+        <p class="max-w-prose text-muted-foreground">
+          Cada día sale una pregunta sobre vosotros. Todo el mundo vota y los resultados enseñan
+          quién ha votado a quién. El debate lo ponéis vosotros.
+        </p>
+        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <a hlmBtn size="lg" routerLink="/auth/register" class="gap-2">
+            Crear cuenta gratis
+            <ng-icon hlm name="lucideArrowRight" />
+          </a>
+          <a hlmBtn variant="outline" size="lg" routerLink="/auth/login">Ya tengo cuenta</a>
+        </div>
+      </div>
+
+      <app-results-showcase class="mx-auto block w-full max-w-md" />
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="border-y border-border bg-card/50" aria-labelledby="landing-how">
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 md:py-16">
+        <h2
+          id="landing-how"
+          class="text-center font-display text-3xl italic tracking-tight text-foreground"
+        >
+          Cómo funciona
+        </h2>
+        <ol class="grid gap-4 md:grid-cols-3">
+          @for (step of steps; track step.title; let i = $index) {
+            <li class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl" aria-hidden="true">{{ step.emoji }}</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">Paso {{ i + 1 }}</span>
+              </div>
+              <h3 class="font-semibold text-foreground">{{ step.title }}</h3>
+              <p class="text-sm text-muted-foreground">{{ step.text }}</p>
+            </li>
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===== STREAKS ===== -->
+    <section
+      class="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-4 py-12 text-center md:py-16"
+      aria-labelledby="landing-streaks"
+    >
+      <div class="flex flex-col gap-3">
+        <h2 id="landing-streaks" class="font-display text-3xl italic tracking-tight text-foreground">
+          Vota cada día y presume de racha
+        </h2>
+        <p class="mx-auto max-w-prose text-muted-foreground">
+          Tu racha sube con cada día que votas. Desde el tercero, tu avatar estrena marco, y quien
+          lleve la racha más larga del grupo se lleva la corona.
+        </p>
+      </div>
+      <ul class="flex flex-wrap items-end justify-center gap-x-6 gap-y-8" aria-label="Ejemplos de marcos de racha">
+        @for (frame of frames; track frame.username) {
+          <li class="flex flex-col items-center gap-3">
+            <span class="px-3 pt-8">
+              <app-user-avatar
+                [username]="frame.username"
+                [frameColor]="frameStreak"
+                [streak]="frame.streak"
+                [crown]="frame.crown ?? false"
+                [showRibbon]="false"
+                size="lg"
+              />
+            </span>
+            <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.label }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <!-- ===== FINAL CTA ===== -->
+    <section class="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 px-4 pb-16 text-center">
+      <p class="font-display text-2xl italic text-foreground text-balance">
+        ¿Quién de tu grupo sería el primero en…? Descubridlo mañana.
+      </p>
+      <div class="flex w-full flex-col items-center gap-3 sm:w-auto">
+        <a hlmBtn size="lg" routerLink="/auth/register" class="w-full gap-2 sm:w-auto">
+          Crear cuenta gratis
+          <ng-icon hlm name="lucideArrowRight" />
+        </a>
+        <a routerLink="/about" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+          Ver todos los tipos de pregunta, packs y marcos
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-border bg-card py-6">
+    <div
+      class="mx-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 text-sm text-muted-foreground"
+    >
+      <div>&copy; 2026 Vaya Preguntita</div>
+      <nav class="flex items-center gap-4" aria-label="Información">
+        <a routerLink="/about" class="transition-colors hover:text-foreground">Cómo funciona</a>
+        <a routerLink="/releases" class="transition-colors hover:text-foreground">Novedades</a>
+        <span>v{{ version }}</span>
+      </nav>
+    </div>
+  </footer>
+</div>

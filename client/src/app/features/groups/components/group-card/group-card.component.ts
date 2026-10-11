@@ -15,6 +15,7 @@ import {
 } from '@ng-icons/lucide';
 
 import { GroupResponse } from '../../models/group.models';
+import { inviteLink, shareInvite } from '../../utils/invite-share';
 
 @Component({
   selector: 'app-group-card',
@@ -77,7 +78,7 @@ export class GroupCardComponent {
 
   // Generates the full invitation link using the invitation code
   getInviteLink(): string {
-    return `${window.location.origin}/join/${this.group().invitationCode}`;
+    return inviteLink(this.group().invitationCode);
   }
 
   // Copies the invitation code to the clipboard
@@ -106,22 +107,10 @@ export class GroupCardComponent {
 
   // Triggers the device's native sharing context sheet
   async shareWithNativeApi() {
-    const link = this.getInviteLink();
-    const shareData: ShareData = {
-      title: `Join ${this.group().name}`,
-      text: `Join my group "${this.group().name}" using the invitation code: ${this.group().invitationCode}`,
-      url: link,
-    };
-
-    if (navigator.share && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error('Error executing native share: ', err);
-      }
-    } else {
-      // Fallback behavior if the environment does not support native sharing
-      this.copyLinkToClipboard();
+    const result = await shareInvite(this.group().name, this.group().invitationCode);
+    if (result === 'copied') {
+      this.isLinkCopied.set(true);
+      setTimeout(() => this.isLinkCopied.set(false), 3000);
     }
   }
 
