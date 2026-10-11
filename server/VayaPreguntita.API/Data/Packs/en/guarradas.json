@@ -1,0 +1,19 @@
+{
+  "pack": "Guarradas y dilemas asquerosos",
+  "name": "Gross dilemmas",
+  "description": "Revolting either-ors where neither option is any good.",
+  "templates": {
+    "guarradas-que-prefieres": { "text": "Would you rather:", "options": ["Sweat mayonnaise", "Cry ketchup"] },
+    "guarradas-que-lames": { "text": "What would you lick?", "options": ["The subway floor", "An escalator handrail"] },
+    "guarradas-que-prefieres-tener": { "text": "What would you rather have?", "options": ["Sausage fingers", "Spaghetti hair"] },
+    "guarradas-beberte-de-un-trago-un-vaso-de": { "text": "Down a glass of oil or a glass of vinegar in one go?", "options": ["Oil", "Vinegar"] },
+    "guarradas-que-prefieres-que-te-hagan-encima": { "text": "Would you rather get pooped on or puked on?", "options": ["Pooped on", "Puked on"] },
+    "guarradas-con-que-cargas-para-siempre": { "text": "Which one do you live with forever?", "options": ["Permanent bad breath", "Nonstop buckets of sweat"] },
+    "guarradas-que-bocata-te-comes": { "text": "Which sandwich are you eating?", "options": ["Filled with nail clippings", "Filled with hair"] },
+    "guarradas-que-bebes": { "text": "What are you drinking?", "options": ["The dishwater", "A stranger's bathwater"] },
+    "guarradas-beber-leche-caducada-en-grumos-o-comer": { "text": "Drink lumpy expired milk or eat rotten eggs?", "options": ["Lumpy milk", "Rotten eggs"] },
+    "guarradas-limpiarte-con-papel-higienico-ya-usado-o": { "text": "Wipe with used toilet paper or with nothing at all?", "options": ["Used paper", "Nothing"] },
+    "guarradas-que-se-te-meta-una-cucaracha-en": { "text": "A cockroach crawling into your ear or a spider up your nose?", "options": ["Cockroach in the ear", "Spider up the nose"] },
+    "guarradas-comer-un-plato-de-mocos-o-beber": { "text": "Eat a plate of snot or drink a glass of drool?", "options": ["Plate of snot", "Glass of drool"] }
+  }
+}

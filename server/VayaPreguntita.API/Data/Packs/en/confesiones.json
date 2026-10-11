@@ -1,0 +1,25 @@
+{
+  "pack": "Confesiones y vergüenzas",
+  "name": "Confessions & cringe",
+  "description": "Guilty pleasures, odd habits and cringe moments.",
+  "templates": {
+    "confesiones-quien-tarda-tres-dias-en-contestar-un": { "text": "Who takes three days to reply to a message?" },
+    "confesiones-quien-ha-llorado-con-un-anuncio-de": { "text": "Who has cried at a TV commercial?" },
+    "confesiones-quien-se-hace-el-ocupado-para-no": { "text": "Who pretends to be busy to avoid saying hi to someone on the street?" },
+    "confesiones-quien-relee-sus-propios-mensajes-riendose-de": { "text": "Who rereads their own messages laughing at how funny they are?" },
+    "confesiones-quien-finge-haber-leido-libros-o-visto": { "text": "Who pretends to have read books or seen movies they've never touched?" },
+    "confesiones-quien-tiene-el-historial-de-spotify-mas": { "text": "Who has the most embarrassing Spotify history?" },
+    "confesiones-yo-nunca-he-cantado-a-grito-pelado": { "text": "Never have I ever belted out a song thinking nobody could hear me", "options": ["I have", "I haven't"] },
+    "confesiones-yo-nunca-he-olido-la-ropa-para": { "text": "Never have I ever sniffed my clothes to decide whether to wear them again", "options": ["I have", "I haven't"] },
+    "confesiones-yo-nunca-he-respondido-tu-tambien-a": { "text": "Never have I ever replied “you too” to “enjoy your meal” or “happy birthday”", "options": ["I have", "I haven't"] },
+    "confesiones-yo-nunca-he-fingido-estar-enfermo-para": { "text": "Never have I ever faked being sick to get out of plans", "options": ["I have", "I haven't"] },
+    "confesiones-marca-tus-placeres-culpables": { "text": "Tick your guilty pleasures:", "options": ["Terrible reality shows", "Justin Bieber songs", "Stalking profiles at 3 am", "Eating standing over the sink"] },
+    "confesiones-marca-lo-que-has-hecho-alguna-vez": { "text": "Tick what you've done at least once:", "options": ["30 minutes on your phone in the bathroom", "Applied the 5-second rule", "Faked a phone call to escape someone", "Talked to yourself out loud"] },
+    "confesiones-confesion-rapida-en-los-planes-eres": { "text": "Quick confession: when it comes to plans, you're…", "options": ["The one who's always late", "The one who never replies", "The one who vanishes without a word", "The one who cancels last minute"] },
+    "confesiones-que-te-da-mas-verguenza-que-te": { "text": "What's MOST embarrassing to get caught doing?", "options": ["Talking to yourself", "Dancing in front of the mirror", "Crying at a movie", "Singing in the shower"] },
+    "confesiones-del-1-al-10-como-de-cotilla": { "text": "On a scale of 1 to 10, how nosy are you really?" },
+    "confesiones-confiesa-tu-placer-culpable-mas-vergonzoso-sin": { "text": "Your most embarrassing guilty pleasure, unfiltered, in one sentence." },
+    "confesiones-del-1-al-10-cuanto-aguantarias-sin": { "text": "On a scale of 1 to 10, how long could you last without checking your phone?" },
+    "confesiones-del-1-al-10-cuanta-paciencia-tienes": { "text": "On a scale of 1 to 10, how patient are you in the supermarket line?" }
+  }
+}

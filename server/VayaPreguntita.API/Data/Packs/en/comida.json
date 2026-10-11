@@ -1,0 +1,26 @@
+{
+  "pack": "Comida",
+  "name": "Food",
+  "description": "Food debates and eating quirks that end friendships.",
+  "templates": {
+    "comida-pina-en-la-pizza": { "text": "Pineapple on pizza?", "options": ["Yes, and it's delicious", "A crime against humanity"] },
+    "comida-un-hotdog-es-un-sandwich": { "text": "Is a hot dog a sandwich?", "options": ["Yes, bread + filling = sandwich", "No way"] },
+    "comida-desayunar-pizza-fria-del-dia-anterior": { "text": "Cold leftover pizza for breakfast?", "options": ["Breakfast of champions", "An abomination"] },
+    "comida-si-solo-pudieras-comer-un-sabor-el": { "text": "If you could only eat one flavor for the rest of your life:", "options": ["Sweet", "Savory"] },
+    "comida-hay-que-terminar-siempre-todo-el-plato": { "text": "Do you always have to clean your plate?", "options": ["Yes, you don't waste food", "I stop when I'm full"] },
+    "comida-el-cereal-con-leche": { "text": "Cereal and milk:", "options": ["Milk first, then cereal", "Cereal first, then milk"] },
+    "comida-tu-condimento-de-cabecera-para-echarle-a": { "text": "Your go-to sauce for putting on everything?", "options": ["Ketchup", "Mustard", "Mayo"] },
+    "comida-ketchup-en-la-tortilla-de-patatas": { "text": "Ketchup on a Spanish omelette?", "options": ["Absolutely delicious", "An act of terrorism"] },
+    "comida-como-pides-el-chuleton": { "text": "How do you order your steak?", "options": ["Still mooing", "Medium, nice and juicy", "Well done but tender", "Like a shoe sole"] },
+    "comida-marca-los-crimenes-culinarios-que-has-cometido": { "text": "Tick the food crimes you've committed:", "options": ["Ketchup on paella", "Ordering steak like a shoe sole", "Breaking spaghetti before cooking it", "Eating pizza with a knife and fork"] },
+    "comida-quien-come-mas-rapido-casi-sin-masticar": { "text": "Who eats the fastest, barely chewing?" },
+    "comida-quien-es-el-mas-tiquismiquis-para-comer": { "text": "Who's the pickiest eater?" },
+    "comida-quien-te-robaria-comida-del-plato-sin": { "text": "Who would steal food off your plate without asking?" },
+    "comida-quien-mezcla-comidas-raras-que-dan-grima": { "text": "Who mixes weird foods that make everyone cringe?" },
+    "comida-que-dos-personas-se-pelearian-por-el": { "text": "Which two people would fight over the last slice of pizza?" },
+    "comida-top-3-snacks-para-una-tarde-de": { "text": "Top 3 snacks for a movie night." },
+    "comida-top-3-platos-que-pedirias-en-un": { "text": "Top 3 dishes you'd order at a Chinese restaurant." },
+    "comida-tu-comida-para-consolarte-cuando-estas-mal": { "text": "Your comfort food for when you're feeling down, in one sentence." },
+    "comida-un-plato-especialmente-memorable-que-hayas-comido": { "text": "A particularly memorable dish you've eaten in your life (and where?)." }
+  }
+}

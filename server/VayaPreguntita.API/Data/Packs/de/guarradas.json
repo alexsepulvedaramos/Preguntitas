@@ -1,0 +1,19 @@
+{
+  "pack": "Guarradas y dilemas asquerosos",
+  "name": "Ekel-Dilemmas",
+  "description": "Eklige Entweder-oder-Fragen, bei denen keine Antwort gut ist.",
+  "templates": {
+    "guarradas-que-prefieres": { "text": "Was wäre dir lieber?", "options": ["Mayonnaise schwitzen", "Ketchup weinen"] },
+    "guarradas-que-lames": { "text": "Was leckst du ab?", "options": ["Den U-Bahn-Boden", "Den Handlauf einer Rolltreppe"] },
+    "guarradas-que-prefieres-tener": { "text": "Was hättest du lieber?", "options": ["Würstchenfinger", "Spaghetti-Haare"] },
+    "guarradas-beberte-de-un-trago-un-vaso-de": { "text": "Ein Glas Öl oder ein Glas Essig auf ex?", "options": ["Öl", "Essig"] },
+    "guarradas-que-prefieres-que-te-hagan-encima": { "text": "Lieber angekackt oder angekotzt werden?", "options": ["Angekackt", "Angekotzt"] },
+    "guarradas-con-que-cargas-para-siempre": { "text": "Womit lebst du für immer?", "options": ["Dauerhafter Mundgeruch", "Ununterbrochen in Strömen schwitzen"] },
+    "guarradas-que-bocata-te-comes": { "text": "Welches Brötchen isst du?", "options": ["Mit Fingernägeln belegt", "Mit Haaren belegt"] },
+    "guarradas-que-bebes": { "text": "Was trinkst du?", "options": ["Das Spülwasser", "Das Badewasser von jemand Fremdem"] },
+    "guarradas-beber-leche-caducada-en-grumos-o-comer": { "text": "Klumpige abgelaufene Milch trinken oder faule Eier essen?", "options": ["Klumpige Milch", "Faule Eier"] },
+    "guarradas-limpiarte-con-papel-higienico-ya-usado-o": { "text": "Mit benutztem Klopapier abwischen oder gar nicht?", "options": ["Benutztes Klopapier", "Gar nicht"] },
+    "guarradas-que-se-te-meta-una-cucaracha-en": { "text": "Eine Kakerlake im Ohr oder eine Spinne in der Nase?", "options": ["Kakerlake im Ohr", "Spinne in der Nase"] },
+    "guarradas-comer-un-plato-de-mocos-o-beber": { "text": "Einen Teller Rotz essen oder ein Glas Sabber trinken?", "options": ["Teller Rotz", "Glas Sabber"] }
+  }
+}

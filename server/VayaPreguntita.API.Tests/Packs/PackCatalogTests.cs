@@ -1,6 +1,7 @@
 using FluentAssertions;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Enums;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Tests.Packs;
 
@@ -34,6 +35,23 @@ public class PackCatalogTests
             pack.Templates.Count(t => !t.Retired)
                 .Should()
                 .BeGreaterThan(0, because: $"pack '{pack.Name}' must keep active templates");
+    }
+
+    [Fact]
+    public void EmbeddedCatalog_TranslatesEveryActiveTemplateIntoEveryLanguage()
+    {
+        // Every player reads pack questions in their own language (rama 24): a gap would show
+        // them the Spanish original.
+        foreach (var pack in PackCatalog.Load())
+        foreach (var language in ContentTranslations.Languages)
+        {
+            pack.Translations.Should().ContainKey(language, because: $"pack '{pack.Name}' needs a {language} name");
+            pack.Templates.Where(t => !t.Retired)
+                .Where(t => !t.Translations.ContainsKey(language))
+                .Select(t => t.Key)
+                .Should()
+                .BeEmpty(because: $"every active template of '{pack.Name}' needs a {language} translation");
+        }
     }
 
     [Fact]
