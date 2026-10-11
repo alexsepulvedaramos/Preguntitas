@@ -1,19 +1,21 @@
 <header
-  class="sticky top-0 z-50 grid grid-cols-[1fr_auto_1fr] items-center border-b border-border bg-card/90 px-4 py-3 backdrop-blur-md transition-colors duration-200"
+  class="sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-border bg-card/90 px-4 py-3 backdrop-blur-md transition-colors duration-200"
+  [class.max-sm:hidden]="inGroup()"
 >
-  <div class="flex items-center justify-start"></div>
+  <a
+    [routerLink]="authService.isAuthenticated() ? '/groups' : '/'"
+    class="min-w-0 whitespace-nowrap rounded-default focus-visible:ring-2 focus-visible:ring-ring outline-none"
+    aria-label="Inicio"
+  >
+    <app-logo-wordmark />
+  </a>
 
-  <div class="flex justify-center min-w-0 whitespace-nowrap">
-    <a [routerLink]="authService.isAuthenticated() ? '/groups' : '/'" aria-label="Inicio">
-      <app-logo-wordmark />
-    </a>
-  </div>
-
-  <div class="flex items-center justify-end gap-1.5">
-    <app-theme></app-theme>
-
+  <div class="flex items-center gap-1.5">
     @if (authService.isAuthenticated()) {
       <app-user-menu></app-user-menu>
+    } @else {
+      <!-- Signed-in users pick the theme from the user menu -->
+      <app-theme></app-theme>
     }
   </div>
 </header>
