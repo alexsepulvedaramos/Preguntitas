@@ -75,6 +75,36 @@ public class StreakService(
         return members.ToDictionary(m => m.UserId, m => Effective(m, openId, previousId));
     }
 
+    public async Task<Dictionary<int, int>> GetMyEffectiveStreaksByGroupAsync(int userId)
+    {
+        var memberships = await context.GroupMembers
+            .Where(m => m.UserId == userId && m.CurrentStreak > 0)
+            .ToListAsync();
+        if (memberships.Count == 0)
+            return [];
+
+        // The last two activated entries of each group in one query (see Effective).
+        var groupIds = memberships.Select(m => m.GroupId).ToList();
+        var lastTwo = await context
+            .DailyEntries.Where(d => groupIds.Contains(d.GroupId) && d.ActivatedAt != null)
+            .GroupBy(d => d.GroupId)
+            .Select(g => new
+            {
+                GroupId = g.Key,
+                Ids = g.OrderByDescending(d => d.Date).Select(d => d.Id).Take(2).ToList(),
+            })
+            .ToDictionaryAsync(x => x.GroupId, x => x.Ids);
+
+        return memberships.ToDictionary(
+            m => m.GroupId,
+            m =>
+            {
+                var ids = lastTwo.GetValueOrDefault(m.GroupId) ?? [];
+                return Effective(m, ids.Count > 0 ? ids[0] : null, ids.Count > 1 ? ids[1] : null);
+            }
+        );
+    }
+
     public async Task<int?> GetCrownHolderAsync(int groupId)
     {
         var (openId, previousId) = await GetLastTwoActivatedEntryIdsAsync(groupId);

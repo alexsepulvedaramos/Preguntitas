@@ -12,6 +12,7 @@ import {
   lucideCopy,
   lucideCheck,
   lucideClock,
+  lucideFlame,
 } from '@ng-icons/lucide';
 
 import { GroupResponse } from '../../models/group.models';
@@ -27,7 +28,7 @@ import { inviteLink, shareInvite } from '../../utils/invite-share';
     HlmInputImports,
     NgIcon
   ],
-  providers: [provideIcons({ lucideUserPlus, lucideShare2, lucideCopy, lucideCheck, lucideClock })],
+  providers: [provideIcons({ lucideUserPlus, lucideShare2, lucideCopy, lucideCheck, lucideClock, lucideFlame })],
   templateUrl: './group-card.component.html',
   styleUrl: './group-card.component.css',
 })

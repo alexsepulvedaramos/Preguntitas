@@ -47,6 +47,10 @@ export class JoinByLinkComponent implements OnInit {
       next: (data) => {
         this.preview.set(data);
         this.state.set('preview');
+        // Back from login/register with the invite: finish the join without another tap.
+        if (this.route.snapshot.queryParamMap.get('join') === '1' && this.authService.isAuthenticated()) {
+          this.joinGroup();
+        }
       },
       error: () => this.state.set('not_found'),
     });
@@ -56,11 +60,16 @@ export class JoinByLinkComponent implements OnInit {
     return this.authService.isAuthenticated();
   }
 
+  // Guests sign up (most invitees are new) or log in, then come back here and join automatically.
+  authenticateAndJoin(mode: 'register' | 'login'): void {
+    this.router.navigate(['/auth', mode], {
+      queryParams: { returnUrl: `/join/${this.code}?join=1` },
+    });
+  }
+
   joinGroup(): void {
     if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/auth/login'], {
-        queryParams: { returnUrl: `/join/${this.code}` },
-      });
+      this.authenticateAndJoin('login');
       return;
     }
 

@@ -18,6 +18,33 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.8.0',
+    date: '2026-10-11',
+    title: 'Notificaciones más ordenadas',
+    items: [
+      {
+        emoji: '🔔',
+        title: 'Una notificación por grupo',
+        text: 'Si en un grupo pasan varias cosas mientras no miras, te llega una sola notificación que lo resume («Ana, Luis y 2 más han votado») en vez de una por cada voto o mensaje. Al abrir la app se quitan todas, y mientras la tienes abierta ya no te salta ninguna.',
+      },
+      {
+        emoji: '🔥',
+        title: 'Que no se te escape la racha',
+        text: 'En tu lista de grupos, junto a «Vota ahora», verás la racha que te juegas si no votas hoy.',
+      },
+      {
+        emoji: '🔗',
+        title: 'Invitaciones a la primera',
+        text: 'Si te invitan con un enlace y aún no tienes cuenta, al registrarte entras directamente en el grupo, sin tener que volver a abrir el enlace.',
+      },
+      {
+        emoji: '🎨',
+        title: 'Pequeños arreglos',
+        text: 'Los avatares de «Garabatos» ya se ven bien en modo oscuro, al cerrar sesión ese móvil deja de recibir avisos de tu cuenta, y las notificaciones aguantan más si tienes el móvil apagado un rato.',
+      },
+    ],
+  },
+  {
     version: '1.7.0',
     date: '2026-10-11',
     title: 'Pruébalo sin cuenta',

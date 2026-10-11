@@ -6,6 +6,7 @@ import { lucideCamera, lucideImage, lucideCheck, lucideRefreshCw } from '@ng-ico
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
+import { needsLightBackdrop } from '../../../../shared/utils/avatar-backdrop';
 
 export interface DiceBearStyle {
   id: string;
@@ -48,6 +49,10 @@ export class AvatarPickerComponent {
 
   diceBearUrl(styleId: string): string {
     return `https://api.dicebear.com/9.x/${styleId}/svg?seed=${encodeURIComponent(this.username())}`;
+  }
+
+  lightBackdrop(styleId: string): boolean {
+    return needsLightBackdrop(this.diceBearUrl(styleId));
   }
 
   triggerFileInput(): void {

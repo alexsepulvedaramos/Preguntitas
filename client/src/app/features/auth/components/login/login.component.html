@@ -104,6 +104,7 @@
         ¿No tienes una cuenta?
         <a
           routerLink="/auth/register"
+          queryParamsHandling="preserve"
           class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
           (mousedown)="$event.preventDefault()"
         >

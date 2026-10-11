@@ -7,6 +7,7 @@ import {
   isHexFrame,
   streakTierFor,
 } from '../../../core/constants/streak-tiers';
+import { needsLightBackdrop } from '../../utils/avatar-backdrop';
 import { StreakFrameComponent } from '../streak-frame/streak-frame.component';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -21,8 +22,8 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
         <app-streak-frame [tier]="tier()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
       }
       <div
-        class="relative z-[5] rounded-full shrink-0 overflow-hidden bg-card ring-1 ring-border/40"
-        [class]="sizeClass()"
+        class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
+        [class]="sizeClass() + (lightBackdrop() ? ' bg-white' : ' bg-card')"
         [style.box-shadow]="hexFrame() ? '0 0 0 3px ' + hexFrame() : null"
       >
         <hlm-avatar [class]="sizeClass()">
@@ -58,6 +59,8 @@ export class UserAvatarComponent {
   protected readonly initials = computed(() =>
     this.username().slice(0, 2).toUpperCase()
   );
+
+  protected readonly lightBackdrop = computed(() => needsLightBackdrop(this.avatarUrl()));
 
   protected readonly hexFrame = computed(() => {
     const frame = this.frameColor();

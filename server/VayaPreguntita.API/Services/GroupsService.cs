@@ -62,6 +62,8 @@ public class GroupsService(
             .Select(d => d.GroupId)
             .ToListAsync();
 
+        var myStreaks = await streakService.GetMyEffectiveStreaksByGroupAsync(userId);
+
         var openByGroup = openEntries.ToDictionary(e => e.GroupId);
         var votedSet = new HashSet<int>(votedQuestionIds);
         var selectorSet = new HashSet<int>(selectorGroupIds);
@@ -78,6 +80,7 @@ public class GroupsService(
                 _ when selectorSet.Contains(g.Id) => "selector",
                 _ => "results",
             };
+            dto.MyStreak = myStreaks.GetValueOrDefault(g.Id);
 
             return dto;
         });
