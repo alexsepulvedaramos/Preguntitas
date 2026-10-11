@@ -18,6 +18,18 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.6.1',
+    date: '2026-10-11',
+    title: 'Actualizaciones al momento',
+    items: [
+      {
+        emoji: '✨',
+        title: 'Aviso de versión nueva',
+        text: 'Cuando haya una versión nueva, la app te avisa y se actualiza con un toque. Ya no hace falta cerrarla del todo para ver las novedades.',
+      },
+    ],
+  },
+  {
     version: '1.6.0',
     date: '2026-10-11',
     title: 'Una portada para los nuevos',
