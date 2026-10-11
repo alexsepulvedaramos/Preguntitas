@@ -738,7 +738,7 @@ Atomic commits — one logical change each; push after each approved task.
 
 ### Releases (rama 26)
 
-The app follows **semver** (`MAJOR.MINOR.PATCH`): a new player-visible feature bumps MINOR, fixes-only bumps PATCH. Every PR that changes something players notice adds or extends the top entry of `client/src/app/core/releases/releases.ts` (newest first; Spanish, written for players, not developers — no internal names) and sets the same version in `client/package.json` (+ the two `version` fields at the top of `package-lock.json`). Several PRs may share one release until it ships. Once merged, tag the merge commit on `master` as `vX.Y.Z`. Internal-only changes (docs, tests, CI, refactors) don't get a release entry.
+The app follows **semver** (`MAJOR.MINOR.PATCH`): a new player-visible feature bumps MINOR, fixes-only bumps PATCH. Every PR that changes something players notice adds or extends the top entry of `client/src/app/core/releases/releases.ts` (newest first; Spanish, written for players, not developers — no internal names) and sets the same version in `client/package.json` (+ the two `version` fields at the top of `package-lock.json`). Set the entry's `date` to the merge day. Several PRs may share one release until it ships. Once merged, tag the merge commit on `master` with an **annotated** tag `vX.Y.Z` (message "Vaya Preguntita X.Y.Z — <release title>") and push it. Internal-only changes (docs, tests, CI, refactors) don't get a release entry or a tag. Earlier releases were tagged retroactively on the last merge of each release day: v1.0.0 → #33, v1.1.0 → #36, v1.2.0 → #39, v1.2.1 → #41, v1.3.0 → #46, v1.3.1 → #50, v1.4.0 → #53.
 
 ### Architecture rules
 - **DTOs at API boundaries** — never return EF entities.

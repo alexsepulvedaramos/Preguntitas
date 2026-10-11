@@ -20,10 +20,22 @@ Before implementing anything in this repo:
 - Don't implement Phase 2 items (see spec §13/§16) without explicit confirmation.
 - **Update the spec inside the feature branch, before opening the PR.** Once the work is confirmed complete, mark the rama done in §12/§13 and fold in any confirmed spec changes as part of the same branch — don't defer it to a separate docs-only branch/PR afterwards.
 
+## Releases & versioning (spec §14 "Releases")
+
+Every PR that changes something players notice ships a release note — **inside the same branch, before opening the PR**:
+1. Add a new entry at the top of `client/src/app/core/releases/releases.ts` (or extend the top entry if that version hasn't been merged/tagged yet). Spanish, written for players: what they'll notice, no internal names. The "Novedades" page and the app version read from this file.
+2. Bump semver: new player-visible feature → MINOR, fixes only → PATCH. Set the same version in `client/package.json` and the two `version` fields at the top of `client/package-lock.json`.
+3. Set the entry's `date` to the day it's merged.
+
+**On merge**, tag the merge commit on `master` with an annotated tag and push it:
+`git tag -a vX.Y.Z <merge-sha> -m "Vaya Preguntita X.Y.Z — <release title>"` then `git push origin vX.Y.Z`.
+
+Internal-only changes (docs, tests, CI, refactors with no visible effect) get no release entry and no tag.
+
 ## Conventions (see spec §14 for full detail)
 
 - All identifiers, comments, and commit messages → **English**. UI-facing copy → **Spanish**.
 - DTOs at API boundaries, never return EF entities. No DB/business logic in controllers — services only.
 - Schema changes always go through an EF migration.
-- Frontend UI: use the **Spartan skill** at `agents/skills/spartan` and Tailwind utility classes — don't hand-roll primitives Spartan already provides.
+- Frontend UI: use the **Spartan skill** at `.agents/skills/spartan` and Tailwind utility classes — don't hand-roll primitives Spartan already provides.
 - Git commits: no `Co-Authored-By: Claude` trailer.
