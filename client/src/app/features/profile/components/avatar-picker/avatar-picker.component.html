@@ -90,7 +90,8 @@
             <img
               [src]="diceBearUrl(style.id)"
               [alt]="style.label"
-              class="size-14 rounded-full bg-muted"
+              class="size-14 rounded-full"
+              [class]="lightBackdrop(style.id) ? 'bg-white' : 'bg-muted'"
               loading="lazy"
             />
             <span class="text-xs text-muted-foreground text-center leading-tight">{{ style.label }}</span>

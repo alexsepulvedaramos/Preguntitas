@@ -43,14 +43,22 @@
               </button>
             } @else {
               <p class="text-center text-sm text-muted-foreground">
-                Inicia sesión o regístrate para unirte al grupo.
+                Crea tu cuenta o inicia sesión para unirte al grupo.
               </p>
               <button
                 hlmBtn
                 class="w-full"
-                (click)="joinGroup()"
+                (click)="authenticateAndJoin('register')"
               >
-                Iniciar sesión y unirme
+                Crear cuenta y unirme
+              </button>
+              <button
+                hlmBtn
+                variant="outline"
+                class="w-full"
+                (click)="authenticateAndJoin('login')"
+              >
+                Ya tengo cuenta
               </button>
             }
           </div>

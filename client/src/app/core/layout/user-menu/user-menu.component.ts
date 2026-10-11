@@ -16,6 +16,7 @@ import {
 
 import { AuthService } from '../../auth/auth.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 import { UserAvatarComponent } from '../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
@@ -43,6 +44,7 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
 export class UserMenuComponent {
   public readonly authService = inject(AuthService);
   public readonly releaseNotes = inject(ReleaseNotesService);
+  private readonly push = inject(PushNotificationService);
   private readonly router = inject(Router);
 
   navigate(ctx: any, path: string): void {
@@ -51,7 +53,8 @@ export class UserMenuComponent {
   }
 
   logout(ctx: any): void {
-    this.authService.logout();
     ctx.close();
+    // Detach this device's push subscription first — it needs the session still alive.
+    void this.push.detachDevice().finally(() => this.authService.logout());
   }
 }

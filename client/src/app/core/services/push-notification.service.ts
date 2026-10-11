@@ -2,7 +2,7 @@ import { Injectable, computed, effect, inject, signal, untracked } from '@angula
 import { SwPush } from '@angular/service-worker';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 
@@ -44,10 +44,48 @@ export class PushNotificationService {
     // On app start / login: make sure the server holds this device's subscription.
     effect(() => {
       const user = this.auth.currentUser();
-      if (!user || user.id === this.syncedForUserId) return;
+      if (!user) {
+        // Logged out: the next login (even as the same user) must sync again.
+        this.syncedForUserId = null;
+        return;
+      }
+      if (user.id === this.syncedForUserId) return;
       this.syncedForUserId = user.id;
       untracked(() => void this.syncSubscription());
     });
+
+    // Opening the app clears every notification it has pending — tapping one of
+    // several only closes that one otherwise.
+    void this.clearDeliveredNotifications();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') void this.clearDeliveredNotifications();
+    });
+  }
+
+  // Logout on this device: the server forgets the subscription so the account stops
+  // receiving notifications here. The browser subscription and permission are kept —
+  // the next account to log in takes them over through the startup sync.
+  async detachDevice(): Promise<void> {
+    if (!this.isSupported) return;
+    try {
+      const sub = await firstValueFrom(this.swPush.subscription);
+      if (!sub) return;
+      await firstValueFrom(
+        this.http
+          .delete(`${environment.apiUrl}/notifications/subscriptions`, { body: this.toDto(sub) })
+          .pipe(timeout(5000))
+      );
+    } catch {
+      // Best effort: logout must never get stuck here.
+    }
+  }
+
+  private async clearDeliveredNotifications(): Promise<void> {
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration();
+      const notifications = (await registration?.getNotifications()) ?? [];
+      notifications.forEach((n) => n.close());
+    } catch { /* not supported: nothing to clear */ }
   }
 
   get shouldShowPrompt(): boolean {

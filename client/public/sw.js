@@ -1,0 +1,103 @@
+// Vaya Preguntita service worker: Angular's ngsw (caching, updates, notification clicks)
+// plus our own push handling, which ngsw can't do:
+//  - one notification per group: new pushes for a group merge into the one already
+//    showing ("Ana, Luis y 2 más han votado") instead of piling up;
+//  - nothing is shown while the app is open and visible.
+// Our listener is registered before ngsw's, so stopImmediatePropagation() keeps ngsw
+// from showing its own copy. Payloads without our `data.kind` fall through to ngsw.
+
+const MAX_EVENTS = 30;
+
+// WebKit revokes push subscriptions whose pushes don't show a notification, so there we
+// still show it while the app is visible — and close it straight away.
+const MUST_SHOW_EVERY_PUSH = /AppleWebKit/.test(self.navigator.userAgent)
+  && !/Chrome|Chromium|Android/.test(self.navigator.userAgent);
+
+self.addEventListener('push', (event) => {
+  let payload;
+  try {
+    payload = event.data ? event.data.json() : null;
+  } catch {
+    return;
+  }
+  const notification = payload && payload.notification;
+  if (!notification || !notification.data || !notification.data.kind) return;
+
+  event.stopImmediatePropagation();
+  event.waitUntil(showGrouped(notification));
+});
+
+async function showGrouped(notification) {
+  const { title, ...options } = notification;
+  const data = options.data;
+  const tag = `group-${data.groupId}`;
+
+  const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  const appVisible = windows.some((w) => w.visibilityState === 'visible');
+  if (appVisible && !MUST_SHOW_EVERY_PUSH) return;
+
+  const showing = await self.registration.getNotifications({ tag });
+  const previous = (showing[0] && showing[0].data && showing[0].data.events) || [];
+  const events = mergeEvents(previous, { kind: data.kind, actor: data.actor, title, body: options.body });
+
+  const merged = events.length > 1;
+  await self.registration.showNotification(merged ? data.groupName : title, {
+    ...options,
+    body: merged ? summarize(events) : options.body,
+    tag,
+    renotify: showing.length > 0,
+    data: { ...data, events },
+  });
+
+  if (appVisible) {
+    const shown = await self.registration.getNotifications({ tag });
+    shown.forEach((n) => n.close());
+  }
+}
+
+function mergeEvents(previous, event) {
+  // A new question starts a new cycle: votes on the previous one no longer matter.
+  const kept = event.kind === 'new_question'
+    ? previous.filter((e) => e.kind !== 'user_voted' && e.kind !== 'new_question')
+    : previous;
+  return [...kept, event].slice(-MAX_EVENTS);
+}
+
+function summarize(events) {
+  const lines = [];
+  const latest = (kind) => [...events].reverse().find((e) => e.kind === kind);
+
+  const danger = latest('streak_danger');
+  if (danger) lines.push(`🔥 ${danger.body}`);
+
+  if (latest('selector_turn')) lines.push('🎯 ¡Te toca elegir la pregunta!');
+
+  const question = latest('new_question');
+  if (question) lines.push(`❓ ${question.body}`);
+
+  const voters = unique(events.filter((e) => e.kind === 'user_voted').map((e) => e.actor));
+  if (voters.length) lines.push(`🗳️ ${listNames(voters)} ${voters.length === 1 ? 'ha' : 'han'} votado`);
+
+  const messages = events.filter((e) => e.kind === 'new_message');
+  if (messages.length === 1) {
+    lines.push(`💬 ${messages[0].body}`);
+  } else if (messages.length > 1) {
+    const senders = unique(messages.map((e) => e.actor));
+    lines.push(`💬 ${messages.length} mensajes nuevos de ${listNames(senders)}`);
+  }
+
+  return lines.join('\n');
+}
+
+function unique(names) {
+  return [...new Set(names.filter(Boolean))];
+}
+
+function listNames(names) {
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} y ${names[1]}`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} y ${names[2]}`;
+  return `${names[0]}, ${names[1]} y ${names.length - 2} más`;
+}
+
+importScripts('./ngsw-worker.js');

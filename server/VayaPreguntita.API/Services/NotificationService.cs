@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Options;
 using LibPushSubscription = Lib.Net.Http.WebPush.PushSubscription;
 
@@ -22,72 +23,93 @@ public class NotificationService(
 {
     private const string IconPath = "/icons/android-chrome-192x192.png";
 
-    public async Task SendNewQuestionAsync(int groupId, string groupName, string questionText)
-    {
-        using var scope = scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // How long the push service keeps an undelivered notification (a phone offline or
+    // dozing). Chat and votes stay relevant for a while; a new question for its 24 h.
+    private static readonly TimeSpan VotedTtl = TimeSpan.FromHours(6);
+    private static readonly TimeSpan MessageTtl = TimeSpan.FromHours(24);
+    private static readonly TimeSpan QuestionTtl = TimeSpan.FromHours(24);
 
-        var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.NewQuestion);
-        var body = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
-        var payload = BuildPayload($"❓ {groupName}", body, $"/groups/{groupId}");
-        await SendToManyAsync(context, recipients, payload);
+    // Each dispatch runs fire-and-forget, so it must log its own failures — an exception
+    // here (e.g. the recipients query) would otherwise vanish with the discarded task.
+    public Task SendNewQuestionAsync(int groupId, string groupName, string questionText) =>
+        RunLoggedAsync("new_question", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.NewQuestion);
+            var body = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
+            var payload = BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question");
+            await SendToManyAsync(context, recipients, payload, QuestionTtl);
+        });
+
+    public Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime) =>
+        RunLoggedAsync("selector_turn", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.SelectorTurn);
+            recipients = recipients.Where(r => r.UserId == selectorUserId).ToList();
+            var timeStr = dailyTime.ToString("HH:mm");
+            var payload = BuildPayload(
+                $"🎯 ¡Te toca elegir en {groupName}!",
+                $"Eres el selector de hoy. Elige la pregunta antes de las {timeStr}.",
+                groupId, groupName, "selector_turn"
+            );
+            await SendToManyAsync(context, recipients, payload, UntilNextDailyTime(dailyTime));
+        });
+
+    public Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername) =>
+        RunLoggedAsync("user_voted", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: voterUserId, pref => pref.UserVoted);
+            var payload = BuildPayload(
+                groupName,
+                $"{voterUsername} ha votado. ¿Cuál será su respuesta? 🗳️",
+                groupId, groupName, "user_voted", actor: voterUsername
+            );
+            await SendToManyAsync(context, recipients, payload, VotedTtl);
+        });
+
+    public Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview) =>
+        RunLoggedAsync("new_message", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: senderUserId, pref => pref.NewMessage);
+            var preview = messagePreview.Length > 80 ? messagePreview[..77] + "…" : messagePreview;
+            var payload = BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", groupId, groupName, "new_message", actor: senderUsername);
+            await SendToManyAsync(context, recipients, payload, MessageTtl);
+        });
+
+    public Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime) =>
+        RunLoggedAsync("streak_danger", groupId, async context =>
+        {
+            var subscriptions = await context.DevicePushSubscriptions
+                .Where(s => s.UserId == userId)
+                .ToListAsync();
+            var payload = BuildPayload(
+                "🔥 ¡Tu racha está en peligro!",
+                $"Tu racha de {streak} días en {groupName} termina a las {dailyTime.ToString("HH:mm")}. ¡Vota antes!",
+                groupId, groupName, "streak_danger"
+            );
+            await SendToManyAsync(context, subscriptions, payload, UntilNextDailyTime(dailyTime));
+        });
+
+    private async Task RunLoggedAsync(string kind, int groupId, Func<AppDbContext, Task> send)
+    {
+        try
+        {
+            using var scope = scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await send(context);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to dispatch {Kind} notification for group {GroupId}", kind, groupId);
+        }
     }
 
-    public async Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime)
+    // Selector turn and streak danger only matter until the cycle closes at the next T.
+    private static TimeSpan UntilNextDailyTime(TimeOnly dailyTime)
     {
-        using var scope = scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.SelectorTurn);
-        recipients = recipients.Where(r => r.UserId == selectorUserId).ToList();
-        var timeStr = dailyTime.ToString("HH:mm");
-        var payload = BuildPayload(
-            $"🎯 ¡Te toca elegir en {groupName}!",
-            $"Eres el selector de hoy. Elige la pregunta antes de las {timeStr}.",
-            $"/groups/{groupId}"
-        );
-        await SendToManyAsync(context, recipients, payload);
-    }
-
-    public async Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername)
-    {
-        using var scope = scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: voterUserId, pref => pref.UserVoted);
-        var payload = BuildPayload(
-            groupName,
-            $"{voterUsername} ha votado. ¿Cuál será su respuesta? 🗳️",
-            $"/groups/{groupId}"
-        );
-        await SendToManyAsync(context, recipients, payload);
-    }
-
-    public async Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview)
-    {
-        using var scope = scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: senderUserId, pref => pref.NewMessage);
-        var preview = messagePreview.Length > 80 ? messagePreview[..77] + "…" : messagePreview;
-        var payload = BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", $"/groups/{groupId}");
-        await SendToManyAsync(context, recipients, payload);
-    }
-
-    public async Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime)
-    {
-        using var scope = scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        var subscriptions = await context.DevicePushSubscriptions
-            .Where(s => s.UserId == userId)
-            .ToListAsync();
-        var payload = BuildPayload(
-            "🔥 ¡Tu racha está en peligro!",
-            $"Tu racha de {streak} días en {groupName} termina a las {dailyTime.ToString("HH:mm")}. ¡Vota antes!",
-            $"/groups/{groupId}"
-        );
-        await SendToManyAsync(context, subscriptions, payload);
+        var nextT = DailyClock.ToUtc(DailyClock.Today(), dailyTime);
+        if (nextT <= DateTime.UtcNow) nextT = nextT.AddDays(1);
+        var remaining = nextT - DateTime.UtcNow;
+        return remaining < TimeSpan.FromMinutes(5) ? TimeSpan.FromMinutes(5) : remaining;
     }
 
     // Returns subscriptions for eligible members: in the group, not muted, pref enabled (or no pref row = default true).
@@ -120,9 +142,9 @@ public class NotificationService(
             .ToListAsync();
     }
 
-    private async Task SendToManyAsync(AppDbContext context, IEnumerable<DevicePushSubscription> subscriptions, string jsonPayload)
+    private async Task SendToManyAsync(AppDbContext context, IEnumerable<DevicePushSubscription> subscriptions, string jsonPayload, TimeSpan ttl)
     {
-        var message = new PushMessage(jsonPayload) { TimeToLive = 3600 };
+        var message = new PushMessage(jsonPayload) { TimeToLive = (int)ttl.TotalSeconds };
         var toRemove = new List<int>();
 
         foreach (var sub in subscriptions)
@@ -161,8 +183,10 @@ public class NotificationService(
         }
     }
 
-    private static string BuildPayload(string title, string body, string url) =>
-        JsonSerializer.Serialize(new
+    private static string BuildPayload(string title, string body, int groupId, string groupName, string kind, string? actor = null)
+    {
+        var url = $"/groups/{groupId}";
+        return JsonSerializer.Serialize(new
         {
             notification = new
             {
@@ -174,9 +198,15 @@ public class NotificationService(
                 // the notification body is clicked while the app is closed/backgrounded:
                 // focus an existing window (or open a new one at `url`). `url` is kept at
                 // the top level too for the in-app SwPush.notificationClicks handler.
+                // `kind`/`groupId`/`groupName`/`actor` let the client's sw.js merge a
+                // group's notifications into one.
                 data = new
                 {
                     url,
+                    kind,
+                    groupId,
+                    groupName,
+                    actor,
                     onActionClick = new
                     {
                         @default = new { operation = "focusLastFocusedOrOpen", url }
@@ -184,4 +214,5 @@ public class NotificationService(
                 }
             }
         });
+    }
 }

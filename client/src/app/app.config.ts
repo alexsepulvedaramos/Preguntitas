@@ -15,7 +15,8 @@ export const appConfig: ApplicationConfig = {
         authInterceptor
       ])
     ),
-    provideServiceWorker('ngsw-worker.js', {
+    // sw.js wraps ngsw-worker.js with our own push handling (grouping, no banners in-app).
+    provideServiceWorker('sw.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     }),

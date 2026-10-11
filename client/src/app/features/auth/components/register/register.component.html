@@ -67,6 +67,7 @@
             Este correo ya está registrado. Si es tuyo,
             <a
               routerLink="/auth/login"
+              queryParamsHandling="preserve"
               class="font-medium text-primary underline-offset-4 hover:underline"
             >
               inicia sesión</a
@@ -171,6 +172,7 @@
         ¿Ya tienes una cuenta?
         <a
           routerLink="/auth/login"
+          queryParamsHandling="preserve"
           class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
         >
           Inicia sesión
