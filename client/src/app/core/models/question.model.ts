@@ -29,8 +29,6 @@ export interface CreateQuestion {
     type: QuestionType;
     allowNobody: boolean;
     blacklistedUserIds: number[];
-    rangeMin?: number | null;
-    rangeMax?: number | null;
     targetUserId?: number | null;
     minSelections?: number | null;
     maxSelections?: number | null;

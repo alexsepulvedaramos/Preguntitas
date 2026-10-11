@@ -34,8 +34,8 @@ namespace VayaPreguntita.API.Profiles
             // Scale
             if (source.Type == Enums.QuestionType.Scale)
             {
-                metadata.RangeMin = source.RangeMin ?? 1;
-                metadata.RangeMax = source.RangeMax ?? 10;
+                metadata.RangeMin = QuestionMetadata.ScaleMin;
+                metadata.RangeMax = QuestionMetadata.ScaleMax;
                 metadata.TargetUserId = source.TargetUserId;
             }
 

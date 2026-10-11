@@ -101,8 +101,6 @@ export class CreateQuestionComponent {
   protected readonly blacklistedUserIds = signal<number[]>([]);
   protected readonly teams = signal<number[][]>([[], []]);
   protected readonly targetUserId = signal<number | null>(null);
-  protected readonly rangeMin = signal(1);
-  protected readonly rangeMax = signal(10);
   protected readonly options = signal<string[]>(['', '']);
   protected readonly minSelections = signal(1);
   protected readonly maxSelections = signal(1);
@@ -119,10 +117,6 @@ export class CreateQuestionComponent {
         if (!v) return;
         this.text.set(v.text);
         this.type.set(v.type);
-        if (v.type === QuestionType.Scale) {
-          this.rangeMin.set(v.rangeMin ?? 1);
-          this.rangeMax.set(v.rangeMax ?? 10);
-        }
         if (v.type === QuestionType.CustomPoll && v.options.length > 0) {
           this.options.set(v.options.map((o) => o.text));
           if (v.minSelections != null) this.minSelections.set(v.minSelections);
@@ -149,13 +143,6 @@ export class CreateQuestionComponent {
           this.teams().length <= 4 &&
           this.teams().every((team) => team.length >= 1 && team.length <= 4)
         );
-      case QuestionType.Scale:
-        // Target person is optional (a Scale can rate any subject via the text).
-        return (
-          this.rangeMin() >= 0 &&
-          this.rangeMax() <= 100 &&
-          this.rangeMin() < this.rangeMax()
-        );
       case QuestionType.CustomPoll: {
         const filled = this.options().filter((o) => o.trim().length > 0);
         return (
@@ -178,8 +165,6 @@ export class CreateQuestionComponent {
     switch (this.type()) {
       case QuestionType.Deathmatch:
         return 'Todos los equipos deben tener al menos un miembro.';
-      case QuestionType.Scale:
-        return 'El mínimo debe ser menor que el máximo (rango 0–100).';
       case QuestionType.CustomPoll: {
         const filled = this.options().filter((o) => o.trim().length > 0);
         if (filled.length < this.options().length)
@@ -263,8 +248,6 @@ export class CreateQuestionComponent {
       type,
       allowNobody: type === QuestionType.Superlative ? this.allowNobody() : false,
       blacklistedUserIds: type === QuestionType.Superlative ? this.blacklistedUserIds() : [],
-      rangeMin: type === QuestionType.Scale ? this.rangeMin() : null,
-      rangeMax: type === QuestionType.Scale ? this.rangeMax() : null,
       targetUserId: type === QuestionType.Scale ? this.targetUserId() : null,
       minSelections:
         type === QuestionType.SecretPairing

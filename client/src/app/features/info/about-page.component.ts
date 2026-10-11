@@ -85,7 +85,7 @@ export class AboutPageComponent {
     },
     {
       type: QuestionType.Scale,
-      how: 'Una nota numérica, sobre ti, sobre alguien o sobre lo que sea.',
+      how: 'Una nota del 1 al 10, sobre ti, sobre alguien o sobre lo que sea.',
       example: 'Del 1 al 10, ¿cómo de bien conduces?',
     },
     {
