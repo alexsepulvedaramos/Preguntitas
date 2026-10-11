@@ -36,8 +36,11 @@
             Crear cuenta gratis
             <ng-icon hlm name="lucideArrowRight" />
           </a>
-          <a hlmBtn variant="outline" size="lg" routerLink="/auth/login">Ya tengo cuenta</a>
+          <a hlmBtn variant="outline" size="lg" routerLink="/demo">Pruébalo sin registrarte</a>
         </div>
+        <a routerLink="/auth/login" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+          Ya tengo cuenta
+        </a>
       </div>
 
       <app-results-showcase class="mx-auto block w-full max-w-md" />
@@ -110,6 +113,7 @@
           Crear cuenta gratis
           <ng-icon hlm name="lucideArrowRight" />
         </a>
+        <a hlmBtn variant="outline" size="lg" routerLink="/demo" class="w-full sm:w-auto">Pruébalo sin registrarte</a>
         <a routerLink="/about" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
           Ver todos los tipos de pregunta, packs y marcos
         </a>

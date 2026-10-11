@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
@@ -10,6 +11,7 @@ import { GroupCardComponent } from "../group-card/group-card.component";
 @Component({
   selector: 'app-group-list',
   imports: [
+    RouterLink,
     HlmSkeletonImports,
     CreateGroupDialogComponent,
     JoinGroupDialogComponent,

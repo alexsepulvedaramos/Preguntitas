@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-2">
+  <p class="vp-question-text text-foreground">{{ question().text }}</p>
+  <span
+    class="inline-flex items-center w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold"
+    [class]="questionTypeBadgeClass()"
+    >{{ questionTypeLabel() }}</span
+  >
+</div>
+
+@switch (question().type) {
+  @case (QuestionType.CustomPoll) {
+    <app-custom-poll-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+  @case (QuestionType.Superlative) {
+    <app-superlative-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+  @case (QuestionType.Deathmatch) {
+    <app-deathmatch-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+  @case (QuestionType.Scale) {
+    <app-scale-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+  @case (QuestionType.SecretPairing) {
+    <app-secret-pairing-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+  @case (QuestionType.OpenText) {
+    <app-open-text-vote [question]="question()" [members]="members()" (vote)="vote.emit($event)" />
+  }
+}

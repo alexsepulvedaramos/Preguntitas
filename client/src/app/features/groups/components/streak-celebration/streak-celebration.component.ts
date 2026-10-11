@@ -27,6 +27,10 @@ export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDest
   protected readonly authService = inject(AuthService);
 
   public readonly update = input.required<StreakUpdate>();
+  // Who is celebrating — defaults to the signed-in user; the /demo walkthrough (rama 25)
+  // passes its guest visitor instead.
+  public readonly username = input<string | null>(null);
+  public readonly avatarUrl = input<string | null>(null);
   public readonly dismissed = output<void>();
 
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('particles');
@@ -39,6 +43,13 @@ export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDest
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   private countUpTimer: ReturnType<typeof setTimeout> | null = null;
   private active = true;
+
+  protected readonly shownUsername = computed(
+    () => this.username() ?? this.authService.currentUser()?.username ?? ''
+  );
+  protected readonly shownAvatarUrl = computed(() =>
+    this.username() != null ? this.avatarUrl() : (this.authService.currentUser()?.avatarUrl ?? null)
+  );
 
   protected readonly colors = computed(() => {
     const key = this.update().tierKey;
