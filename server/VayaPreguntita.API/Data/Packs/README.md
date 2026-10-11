@@ -36,7 +36,6 @@ One line per template keeps diffs readable.
 | `minSelections` / `maxSelections` | Polls only; default 1 / 1. A pairing is always exactly 2. |
 | `allowOther` | Polls: adds the free-text "Otro" answer. |
 | `allowNobody` | Superlatives. |
-| `rangeMin` / `rangeMax` | Scales; default 1 / 10. |
 | `retired` | `true` stops the template being offered anywhere. The row stays in the database. |
 | `legacyText` / `legacyPack` | One-time hints, see below. |
 

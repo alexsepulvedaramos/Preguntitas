@@ -41,9 +41,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                     .Must(teams => teams == null || teams.Count == 0)
                     .WithMessage("Superlative questions cannot define teams.");
 
-                RuleFor(question => question.RangeMin).Null();
 
-                RuleFor(question => question.RangeMax).Null();
 
                 RuleFor(question => question.TargetUserId).Null();
 
@@ -70,9 +68,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                         "Deathmatch teams must have 1 to 4 members each and not repeat users across teams."
                     );
 
-                RuleFor(question => question.RangeMin).Null();
 
-                RuleFor(question => question.RangeMax).Null();
 
                 RuleFor(question => question.TargetUserId).Null();
 
@@ -97,10 +93,6 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                 RuleFor(question => question.TargetUserId)
                     .GreaterThan(0)
                     .When(question => question.TargetUserId.HasValue);
-
-                RuleFor(question => question)
-                    .Must(q => AreScaleBoundsValid(q.RangeMin, q.RangeMax))
-                    .WithMessage("RangeMin must be less than RangeMax when provided.");
 
                 RuleFor(question => question.Options)
                     .Must(options => options == null || options.Count == 0)
@@ -142,9 +134,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                     .Must(teams => teams == null || teams.Count == 0)
                     .WithMessage("Secret Pairing questions cannot define teams.");
 
-                RuleFor(question => question.RangeMin).Null();
 
-                RuleFor(question => question.RangeMax).Null();
 
                 RuleFor(question => question.TargetUserId).Null();
 
@@ -169,9 +159,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                     .Must(teams => teams == null || teams.Count == 0)
                     .WithMessage("Custom poll questions cannot define teams.");
 
-                RuleFor(question => question.RangeMin).Null();
 
-                RuleFor(question => question.RangeMax).Null();
 
                 RuleFor(question => question.TargetUserId).Null();
 
@@ -200,8 +188,6 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                     .Must(teams => teams == null || teams.Count == 0)
                     .WithMessage("Open-text questions cannot define teams.");
 
-                RuleFor(question => question.RangeMin).Null();
-                RuleFor(question => question.RangeMax).Null();
                 RuleFor(question => question.TargetUserId).Null();
                 RuleFor(question => question.MinSelections).Null();
                 RuleFor(question => question.MaxSelections).Null();
@@ -213,16 +199,6 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
                 RuleFor(question => question.AllowNobody).Equal(false);
             }
         );
-    }
-
-    private static bool AreScaleBoundsValid(int? rangeMin, int? rangeMax)
-    {
-        if (!rangeMin.HasValue && !rangeMax.HasValue)
-        {
-            return true;
-        }
-
-        return rangeMin.HasValue && rangeMax.HasValue && rangeMin.Value < rangeMax.Value;
     }
 
     private static bool TeamsHaveValidMembers(List<List<int>>? teams)

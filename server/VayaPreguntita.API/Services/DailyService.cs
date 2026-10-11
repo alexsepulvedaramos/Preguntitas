@@ -612,8 +612,8 @@ public class DailyService(
             QuestionType.Scale when dto.NumericValue == null => "Must provide a numeric value.",
 
             QuestionType.Scale
-                when dto.NumericValue < (question.Metadata.RangeMin ?? 1)
-                    || dto.NumericValue > (question.Metadata.RangeMax ?? 10) =>
+                when dto.NumericValue < (question.Metadata.RangeMin ?? QuestionMetadata.ScaleMin)
+                    || dto.NumericValue > (question.Metadata.RangeMax ?? QuestionMetadata.ScaleMax) =>
                 "Numeric value out of range.",
 
             QuestionType.SecretPairing

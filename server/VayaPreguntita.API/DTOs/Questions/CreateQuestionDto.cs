@@ -11,9 +11,7 @@ public class CreateQuestionDto
     public bool AllowNobody { get; set; }
     public List<int> BlacklistedUserIds { get; set; } = [];
 
-    // Scale
-    public int? RangeMin { get; set; }
-    public int? RangeMax { get; set; }
+    // Scale (range is fixed to 1–10; a RangeMin/RangeMax sent by an old client is ignored)
     public int? TargetUserId { get; set; }
 
     // SecretPairing + CustomPoll

@@ -218,8 +218,6 @@ export class SelectQuestionDialogComponent {
               type: QuestionType.Deathmatch,
               allowNobody: false,
               blacklistedUserIds: [],
-              rangeMin: null,
-              rangeMax: null,
               targetUserId: null,
               minSelections: null,
               maxSelections: null,

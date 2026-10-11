@@ -10,7 +10,7 @@ export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, string> = {
     [QuestionType.Deathmatch]:
         'Equipo contra equipo, el grupo vota qué bando gana. Ej: "Juan y Marta VS Luis y Ana"',
     [QuestionType.Scale]:
-        'Se puntúa a alguien en una escala numérica. Ej: "Del 1 al 10, ¿cómo de dramático está hoy?"',
+        'Se puntúa del 1 al 10, a alguien o lo que sea. Ej: "¿Cómo de dramático está hoy?"',
     [QuestionType.SecretPairing]:
         'Se eligen las dos personas que mejor pareja harían.',
     [QuestionType.OpenText]:

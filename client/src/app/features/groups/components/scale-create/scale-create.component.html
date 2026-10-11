@@ -27,37 +27,5 @@
     </div>
   }
 
-  <div class="flex gap-3">
-    <hlm-field class="grid gap-1.5 flex-1">
-      <label hlmFieldLabel for="rangeMin" class="text-sm font-medium text-foreground">Mínimo</label>
-      <input
-        hlmInput
-        id="rangeMin"
-        type="number"
-        min="0"
-        max="100"
-        [value]="rangeMin()"
-        (input)="onRangeMinChange($any($event.target).value)"
-        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-      />
-    </hlm-field>
-
-    <hlm-field class="grid gap-1.5 flex-1">
-      <label hlmFieldLabel for="rangeMax" class="text-sm font-medium text-foreground">Máximo</label>
-      <input
-        hlmInput
-        id="rangeMax"
-        type="number"
-        min="0"
-        max="100"
-        [value]="rangeMax()"
-        (input)="onRangeMaxChange($any($event.target).value)"
-        class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-      />
-    </hlm-field>
-  </div>
-
-  @if (rangeInvalid()) {
-    <p class="text-sm text-destructive">El mínimo debe ser menor que el máximo, entre 0 y 100.</p>
-  }
+  <p class="text-sm text-muted-foreground">Cada uno puntúa del 1 al 10.</p>
 </div>

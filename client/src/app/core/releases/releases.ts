@@ -18,6 +18,18 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.9.1',
+    date: '2026-10-12',
+    title: 'Escalas del 1 al 10',
+    items: [
+      {
+        emoji: '🔟',
+        title: 'Todas las escalas, del 1 al 10',
+        text: 'Las preguntas de puntuar ya no dejan elegir el rango: siempre se vota del 1 al 10, así todas se leen igual. Si alguna pregunta antigua usaba otro rango, sus votos se han pasado a la escala del 1 al 10 manteniendo la proporción.',
+      },
+    ],
+  },
+  {
     version: '1.9.0',
     date: '2026-10-11',
     title: 'Más pantalla para jugar',

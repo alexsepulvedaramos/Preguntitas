@@ -142,9 +142,6 @@ public static partial class PackCatalog
 
         if (t.Type == QuestionType.SecretPairing && (metadata.MinSelections != 2 || metadata.MaxSelections != 2))
             errors.Add($"{where}: a secret pairing must require exactly 2 selections.");
-
-        if (t.Type == QuestionType.Scale && metadata.RangeMin >= metadata.RangeMax)
-            errors.Add($"{where}: scale rangeMin must be lower than rangeMax.");
     }
 
     [GeneratedRegex("^[a-z0-9]+(-[a-z0-9]+)*$")]
@@ -176,8 +173,6 @@ public sealed record TemplateEntry(
     int? MaxSelections = null,
     bool? AllowOther = null,
     bool? AllowNobody = null,
-    int? RangeMin = null,
-    int? RangeMax = null,
     bool Retired = false,
     string? LegacyText = null,
     string? LegacyPack = null
@@ -197,8 +192,8 @@ public sealed record TemplateEntry(
 
         if (Type == QuestionType.Scale)
         {
-            metadata.RangeMin = RangeMin ?? 1;
-            metadata.RangeMax = RangeMax ?? 10;
+            metadata.RangeMin = QuestionMetadata.ScaleMin;
+            metadata.RangeMax = QuestionMetadata.ScaleMax;
         }
 
         return metadata;

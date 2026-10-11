@@ -18,8 +18,8 @@ public static class QuestionMetadataBuilder
         }
         if (dto.Type == QuestionType.Scale)
         {
-            metadata.RangeMin = dto.RangeMin ?? 1;
-            metadata.RangeMax = dto.RangeMax ?? 10;
+            metadata.RangeMin = QuestionMetadata.ScaleMin;
+            metadata.RangeMax = QuestionMetadata.ScaleMax;
             metadata.TargetUserId = dto.TargetUserId;
         }
         if (dto.Type == QuestionType.SecretPairing)

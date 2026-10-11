@@ -6,7 +6,10 @@ public class QuestionMetadata
     public bool AllowNobody { get; set; }
     public List<int> BlacklistedUserIds { get; set; } = [];
 
-    // The Scale
+    // The Scale — always rated 1–10 (§5.3); the bounds stay stored so clients read them as data.
+    public const int ScaleMin = 1;
+    public const int ScaleMax = 10;
+
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }
     public int? TargetUserId { get; set; }
