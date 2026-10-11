@@ -9,6 +9,8 @@
   <ItemGroup>
     <!-- Pack catalog (see Data/Packs/README.md): embedded so the seeder needs no file system. -->
     <EmbeddedResource Include="Data\Packs\*.json" LogicalName="Packs/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Data\Packs\en\*.json" LogicalName="PackTranslations/en/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Data\Packs\de\*.json" LogicalName="PackTranslations/de/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

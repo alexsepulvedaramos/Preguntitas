@@ -268,6 +268,12 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("TextTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
@@ -287,6 +293,12 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.Property<bool>("DisabledByDefault")
                         .HasColumnType("boolean");
 
@@ -296,6 +308,12 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("NameTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
 
                     b.HasKey("Id");
 
@@ -335,6 +353,12 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("TextTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -370,6 +394,12 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("TextTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -397,6 +427,12 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("TextTranslations")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::jsonb");
 
                     b.HasKey("Id");
 

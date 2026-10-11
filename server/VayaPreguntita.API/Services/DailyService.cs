@@ -274,12 +274,29 @@ public class DailyService(
                 return (null, SelectResult.InvalidQuestion);
             existing.CreatorId ??= userId;
 
+            // A pack clone keeps its translations only while its wording is untouched; once the
+            // selector rewrites it, everyone reads the selector's own words (rama 24).
+            var oldOptions = existing.Options.OrderBy(o => o.Id).ToList();
+            var newOptions =
+                dto.NewQuestion.Type == QuestionType.CustomPoll ? dto.NewQuestion.Options : [];
+            var reworded =
+                existing.Text != dto.NewQuestion.Text
+                || !oldOptions.Select(o => o.Text).SequenceEqual(newOptions.Select(o => o.Text));
+
             existing.Text = dto.NewQuestion.Text;
             existing.Type = dto.NewQuestion.Type;
             existing.Metadata = QuestionMetadataBuilder.Build(dto.NewQuestion);
+            if (reworded)
+                existing.TextTranslations = [];
             existing.Options.Clear();
-            if (dto.NewQuestion.Type == QuestionType.CustomPoll && dto.NewQuestion.Options.Count > 0)
-                existing.Options = dto.NewQuestion.Options.Select(o => new Option { Text = o.Text }).ToList();
+            if (newOptions.Count > 0)
+                existing.Options = newOptions
+                    .Select((o, i) => new Option
+                    {
+                        Text = o.Text,
+                        TextTranslations = reworded ? [] : new(oldOptions[i].TextTranslations),
+                    })
+                    .ToList();
 
             return (existing, SelectResult.Success);
         }

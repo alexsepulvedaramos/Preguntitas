@@ -250,6 +250,100 @@ public class PackSeederTests(DatabaseFixture fixture)
     }
 
     [Fact]
+    public async Task Sync_StoresTranslationsOnPacksTemplatesAndOptions()
+    {
+        var catalog = new[]
+        {
+            Pack("P", 1, Entry("who", "¿Quién?") with { Translations = Tr(en: new("Who?"), de: new("Wer?")) },
+                Poll("poll", "¿Playa o montaña?", ["Playa", "Montaña"]) with
+                {
+                    Translations = Tr(en: new("Beach or mountains?", ["Beach", "Mountains"])),
+                }
+            ) with
+            {
+                Translations = new Dictionary<string, PackTranslation> { ["en"] = new("Basics", "For every group.") },
+            },
+        };
+
+        await SyncAsync(catalog);
+        var second = await SyncAsync(catalog);
+
+        second.Should().Be(new PackSeeder.SyncSummary(0, 0, 0), because: "unchanged translations are not an update");
+        await using var db = NewContext();
+        var pack = await db.Packs.SingleAsync();
+        pack.NameTranslations.Should().Equal(new Dictionary<string, string> { ["en"] = "Basics" });
+        pack.DescriptionTranslations["en"].Should().Be("For every group.");
+        (await db.QuestionTemplates.SingleAsync(t => t.Key == "who"))
+            .TextTranslations.Should()
+            .Equal(new Dictionary<string, string> { ["en"] = "Who?", ["de"] = "Wer?" });
+        var poll = await db.QuestionTemplates.Include(t => t.Options).SingleAsync(t => t.Key == "poll");
+        poll.TextTranslations.Should().Equal(new Dictionary<string, string> { ["en"] = "Beach or mountains?" });
+        poll.Options.OrderBy(o => o.Id).Select(o => o.TextTranslations["en"]).Should().Equal("Beach", "Mountains");
+    }
+
+    [Fact]
+    public async Task Sync_UpdatesAChangedTranslationInPlace()
+    {
+        await SyncAsync([Pack("P", 1, Poll("poll", "¿Sí o no?", ["Sí", "No"]) with
+        {
+            Translations = Tr(en: new("Yes or no?", ["Yes", "No"])),
+        })]);
+
+        var summary = await SyncAsync([Pack("P", 1, Poll("poll", "¿Sí o no?", ["Sí", "No"]) with
+        {
+            Translations = Tr(en: new("Yay or nay?", ["Yay", "Nay"])),
+        })]);
+
+        summary.Updated.Should().Be(1);
+        await using var db = NewContext();
+        var poll = await db.QuestionTemplates.Include(t => t.Options).SingleAsync();
+        poll.TextTranslations["en"].Should().Be("Yay or nay?");
+        poll.Options.OrderBy(o => o.Id).Select(o => o.TextTranslations["en"]).Should().Equal("Yay", "Nay");
+    }
+
+    [Fact]
+    public async Task SyncCloneTranslations_ReachesUntouchedClonesOnly()
+    {
+        await SyncAsync([
+            Pack("P", 1, Poll("poll", "¿Sí o no?", ["Sí", "No"]) with
+            {
+                Translations = Tr(en: new("Yes or no?", ["Yes", "No"])),
+            }),
+        ]);
+        int untouched, reworded;
+        await using (var db = NewContext())
+        {
+            var template = await db.QuestionTemplates.Include(t => t.Options).SingleAsync();
+            var user = new User { Username = "ana", Email = "ana@test.dev" };
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
+            var group = new Group { Name = "G", InvitationCode = $"S{Guid.NewGuid():N}"[..6], CreatorId = user.Id };
+            db.Groups.Add(group);
+            await db.SaveChangesAsync();
+
+            // Cloned before the translations existed, as in production.
+            var plain = TemplateCloner.CloneToGroup(template, group.Id, []);
+            plain.TextTranslations.Clear();
+            plain.Options.ForEach(o => o.TextTranslations.Clear());
+            var edited = TemplateCloner.CloneToGroup(template, group.Id, []);
+            edited.Text = "¿Sí, no o depende?";
+            edited.TextTranslations.Clear();
+            db.Questions.AddRange(plain, edited);
+            await db.SaveChangesAsync();
+            (untouched, reworded) = (plain.Id, edited.Id);
+        }
+
+        await using (var db = NewContext())
+            (await PackSeeder.SyncCloneTranslationsAsync(db)).Should().Be(1);
+
+        await using var verify = NewContext();
+        var synced = await verify.Questions.Include(q => q.Options).SingleAsync(q => q.Id == untouched);
+        synced.TextTranslations["en"].Should().Be("Yes or no?");
+        synced.Options.OrderBy(o => o.Id).Select(o => o.TextTranslations["en"]).Should().Equal("Yes", "No");
+        (await verify.Questions.SingleAsync(q => q.Id == reworded)).TextTranslations.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ReusePolicy_TreatsRetiredTemplatesAsUnavailable()
     {
         await SyncAsync([
@@ -335,4 +429,14 @@ public class PackSeederTests(DatabaseFixture fixture)
 
     private static TemplateEntry Poll(string key, string text, string[] options) =>
         new(key, QuestionType.CustomPoll, text, [.. options]);
+
+    private static Dictionary<string, TemplateTranslation> Tr(TemplateTranslation? en = null, TemplateTranslation? de = null)
+    {
+        var translations = new Dictionary<string, TemplateTranslation>();
+        if (en is not null)
+            translations["en"] = en;
+        if (de is not null)
+            translations["de"] = de;
+        return translations;
+    }
 }

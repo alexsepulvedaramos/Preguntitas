@@ -6,6 +6,7 @@ using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.DTOs.Groups;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Localization;
 
 public class MappingProfile : Profile
 {
@@ -41,12 +42,17 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.DateResponded, opt => opt.MapFrom(src => DateTime.UtcNow));
 
         // --- Output Mappings (Entity to DTO) ---
+        // Question and option texts come out in the request's language when the question has a
+        // translation (pack clones, rama 24) — ContentTranslations.Pick falls back to the original.
 
-        CreateMap<Option, OptionDto>();
+        CreateMap<Option, OptionDto>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)));
         CreateMap<Question, QuestionDto>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)))
             .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.Metadata.Teams));
 
         CreateMap<Question, QuestionToVoteDto>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)))
             .ForMember(
                 dest => dest.AllowNobody,
                 opt => opt.MapFrom(src => src.Metadata.AllowNobody)
@@ -93,7 +99,7 @@ public class MappingProfile : Profile
 
         // Result mapping: Handled partially by Mapper, partially by Manual Logic
         CreateMap<Option, OptionResultDto>()
-            .ForMember(dest => dest.DisplayText, opt => opt.MapFrom(src => src.Text))
+            .ForMember(dest => dest.DisplayText, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)))
             .ForMember(dest => dest.VoteCount, opt => opt.Ignore())
             .ForMember(dest => dest.Percentage, opt => opt.Ignore())
             .ForMember(dest => dest.Voters, opt => opt.Ignore())
@@ -101,6 +107,7 @@ public class MappingProfile : Profile
 
         // Mapping for the parent Result DTO
         CreateMap<Question, QuestionResultDto>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)))
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.Results, opt => opt.Ignore());
     }

@@ -4,6 +4,7 @@ using VayaPreguntita.API.DTOs.Packs;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
@@ -16,15 +17,16 @@ public class PacksService(AppDbContext context) : IPacksService
             .Select(gdp => gdp.PackId)
             .ToHashSetAsync();
 
-        return await context
-            .Packs.Select(p => new PackDto
+        var packs = await context.Packs.ToListAsync();
+        return packs
+            .Select(p => new PackDto
             {
                 Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
+                Name = ContentTranslations.Pick(p.Name, p.NameTranslations),
+                Description = ContentTranslations.Pick(p.Description, p.DescriptionTranslations),
                 Enabled = p.IsActiveByDefault && !disabledPackIds.Contains(p.Id),
             })
-            .ToListAsync();
+            .ToList();
     }
 
     public async Task<(bool success, string? error)> SetPackEnabledAsync(
@@ -137,10 +139,13 @@ public class PacksService(AppDbContext context) : IPacksService
             .Select(t => new PackTemplateDto
             {
                 Id = t.Id,
-                Text = t.Text,
+                Text = ContentTranslations.Pick(t.Text, t.TextTranslations),
                 Type = t.Type,
                 PackId = t.PackId,
-                Options = t.Options.Select(o => o.Text).ToList(),
+                Options = t
+                    .Options.OrderBy(o => o.Id)
+                    .Select(o => ContentTranslations.Pick(o.Text, o.TextTranslations))
+                    .ToList(),
             })
             .ToList();
 

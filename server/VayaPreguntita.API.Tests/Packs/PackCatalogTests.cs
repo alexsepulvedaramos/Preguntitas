@@ -148,6 +148,138 @@ public class PackCatalogTests
         packs.Select(p => p.Name).Should().Equal("First", "Second");
     }
 
+    // ---- translations (rama 24) ----
+
+    [Fact]
+    public void Parse_AttachesTranslationsToTheirPackAndTemplates()
+    {
+        var poll = """{ "key": "poll", "type": "CustomPoll", "text": "¿Playa o montaña?", "options": ["Playa", "Montaña"] }""";
+        var en = Translation("P", """
+            "who": { "text": "Who would be late?" },
+            "poll": { "text": "Beach or mountains?", "options": ["Beach", "Mountains"] }
+            """);
+
+        var pack = PackCatalog
+            .Parse([("p.json", Pack("P", 1, Superlative("who", "¿Quién llegaría tarde?"), poll))], [("en", "en/p.json", en)])
+            .Single();
+
+        pack.Translations["en"].Should().Be(new PackTranslation("P in English", "d in English"));
+        var byKey = pack.Templates.ToDictionary(t => t.Key);
+        byKey["who"].Translations["en"].Text.Should().Be("Who would be late?");
+        byKey["poll"].Translations["en"].Options.Should().Equal("Beach", "Mountains");
+        byKey["who"].Translations.Should().NotContainKey("de");
+    }
+
+    [Fact]
+    public void Parse_LeavesUntranslatedTemplatesWithoutTranslations()
+    {
+        var pack = PackCatalog
+            .Parse([("p.json", Pack("P", 1, Superlative("a", "uno"), Superlative("b", "dos")))], [
+                ("de", "de/p.json", Translation("P", """ "a": { "text": "eins" } """)),
+            ])
+            .Single();
+
+        pack.Templates.Single(t => t.Key == "b").Translations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_RejectsATranslationOfAnUnknownKey()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("en", "en/p.json", Translation("P", """ "nope": { "text": "one" } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*'nope' is not in the catalog*");
+    }
+
+    [Fact]
+    public void Parse_RejectsATranslationInAnotherPacksFile()
+    {
+        var act = () =>
+            PackCatalog.Parse(
+                [("p.json", Pack("P", 1, Superlative("a", "uno"))), ("q.json", Pack("Q", 2, Superlative("b", "dos")))],
+                [("en", "en/q.json", Translation("Q", """ "a": { "text": "one" } """))]
+            );
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*belongs to pack 'P'*");
+    }
+
+    [Fact]
+    public void Parse_RejectsATranslatedPollWithADifferentNumberOfOptions()
+    {
+        var poll = """{ "key": "poll", "type": "CustomPoll", "text": "t", "options": ["a", "b", "c"] }""";
+
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, poll))], [
+                ("en", "en/p.json", Translation("P", """ "poll": { "text": "t", "options": ["a", "b"] } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*2 options, but the Spanish poll has 3*");
+    }
+
+    [Fact]
+    public void Parse_RejectsOptionsOnATranslatedNonPoll()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("en", "en/p.json", Translation("P", """ "a": { "text": "one", "options": ["x", "y"] } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*(en): only polls*");
+    }
+
+    [Fact]
+    public void Parse_RejectsAnEmptyTranslatedText()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("en", "en/p.json", Translation("P", """ "a": { "text": " " } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*(en): empty text*");
+    }
+
+    [Fact]
+    public void Parse_RejectsAnUnsupportedLanguage()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("fr", "fr/p.json", Translation("P", """ "a": { "text": "un" } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*'fr' is not a translation language*");
+    }
+
+    [Fact]
+    public void Parse_RejectsTwoTranslationFilesForTheSamePackAndLanguage()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("en", "en/p.json", Translation("P", """ "a": { "text": "one" } """)),
+                ("en", "en/p-again.json", Translation("P", """ "a": { "text": "one" } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*already has a 'en' translation file*");
+    }
+
+    [Fact]
+    public void Parse_RejectsAMisspelledPropertyInATranslation()
+    {
+        var act = () =>
+            PackCatalog.Parse([("p.json", Pack("P", 1, Superlative("a", "uno")))], [
+                ("en", "en/p.json", Translation("P", """ "a": { "txt": "one" } """)),
+            ]);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*txt*");
+    }
+
+    private static string Translation(string pack, string templates) =>
+        $$"""
+            { "pack": "{{pack}}", "name": "{{pack}} in English", "description": "d in English",
+              "templates": { {{templates}} } }
+            """;
+
     private static string Superlative(string key, string text) =>
         $$"""{ "key": "{{key}}", "type": "Superlative", "text": "{{text}}" }""";
 

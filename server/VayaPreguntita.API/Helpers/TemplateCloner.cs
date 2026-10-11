@@ -39,6 +39,7 @@ public static class TemplateCloner
         var question = new Question
         {
             Text = template.Text,
+            TextTranslations = new(template.TextTranslations),
             Type = template.Type,
             Source = QuestionSource.Pack,
             CreatorId = null,
@@ -51,7 +52,10 @@ public static class TemplateCloner
 
         if (template.Type == QuestionType.CustomPoll && template.Options.Count > 0)
         {
-            question.Options = template.Options.Select(o => new Option { Text = o.Text }).ToList();
+            question.Options = template
+                .Options.OrderBy(o => o.Id)
+                .Select(o => new Option { Text = o.Text, TextTranslations = new(o.TextTranslations) })
+                .ToList();
         }
 
         return question;

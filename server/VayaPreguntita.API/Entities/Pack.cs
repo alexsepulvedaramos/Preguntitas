@@ -6,6 +6,11 @@ public class Pack
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
+    // Name/description in the other languages, keyed by language code ("en", "de"; rama 24).
+    // Display only: Name stays the pack's identity in the catalog sync.
+    public Dictionary<string, string> NameTranslations { get; set; } = [];
+    public Dictionary<string, string> DescriptionTranslations { get; set; } = [];
+
     // Global master switch: whether this pack exists for groups at all.
     public bool IsActiveByDefault { get; set; } = true;
 

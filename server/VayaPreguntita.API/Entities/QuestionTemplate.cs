@@ -18,6 +18,10 @@ public class QuestionTemplate
     public bool IsRetired { get; set; }
 
     public string Text { get; set; } = string.Empty;
+
+    // Text in the other languages, keyed by language code ("en", "de"; rama 24).
+    public Dictionary<string, string> TextTranslations { get; set; } = [];
+
     public QuestionType Type { get; set; }
 
     // Reuses the same owned type as Question (stored as JSONB).
