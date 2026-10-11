@@ -1,0 +1,49 @@
+<div class="min-h-dvh flex flex-col bg-background">
+  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
+    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="nav.back()">
+      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
+      <span class="sr-only">Volver</span>
+    </button>
+    <h1 class="font-display text-lg italic tracking-tight text-foreground">Novedades</h1>
+  </header>
+
+  <div class="flex flex-col gap-6 p-4 pb-12 max-w-2xl mx-auto w-full">
+    <p class="pt-2 text-muted-foreground">
+      Lo que ha ido cambiando en Vaya Preguntita, de lo más nuevo a lo más antiguo.
+    </p>
+
+    <ol class="flex flex-col gap-4">
+      @for (release of releases; track release.version) {
+        <li hlmCard size="sm" [attr.aria-labelledby]="'release-' + release.version">
+          <div hlmCardHeader class="flex flex-col gap-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span hlmBadge variant="secondary">v{{ release.version }}</span>
+              @if (release.isNew) {
+                <span hlmBadge>Nuevo</span>
+              }
+              <time class="text-xs text-muted-foreground" [attr.datetime]="release.date">{{ release.displayDate }}</time>
+            </div>
+            <h2 [id]="'release-' + release.version" class="font-display text-xl italic tracking-tight text-foreground">
+              {{ release.title }}
+            </h2>
+          </div>
+          <ul hlmCardContent class="flex flex-col gap-3">
+            @for (item of release.items; track item.title) {
+              <li class="grid grid-cols-[1.75rem_1fr] gap-2 items-start">
+                <span class="text-lg leading-6" aria-hidden="true">{{ item.emoji }}</span>
+                <div class="flex flex-col">
+                  <span class="font-semibold text-foreground">{{ item.title }}</span>
+                  <span class="text-muted-foreground">{{ item.text }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </li>
+      }
+    </ol>
+
+    <div class="flex justify-center">
+      <a hlmBtn variant="outline" routerLink="/about">Cómo funciona el juego</a>
+    </div>
+  </div>
+</div>
