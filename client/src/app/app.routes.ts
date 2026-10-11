@@ -4,9 +4,12 @@ import { guestGuard } from './core/auth/guest.guard';
 
 export const routes: Routes = [
     {
+        // Public landing (rama 21): guests only, signed-in users go straight to /groups.
         path: '',
-        redirectTo: 'groups',
-        pathMatch: 'full'
+        pathMatch: 'full',
+        title: 'Vaya Preguntita — Una pregunta al día sobre tu grupo de amigos',
+        canActivate: [guestGuard],
+        loadComponent: () => import('./features/landing/landing-page.component').then(m => m.LandingPageComponent),
     },
     {
         path: 'auth',
@@ -81,8 +84,8 @@ export const routes: Routes = [
         loadComponent: () => import('./features/groups/components/join-by-link/join-by-link.component').then(m => m.JoinByLinkComponent),
     },
     {
-        // Fallback
+        // Fallback: the landing for guests, /groups for signed-in users
         path: '**',
-        redirectTo: 'groups'
+        redirectTo: ''
     }
 ];

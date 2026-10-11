@@ -44,6 +44,15 @@
               Próx. a las {{ nextQuestionTime() }}
             </span>
           }
+          @case ('no_question') {
+            <!-- Only happens before the group has 2 members (§4.3 start gate) -->
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
+            >
+              <ng-icon hlm name="lucideUserPlus" size="xs" />
+              Invita a alguien para empezar
+            </span>
+          }
           @default {
             @if (nextQuestionTime()) {
               <span

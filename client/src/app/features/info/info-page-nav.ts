@@ -13,7 +13,8 @@ export class InfoPageNav {
     if (window.history.length > 1) {
       this.location.back();
     } else {
-      this.router.navigate(['/groups']);
+      // The landing for guests; guestGuard sends signed-in users on to /groups.
+      this.router.navigate(['/']);
     }
   }
 }
