@@ -27,6 +27,7 @@ import { CountdownComponent } from '../countdown/countdown.component';
 import { SelectQuestionDialogComponent } from '../select-question-dialog/select-question-dialog.component';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 import { PullToRefreshDirective } from '../../../../shared/directives/pull-to-refresh.directive';
+import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
 import { GroupChatComponent } from '../group-chat/group-chat.component';
 import { StreakCelebrationComponent } from '../streak-celebration/streak-celebration.component';
 import { shareInvite } from '../../utils/invite-share';
@@ -49,6 +50,7 @@ import { shareInvite } from '../../utils/invite-share';
     SelectQuestionDialogComponent,
     WordStaggerPipe,
     PullToRefreshDirective,
+    MobileTopBarDirective,
     GroupChatComponent,
     HlmAlertImports,
     StreakCelebrationComponent,

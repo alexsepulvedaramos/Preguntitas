@@ -19,10 +19,12 @@ import { ResultsComponent } from '../results/results.component';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
 import { GroupStreaksService } from '../../services/group-streaks.service';
+import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
 @Component({
   selector: 'app-history',
   imports: [
     RouterLink,
+    MobileTopBarDirective,
     HlmButtonImports,
     HlmSkeletonImports,
     HlmSpinnerImports,

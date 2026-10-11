@@ -4,19 +4,24 @@ import { Router } from '@angular/router';
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBookOpen,
   lucideCircleUserRound,
   lucideLogOut,
   lucideMegaphone,
+  lucideMonitor,
+  lucideMoon,
   lucideSettings,
+  lucideSun,
   lucideX,
 } from '@ng-icons/lucide';
 
 import { AuthService } from '../../auth/auth.service';
 import { ReleaseNotesService } from '../../services/release-notes.service';
 import { PushNotificationService } from '../../services/push-notification.service';
+import { ThemePreference, ThemeService } from '../../services/theme.service';
 import { UserAvatarComponent } from '../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
@@ -26,6 +31,7 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
     HlmDrawerImports,
     HlmBadgeImports,
     HlmButtonImports,
+    HlmToggleGroupImports,
     NgIcon,
     UserAvatarComponent,
   ],
@@ -35,7 +41,10 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
       lucideCircleUserRound,
       lucideLogOut,
       lucideMegaphone,
+      lucideMonitor,
+      lucideMoon,
       lucideSettings,
+      lucideSun,
       lucideX,
     })
   ],
@@ -44,8 +53,19 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
 export class UserMenuComponent {
   public readonly authService = inject(AuthService);
   public readonly releaseNotes = inject(ReleaseNotesService);
+  public readonly theme = inject(ThemeService);
   private readonly push = inject(PushNotificationService);
   private readonly router = inject(Router);
+
+  protected readonly themeOptions: { value: ThemePreference; label: string; icon: string }[] = [
+    { value: 'light', label: 'Claro', icon: 'lucideSun' },
+    { value: 'dark', label: 'Oscuro', icon: 'lucideMoon' },
+    { value: 'system', label: 'Sistema', icon: 'lucideMonitor' },
+  ];
+
+  setTheme(value: ThemePreference | ThemePreference[] | null | undefined): void {
+    if (typeof value === 'string') this.theme.setPreference(value);
+  }
 
   navigate(ctx: any, path: string): void {
     ctx.close();

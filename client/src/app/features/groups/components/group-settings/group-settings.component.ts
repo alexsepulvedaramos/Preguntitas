@@ -36,11 +36,13 @@ import { PacksService } from '../../../../core/services/packs.service';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { Pack } from '../../../../core/models/pack.model';
+import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
 
 @Component({
   selector: 'app-group-settings',
   imports: [
     RouterLink,
+    MobileTopBarDirective,
     FormsModule,
     HlmButtonImports,
     HlmInputImports,

@@ -68,6 +68,27 @@
         </div>
       </div>
 
+      <!-- Theme -->
+      <div class="flex flex-col gap-2">
+        <span id="theme-label" class="text-sm font-medium text-foreground">Tema</span>
+        <hlm-toggle-group
+          type="single"
+          variant="outline"
+          [nullable]="false"
+          [value]="theme.preference()"
+          (valueChange)="setTheme($event)"
+          aria-labelledby="theme-label"
+          class="w-full"
+        >
+          @for (option of themeOptions; track option.value) {
+            <button hlmToggleGroupItem [value]="option.value" class="flex-1 gap-2">
+              <ng-icon hlm [name]="option.icon" class="size-4!" />
+              {{ option.label }}
+            </button>
+          }
+        </hlm-toggle-group>
+      </div>
+
       <!-- Actions -->
       <div class="flex flex-col gap-2">
         <button

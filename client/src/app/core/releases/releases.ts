@@ -18,6 +18,23 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.9.0',
+    date: '2026-10-11',
+    title: 'Más pantalla para jugar',
+    items: [
+      {
+        emoji: '📱',
+        title: 'Una sola barra dentro del grupo',
+        text: 'En el móvil, al entrar en un grupo desaparece la barra de arriba con el logo: solo queda la del grupo (volver, historial y ajustes), que se queda fija al hacer scroll. Más sitio para la pregunta del día.',
+      },
+      {
+        emoji: '🌗',
+        title: 'El tema, en tu menú',
+        text: 'El cambio de modo claro u oscuro está ahora en tu menú de usuario, y hay una opción nueva, «Sistema», que sigue lo que tengas puesto en el móvil.',
+      },
+    ],
+  },
+  {
     version: '1.8.0',
     date: '2026-10-11',
     title: 'Notificaciones más ordenadas',
