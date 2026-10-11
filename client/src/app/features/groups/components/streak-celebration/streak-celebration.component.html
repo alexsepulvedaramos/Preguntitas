@@ -14,8 +14,8 @@
   <div class="relative z-[2] flex max-w-sm flex-col items-center gap-3.5">
     <div class="vp-celebration__forge mb-6 mt-4">
       <app-user-avatar
-        [avatarUrl]="authService.currentUser()?.avatarUrl"
-        [username]="authService.currentUser()?.username ?? ''"
+        [avatarUrl]="shownAvatarUrl()"
+        [username]="shownUsername()"
         [frameColor]="frameStreak"
         [streak]="update().current"
         size="xl"

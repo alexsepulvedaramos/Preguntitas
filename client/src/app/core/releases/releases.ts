@@ -18,6 +18,23 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.7.0',
+    date: '2026-10-11',
+    title: 'Pruébalo sin cuenta',
+    items: [
+      {
+        emoji: '🎮',
+        title: 'Un día de prueba',
+        text: 'Ahora puedes jugar un día entero en un grupo de mentira sin registrarte: votas, ves quién ha votado a quién, eliges la pregunta de mañana y estrenas tu primer marco. Está en la portada, en «Cómo funciona» y, si aún no tienes grupo, en tu lista de grupos.',
+      },
+      {
+        emoji: '📲',
+        title: 'Para convencer a tus amigos',
+        text: 'Si alguien no acaba de pillar de qué va, mándale la demo: en menos de un minuto lo entiende.',
+      },
+    ],
+  },
+  {
     version: '1.6.1',
     date: '2026-10-11',
     title: 'Actualizaciones al momento',

@@ -6,32 +6,16 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { VoteResponse } from '../../../../core/models/streak.model';
-import { QuestionType } from '../../../../core/enums/question-type.enum';
-import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { GroupMember } from '../../models/group.models';
 
-import { SuperlativeVoteComponent } from '../superlative-vote/superlative-vote.component';
-import { DeathmatchVoteComponent } from '../deathmatch-vote/deathmatch-vote.component';
-import { ScaleVoteComponent } from '../scale-vote/scale-vote.component';
-import { SecretPairingVoteComponent } from '../secret-pairing-vote/secret-pairing-vote.component';
-import { CustomPollVoteComponent } from '../custom-poll-vote/custom-poll-vote.component';
-import { OpenTextVoteComponent } from '../open-text-vote/open-text-vote.component';
+import { VoteFormComponent } from '../vote-form/vote-form.component';
 
-// Voting dispatcher (rama 6, spec §13 row 6): renders today's question and, based on
-// its type, one of the 5 picker sub-components. It owns the single POST daily/vote
-// call so error/loading handling isn't duplicated across the per-type components.
+// Voting dispatcher (rama 6, spec §13 row 6): renders today's question through
+// `app-vote-form` (question + per-type picker) and owns the single POST daily/vote call,
+// so error/loading handling isn't duplicated across the per-type components.
 @Component({
   selector: 'app-vote',
-  imports: [
-    HlmSpinnerImports,
-    SuperlativeVoteComponent,
-    DeathmatchVoteComponent,
-    ScaleVoteComponent,
-    SecretPairingVoteComponent,
-    CustomPollVoteComponent,
-    OpenTextVoteComponent,
-  ],
+  imports: [HlmSpinnerImports, VoteFormComponent],
   templateUrl: './vote.component.html',
 })
 export class VoteComponent {
@@ -45,16 +29,6 @@ export class VoteComponent {
 
   public readonly submitting = signal(false);
   public readonly error = signal<string | null>(null);
-
-  protected readonly QuestionType = QuestionType;
-
-  questionTypeLabel(): string {
-    return QUESTION_TYPE_LABELS[this.question().type];
-  }
-
-  questionTypeBadgeClass(): string {
-    return QUESTION_TYPE_BADGE_CLASS[this.question().type];
-  }
 
   submit(dto: CreateVote) {
     this.error.set(null);

@@ -79,6 +79,13 @@ export const routes: Routes = [
         ]
     },
     {
+        // Interactive demo (rama 25): one simulated day with mock data. No guard — open to
+        // guests and signed-in users; own light layout like the landing.
+        path: 'demo',
+        title: 'Pruébalo — Vaya Preguntita',
+        loadComponent: () => import('./features/demo/demo-page.component').then(m => m.DemoPageComponent),
+    },
+    {
         path: 'join/:code',
         title: 'Unirse al grupo',
         loadComponent: () => import('./features/groups/components/join-by-link/join-by-link.component').then(m => m.JoinByLinkComponent),
