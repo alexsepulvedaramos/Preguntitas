@@ -40,6 +40,12 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("DailyEntryId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("StreakDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StreakUsername")
+                        .HasColumnType("text");
+
                     b.Property<int?>("UserId")
                         .HasColumnType("integer");
 

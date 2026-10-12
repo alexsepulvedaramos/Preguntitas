@@ -664,6 +664,15 @@ export const de: Translation = {
     },
   },
   streaks: {
+    titles: {
+      wood: 'Tratsch-Azubi',
+      stone: 'Anonyme Quelle',
+      bronze: 'Gut informierte Quelle',
+      silver: 'Talkshow-Dauergast',
+      gold: 'Orakel des Klatschs',
+      sapphire: 'Klatschpresse-Profi',
+      amethyst: 'Die Gardinenspionin',
+    },
     frames: {
       wood: 'Holzrahmen',
       stone: 'Steinrahmen',

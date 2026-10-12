@@ -8,12 +8,15 @@ namespace VayaPreguntita.API.Localization;
 public static class ContentTranslations
 {
     // Languages pack content is translated into. Spanish is not listed: it is the original.
-    public static readonly string[] Languages = ["en", "de"];
+    public static readonly string[] Languages =
+    [
+        .. AppLanguages.Supported.Where(lang => lang != AppLanguages.Default),
+    ];
 
     // The language of the current request: the UI language the client sends as
-    // Accept-Language (CurrentUICulture). Anything unsupported reads the Spanish original.
+    // Accept-Language (CurrentUICulture, see UseRequestLocalization in Program.cs).
     public static string RequestLanguage =>
-        CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
+        AppLanguages.Normalize(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
 
     public static string Pick(string original, IReadOnlyDictionary<string, string>? translations) =>
         Pick(original, translations, RequestLanguage);

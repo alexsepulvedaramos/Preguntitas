@@ -51,6 +51,18 @@ namespace VayaPreguntita.API.Migrations
                 type: "jsonb",
                 nullable: false,
                 defaultValueSql: "'{}'::jsonb");
+
+            migrationBuilder.AddColumn<int>(
+                name: "StreakDays",
+                table: "ChatMessages",
+                type: "integer",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "StreakUsername",
+                table: "ChatMessages",
+                type: "text",
+                nullable: true);
         }
 
         /// <inheritdoc />
@@ -79,6 +91,14 @@ namespace VayaPreguntita.API.Migrations
             migrationBuilder.DropColumn(
                 name: "TextTranslations",
                 table: "Options");
+
+            migrationBuilder.DropColumn(
+                name: "StreakDays",
+                table: "ChatMessages");
+
+            migrationBuilder.DropColumn(
+                name: "StreakUsername",
+                table: "ChatMessages");
         }
     }
 }

@@ -159,7 +159,7 @@ export const DEMO_PICKS: readonly DemoPick[] = [
 ];
 
 // The vote that takes the visitor's streak from 2 to 3: first frame and first title.
-export function demoStreakUpdate(): StreakUpdate {
+export function demoStreakUpdate(t: (key: TranslationKey) => string): StreakUpdate {
   const current = DEMO_VISITOR_STREAK_AFTER;
   const tier = streakTierFor(current)!;
   const next = nextStreakTier(current);
@@ -168,12 +168,12 @@ export function demoStreakUpdate(): StreakUpdate {
     current,
     best: current,
     tierKey: tier.key,
-    tierTitle: tier.title,
+    tierTitle: t(tier.titleKey),
     isTierUp: true,
     titleUnlocked: true,
     milestoneLabel: null,
     nextTierKey: next?.key ?? null,
-    nextTierTitle: next?.title ?? null,
+    nextTierTitle: next ? t(next.titleKey) : null,
     nextTierAt: next?.minDays ?? null,
     daysToNextTier: next ? next.minDays - current : null,
   };
@@ -185,7 +185,7 @@ export const DEMO_TEASED_FRAMES = STREAK_TIERS.filter((t) => TEASED_TIERS.includ
   key: t.key,
   avatarUrl: avatarFor(t.key),
   streak: t.minDays,
-  title: t.title,
+  titleKey: t.titleKey,
 }));
 
 export type DemoStep = 'intro' | 'vote' | 'results' | 'select' | 'jump' | 'final';

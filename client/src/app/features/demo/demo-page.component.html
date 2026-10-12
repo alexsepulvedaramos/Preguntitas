@@ -263,7 +263,7 @@
                     />
                   </span>
                   <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.label }}</span>
-                  <span class="text-sm italic text-foreground">{{ t('common.quoted', { text: frame.title }) }}</span>
+                  <span class="text-sm italic text-foreground">{{ t('common.quoted', { text: t(frame.titleKey) }) }}</span>
                 </li>
               }
             </ul>
@@ -301,7 +301,7 @@
 
 @if (celebrating()) {
   <app-streak-celebration
-    [update]="streakUpdate"
+    [update]="streakUpdate()"
     [username]="nickname()"
     (dismissed)="onCelebrationDismissed()"
   />

@@ -194,6 +194,34 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
         );
     }
 
+    [Fact]
+    public async Task StreakChatMessages_ReadInTheReadersLanguage_OldOnesAsWritten()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        var (entryId, _) = await AddActivatedDayAsync(group.Id, Today, group["ana"]);
+        Clock.SetLocal(Today, new TimeOnly(22, 0));
+        await using (var db = NewContext())
+        {
+            db.ChatMessages.AddRange(
+                new ChatMessage { DailyEntryId = entryId, Body = "🔥 ana lleva 7 días seguidos · ¡Fuente anónima!", StreakUsername = "ana", StreakDays = 7 },
+                new ChatMessage { DailyEntryId = entryId, Body = "Mensaje de sistema antiguo", CreatedAt = DateTime.UtcNow.AddSeconds(1) }
+            );
+            await db.SaveChangesAsync();
+        }
+
+        var bodies = await ChatAsync("en", group.Id, group["bea"]);
+
+        bodies.Should().Equal("🔥 ana is on a 7-day streak · Anonymous Source!", "Mensaje de sistema antiguo");
+    }
+
+    private async Task<List<string>> ChatAsync(string language, int groupId, int userId)
+    {
+        CultureInfo.CurrentUICulture = new CultureInfo(language);
+        await using var db = NewContext();
+        var messages = await new ChatService(db, Notifications.Object).GetMessagesAsync(groupId, userId);
+        return messages!.Select(m => m.Body).ToList();
+    }
+
     private async Task<int> CloneIdAsync(int templateId)
     {
         await using var db = NewContext();

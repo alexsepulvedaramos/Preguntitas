@@ -12,7 +12,7 @@ using VayaPreguntita.API.Data;
 namespace VayaPreguntita.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261012100847_AddContentTranslations")]
+    [Migration("20261012101355_AddContentTranslations")]
     partial class AddContentTranslations
     {
         /// <inheritdoc />
@@ -42,6 +42,12 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<int>("DailyEntryId")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("StreakDays")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StreakUsername")
+                        .HasColumnType("text");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("integer");

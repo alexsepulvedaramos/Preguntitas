@@ -1,8 +1,8 @@
 import { TranslationKey } from '../i18n/translation.types';
 
 // Streak tiers, titles and milestones (rama 19, spec §13). Mirrors the backend
-// Helpers/StreakTiers.cs — keep both in sync. Titles are still Spanish-only: adapting them
-// per language is content work (rama 24); material names are UI copy (STREAK_MATERIAL_KEYS).
+// Helpers/StreakTiers.cs — keep both in sync. Titles are translation keys, adapted per
+// language (rama 24); material names are UI copy (STREAK_MATERIAL_KEYS).
 
 export type StreakTierKey =
   | 'wood'
@@ -15,20 +15,20 @@ export type StreakTierKey =
 
 export interface StreakTier {
   key: StreakTierKey;
-  // Unlockable title shown on the profile and member card.
-  title: string;
+  // Unlockable title shown on the profile and member card — render with t(titleKey).
+  titleKey: TranslationKey;
   minDays: number;
 }
 
 // Below the first tier (days 1–2) there is no frame and no title.
 export const STREAK_TIERS: readonly StreakTier[] = [
-  { key: 'wood', title: 'Cotilla en prácticas', minDays: 3 },
-  { key: 'stone', title: 'Fuente anónima', minDays: 7 },
-  { key: 'bronze', title: 'Fuente bien informada', minDays: 15 },
-  { key: 'silver', title: 'Carne de tertulia', minDays: 30 },
-  { key: 'gold', title: 'Oráculo del salseo', minDays: 100 },
-  { key: 'sapphire', title: 'Colaborador de Sálvame', minDays: 182 },
-  { key: 'amethyst', title: 'La Vieja del Visillo', minDays: 365 },
+  { key: 'wood', titleKey: 'streaks.titles.wood', minDays: 3 },
+  { key: 'stone', titleKey: 'streaks.titles.stone', minDays: 7 },
+  { key: 'bronze', titleKey: 'streaks.titles.bronze', minDays: 15 },
+  { key: 'silver', titleKey: 'streaks.titles.silver', minDays: 30 },
+  { key: 'gold', titleKey: 'streaks.titles.gold', minDays: 100 },
+  { key: 'sapphire', titleKey: 'streaks.titles.sapphire', minDays: 182 },
+  { key: 'amethyst', titleKey: 'streaks.titles.amethyst', minDays: 365 },
 ];
 
 // The frame named inside a sentence ("marco de madera", "wood frame", "Holzrahmen").

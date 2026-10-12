@@ -80,7 +80,7 @@ public class DailyCycleRunner(
 
             foreach (var entry in entriesToActivate)
                 _ = notificationService.SendNewQuestionAsync(
-                    entry.GroupId, entry.Group.Name, entry.Question.Text);
+                    entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations);
         }
 
         // ── SELECTOR REMINDER (if no manual selection after SelectorReminderDelay) ──

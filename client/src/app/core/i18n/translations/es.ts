@@ -665,6 +665,16 @@ export const es = {
     },
   },
   streaks: {
+    // Unlockable streak titles — adapted per language, not translated (rama 24).
+    titles: {
+      wood: 'Cotilla en prácticas',
+      stone: 'Fuente anónima',
+      bronze: 'Fuente bien informada',
+      silver: 'Carne de tertulia',
+      gold: 'Oráculo del salseo',
+      sapphire: 'Colaborador de Sálvame',
+      amethyst: 'La Vieja del Visillo',
+    },
     // A frame named inside a sentence ("Nuevo título desbloqueado · marco de madera").
     frames: {
       wood: 'marco de madera',

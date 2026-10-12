@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Chat;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
@@ -67,19 +68,33 @@ public class ChatService(AppDbContext context, INotificationService notification
             .OrderByDescending(d => d.Date)
             .FirstOrDefaultAsync();
 
-    private async Task<IEnumerable<ChatMessageDto>> BuildMessageDtosAsync(int dailyEntryId, int currentUserId) =>
-        await context.ChatMessages
+    private async Task<IEnumerable<ChatMessageDto>> BuildMessageDtosAsync(int dailyEntryId, int currentUserId)
+    {
+        var messages = await context.ChatMessages
             .Where(m => m.DailyEntryId == dailyEntryId)
             .OrderBy(m => m.CreatedAt)
-            .Select(m => new ChatMessageDto
+            .Select(m => new
             {
-                Id = m.Id,
-                Body = m.Body,
-                CreatedAt = m.CreatedAt,
-                UserId = m.UserId,
-                Username = m.User != null ? m.User.Username : null,
-                IsSystem = m.UserId == null,
-                IsCurrentUser = m.UserId == currentUserId,
+                Dto = new ChatMessageDto
+                {
+                    Id = m.Id,
+                    Body = m.Body,
+                    CreatedAt = m.CreatedAt,
+                    UserId = m.UserId,
+                    Username = m.User != null ? m.User.Username : null,
+                    IsSystem = m.UserId == null,
+                    IsCurrentUser = m.UserId == currentUserId,
+                },
+                m.StreakUsername,
+                m.StreakDays,
             })
             .ToListAsync();
+
+        // Streak messages are written in the reader's language (rama 24).
+        var language = ContentTranslations.RequestLanguage;
+        foreach (var m in messages.Where(m => m.StreakUsername != null && m.StreakDays != null))
+            m.Dto.Body = StreakTiers.ChatMessage(language, m.StreakUsername!, m.StreakDays!.Value) ?? m.Dto.Body;
+
+        return messages.Select(m => m.Dto);
+    }
 }

@@ -129,7 +129,7 @@ export class DemoPageComponent {
   protected readonly result = signal<QuestionResult | null>(null);
   protected readonly pickedId = signal<number | null>(null);
   protected readonly celebrating = signal(false);
-  protected readonly streakUpdate = demoStreakUpdate();
+  protected readonly streakUpdate = computed(() => demoStreakUpdate(this.t));
 
   // Countdown to the group's next daily time, like the real group screen.
   protected readonly closesAt = nextDailyTime(DEMO_DAILY_HOUR);
