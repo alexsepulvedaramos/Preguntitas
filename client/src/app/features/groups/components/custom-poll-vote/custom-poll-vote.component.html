@@ -17,7 +17,7 @@
       [attr.aria-pressed]="otherSelected()"
       (click)="toggleOther()"
     >
-      Otro...
+      {{ t('vote.other') }}
     </button>
     @if (otherSelected()) {
       <input
@@ -25,7 +25,7 @@
         maxlength="280"
         [value]="otherText()"
         (input)="onOtherInput($any($event.target).value)"
-        placeholder="Escribe tu respuesta"
+        [placeholder]="t('vote.otherPlaceholder')"
         class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
       />
     }
@@ -39,5 +39,5 @@
   [disabled]="!isValid()"
   (click)="submit()"
 >
-  Votar
+  {{ t('vote.submit') }}
 </button>

@@ -15,7 +15,9 @@ import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { AuthService } from '../../core/auth/auth.service';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../core/constants/question-type-colors';
 import { QUESTION_TYPE_LABELS } from '../../core/constants/question-type-labels';
-import { FRAME_STREAK } from '../../core/constants/streak-tiers';
+import { FRAME_STREAK, STREAK_MATERIAL_KEYS } from '../../core/constants/streak-tiers';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
 import { LogoWordmarkComponent } from '../../core/layout/logo/logo-wordmark.component';
 import { ThemeComponent } from '../../core/layout/theme/theme.component';
 import { QuestionResult } from '../../core/models/result.model';
@@ -30,13 +32,11 @@ import { VoteFormComponent } from '../groups/components/vote-form/vote-form.comp
 import { voteOptionClass } from '../groups/components/vote/vote-option.util';
 import { GroupStreaksService } from '../groups/services/group-streaks.service';
 import {
-  DEMO_COPY,
   DEMO_DAILY_HOUR,
-  DEMO_DEFAULT_NICKNAME,
   DEMO_FRIEND_COUNT,
   DEMO_FRIENDS_VOTING_VISITOR,
   DEMO_GROUP_ID,
-  DEMO_GROUP_NAME,
+  DEMO_LOST_STREAK,
   DEMO_NICKNAME_MAX_LENGTH,
   DEMO_PICKS,
   DEMO_QUESTION,
@@ -65,6 +65,7 @@ import {
     HlmProgressImports,
     LogoWordmarkComponent,
     ThemeComponent,
+    LanguagePickerComponent,
     UserAvatarComponent,
     WordStaggerPipe,
     CountdownComponent,
@@ -97,12 +98,20 @@ import {
 export class DemoPageComponent {
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
-  protected readonly copy = DEMO_COPY;
-  protected readonly groupName = DEMO_GROUP_NAME;
-  protected readonly question = DEMO_QUESTION;
+  protected readonly groupName = computed(() => this.t('demo.groupName'));
+  protected readonly question = computed(() => ({ ...DEMO_QUESTION, text: this.t('demo.question') }));
   protected readonly picks = DEMO_PICKS;
-  protected readonly teasedFrames = DEMO_TEASED_FRAMES;
+  protected readonly teasedFrames = computed(() =>
+    DEMO_TEASED_FRAMES.map((frame) => {
+      const material = this.t(STREAK_MATERIAL_KEYS[frame.key]);
+      return { ...frame, username: material, label: `${material} · ${this.t('common.days', { count: frame.streak })}` };
+    })
+  );
+  protected readonly jumpDays = [1, 2, 3];
+  protected readonly dailyTime = `${DEMO_DAILY_HOUR}:00`;
+  protected readonly lostStreak = DEMO_LOST_STREAK;
   protected readonly nicknameMaxLength = DEMO_NICKNAME_MAX_LENGTH;
   protected readonly frameStreak = FRAME_STREAK;
   protected readonly typeLabels = QUESTION_TYPE_LABELS;
@@ -125,11 +134,10 @@ export class DemoPageComponent {
   // Countdown to the group's next daily time, like the real group screen.
   protected readonly closesAt = nextDailyTime(DEMO_DAILY_HOUR);
 
-  protected readonly nickname = computed(
-    () => this.nicknameDraft().trim().slice(0, DEMO_NICKNAME_MAX_LENGTH) || DEMO_DEFAULT_NICKNAME
-  );
+  private readonly customNickname = computed(() => this.nicknameDraft().trim().slice(0, DEMO_NICKNAME_MAX_LENGTH));
+  protected readonly nickname = computed(() => this.customNickname() || this.t('common.you'));
   // The default "Tú" already says who it is; a chosen name gets a "(tú)" next to it.
-  protected readonly hasCustomNickname = computed(() => this.nickname() !== DEMO_DEFAULT_NICKNAME);
+  protected readonly hasCustomNickname = computed(() => this.customNickname() !== '');
 
   protected readonly membersBefore = computed(() => demoMembers(this.nickname(), 'before'));
   protected readonly membersAfter = computed(() =>
@@ -142,12 +150,15 @@ export class DemoPageComponent {
     Math.round((DEMO_STEPS.indexOf(this.step()) / (DEMO_STEPS.length - 1)) * 100)
   );
 
-  protected readonly votedLabel = computed(() => {
-    const total = this.result()?.totalVotes ?? 0;
-    return DEMO_COPY.results.votedLabel(total, this.membersBefore().length);
-  });
+  protected readonly votedLabel = computed(() =>
+    this.t('demo.results.voted', { voted: this.result()?.totalVotes ?? 0, total: this.membersBefore().length })
+  );
 
-  protected readonly punchline = DEMO_COPY.results.punchline(DEMO_FRIENDS_VOTING_VISITOR, DEMO_FRIEND_COUNT);
+  protected readonly punchline = computed(() =>
+    DEMO_FRIENDS_VOTING_VISITOR === DEMO_FRIEND_COUNT
+      ? this.t('demo.results.punchlineAll', { total: DEMO_FRIEND_COUNT })
+      : this.t('demo.results.punchlineSome', { count: DEMO_FRIENDS_VOTING_VISITOR, total: DEMO_FRIEND_COUNT })
+  );
 
   start(): void {
     this.groupStreaks.set(DEMO_GROUP_ID, this.membersBefore());
@@ -157,7 +168,7 @@ export class DemoPageComponent {
   onVote(vote: CreateVote): void {
     const target = vote.selectedTargetUserId;
     if (target == null) return;
-    this.result.set(demoResult(this.membersBefore(), target));
+    this.result.set(demoResult(this.question(), this.membersBefore(), target));
     this.go('results');
   }
 

@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toast } from '@spartan-ng/brain/sonner';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PushNotificationService } from '../../../core/services/push-notification.service';
+import { I18nService } from '../../../core/i18n/i18n.service';
 
 @Component({
   selector: 'app-push-notification-prompt',
@@ -13,15 +14,15 @@ import { PushNotificationService } from '../../../core/services/push-notificatio
           <div class="flex items-start gap-3">
             <div class="shrink-0 w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-lg">🔔</div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-foreground leading-tight">¿Te avisamos de la pregunta?</p>
+              <p class="text-sm font-semibold text-foreground leading-tight">{{ t('pushPrompt.title') }}</p>
               <p class="text-xs text-muted-foreground mt-0.5 leading-snug">
-                Recibe una notificación cuando llegue la pregunta del día y cuando te toque elegir.
+                {{ t('pushPrompt.text') }}
               </p>
             </div>
             <button
               (click)="dismiss()"
               class="shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label="Cerrar"
+              [attr.aria-label]="t('common.close')"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -36,13 +37,13 @@ import { PushNotificationService } from '../../../core/services/push-notificatio
               class="flex-1 text-xs font-semibold bg-accent text-accent-foreground px-3 py-2 rounded-lg
                      hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none"
             >
-              {{ loading() ? 'Activando…' : 'Activar notificaciones' }}
+              {{ loading() ? t('pushPrompt.activating') : t('pushPrompt.activate') }}
             </button>
             <button
               (click)="dismiss()"
               class="text-xs text-muted-foreground px-3 py-2 rounded-lg hover:bg-muted transition-colors"
             >
-              Ahora no
+              {{ t('common.notNow') }}
             </button>
           </div>
         </div>
@@ -53,6 +54,7 @@ import { PushNotificationService } from '../../../core/services/push-notificatio
 export class PushNotificationPromptComponent implements OnInit {
   private readonly pushService = inject(PushNotificationService);
   private readonly auth = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
   private readonly delayElapsed = signal(false);
   private readonly closed = signal(false);
@@ -78,7 +80,7 @@ export class PushNotificationPromptComponent implements OnInit {
     const ok = await this.pushService.requestAndSubscribe();
     this.loading.set(false);
     if (!ok && this.pushService.permission() !== 'denied') {
-      toast.error('No se han podido activar las notificaciones. Puedes hacerlo desde tu perfil.');
+      toast.error(this.t('pushPrompt.error'));
     }
     this.closed.set(true);
   }

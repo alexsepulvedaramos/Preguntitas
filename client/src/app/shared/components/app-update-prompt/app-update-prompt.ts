@@ -7,6 +7,7 @@ import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { AppUpdateService } from '../../../core/services/app-update.service';
+import { I18nService } from '../../../core/i18n/i18n.service';
 
 // "New version" card (release 1.6.1). The app root imports it dynamically only once
 // AppUpdateService reports a version ready, so its Helm imports stay out of the initial bundle.
@@ -23,17 +24,17 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
               <ng-icon hlm name="lucideRefreshCw" size="20px" />
             </span>
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-              <p class="text-sm font-semibold leading-tight text-foreground">Hay una versión nueva</p>
-              <p class="text-xs text-muted-foreground">Actualiza para ver las novedades. Solo tarda un segundo.</p>
+              <p class="text-sm font-semibold leading-tight text-foreground">{{ t('appUpdate.title') }}</p>
+              <p class="text-xs text-muted-foreground">{{ t('appUpdate.text') }}</p>
             </div>
           </div>
           <div class="flex justify-end gap-2">
-            <button hlmBtn variant="ghost" size="sm" [disabled]="updating()" (click)="appUpdate.dismiss()">Luego</button>
+            <button hlmBtn variant="ghost" size="sm" [disabled]="updating()" (click)="appUpdate.dismiss()">{{ t('appUpdate.later') }}</button>
             <button hlmBtn size="sm" [disabled]="updating()" (click)="update()">
               @if (updating()) {
                 <hlm-spinner />
               }
-              Actualizar
+              {{ t('appUpdate.update') }}
             </button>
           </div>
         </div>
@@ -44,6 +45,7 @@ import { AppUpdateService } from '../../../core/services/app-update.service';
 export class AppUpdatePromptComponent {
   protected readonly appUpdate = inject(AppUpdateService);
   protected readonly updating = signal(false);
+  protected readonly t = inject(I18nService).t;
 
   protected update(): void {
     this.updating.set(true);

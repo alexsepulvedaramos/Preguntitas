@@ -433,6 +433,13 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasDefaultValue("es");
+
                     b.Property<string>("SelectedTitleKey")
                         .HasColumnType("text");
 

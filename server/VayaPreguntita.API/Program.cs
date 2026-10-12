@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -5,6 +6,7 @@ using Lib.Net.Http.WebPush;
 using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using VayaPreguntita.API.BackgroundServices;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Options;
 using VayaPreguntita.API.Services;
 using VayaPreguntita.API.Validators;
@@ -177,6 +180,20 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/healthz").AllowAnonymous();
 
 app.UseCors("DynamicCorsPolicy");
+
+// Player-facing messages answer in the UI language the client sends as Accept-Language
+// (rama 23). Only the UI culture follows the request: number/date formatting stays
+// invariant, and anything unsupported falls back to Spanish.
+app.UseRequestLocalization(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture(
+        CultureInfo.InvariantCulture,
+        new CultureInfo(AppLanguages.Default));
+    options.SupportedCultures = [CultureInfo.InvariantCulture];
+    options.SupportedUICultures = AppLanguages.Supported.Select(lang => new CultureInfo(lang)).ToList();
+    options.FallBackToParentUICultures = true;
+});
+
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

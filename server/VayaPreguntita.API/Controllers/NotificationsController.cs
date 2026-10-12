@@ -7,6 +7,7 @@ using VayaPreguntita.API.DTOs.Notifications;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Extensions;
 using VayaPreguntita.API.Options;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Controllers;
 
@@ -83,7 +84,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
     public async Task<IActionResult> UpdatePreferences([FromBody] NotificationPreferencesDto dto)
     {
         if (!NotificationPreferencesDto.AllowedStreakDangerHours.Contains(dto.StreakDangerHoursBefore))
-            return BadRequest("Invalid streak reminder lead time.");
+            return BadRequest(ServerText.InvalidStreakLeadTime);
 
         var userId = User.GetUserId();
         var prefs = await context.NotificationPreferences.FindAsync(userId);

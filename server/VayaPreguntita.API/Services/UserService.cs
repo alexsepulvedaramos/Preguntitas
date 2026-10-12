@@ -5,6 +5,7 @@ using VayaPreguntita.API.DTOs.Users;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Helpers;
 using System.Text.RegularExpressions;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
@@ -33,6 +34,7 @@ public class UserService(
             HighestStreak = await streakService.GetHighestStreakAsync(userId),
             HighestStreakEver = user.HighestStreakEver,
             SelectedTitleKey = user.SelectedTitleKey,
+            PreferredLanguage = user.PreferredLanguage,
             Title = StreakTiers.DisplayedTitle(user.HighestStreakEver, user.SelectedTitleKey),
             UnlockedTitles = StreakTiers
                 .UnlockedBy(user.HighestStreakEver)
@@ -44,7 +46,7 @@ public class UserService(
     public async Task<(bool Success, string? Error)> UpdateProfileAsync(int userId, UpdateProfileRequestDto request)
     {
         var user = await context.Users.FindAsync(userId);
-        if (user is null) return (false, "User not found.");
+        if (user is null) return (false, "USER_NOT_FOUND");
 
         if (!string.IsNullOrWhiteSpace(request.Username))
         {
@@ -81,7 +83,7 @@ public class UserService(
             if (frame.Length == 0)
                 frame = FrameColors.None;
             if (frame != FrameColors.Streak && frame != FrameColors.None && !HexColor.IsMatch(frame))
-                return (false, "Invalid frame color.");
+                return (false, "INVALID_FRAME_COLOR");
             user.FrameColor = frame;
         }
 
@@ -95,7 +97,14 @@ public class UserService(
             else if (StreakTiers.UnlockedBy(user.HighestStreakEver).Any(t => t.Key == key))
                 user.SelectedTitleKey = key;
             else
-                return (false, "Title not unlocked.");
+                return (false, "TITLE_NOT_UNLOCKED");
+        }
+
+        if (request.PreferredLanguage is not null)
+        {
+            if (!AppLanguages.IsSupported(request.PreferredLanguage))
+                return (false, "INVALID_LANGUAGE");
+            user.PreferredLanguage = request.PreferredLanguage;
         }
 
         await context.SaveChangesAsync();
@@ -105,13 +114,13 @@ public class UserService(
     public async Task<(bool Success, string? Error)> ChangePasswordAsync(int userId, ChangePasswordRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.CurrentPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
-            return (false, "Both current and new password are required.");
+            return (false, "PASSWORDS_REQUIRED");
 
         if (request.NewPassword.Length < 8)
-            return (false, "New password must be at least 8 characters.");
+            return (false, "PASSWORD_TOO_SHORT");
 
         var user = await context.Users.FindAsync(userId);
-        if (user is null) return (false, "User not found.");
+        if (user is null) return (false, "USER_NOT_FOUND");
 
         var verification = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
         if (verification == PasswordVerificationResult.Failed)
@@ -124,12 +133,12 @@ public class UserService(
 
     public async Task<(bool Success, string? AvatarUrl, string? Error)> UploadAvatarAsync(int userId, IFormFile file)
     {
-        if (file.Length == 0) return (false, null, "No file provided.");
-        if (file.Length > MaxFileSizeBytes) return (false, null, "File exceeds 5 MB limit.");
-        if (!AllowedImageTypes.Contains(file.ContentType)) return (false, null, "Invalid image type.");
+        if (file.Length == 0) return (false, null, "NO_FILE");
+        if (file.Length > MaxFileSizeBytes) return (false, null, "FILE_TOO_LARGE");
+        if (!AllowedImageTypes.Contains(file.ContentType)) return (false, null, "INVALID_IMAGE_TYPE");
 
         var user = await context.Users.FindAsync(userId);
-        if (user is null) return (false, null, "User not found.");
+        if (user is null) return (false, null, "USER_NOT_FOUND");
 
         try
         {

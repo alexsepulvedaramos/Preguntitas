@@ -18,6 +18,8 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { RegisterRequest } from '../../models/register-request.interface';
 import { AuthValidators } from '../../validators/auth.validators';
 import { ResultsShowcaseComponent } from '../showcase/results-showcase.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 
 @Component({
   selector: 'app-register',
@@ -31,8 +33,10 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private readonly i18n = inject(I18nService);
+  protected readonly t = this.i18n.t;
 
-  protected readonly serverError = signal<string | null>(null);
+  protected readonly serverError = signal<TranslationKey | null>(null);
 
   public form = this._fb.group(
     {
@@ -49,7 +53,8 @@ export class RegisterComponent {
       let credentials: RegisterRequest = {
         username: this.form.value.username ?? '',
         email: this.form.value.email ?? '',
-        password: this.form.value.password ?? ''
+        password: this.form.value.password ?? '',
+        preferredLanguage: this.i18n.lang(),
       };
 
       this.serverError.set(null);
@@ -59,11 +64,7 @@ export class RegisterComponent {
           this.router.navigateByUrl(returnUrl);
         },
         error: (err) => {
-          if (err.status === 409) {
-            this.serverError.set('Este nombre de usuario o email ya está registrado.');
-          } else {
-            this.serverError.set('No se ha podido completar el registro. Inténtalo de nuevo.');
-          }
+          this.serverError.set(err.status === 409 ? 'auth.register.taken' : 'auth.register.failed');
         }
       });
     }

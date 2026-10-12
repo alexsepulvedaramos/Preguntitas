@@ -4,7 +4,8 @@ import {
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { StreakUpdate } from '../../../../core/models/streak.model';
-import { FIRST_RING_DAYS, FRAME_LOOKS, FRAME_STREAK, STREAK_TIERS } from '../../../../core/constants/streak-tiers';
+import { FIRST_RING_DAYS, FRAME_LOOKS, FRAME_STREAK, STREAK_FRAME_KEYS, STREAK_TIERS } from '../../../../core/constants/streak-tiers';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 const COUNT_UP_MS = 600;
@@ -25,6 +26,7 @@ const NO_TIER_COLORS = { a: '#7bd88f', b: '#c6f36b', core: '#ffffff' };
 })
 export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly authService = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly update = input.required<StreakUpdate>();
   // Who is celebrating — defaults to the signed-in user; the /demo walkthrough (rama 25)
@@ -63,19 +65,21 @@ export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDest
   protected readonly title = computed(() => {
     const u = this.update();
     if (u.milestoneLabel) return u.milestoneLabel;
-    if (u.isTierUp && u.tierTitle) return `¡${u.tierTitle}!`;
-    if (u.current === 1) return '¡Racha empezada!';
-    return '¡Sigue así!';
+    if (u.isTierUp && u.tierTitle) return this.t('streaks.celebration.tierTitle', { title: u.tierTitle });
+    if (u.current === 1) return this.t('streaks.celebration.started');
+    return this.t('streaks.celebration.keepGoing');
   });
 
   protected readonly subtitle = computed(() => {
     const u = this.update();
-    const material = u.tierMaterial?.toLowerCase();
-    if (u.isTierUp && u.current === FIRST_RING_DAYS) return `Primer título desbloqueado y marco de ${material}`;
-    if (u.isTierUp && u.titleUnlocked) return `Nuevo título desbloqueado · marco de ${material}`;
-    if (u.isTierUp) return `Tu marco vuelve a ser de ${material}`;
-    if (u.current === 1) return 'Vota mañana para no perderla';
-    return u.current === u.best && u.current > 1 ? '¡Nuevo récord!' : 'Un día más';
+    const frame = u.tierKey ? this.t(STREAK_FRAME_KEYS[u.tierKey]) : '';
+    if (u.isTierUp && u.current === FIRST_RING_DAYS) return this.t('streaks.celebration.firstTitle', { frame });
+    if (u.isTierUp && u.titleUnlocked) return this.t('streaks.celebration.newTitle', { frame });
+    if (u.isTierUp) return this.t('streaks.celebration.frameBack', { frame });
+    if (u.current === 1) return this.t('streaks.celebration.voteTomorrow');
+    return u.current === u.best && u.current > 1
+      ? this.t('streaks.celebration.newRecord')
+      : this.t('streaks.celebration.oneMoreDay');
   });
 
   // Days 1–2: ●○○ → ●●○ towards the first frame.
@@ -92,9 +96,11 @@ export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDest
 
   protected readonly nextTierLabel = computed(() => {
     const u = this.update();
-    if (u.daysToNextTier == null) return 'Has llegado a lo más alto';
-    const days = u.daysToNextTier === 1 ? '1 día' : `${u.daysToNextTier} días`;
-    return u.current < FIRST_RING_DAYS ? `${days} para tu primer título` : `${days} para ${u.nextTierTitle}`;
+    if (u.daysToNextTier == null) return this.t('streaks.celebration.top');
+    const days = this.t('common.days', { count: u.daysToNextTier });
+    return u.current < FIRST_RING_DAYS
+      ? this.t('streaks.celebration.toFirstTitle', { days })
+      : this.t('streaks.celebration.toNextTitle', { days, title: u.nextTierTitle ?? '' });
   });
 
   ngOnInit(): void {

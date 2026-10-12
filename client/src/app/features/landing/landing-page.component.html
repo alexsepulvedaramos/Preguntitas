@@ -6,8 +6,9 @@
       <app-logo-wordmark />
     </a>
     <div class="flex items-center gap-1.5">
+      <app-language-picker />
       <app-theme />
-      <a hlmBtn variant="ghost" size="sm" routerLink="/auth/login">Entrar</a>
+      <a hlmBtn variant="ghost" size="sm" routerLink="/auth/login">{{ t('landing.enter') }}</a>
     </div>
   </header>
 
@@ -19,27 +20,26 @@
     >
       <div class="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
         <p class="text-xs font-medium uppercase tracking-widest text-primary">
-          Un juego diario para grupos de amigos
+          {{ t('landing.eyebrow') }}
         </p>
         <h1
           id="landing-title"
           class="font-display text-4xl italic tracking-tight text-foreground text-balance sm:text-5xl"
         >
-          La pregunta del día que lía a tu grupo
+          {{ t('landing.title') }}
         </h1>
         <p class="max-w-prose text-muted-foreground">
-          Cada día sale una pregunta sobre vosotros. Todo el mundo vota y los resultados enseñan
-          quién ha votado a quién. El debate lo ponéis vosotros.
+          {{ t('landing.intro') }}
         </p>
         <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <a hlmBtn size="lg" routerLink="/auth/register" class="gap-2">
-            Crear cuenta gratis
+            {{ t('landing.signUpFree') }}
             <ng-icon hlm name="lucideArrowRight" />
           </a>
-          <a hlmBtn variant="outline" size="lg" routerLink="/demo">Pruébalo sin registrarte</a>
+          <a hlmBtn variant="outline" size="lg" routerLink="/demo">{{ t('landing.tryDemo') }}</a>
         </div>
         <a routerLink="/auth/login" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-          Ya tengo cuenta
+          {{ t('landing.haveAccount') }}
         </a>
       </div>
 
@@ -53,17 +53,17 @@
           id="landing-how"
           class="text-center font-display text-3xl italic tracking-tight text-foreground"
         >
-          Cómo funciona
+          {{ t('landing.howTitle') }}
         </h2>
         <ol class="grid gap-4 md:grid-cols-3">
           @for (step of steps; track step.title; let i = $index) {
             <li class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5">
               <div class="flex items-center gap-3">
                 <span class="text-2xl" aria-hidden="true">{{ step.emoji }}</span>
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">Paso {{ i + 1 }}</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">{{ t('landing.step', { n: i + 1 }) }}</span>
               </div>
-              <h3 class="font-semibold text-foreground">{{ step.title }}</h3>
-              <p class="text-sm text-muted-foreground">{{ step.text }}</p>
+              <h3 class="font-semibold text-foreground">{{ t(step.title) }}</h3>
+              <p class="text-sm text-muted-foreground">{{ t(step.text) }}</p>
             </li>
           }
         </ol>
@@ -77,14 +77,13 @@
     >
       <div class="flex flex-col gap-3">
         <h2 id="landing-streaks" class="font-display text-3xl italic tracking-tight text-foreground">
-          Vota cada día y presume de racha
+          {{ t('landing.streaksTitle') }}
         </h2>
         <p class="mx-auto max-w-prose text-muted-foreground">
-          Tu racha sube con cada día que votas. Desde el tercero, tu avatar estrena marco, y quien
-          lleve la racha más larga del grupo se lleva la corona.
+          {{ t('landing.streaksText') }}
         </p>
       </div>
-      <ul class="flex flex-wrap items-end justify-center gap-x-6 gap-y-8" aria-label="Ejemplos de marcos de racha">
+      <ul class="flex flex-wrap items-end justify-center gap-x-6 gap-y-8" [attr.aria-label]="t('landing.framesLabel')">
         @for (frame of frames; track frame.username) {
           <li class="flex flex-col items-center gap-3">
             <span class="px-3 pt-8">
@@ -97,7 +96,7 @@
                 size="lg"
               />
             </span>
-            <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.label }}</span>
+            <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.oneYear ? t('landing.oneYear') : t('common.days', { count: frame.streak }) }}</span>
           </li>
         }
       </ul>
@@ -106,16 +105,16 @@
     <!-- ===== FINAL CTA ===== -->
     <section class="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 px-4 pb-16 text-center">
       <p class="font-display text-2xl italic text-foreground text-balance">
-        ¿Quién de tu grupo sería el primero en…? Descubridlo mañana.
+        {{ t('landing.finalTitle') }}
       </p>
       <div class="flex w-full flex-col items-center gap-3 sm:w-auto">
         <a hlmBtn size="lg" routerLink="/auth/register" class="w-full gap-2 sm:w-auto">
-          Crear cuenta gratis
+          {{ t('landing.signUpFree') }}
           <ng-icon hlm name="lucideArrowRight" />
         </a>
-        <a hlmBtn variant="outline" size="lg" routerLink="/demo" class="w-full sm:w-auto">Pruébalo sin registrarte</a>
+        <a hlmBtn variant="outline" size="lg" routerLink="/demo" class="w-full sm:w-auto">{{ t('landing.tryDemo') }}</a>
         <a routerLink="/about" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
-          Ver todos los tipos de pregunta, packs y marcos
+          {{ t('landing.seeEverything') }}
         </a>
       </div>
     </section>
@@ -126,9 +125,9 @@
       class="mx-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 text-sm text-muted-foreground"
     >
       <div>&copy; 2026 Vaya Preguntita</div>
-      <nav class="flex items-center gap-4" aria-label="Información">
-        <a routerLink="/about" class="transition-colors hover:text-foreground">Cómo funciona</a>
-        <a routerLink="/releases" class="transition-colors hover:text-foreground">Novedades</a>
+      <nav class="flex items-center gap-4" [attr.aria-label]="t('layout.infoNav')">
+        <a routerLink="/about" class="transition-colors hover:text-foreground">{{ t('layout.about') }}</a>
+        <a routerLink="/releases" class="transition-colors hover:text-foreground">{{ t('layout.releases') }}</a>
         <span>v{{ version }}</span>
       </nav>
     </div>

@@ -6,7 +6,7 @@
       <div hlmSkeleton class="h-24 w-full rounded-default"></div>
     </div>
   } @else if (error()) {
-    <p class="py-6 text-center text-sm text-destructive">No se han podido cargar las estadísticas.</p>
+    <p class="py-6 text-center text-sm text-destructive">{{ t('memberCard.loadError') }}</p>
   } @else if (headline(); as head) {
     <div class="flex flex-col items-center gap-2 pt-2">
       <app-user-avatar
@@ -24,12 +24,12 @@
       <p class="text-xs text-muted-foreground">
         {{ frameLabel(head.currentStreak) }}
         @if (!allGroups() && head.hasCrown) {
-          · 👑 Mejor racha del grupo
+          · {{ t('memberCard.bestInGroup') }}
         }
       </p>
 
       @if (isOwnCard() && head.currentStreak > 0 && head.currentStreak < firstRingDays) {
-        <div class="flex items-center gap-2" aria-label="Progreso hacia tu primer anillo">
+        <div class="flex items-center gap-2" [attr.aria-label]="t('memberCard.progressLabel')">
           @for (filled of dots(head.currentStreak); track $index) {
             <span class="size-3 rounded-full border-2 border-primary" [class.bg-primary]="filled"></span>
           }
@@ -45,7 +45,7 @@
             <ng-container *ngTemplateOutlet="grid; context: { $implicit: s }" />
           </div>
         } @empty {
-          <p class="text-center text-sm text-muted-foreground">Aún no estás en ningún grupo.</p>
+          <p class="text-center text-sm text-muted-foreground">{{ t('memberCard.noGroups') }}</p>
         }
       </div>
     } @else {
@@ -57,27 +57,27 @@
 <ng-template #grid let-s>
   <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3">
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Racha actual</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.currentStreak') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">🔥 {{ s.currentStreak }}</dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Mejor racha</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.bestStreak') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.bestStreak }}</dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Votos</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.votes') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.totalVotes }}</dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Participación</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.participation') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.participationPercent }}%</dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Veces selector</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.timesSelector') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.timesSelector }}</dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">Preguntas creadas</dt>
+      <dt class="text-xs text-muted-foreground">{{ t('memberCard.questionsCreated') }}</dt>
       <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.questionsCreated }}</dd>
     </div>
   </dl>
@@ -87,7 +87,7 @@
   <hlm-dialog [state]="state()" (closed)="close()">
     <hlm-dialog-content *hlmDialogPortal class="w-md max-w-[95vw]">
       <hlm-dialog-header>
-        <h3 hlmDialogTitle class="sr-only">{{ allGroups() ? 'Mis estadísticas' : 'Estadísticas del miembro' }}</h3>
+        <h3 hlmDialogTitle class="sr-only">{{ allGroups() ? t('memberCard.myStats') : t('memberCard.memberStats') }}</h3>
       </hlm-dialog-header>
       <div class="flex flex-col gap-4">
         <ng-container *ngTemplateOutlet="body" />
@@ -99,7 +99,7 @@
     <!-- touch-none: the drawer owns vertical swipes so dragging it down closes it -->
     <hlm-drawer-content *hlmDrawerPortal class="touch-none px-4 pb-8">
       <hlm-drawer-header>
-        <h3 hlmDrawerTitle class="sr-only">{{ allGroups() ? 'Mis estadísticas' : 'Estadísticas del miembro' }}</h3>
+        <h3 hlmDrawerTitle class="sr-only">{{ allGroups() ? t('memberCard.myStats') : t('memberCard.memberStats') }}</h3>
       </hlm-drawer-header>
       <div class="flex flex-col gap-4">
         <ng-container *ngTemplateOutlet="body" />

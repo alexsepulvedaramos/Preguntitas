@@ -43,7 +43,7 @@ async function showGrouped(notification) {
   const merged = events.length > 1;
   await self.registration.showNotification(merged ? data.groupName : title, {
     ...options,
-    body: merged ? summarize(events) : options.body,
+    body: merged ? summarize(events, TEXT[data.lang] || TEXT.es) : options.body,
     tag,
     renotify: showing.length > 0,
     data: { ...data, events },
@@ -63,27 +63,52 @@ function mergeEvents(previous, event) {
   return [...kept, event].slice(-MAX_EVENTS);
 }
 
-function summarize(events) {
+// The merged summary's wording, in the recipient's language (`data.lang`, rama 23).
+const TEXT = {
+  es: {
+    selectorTurn: '¡Te toca elegir la pregunta!',
+    voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
+    messages: (count, names) => `${count} mensajes nuevos de ${names}`,
+    and: 'y',
+    more: (count) => `${count} más`,
+  },
+  en: {
+    selectorTurn: "It's your turn to pick the question!",
+    voted: (names) => `${names} voted`,
+    messages: (count, names) => `${count} new messages from ${names}`,
+    and: 'and',
+    more: (count) => `${count} more`,
+  },
+  de: {
+    selectorTurn: 'Du bist dran, die Frage auszuwählen!',
+    voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
+    messages: (count, names) => `${count} neue Nachrichten von ${names}`,
+    and: 'und',
+    more: (count) => `${count} weitere`,
+  },
+};
+
+function summarize(events, text) {
   const lines = [];
   const latest = (kind) => [...events].reverse().find((e) => e.kind === kind);
 
   const danger = latest('streak_danger');
   if (danger) lines.push(`🔥 ${danger.body}`);
 
-  if (latest('selector_turn')) lines.push('🎯 ¡Te toca elegir la pregunta!');
+  if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
 
   const question = latest('new_question');
   if (question) lines.push(`❓ ${question.body}`);
 
   const voters = unique(events.filter((e) => e.kind === 'user_voted').map((e) => e.actor));
-  if (voters.length) lines.push(`🗳️ ${listNames(voters)} ${voters.length === 1 ? 'ha' : 'han'} votado`);
+  if (voters.length) lines.push(`🗳️ ${text.voted(listNames(voters, text), voters.length)}`);
 
   const messages = events.filter((e) => e.kind === 'new_message');
   if (messages.length === 1) {
     lines.push(`💬 ${messages[0].body}`);
   } else if (messages.length > 1) {
     const senders = unique(messages.map((e) => e.actor));
-    lines.push(`💬 ${messages.length} mensajes nuevos de ${listNames(senders)}`);
+    lines.push(`💬 ${text.messages(messages.length, listNames(senders, text))}`);
   }
 
   return lines.join('\n');
@@ -93,11 +118,11 @@ function unique(names) {
   return [...new Set(names.filter(Boolean))];
 }
 
-function listNames(names) {
+function listNames(names, text) {
   if (names.length === 1) return names[0];
-  if (names.length === 2) return `${names[0]} y ${names[1]}`;
-  if (names.length === 3) return `${names[0]}, ${names[1]} y ${names[2]}`;
-  return `${names[0]}, ${names[1]} y ${names.length - 2} más`;
+  if (names.length === 2) return `${names[0]} ${text.and} ${names[1]}`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} ${text.and} ${names[2]}`;
+  return `${names[0]}, ${names[1]} ${text.and} ${text.more(names.length - 2)}`;
 }
 
 importScripts('./ngsw-worker.js');

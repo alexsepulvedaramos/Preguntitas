@@ -1,5 +1,8 @@
+import { TranslationKey } from '../i18n/translation.types';
+
 // Streak tiers, titles and milestones (rama 19, spec §13). Mirrors the backend
-// Helpers/StreakTiers.cs — keep both in sync.
+// Helpers/StreakTiers.cs — keep both in sync. Titles are still Spanish-only: adapting them
+// per language is content work (rama 24); material names are UI copy (STREAK_MATERIAL_KEYS).
 
 export type StreakTierKey =
   | 'wood'
@@ -14,21 +17,41 @@ export interface StreakTier {
   key: StreakTierKey;
   // Unlockable title shown on the profile and member card.
   title: string;
-  // Frame material name.
-  material: string;
   minDays: number;
 }
 
 // Below the first tier (days 1–2) there is no frame and no title.
 export const STREAK_TIERS: readonly StreakTier[] = [
-  { key: 'wood', title: 'Cotilla en prácticas', material: 'Madera', minDays: 3 },
-  { key: 'stone', title: 'Fuente anónima', material: 'Piedra', minDays: 7 },
-  { key: 'bronze', title: 'Fuente bien informada', material: 'Bronce', minDays: 15 },
-  { key: 'silver', title: 'Carne de tertulia', material: 'Plata', minDays: 30 },
-  { key: 'gold', title: 'Oráculo del salseo', material: 'Oro', minDays: 100 },
-  { key: 'sapphire', title: 'Colaborador de Sálvame', material: 'Zafiro', minDays: 182 },
-  { key: 'amethyst', title: 'La Vieja del Visillo', material: 'Amatista', minDays: 365 },
+  { key: 'wood', title: 'Cotilla en prácticas', minDays: 3 },
+  { key: 'stone', title: 'Fuente anónima', minDays: 7 },
+  { key: 'bronze', title: 'Fuente bien informada', minDays: 15 },
+  { key: 'silver', title: 'Carne de tertulia', minDays: 30 },
+  { key: 'gold', title: 'Oráculo del salseo', minDays: 100 },
+  { key: 'sapphire', title: 'Colaborador de Sálvame', minDays: 182 },
+  { key: 'amethyst', title: 'La Vieja del Visillo', minDays: 365 },
 ];
+
+// The frame named inside a sentence ("marco de madera", "wood frame", "Holzrahmen").
+export const STREAK_FRAME_KEYS: Record<StreakTierKey, TranslationKey> = {
+  wood: 'streaks.frames.wood',
+  stone: 'streaks.frames.stone',
+  bronze: 'streaks.frames.bronze',
+  silver: 'streaks.frames.silver',
+  gold: 'streaks.frames.gold',
+  sapphire: 'streaks.frames.sapphire',
+  amethyst: 'streaks.frames.amethyst',
+};
+
+// Frame material name per tier — render with t(STREAK_MATERIAL_KEYS[key]).
+export const STREAK_MATERIAL_KEYS: Record<StreakTierKey, TranslationKey> = {
+  wood: 'streaks.materials.wood',
+  stone: 'streaks.materials.stone',
+  bronze: 'streaks.materials.bronze',
+  silver: 'streaks.materials.silver',
+  gold: 'streaks.materials.gold',
+  sapphire: 'streaks.materials.sapphire',
+  amethyst: 'streaks.materials.amethyst',
+};
 
 export const FIRST_RING_DAYS = STREAK_TIERS[0].minDays;
 

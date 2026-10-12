@@ -3,10 +3,12 @@ import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } fr
 import { map, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { UserService } from '../services/user.service';
+import { LanguagePreferenceService } from '../i18n/language-preference.service';
 
 export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const authService = inject(AuthService);
     const userService = inject(UserService);
+    const language = inject(LanguagePreferenceService);
     const router = inject(Router);
 
     return authService.verifySession().pipe(
@@ -21,6 +23,8 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                             highestStreak: profile.highestStreak,
                             title: profile.title,
                         });
+                        // Another device may have changed the account's language
+                        language.applyAccount(profile.preferredLanguage);
                     },
                     error: () => {
                         // Profile fetch is best-effort — never block navigation or trigger logout

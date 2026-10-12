@@ -1,8 +1,10 @@
+using Lib.Net.Http.WebPush;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using VayaPreguntita.API.Data;
 
 namespace VayaPreguntita.API.Tests.Testing;
@@ -49,6 +51,12 @@ public class CustomWebAppFactory(string connectionString) : WebApplicationFactor
             {
                 options.UseNpgsql(_connectionString);
             });
+
+            // 4. No VAPID keys outside production (CI has no user secrets): a key-less push
+            // client keeps endpoints that resolve NotificationService from failing to build.
+            // Tests never deliver pushes.
+            services.RemoveAll<PushServiceClient>();
+            services.AddSingleton(new PushServiceClient());
         });
     }
 }

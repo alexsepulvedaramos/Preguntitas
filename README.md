@@ -17,7 +17,7 @@
 
 ## What is it?
 
-**Vaya Preguntita** is a Spanish-language social game for groups of friends, built end-to-end as a full-stack project. Every day, each group answers **one question about its own members** — it activates at the group's configured time and stays open for exactly 24 hours. Everyone votes, and the results show **who voted for what**: the whole point is to spark debate and *pique sano* (friendly rivalry).
+**Vaya Preguntita** is a social game for groups of friends — born in Spanish, now playable in Spanish, English and German — built end-to-end as a full-stack project. Every day, each group answers **one question about its own members** — it activates at the group's configured time and stays open for exactly 24 hours. Everyone votes, and the results show **who voted for what**: the whole point is to spark debate and *pique sano* (friendly rivalry).
 
 Each day one rotating member becomes the **selector** for the next day's question: they can pick from the group's own pool, browse 15 thematic packs, or create a question on the spot. If they do nothing, the system has already auto-selected one — **there is always a question**.
 
@@ -37,6 +37,7 @@ Each day one rotating member becomes the **selector** for the next day's questio
 - 👀 **Transparent results** — live aggregates including exactly who voted for whom, revealed after you vote.
 - 💬 **Group chat** right under the daily question, with push notifications for new messages.
 - 📦 **15 thematic question packs** (300+ curated questions in Spanish), toggleable per group, with clone-on-use templates and auto-resolution of member-dependent questions.
+- 🌍 **Three languages** — Spanish, English and German, switchable at runtime: typed dictionaries (a missing translation fails the build), the browser's language by default, a per-account preference, and API errors and push notifications in each player's language. The seeded questions are still Spanish-only for now.
 - 🔔 **Web Push notifications** (VAPID) — new question, your turn to pick, votes on your question; per-type preferences and per-group mute.
 - 📱 **Installable PWA** — dark mode, pull-to-refresh, mobile-first layouts.
 - 🕰️ **History archive** — browse any past day's question and results, cursor-paginated.
@@ -93,7 +94,7 @@ flowchart LR
 
 The **MVP is feature-complete and live** (daily lifecycle, all question types, voting, results, history, group admin, notifications, thematic packs), and so is the post-MVP pass: public landing page and interactive demo, per-group voting streaks with animated avatar frames, versioned release notes, grouped push notifications, and core-domain tests with CI on every PR. Next up:
 
-1. **Play in English & German** — UI and all 300+ seeded questions, culturally adapted rather than translated word for word, defaulting to the browser's language with a per-user override (ramas 23–24)
+1. **Play in English & German** — the UI is done (rama 23); next, all 300+ seeded questions, culturally adapted rather than translated word for word (rama 24)
 2. Real-time updates with SignalR instead of pull-to-refresh (rama 13, optional)
 
 **Phase 2 backlog** includes richer in-question debate threads (evolving the shipped chat), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
@@ -102,7 +103,7 @@ The **MVP is feature-complete and live** (daily lifecycle, all question types, v
 
 - **Spec-driven development** — an 800-line [living spec](docs/specs/vaya-preguntita.md) is the single source of truth for behavior, data model, API contract, validation rules and the branch plan. Every feature branch updates it before the PR opens.
 - **One branch per rama** (backend + its Angular UI), cut from `master`, Conventional Commits throughout.
-- **English code, Spanish UI** — identifiers, comments and commits in English; all user-facing copy in Spanish.
+- **English code, translated UI** — identifiers, comments and commits in English; all user-facing copy lives in typed es/en/de dictionaries, never hardcoded in templates.
 - **Clean boundaries** — DTOs at the API edge (never EF entities), business logic in services only, FluentValidation for input, every schema change through an EF migration.
 - **Tested where the domain is hardest** — the daily cycle runs against a real PostgreSQL (Testcontainers) at pinned instants through an injected `TimeProvider`: preselection and activation at the daily time, selector rotation, the 2-member start gate, pool → pack fallbacks, per-type vote validation, streaks, results aggregation and pool quotas. The client has Vitest specs.
 - **CI/CD** — GitHub Actions builds and tests both stacks on every PR; pushes to `master` also deploy the backend to Render (the client deploys on Vercel).

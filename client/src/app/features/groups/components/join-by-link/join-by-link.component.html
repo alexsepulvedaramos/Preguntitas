@@ -27,8 +27,7 @@
               </p>
             }
             <p class="mt-2 text-xs text-muted-foreground">
-              {{ preview()?.memberCount }}
-              {{ preview()?.memberCount === 1 ? 'miembro' : 'miembros' }}
+              {{ t('groups.joinLink.members', { count: preview()?.memberCount ?? 0 }) }}
             </p>
           </hlm-card-header>
 
@@ -39,18 +38,18 @@
                 class="w-full"
                 (click)="joinGroup()"
               >
-                Unirme al grupo
+                {{ t('groups.joinLink.join') }}
               </button>
             } @else {
               <p class="text-center text-sm text-muted-foreground">
-                Crea tu cuenta o inicia sesión para unirte al grupo.
+                {{ t('groups.joinLink.guestText') }}
               </p>
               <button
                 hlmBtn
                 class="w-full"
                 (click)="authenticateAndJoin('register')"
               >
-                Crear cuenta y unirme
+                {{ t('groups.joinLink.registerAndJoin') }}
               </button>
               <button
                 hlmBtn
@@ -58,7 +57,7 @@
                 class="w-full"
                 (click)="authenticateAndJoin('login')"
               >
-                Ya tengo cuenta
+                {{ t('groups.joinLink.haveAccount') }}
               </button>
             }
           </div>
@@ -67,38 +66,38 @@
 
       @case ('joining') {
         <hlm-card class="p-8 text-center">
-          <p class="text-muted-foreground text-sm">Uniéndote al grupo…</p>
+          <p class="text-muted-foreground text-sm">{{ t('groups.joinLink.joining') }}</p>
         </hlm-card>
       }
 
       @case ('already_member') {
         <hlm-card class="p-8 text-center">
-          <p class="font-medium text-foreground mb-1">¡Ya eres miembro!</p>
-          <p class="text-sm text-muted-foreground mb-6">Ya formas parte de este grupo.</p>
+          <p class="font-medium text-foreground mb-1">{{ t('groups.joinLink.alreadyTitle') }}</p>
+          <p class="text-sm text-muted-foreground mb-6">{{ t('groups.joinLink.alreadyText') }}</p>
           <button hlmBtn variant="outline" class="w-full" (click)="goToGroups()">
-            Ver mis grupos
+            {{ t('groups.joinLink.myGroups') }}
           </button>
         </hlm-card>
       }
 
       @case ('not_found') {
         <hlm-card class="p-8 text-center">
-          <p class="font-medium text-foreground mb-1">Enlace no válido</p>
+          <p class="font-medium text-foreground mb-1">{{ t('groups.joinLink.notFoundTitle') }}</p>
           <p class="text-sm text-muted-foreground mb-6">
-            Este enlace de invitación no existe o ha expirado.
+            {{ t('groups.joinLink.notFoundText') }}
           </p>
           <button hlmBtn variant="outline" class="w-full" (click)="goToGroups()">
-            Ir al inicio
+            {{ t('groups.joinLink.goHome') }}
           </button>
         </hlm-card>
       }
 
       @case ('error') {
         <hlm-card class="p-8 text-center">
-          <p class="font-medium text-foreground mb-1">Error al unirse</p>
+          <p class="font-medium text-foreground mb-1">{{ t('groups.joinLink.errorTitle') }}</p>
           <p class="text-sm text-muted-foreground mb-6">{{ errorMessage() }}</p>
           <button hlmBtn variant="outline" class="w-full" (click)="state.set('preview')">
-            Reintentar
+            {{ t('common.retry') }}
           </button>
         </hlm-card>
       }

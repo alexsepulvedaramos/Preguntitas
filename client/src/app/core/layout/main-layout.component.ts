@@ -7,6 +7,7 @@ import { HlmToasterImports } from '../../shared/ui/sonner/src';
 import { MemberCardComponent } from '../../features/groups/components/member-card/member-card.component';
 import { AuthService } from '../auth/auth.service';
 import { ReleaseNotesService } from '../services/release-notes.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -30,6 +31,8 @@ export class MainLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly releaseNotes = inject(ReleaseNotesService);
   private readonly router = inject(Router);
+  private readonly i18n = inject(I18nService);
+  private readonly t = this.i18n.t;
 
   ngOnInit(): void {
     // "What's new" toast, once per release (rama 26). Delayed so the page settles first —
@@ -37,9 +40,9 @@ export class MainLayoutComponent implements OnInit {
     setTimeout(() => {
       if (!this.authService.isAuthenticated() || !this.releaseNotes.takeAnnouncement()) return;
       const { version, title } = this.releaseNotes.latest;
-      toast(`Novedades en la versión ${version}`, {
-        description: title,
-        action: { label: 'Ver', onClick: () => this.router.navigate(['/releases']) },
+      toast(this.t('layout.releaseToast', { version }), {
+        description: title[this.i18n.lang()],
+        action: { label: this.t('layout.view'), onClick: () => this.router.navigate(['/releases']) },
       });
     }, 1500);
   }

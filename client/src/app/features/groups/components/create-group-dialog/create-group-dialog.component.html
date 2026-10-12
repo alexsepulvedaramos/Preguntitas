@@ -5,7 +5,7 @@
     class="w-full gap-2 rounded-full bg-accent-text font-bold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring"
   >
     <ng-icon hlm name="lucidePlus" />
-    Crear nuevo grupo
+    {{ t('groups.create.open') }}
   </button>
 
   <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-2xl max-w-[95vw]">
@@ -14,20 +14,20 @@
         hlmDialogTitle
         class="font-display text-xl italic tracking-wider text-foreground"
       >
-        Crear grupo
+        {{ t('groups.create.title') }}
       </h3>
 
       @if (step() === CreateGroupStep.Name) {
-        <p hlmDialogDescription>Dale a tu grupo un nombre fácil de recordar.</p>
+        <p hlmDialogDescription>{{ t('groups.create.nameHint') }}</p>
       }
 
       @if (step() === CreateGroupStep.Description) {
-        <p hlmDialogDescription>Añade una breve descripción (opcional).</p>
+        <p hlmDialogDescription>{{ t('groups.create.descriptionHint') }}</p>
       }
 
       @if (step() === CreateGroupStep.DailyTime) {
         <p hlmDialogDescription>
-          ¿A qué hora debería llegar la pregunta diaria a todos?
+          {{ t('groups.create.timeHint') }}
         </p>
       }
     </hlm-dialog-header>
@@ -45,19 +45,19 @@
         @if (step() === CreateGroupStep.Name) {
           <hlm-field class="grid gap-1.5">
             <label hlmFieldLabel for="name" class="text-sm font-medium text-foreground">
-              Nombre del grupo
+              {{ t('groups.create.name') }}
             </label>
 
             <input
               hlmInput
               id="name"
-              placeholder="p. ej. Compis de piso"
+              [placeholder]="t('groups.create.namePlaceholder')"
               formControlName="name"
               class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             />
             @if (form.controls.name.invalid && form.controls.name.touched) {
               <hlm-field-error
-                >El nombre del grupo debe tener al menos 3 caracteres.</hlm-field-error
+                >{{ t('groups.create.nameError') }}</hlm-field-error
               >
             }
           </hlm-field>
@@ -66,14 +66,14 @@
         @if (step() === CreateGroupStep.Description) {
           <hlm-field class="grid gap-1.5">
             <label hlmFieldLabel for="description" class="text-sm font-medium text-foreground">
-              Descripción
+              {{ t('groups.create.description') }}
             </label>
 
             <textarea
               hlmInput
               id="description"
               rows="4"
-              placeholder="¿De qué va este grupo?"
+              [placeholder]="t('groups.create.descriptionPlaceholder')"
               formControlName="description"
               class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             ></textarea>
@@ -83,7 +83,7 @@
         @if (step() === CreateGroupStep.DailyTime) {
           <hlm-field class="grid gap-1.5">
             <label hlmFieldLabel for="dailyQuestionTime" class="text-sm font-medium text-foreground">
-              Recordatorio diario
+              {{ t('groups.create.time') }}
             </label>
 
             <input
@@ -106,7 +106,7 @@
             class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
             (click)="back()"
           >
-            Atrás
+            {{ t('groups.create.back') }}
           </button>
         }
 
@@ -118,7 +118,7 @@
             class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
             (click)="next()"
           >
-            Siguiente
+            {{ t('groups.create.next') }}
           </button>
         } @else {
           <button
@@ -128,7 +128,7 @@
             [disabled]="form.invalid"
             class="transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none"
           >
-            Empezar
+            {{ t('groups.create.start') }}
           </button>
         }
       </hlm-dialog-footer>

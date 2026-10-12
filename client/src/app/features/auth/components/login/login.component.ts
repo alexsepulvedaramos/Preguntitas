@@ -10,6 +10,8 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { LoginRequest } from '../../models/login-request.interface';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { RotatingQuestionComponent } from '../showcase/rotating-question.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 
 @Component({
   selector: 'app-login',
@@ -22,8 +24,9 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  protected readonly t = inject(I18nService).t;
 
-  public readonly loginError = signal<string | null>(null);
+  public readonly loginError = signal<TranslationKey | null>(null);
   public readonly submitting = signal(false);
 
   public form = this._fb.group({
@@ -48,11 +51,7 @@ export class LoginComponent {
         },
         error: (err) => {
           this.submitting.set(false);
-          if (err.status === 401) {
-            this.loginError.set('Correo, nombre de usuario o contraseña incorrectos.');
-          } else {
-            this.loginError.set('No se ha podido iniciar sesión. Inténtalo de nuevo.');
-          }
+          this.loginError.set(err.status === 401 ? 'auth.login.wrongCredentials' : 'auth.login.failed');
         }
       });
     }

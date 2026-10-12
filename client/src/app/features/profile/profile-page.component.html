@@ -3,9 +3,9 @@
   <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
     <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="goBack()">
       <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
-      <span class="sr-only">Volver</span>
+      <span class="sr-only">{{ t('common.back') }}</span>
     </button>
-    <h1 class="font-display text-lg italic tracking-tight text-foreground">Mi perfil</h1>
+    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('titles.profile') }}</h1>
   </header>
 
   <div class="flex flex-col gap-6 p-4 pb-8 max-w-lg mx-auto w-full">
@@ -16,7 +16,7 @@
         <button
           hlmDrawerTrigger
           class="relative group focus-visible:ring-2 focus-visible:ring-ring rounded-full outline-none"
-          aria-label="Cambiar avatar"
+          [attr.aria-label]="t('profile.changeAvatar')"
         >
           <app-user-avatar
             [avatarUrl]="user()?.avatarUrl"
@@ -39,7 +39,7 @@
           class="flex flex-col px-4 pb-8 pt-4 gap-4 bg-card border-t border-border rounded-t-2xl"
         >
           <div class="mx-auto w-10 h-1 rounded-full bg-muted-foreground/30 mb-2"></div>
-          <h2 class="font-semibold text-foreground text-center">Cambiar avatar</h2>
+          <h2 class="font-semibold text-foreground text-center">{{ t('profile.changeAvatar') }}</h2>
           <app-avatar-picker
             [username]="user()?.username ?? ''"
             (avatarSelected)="ctx.close()"
@@ -50,17 +50,17 @@
       @if (user()?.title; as title) {
         <p class="-mt-1 text-sm font-semibold text-primary">{{ title }}</p>
       }
-      <p class="text-sm text-muted-foreground">Toca para cambiar tu avatar</p>
+      <p class="text-sm text-muted-foreground">{{ t('profile.tapToChange') }}</p>
 
       <button hlmBtn variant="outline" size="sm" class="gap-2" (click)="openMyStats()">
         <ng-icon hlm name="lucideChartColumn" class="size-4!" />
-        Mis estadísticas
+        {{ t('memberCard.myStats') }}
       </button>
     </section>
 
     <!-- ===== MARCO DE COLOR ===== -->
     <section class="flex flex-col gap-3">
-      <h2 class="font-display text-lg italic tracking-tight text-foreground">Marco</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.frame') }}</h2>
       <div class="flex gap-2 flex-wrap">
         @for (color of frameColors; track color.value) {
           <button
@@ -69,7 +69,7 @@
             [class.bg-muted]="color.value === frameStreak"
             [style.background-color]="color.value.startsWith('#') ? color.value : null"
             [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
-            [attr.aria-label]="color.label"
+            [attr.aria-label]="t(color.label)"
             [attr.aria-pressed]="selectedFrame() === color.value"
             [disabled]="isSavingFrame()"
             (click)="selectFrame(color.value)"
@@ -86,14 +86,14 @@
       </div>
       <p class="text-xs text-muted-foreground">
         @if (selectedFrame() === frameStreak) {
-          Tu marco sigue tu mejor racha actual
+          {{ t('profile.frameFollows') }}
           @if (streakFrameMaterial(); as material) {
             · {{ material }}
           } @else {
-            · aparece a partir de 3 días seguidos votando
+            · {{ t('profile.frameFrom3') }}
           }
         } @else {
-          Elige «Racha» para que tu marco arda con tus días seguidos votando
+          {{ t('profile.frameHint') }}
         }
       </p>
     </section>
@@ -102,14 +102,14 @@
 
     <!-- ===== TÍTULO (rama 19) ===== -->
     <section class="flex flex-col gap-3">
-      <h2 class="font-display text-lg italic tracking-tight text-foreground">Título</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.titleHeading') }}</h2>
       @if (profile(); as p) {
         @if (p.unlockedTitles.length === 0) {
           <p class="text-sm text-muted-foreground">
-            Consigue una racha de 3 días votando en un grupo para desbloquear tu primer título.
+            {{ t('profile.titleLocked') }}
           </p>
         } @else {
-          <div class="flex flex-wrap gap-2" role="group" aria-label="Título que se muestra">
+          <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="t('profile.titleShown')">
             <button
               hlmBtn
               size="sm"
@@ -118,18 +118,18 @@
               [disabled]="isSavingTitle()"
               (click)="selectTitle(titleAuto)"
             >
-              Automático
+              {{ t('profile.titleAuto') }}
             </button>
-            @for (t of p.unlockedTitles; track t.key) {
+            @for (option of p.unlockedTitles; track option.key) {
               <button
                 hlmBtn
                 size="sm"
-                [variant]="selectedTitle() === t.key ? 'default' : 'outline'"
-                [attr.aria-pressed]="selectedTitle() === t.key"
+                [variant]="selectedTitle() === option.key ? 'default' : 'outline'"
+                [attr.aria-pressed]="selectedTitle() === option.key"
                 [disabled]="isSavingTitle()"
-                (click)="selectTitle(t.key)"
+                (click)="selectTitle(option.key)"
               >
-                {{ t.title }}
+                {{ option.title }}
               </button>
             }
             <button
@@ -140,11 +140,11 @@
               [disabled]="isSavingTitle()"
               (click)="selectTitle(titleNone)"
             >
-              Ninguno
+              {{ t('profile.titleNone') }}
             </button>
           </div>
           <p class="text-xs text-muted-foreground">
-            Los títulos se desbloquean para siempre al alcanzar cada racha. «Automático» muestra el más alto.
+            {{ t('profile.titleHint') }}
           </p>
         }
       }
@@ -154,11 +154,11 @@
 
     <!-- ===== INFORMACIÓN DE PERFIL ===== -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-display text-lg italic tracking-tight text-foreground">Información</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.info') }}</h2>
 
       <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="username">Nombre de usuario</label>
+          <label hlmLabel for="username">{{ t('profile.username') }}</label>
           <input
             hlmInput
             id="username"
@@ -170,7 +170,7 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="email">Email</label>
+          <label hlmLabel for="email">{{ t('profile.email') }}</label>
           <input
             hlmInput
             id="email"
@@ -185,7 +185,7 @@
           <p class="text-sm text-destructive">{{ profileError() }}</p>
         }
         @if (profileSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">Cambios guardados</p>
+          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.saved') }}</p>
         }
 
         <button
@@ -194,20 +194,29 @@
           class="w-full"
           [disabled]="profileForm.invalid || isSavingProfile()"
         >
-          {{ isSavingProfile() ? 'Guardando...' : 'Guardar cambios' }}
+          {{ isSavingProfile() ? t('common.saving') : t('settings.saveChanges') }}
         </button>
       </form>
     </section>
 
     <div hlmSeparator></div>
 
+    <!-- ===== IDIOMA (rama 23) ===== -->
+    <section class="flex flex-col gap-3">
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('common.language') }}</h2>
+      <app-language-picker variant="toggle" />
+      <p class="text-xs text-muted-foreground">{{ t('profile.languageHint') }}</p>
+    </section>
+
+    <div hlmSeparator></div>
+
     <!-- ===== CONTRASEÑA ===== -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-display text-lg italic tracking-tight text-foreground">Contraseña</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.password') }}</h2>
 
       <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="currentPassword">Contraseña actual</label>
+          <label hlmLabel for="currentPassword">{{ t('profile.currentPassword') }}</label>
           <div class="relative">
             <input
               hlmInput
@@ -231,7 +240,7 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="newPassword">Nueva contraseña</label>
+          <label hlmLabel for="newPassword">{{ t('profile.newPassword') }}</label>
           <div class="relative">
             <input
               hlmInput
@@ -255,7 +264,7 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="confirmPassword">Confirmar nueva contraseña</label>
+          <label hlmLabel for="confirmPassword">{{ t('profile.confirmNewPassword') }}</label>
           <input
             hlmInput
             id="confirmPassword"
@@ -270,7 +279,7 @@
           <p class="text-sm text-destructive">{{ passwordError() }}</p>
         }
         @if (passwordSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">Contraseña cambiada</p>
+          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.passwordChanged') }}</p>
         }
 
         <button
@@ -280,7 +289,7 @@
           class="w-full"
           [disabled]="passwordForm.invalid || isSavingPassword()"
         >
-          {{ isSavingPassword() ? 'Guardando...' : 'Cambiar contraseña' }}
+          {{ isSavingPassword() ? t('common.saving') : t('profile.changePassword') }}
         </button>
       </form>
     </section>
@@ -289,22 +298,22 @@
 
     <!-- Notificaciones -->
     <section class="flex flex-col gap-4">
-      <h2 class="font-display text-lg italic tracking-tight text-foreground">Notificaciones</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('settings.notifications') }}</h2>
 
       @if (!pushService.isSupported) {
-        <p class="text-xs text-muted-foreground">Tu navegador no admite notificaciones push.</p>
+        <p class="text-xs text-muted-foreground">{{ t('profile.pushUnsupported') }}</p>
       } @else {
         <!-- Master toggle: activar / desactivar el canal push -->
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground font-medium">Notificaciones push</p>
+            <p class="text-sm text-foreground font-medium">{{ t('profile.push') }}</p>
             <p class="text-xs text-muted-foreground">
               @if (pushService.permission() === 'denied') {
-                Bloqueadas en tu navegador. Actívalas desde la configuración del navegador.
+                {{ t('profile.pushBlocked') }}
               } @else if (pushService.enabled()) {
-                Activadas en este dispositivo.
+                {{ t('profile.pushOn') }}
               } @else {
-                Toca para activar en este dispositivo.
+                {{ t('profile.pushOff') }}
               }
             </p>
           </div>
@@ -319,11 +328,11 @@
         <hlm-separator />
 
         <!-- Preferencias por tipo -->
-        <p class="text-xs text-muted-foreground -mb-1">Elige qué quieres recibir (en todos tus grupos):</p>
+        <p class="text-xs text-muted-foreground -mb-1">{{ t('profile.prefsIntro') }}</p>
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground">Nueva pregunta del día</p>
+            <p class="text-sm text-foreground">{{ t('profile.prefNewQuestion') }}</p>
           </div>
           <hlm-switch
             [checked]="notifPrefs().newQuestion"
@@ -333,7 +342,7 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground">Te toca elegir</p>
+            <p class="text-sm text-foreground">{{ t('profile.prefSelectorTurn') }}</p>
           </div>
           <hlm-switch
             [checked]="notifPrefs().selectorTurn"
@@ -343,7 +352,7 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground">Alguien ha votado</p>
+            <p class="text-sm text-foreground">{{ t('profile.prefUserVoted') }}</p>
           </div>
           <hlm-switch
             [checked]="notifPrefs().userVoted"
@@ -353,7 +362,7 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground">Nuevo mensaje en el chat</p>
+            <p class="text-sm text-foreground">{{ t('profile.prefNewMessage') }}</p>
           </div>
           <hlm-switch
             [checked]="notifPrefs().newMessage"
@@ -363,8 +372,8 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
-            <p class="text-sm text-foreground">Racha en peligro</p>
-            <p class="text-xs text-muted-foreground">Si llevas 3 días o más y aún no has votado</p>
+            <p class="text-sm text-foreground">{{ t('profile.prefStreakDanger') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefStreakDangerHint') }}</p>
           </div>
           <hlm-switch
             [checked]="notifPrefs().streakDanger"
@@ -374,7 +383,7 @@
 
         @if (notifPrefs().streakDanger) {
           <div class="flex flex-col gap-2">
-            <p id="streak-danger-hours" class="text-xs text-muted-foreground">Avisarme antes del cierre:</p>
+            <p id="streak-danger-hours" class="text-xs text-muted-foreground">{{ t('profile.dangerLead') }}</p>
             <hlm-toggle-group
               type="single"
               variant="outline"
@@ -386,7 +395,7 @@
               class="flex-wrap"
             >
               @for (h of streakDangerHours; track h) {
-                <button hlmToggleGroupItem [value]="h" [attr.aria-label]="h + ' horas antes'">{{ h }} h</button>
+                <button hlmToggleGroupItem [value]="h" [attr.aria-label]="t('profile.hoursBefore', { count: h })">{{ t('profile.hoursShort', { count: h }) }}</button>
               }
             </hlm-toggle-group>
           </div>

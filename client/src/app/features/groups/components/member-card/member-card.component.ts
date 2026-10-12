@@ -10,7 +10,8 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { UserService } from '../../../../core/services/user.service';
 import { MemberStats } from '../../../../core/models/streak.model';
-import { FIRST_RING_DAYS, streakTierFor } from '../../../../core/constants/streak-tiers';
+import { FIRST_RING_DAYS, STREAK_FRAME_KEYS, streakTierFor } from '../../../../core/constants/streak-tiers';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 import { GroupsService } from '../../services/groups.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
@@ -27,6 +28,7 @@ export class MemberCardComponent {
   private readonly groupsService = inject(GroupsService);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
   protected readonly isDesktop = signal(
     typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches
@@ -72,7 +74,9 @@ export class MemberCardComponent {
 
   frameLabel(streak: number): string {
     const tier = streakTierFor(streak);
-    return tier ? `Marco de ${tier.material.toLowerCase()}` : 'Sin marco todavía';
+    if (!tier) return this.t('memberCard.noFrame');
+    const frame = this.t(STREAK_FRAME_KEYS[tier.key]);
+    return frame.charAt(0).toUpperCase() + frame.slice(1);
   }
 
   dots(streak: number): boolean[] {

@@ -22,7 +22,7 @@
       />
     </div>
 
-    <span class="text-xs font-semibold uppercase tracking-[0.25em] opacity-80">🔥 Día</span>
+    <span class="text-xs font-semibold uppercase tracking-[0.25em] opacity-80">{{ t('streaks.celebration.day') }}</span>
     <span class="vp-celebration__count font-display text-8xl italic leading-[0.9] tabular-nums" aria-live="polite">
       {{ displayedCount() }}
     </span>
@@ -44,6 +44,6 @@
       </div>
     }
     <p class="vp-celebration__in text-xs opacity-75">{{ nextTierLabel() }}</p>
-    <p class="vp-celebration__in mt-1 text-xs opacity-45">Toca para continuar</p>
+    <p class="vp-celebration__in mt-1 text-xs opacity-45">{{ t('streaks.celebration.tapToContinue') }}</p>
   </div>
 </div>

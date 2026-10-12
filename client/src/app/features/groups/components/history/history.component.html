@@ -7,9 +7,9 @@
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
     >
       <ng-icon hlm name="lucideArrowLeft" />
-      Volver
+      {{ t('common.back') }}
     </a>
-    <h1 class="text-lg font-semibold">Historial</h1>
+    <h1 class="text-lg font-semibold">{{ t('history.title') }}</h1>
   </div>
 
   <!-- Date picker — jump to a specific date -->
@@ -24,7 +24,7 @@
     >
       <hlm-date-picker-trigger class="w-full" variant="outline">
         <ng-icon hlm name="lucideCalendar" size="sm" class="mr-2 shrink-0" />
-        Ir a una fecha...
+        {{ t('history.goToDate') }}
       </hlm-date-picker-trigger>
     </hlm-date-picker>
   </div>
@@ -38,17 +38,17 @@
     </div>
 
   <!-- Error state -->
-  } @else if (error()) {
+  } @else if (error(); as error) {
     <div class="text-center py-8">
-      <p class="text-destructive">{{ error() }}</p>
+      <p class="text-destructive">{{ t(error) }}</p>
     </div>
 
   <!-- Empty state -->
   } @else if (entries().length === 0) {
     <div class="text-center py-12">
-      <p class="font-display italic text-lg text-primary/70">Aún no hay historial</p>
+      <p class="font-display italic text-lg text-primary/70">{{ t('history.emptyTitle') }}</p>
       <p class="text-sm text-muted-foreground mt-1">
-        Las preguntas aparecerán aquí a partir del día siguiente.
+        {{ t('history.emptyText') }}
       </p>
     </div>
 
@@ -90,7 +90,7 @@
 
           <!-- Vote count -->
           <span class="text-xs text-muted-foreground shrink-0 pt-0.5">
-            {{ entry.totalVotes }} votos
+            {{ t('history.votes', { count: entry.totalVotes }) }}
           </span>
         </button>
 
@@ -105,18 +105,14 @@
               <div class="flex justify-center py-4">
                 <hlm-spinner />
               </div>
-            } @else if (detailError()) {
-              <p class="text-sm text-destructive text-center">{{ detailError() }}</p>
+            } @else if (detailError(); as detailError) {
+              <p class="text-sm text-destructive text-center">{{ t(detailError) }}</p>
             } @else if (selectedResult()) {
               <div class="flex flex-col gap-3">
                 <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
                 <div class="flex items-center gap-2">
                   <span class="text-sm text-muted-foreground">
-                    @if (selectedResult()!.totalVotes === 1) {
-                      Ha votado 1 persona
-                    } @else {
-                      Han votado {{ selectedResult()!.totalVotes }} personas
-                    }
+                    {{ t('history.voters', { count: selectedResult()!.totalVotes }) }}
                   </span>
                 </div>
                 <app-results
@@ -143,7 +139,7 @@
         @if (loadingMore()) {
           <hlm-spinner />
         } @else {
-          Cargar más
+          {{ t('history.loadMore') }}
         }
       </button>
     }

@@ -10,6 +10,7 @@ using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
+using VayaPreguntita.API.Localization;
 
 [Authorize]
 [ApiController]
@@ -66,7 +67,7 @@ public class QuestionsController(
             date ?? DailyClock.Today(clock)
         );
         if (result == null)
-            return NotFound("No hay pregunta para esa fecha.");
+            return NotFound(ServerText.NoQuestionForDate);
 
         return Ok(result);
     }
@@ -121,8 +122,8 @@ public class QuestionsController(
         var error = await questionsService.DeleteAsync(groupId, userId, id);
         return error switch
         {
-            "not_found" => NotFound("La pregunta no existe en este grupo."),
-            "in_use" => BadRequest("No se puede eliminar una pregunta que ya se ha usado."),
+            "not_found" => NotFound(ServerText.QuestionNotInGroup),
+            "in_use" => BadRequest(ServerText.QuestionAlreadyUsed),
             "forbidden" => Forbid(),
             _ => NoContent(),
         };

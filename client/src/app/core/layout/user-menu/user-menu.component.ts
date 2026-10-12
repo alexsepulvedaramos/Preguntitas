@@ -23,6 +23,9 @@ import { ReleaseNotesService } from '../../services/release-notes.service';
 import { PushNotificationService } from '../../services/push-notification.service';
 import { ThemePreference, ThemeService } from '../../services/theme.service';
 import { UserAvatarComponent } from '../../../shared/components/user-avatar/user-avatar.component';
+import { LanguagePickerComponent } from '../../../shared/components/language-picker/language-picker.component';
+import { I18nService } from '../../i18n/i18n.service';
+import { TranslationKey } from '../../i18n/translation.types';
 
 @Component({
   selector: 'app-user-menu',
@@ -34,6 +37,7 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
     HlmToggleGroupImports,
     NgIcon,
     UserAvatarComponent,
+    LanguagePickerComponent,
   ],
   providers: [
     provideIcons({
@@ -56,11 +60,12 @@ export class UserMenuComponent {
   public readonly theme = inject(ThemeService);
   private readonly push = inject(PushNotificationService);
   private readonly router = inject(Router);
+  protected readonly t = inject(I18nService).t;
 
-  protected readonly themeOptions: { value: ThemePreference; label: string; icon: string }[] = [
-    { value: 'light', label: 'Claro', icon: 'lucideSun' },
-    { value: 'dark', label: 'Oscuro', icon: 'lucideMoon' },
-    { value: 'system', label: 'Sistema', icon: 'lucideMonitor' },
+  protected readonly themeOptions: { value: ThemePreference; label: TranslationKey; icon: string }[] = [
+    { value: 'light', label: 'userMenu.themeLight', icon: 'lucideSun' },
+    { value: 'dark', label: 'userMenu.themeDark', icon: 'lucideMoon' },
+    { value: 'system', label: 'userMenu.themeSystem', icon: 'lucideMonitor' },
   ];
 
   setTheme(value: ThemePreference | ThemePreference[] | null | undefined): void {

@@ -5,6 +5,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { tablerCircleHalf2 } from '@ng-icons/tabler-icons';
 
 import { ThemeService } from '../../services/theme.service';
+import { I18nService } from '../../i18n/i18n.service';
 
 @Component({
     selector: 'app-theme',
@@ -14,14 +15,15 @@ import { ThemeService } from '../../services/theme.service';
       hlmBtn
       variant="ghost"
       class="w-9 h-9 p-0 flex items-center justify-center rounded-full hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      aria-label="Cambiar tema"
+      [attr.aria-label]="t('layout.toggleTheme')"
       (click)="themeService.toggleTheme()"
     >
       <ng-icon hlm name="tablerCircleHalf2" class="size-6! text-foreground" />
-      <span class="sr-only">Cambiar tema</span>
+      <span class="sr-only">{{ t('layout.toggleTheme') }}</span>
     </button>
     `
 })
 export class ThemeComponent {
     public themeService = inject(ThemeService);
+    protected readonly t = inject(I18nService).t;
 }

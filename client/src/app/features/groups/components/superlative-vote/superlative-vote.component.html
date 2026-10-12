@@ -17,7 +17,7 @@
       [attr.aria-pressed]="selected() === NOBODY_ID"
       (click)="select(NOBODY_ID)"
     >
-      Nadie
+      {{ t('vote.nobody') }}
     </button>
   }
 </div>
@@ -29,5 +29,5 @@
   [disabled]="selected() === null"
   (click)="submit()"
 >
-  Votar
+  {{ t('vote.submit') }}
 </button>

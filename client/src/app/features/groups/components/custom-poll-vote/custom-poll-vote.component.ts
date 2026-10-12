@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, inject, computed, input, output, signal } from '@angular/core';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmInputImports } from '@spartan-ng/helm/input';
@@ -6,6 +6,7 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
 
 @Component({
@@ -17,6 +18,7 @@ export class CustomPollVoteComponent {
   public readonly question = input.required<QuestionToVote>();
   public readonly members = input.required<GroupMember[]>();
   public readonly vote = output<CreateVote>();
+  protected readonly t = inject(I18nService).t;
 
   protected readonly selected = signal<number[]>([]);
   // "Otro" free-text answer state (only relevant when question().allowOther).

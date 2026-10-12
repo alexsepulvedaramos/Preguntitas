@@ -1,11 +1,9 @@
-@if (leadingLabel(); as label) {
-  <div class="flex flex-col items-center gap-0.5 pb-2">
-    <span class="text-xs uppercase tracking-wide text-muted-foreground">{{
-      label === 'Empate' ? 'Resultado' : 'Va ganando'
-    }}</span>
-    <span class="font-display text-2xl text-primary text-center truncate max-w-full">{{ label }}</span>
-  </div>
-}
+<div class="flex flex-col items-center gap-0.5 pb-2">
+  <span class="text-xs uppercase tracking-wide text-muted-foreground">{{
+    leader() ? t('results.leading') : t('results.result')
+  }}</span>
+  <span class="font-display text-2xl text-primary text-center truncate max-w-full">{{ leader() ?? t('results.tie') }}</span>
+</div>
 
 <div class="flex flex-col gap-1">
   @for (option of result().results; track option.id; let i = $index; let isLast = $last) {

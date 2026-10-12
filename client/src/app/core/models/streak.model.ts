@@ -1,20 +1,19 @@
 import { QuestionResult } from './result.model';
 import { StreakTierKey } from '../constants/streak-tiers';
 
-// Mirrors backend StreakUpdateDto — returned with a successful vote.
+// Mirrors backend StreakUpdateDto — returned with a successful vote. The DTO's material
+// names are ignored: the client names materials in the UI language from the tier keys.
 export interface StreakUpdate {
   previous: number;
   current: number;
   best: number;
   tierKey: StreakTierKey | null;
   tierTitle: string | null;
-  tierMaterial: string | null;
   isTierUp: boolean;
   titleUnlocked: boolean; // the tier's title was unlocked for the first time ever
   milestoneLabel: string | null;
   nextTierKey: StreakTierKey | null;
   nextTierTitle: string | null;
-  nextTierMaterial: string | null;
   nextTierAt: number | null;
   daysToNextTier: number | null;
 }
