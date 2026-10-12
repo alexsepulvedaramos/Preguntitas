@@ -6,6 +6,7 @@ using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Groups;
 using VayaPreguntita.API.Extensions;
 using VayaPreguntita.API.Services;
+using VayaPreguntita.API.Localization;
 
 // Usings for your DTOs (e.g., VayaPreguntita.API.DTOs.Groups)
 
@@ -155,7 +156,7 @@ public class GroupsController(
 
         var (found, alreadyMember) = await groupsService.JoinGroupAsync(userId, request.InvitationCode);
         if (!found)
-            return BadRequest(new { Message = "Invalid invitation code or group not found." });
+            return BadRequest(new { Message = ServerText.InvalidInvitationCode });
 
         return Ok(new { alreadyMember });
     }
@@ -210,11 +211,11 @@ public class GroupsController(
             return Forbid();
 
         if (userId == currentUserId)
-            return BadRequest(new { Message = "Use leave group to remove yourself." });
+            return BadRequest(new { Message = ServerText.UseLeaveGroup });
 
         var success = await groupsService.KickMemberAsync(groupId, userId);
         if (!success)
-            return BadRequest(new { Message = "Member not found or cannot kick the admin." });
+            return BadRequest(new { Message = ServerText.CannotKickMember });
 
         return NoContent();
     }
@@ -256,7 +257,7 @@ public class GroupsController(
 
         // Return 400 Bad Request indicating the specific business rule violation
         if (!success)
-            return BadRequest("Target user must be an active member of the group to become admin.");
+            return BadRequest(ServerText.AdminTargetNotMember);
 
         // Return 204 No Content as the action succeeded and there's no data to return
         return NoContent();

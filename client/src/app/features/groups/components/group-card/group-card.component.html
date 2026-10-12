@@ -26,7 +26,7 @@
             <span
               class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary border border-primary/40"
             >
-              Vota ahora
+              {{ t('groups.card.voteNow') }}
             </span>
             @if (group().myStreak; as streak) {
               <!-- What's at stake if today's question closes without your vote -->
@@ -34,7 +34,7 @@
                 class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-500/40"
               >
                 <ng-icon hlm name="lucideFlame" size="xs" />
-                No pierdas tu racha de {{ streak }} {{ streak === 1 ? 'día' : 'días' }}
+                {{ t('groups.card.streakAtStake', { count: streak }) }}
               </span>
             }
           }
@@ -42,7 +42,7 @@
             <span
               class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/25 text-lime-700 dark:text-lime-400 border border-lime-500/40"
             >
-              ¡Te toca elegir!
+              {{ t('groups.card.yourTurn') }}
             </span>
           }
           @case ('results') {
@@ -50,7 +50,7 @@
               class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
             >
               <ng-icon hlm name="lucideClock" size="xs" />
-              Próx. a las {{ nextQuestionTime() }}
+              {{ t('groups.card.nextAt', { time: nextQuestionTime() }) }}
             </span>
           }
           @case ('no_question') {
@@ -59,7 +59,7 @@
               class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
             >
               <ng-icon hlm name="lucideUserPlus" size="xs" />
-              Invita a alguien para empezar
+              {{ t('groups.card.inviteToStart') }}
             </span>
           }
           @default {
@@ -68,7 +68,7 @@
                 class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground border border-border"
               >
                 <ng-icon hlm name="lucideClock" size="xs" />
-                A las {{ nextQuestionTime() }}
+                {{ t('groups.card.at', { time: nextQuestionTime() }) }}
               </span>
             }
           }
@@ -86,13 +86,13 @@
         (click)="$event.stopPropagation()"
       >
         <ng-icon hlm name="lucideUserPlus" />
-        Invitar
+        {{ t('groups.card.invite') }}
       </button>
 
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
         <hlm-dialog-header>
           <h3 hlmDialogTitle class="font-display text-xl text-foreground">
-            Invitar a {{ group().name }}
+            {{ t('groups.invite.title', { group: group().name }) }}
           </h3>
         </hlm-dialog-header>
 
@@ -101,7 +101,7 @@
             <label
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
             >
-              Código de invitación
+              {{ t('groups.invite.code') }}
             </label>
             <div class="flex items-center gap-2">
               <input
@@ -116,8 +116,8 @@
                 size="icon"
                 class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="copyCodeToClipboard()"
-                aria-label="Copiar código"
-                title="Copiar código"
+                [attr.aria-label]="t('groups.invite.copyCode')"
+                [title]="t('groups.invite.copyCode')"
               >
                 @if (isCodeCopied()) {
                   <ng-icon hlm name="lucideCheck" />
@@ -129,7 +129,7 @@
             <div class="h-4 text-xs text-center">
               @if (isCodeCopied()) {
                 <span class="text-success font-medium"
-                  >¡Código copiado al portapapeles!</span
+                  >{{ t('groups.invite.codeCopied') }}</span
                 >
               }
             </div>
@@ -139,7 +139,7 @@
             <div class="flex-1 border-t border-border"></div>
             <span
               class="px-3 text-xs font-semibold text-muted-foreground/70 uppercase"
-              >o</span
+              >{{ t('common.or') }}</span
             >
             <div class="flex-1 border-t border-border"></div>
           </div>
@@ -148,7 +148,7 @@
             <label
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
             >
-              Enlace
+              {{ t('groups.invite.link') }}
             </label>
             <div class="flex items-center gap-2">
               <input
@@ -163,8 +163,8 @@
                 size="icon"
                 class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="copyLinkToClipboard()"
-                aria-label="Copiar enlace"
-                title="Copiar enlace"
+                [attr.aria-label]="t('groups.invite.copyLink')"
+                [title]="t('groups.invite.copyLink')"
               >
                 @if (isLinkCopied()) {
                   <ng-icon hlm name="lucideCheck" class="text-success" />
@@ -176,7 +176,7 @@
             <div class="h-4 text-xs text-center">
               @if (isLinkCopied()) {
                 <span class="text-success font-medium"
-                  >¡Enlace copiado al portapapeles!</span
+                  >{{ t('groups.invite.linkCopied') }}</span
                 >
               }
             </div>
@@ -191,7 +191,7 @@
             (click)="shareWithNativeApi()"
           >
             <ng-icon hlm name="lucideShare2" />
-            Más opciones para compartir
+            {{ t('groups.invite.moreOptions') }}
           </button>
         </hlm-dialog-footer>
       </hlm-dialog-content>

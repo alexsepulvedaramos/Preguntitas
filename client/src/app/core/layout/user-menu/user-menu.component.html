@@ -5,7 +5,7 @@
     size="icon"
     variant="ghost"
     class="relative rounded-full hover:bg-muted w-9 h-9 p-0 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring outline-none"
-    [attr.aria-label]="releaseNotes.hasUnseen() ? 'Menú de usuario (hay novedades)' : 'Menú de usuario'"
+    [attr.aria-label]="releaseNotes.hasUnseen() ? t('userMenu.openWithNews') : t('userMenu.open')"
   >
     <app-user-avatar
       [avatarUrl]="authService.currentUser()?.avatarUrl"
@@ -33,7 +33,7 @@
       (click)="ctx.close()"
     >
       <ng-icon hlm name="lucideX" class="size-4 text-foreground" />
-      <span class="sr-only">Cerrar</span>
+      <span class="sr-only">{{ t('common.close') }}</span>
     </button>
 
     <hlm-drawer-header class="pb-4">
@@ -41,7 +41,7 @@
         hlmDrawerTitle
         class="font-display text-xl italic tracking-tight text-foreground"
       >
-        Perfil
+        {{ t('userMenu.title') }}
       </h3>
     </hlm-drawer-header>
 
@@ -70,7 +70,7 @@
 
       <!-- Theme -->
       <div class="flex flex-col gap-2">
-        <span id="theme-label" class="text-sm font-medium text-foreground">Tema</span>
+        <span id="theme-label" class="text-sm font-medium text-foreground">{{ t('userMenu.theme') }}</span>
         <hlm-toggle-group
           type="single"
           variant="outline"
@@ -83,10 +83,16 @@
           @for (option of themeOptions; track option.value) {
             <button hlmToggleGroupItem [value]="option.value" class="flex-1 gap-2">
               <ng-icon hlm [name]="option.icon" class="size-4!" />
-              {{ option.label }}
+              {{ t(option.label) }}
             </button>
           }
         </hlm-toggle-group>
+      </div>
+
+      <!-- Language (rama 23) -->
+      <div class="flex flex-col gap-2">
+        <span class="text-sm font-medium text-foreground">{{ t('common.language') }}</span>
+        <app-language-picker variant="toggle" />
       </div>
 
       <!-- Actions -->
@@ -98,7 +104,7 @@
           (click)="navigate(ctx, '/profile')"
         >
           <ng-icon hlm name="lucideSettings" class="size-4!" />
-          Configuración de perfil
+          {{ t('userMenu.profileSettings') }}
         </button>
         <button
           hlmBtn
@@ -107,7 +113,7 @@
           (click)="navigate(ctx, '/about')"
         >
           <ng-icon hlm name="lucideBookOpen" class="size-4!" />
-          Cómo funciona
+          {{ t('layout.about') }}
         </button>
         <button
           hlmBtn
@@ -116,9 +122,9 @@
           (click)="navigate(ctx, '/releases')"
         >
           <ng-icon hlm name="lucideMegaphone" class="size-4!" />
-          Novedades
+          {{ t('layout.releases') }}
           @if (releaseNotes.hasUnseen()) {
-            <span hlmBadge class="ml-auto">Nuevo</span>
+            <span hlmBadge class="ml-auto">{{ t('common.new') }}</span>
           }
         </button>
       </div>
@@ -132,7 +138,7 @@
         (click)="logout(ctx)"
       >
         <ng-icon hlm name="lucideLogOut" />
-        Cerrar sesión
+        {{ t('userMenu.logout') }}
       </button>
     </div>
   </hlm-drawer-content>

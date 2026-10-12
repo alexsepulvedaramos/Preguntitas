@@ -6,6 +6,7 @@ using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
@@ -138,16 +139,13 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
             q.GroupId == groupId && !q.IsUsed && q.CreatorId == creatorId
         );
         if (unusedByCreator >= MaxUnusedQuestionsPerUserPerGroup)
-            return (
-                null,
-                $"You already have {MaxUnusedQuestionsPerUserPerGroup} unused questions in this group's pool."
-            );
+            return (null, ServerText.UnusedQuestionsLimit(MaxUnusedQuestionsPerUserPerGroup));
 
         var unusedInGroup = await context.Questions.CountAsync(q =>
             q.GroupId == groupId && !q.IsUsed
         );
         if (unusedInGroup >= MaxUnusedQuestionsPerGroup)
-            return (null, "This group's question pool is full.");
+            return (null, ServerText.GroupPoolFull);
 
         var question = new Question
         {

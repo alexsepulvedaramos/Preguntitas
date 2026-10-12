@@ -10,6 +10,7 @@ import { lucidePlus } from '@ng-icons/lucide';
 
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupRequest } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 export enum CreateGroupStep {
   Name,
@@ -34,6 +35,7 @@ export enum CreateGroupStep {
 export class CreateGroupDialogComponent {
   private readonly fb = inject(FormBuilder);
   private groupsService = inject(GroupsService);
+  protected readonly t = inject(I18nService).t;
 
   readonly CreateGroupStep = CreateGroupStep;
 

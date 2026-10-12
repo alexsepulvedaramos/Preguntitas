@@ -9,6 +9,8 @@ import { LoginRequest } from '../../features/auth/models/login-request.interface
 import { User } from '../models/user.model';
 import { RegisterRequest } from '../../features/auth/models/register-request.interface';
 import { environment } from '../../../environments/environment';
+import { I18nService } from '../i18n/i18n.service';
+import { isLang } from '../i18n/languages';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private ngZone = inject(NgZone);
+  private i18n = inject(I18nService);
 
   public currentUser = signal<User | null>(null);
   public isAuthenticated = computed(() => this.currentUser() !== null);
@@ -100,6 +103,7 @@ export class AuthService {
         // Update the state immediately after login
         const user = this.extractUserFromToken(response.accessToken);
         this.currentUser.set(user);
+        this.applyAccountLanguage(response);
       })
     );
   }
@@ -112,8 +116,14 @@ export class AuthService {
         // Update the state immediately after registration
         const user = this.extractUserFromToken(response.accessToken);
         this.currentUser.set(user);
+        this.applyAccountLanguage(response);
       })
     );
+  }
+
+  // The account's language wins over the device's once signed in (rama 23).
+  private applyAccountLanguage(response: AuthResponse): void {
+    if (isLang(response.preferredLanguage)) void this.i18n.use(response.preferredLanguage);
   }
 
   // Exchanges the refresh token for a new access token and returns it.

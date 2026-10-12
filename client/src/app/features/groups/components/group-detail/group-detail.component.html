@@ -10,7 +10,7 @@
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
     >
       <ng-icon hlm name="lucideArrowLeft" />
-      Tus grupos
+      {{ t('groups.list.title') }}
     </a>
 
     @if (!loading() && !error()) {
@@ -21,10 +21,10 @@
           size="icon"
           class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
           [routerLink]="['/groups', numericGroupId(), 'history']"
-          aria-label="Ver historial"
+          [attr.aria-label]="t('groupDetail.history')"
         >
           <ng-icon hlm name="lucideHistory" />
-          <span class="sr-only">Ver historial</span>
+          <span class="sr-only">{{ t('groupDetail.history') }}</span>
         </a>
         <a
           hlmBtn
@@ -32,10 +32,10 @@
           size="icon"
           class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
           [routerLink]="['/groups', numericGroupId(), 'settings']"
-          aria-label="Ajustes del grupo"
+          [attr.aria-label]="t('groupDetail.settings')"
         >
           <ng-icon hlm name="lucideSettings" />
-          <span class="sr-only">Ajustes del grupo</span>
+          <span class="sr-only">{{ t('groupDetail.settings') }}</span>
         </a>
         <!-- Hidden on mobile (pull-to-refresh covers that); visible on desktop -->
         <button
@@ -45,14 +45,14 @@
           class="hidden sm:inline-flex shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="refreshing()"
           (click)="refresh()"
-          aria-label="Actualizar"
+          [attr.aria-label]="t('groupDetail.refresh')"
         >
           @if (refreshing()) {
             <hlm-spinner />
           } @else {
             <ng-icon hlm name="lucideRefreshCw" />
           }
-          <span class="sr-only">Actualizar</span>
+          <span class="sr-only">{{ t('groupDetail.refresh') }}</span>
         </button>
       </div>
     }
@@ -64,18 +64,18 @@
       <div hlmSkeleton class="h-4 w-1/2"></div>
       <div hlmSkeleton class="h-32 w-full rounded-default"></div>
     </div>
-  } @else if (error()) {
+  } @else if (error(); as error) {
     <div class="text-center py-8">
-      <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
+      <p class="font-display italic text-lg text-destructive">{{ t(error) }}</p>
     </div>
   } @else {
 
     @if (daily()?.myStreak?.lostStreak; as lost) {
       <div hlmAlert class="relative pr-10">
         <ng-icon hlm name="lucideFlame" />
-        <h4 hlmAlertTitle>Has perdido tu racha de {{ lost }} días</h4>
+        <h4 hlmAlertTitle>{{ t('groupDetail.lostStreakTitle', { count: lost }) }}</h4>
         <p hlmAlertDescription>
-          Tu récord: {{ daily()!.myStreak.best }} · Vota hoy para empezar una nueva.
+          {{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}
         </p>
         <button
           hlmBtn
@@ -83,10 +83,10 @@
           size="icon"
           class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
           (click)="dismissLostStreak()"
-          aria-label="Cerrar aviso"
+          [attr.aria-label]="t('groupDetail.dismissAlert')"
         >
           <ng-icon hlm name="lucideX" class="size-4!" />
-          <span class="sr-only">Cerrar aviso</span>
+          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
         </button>
       </div>
     }
@@ -101,7 +101,7 @@
             (reachedZero)="refresh()"
           />
           @if (daily()?.selection?.pendingQuestion; as q) {
-            <p class="mt-0.5 truncate text-xs text-primary/70">Elegida: {{ q.text }}</p>
+            <p class="mt-0.5 truncate text-xs text-primary/70">{{ t('groupDetail.picked', { text: q.text }) }}</p>
           }
         </div>
         @if (daily()?.selection; as sel) {
@@ -148,10 +148,9 @@
             <ng-icon hlm name="lucideUserPlus" class="size-6!" />
           </div>
           <div class="flex flex-col gap-1">
-            <p class="font-display italic text-xl text-foreground">Invita a un amigo para empezar</p>
+            <p class="font-display italic text-xl text-foreground">{{ t('groupDetail.inviteTitle') }}</p>
             <p class="text-sm text-muted-foreground max-w-xs text-balance">
-              El juego arranca en cuanto el grupo tiene dos personas: en ese mismo momento sale la
-              primera pregunta.
+              {{ t('groupDetail.inviteText') }}
             </p>
           </div>
           @if (group(); as g) {
@@ -161,10 +160,10 @@
               (click)="inviteFriend()"
             >
               <ng-icon hlm name="lucideShare2" />
-              Compartir invitación
+              {{ t('groupDetail.shareInvite') }}
             </button>
             <p class="text-xs text-muted-foreground">
-              O pásale el código <span class="font-mono font-semibold text-foreground">{{ g.invitationCode }}</span>
+              {{ t('groupDetail.orCode') }} <span class="font-mono font-semibold text-foreground">{{ g.invitationCode }}</span>
             </p>
           }
         </div>
@@ -174,7 +173,7 @@
     @if (daily()?.today?.status !== 'no_question') {
       <div class="flex items-center gap-3 pt-2">
         <div class="flex-1 border-t border-border"></div>
-        <span class="text-xs text-muted-foreground">Debate</span>
+        <span class="text-xs text-muted-foreground">{{ t('groupDetail.debate') }}</span>
         <div class="flex-1 border-t border-border"></div>
       </div>
       <app-group-chat #chat [groupId]="numericGroupId()" />

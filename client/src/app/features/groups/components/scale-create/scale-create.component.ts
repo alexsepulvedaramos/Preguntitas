@@ -1,7 +1,8 @@
-import { Component, input, model, signal } from '@angular/core';
+import { Component, inject, input, model, signal } from '@angular/core';
 
 import { GroupMember } from '../../models/group.models';
 import { voteOptionClass } from '../vote/vote-option.util';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // Scale create fields (spec §5.3): who is being rated, if anyone. The range is always 1–10.
 @Component({
@@ -11,6 +12,7 @@ import { voteOptionClass } from '../vote/vote-option.util';
 export class ScaleCreateComponent {
   public readonly members = input.required<GroupMember[]>();
   public readonly targetUserId = model<number | null>(null);
+  protected readonly t = inject(I18nService).t;
 
   // Whether the scale rates a specific group member. When off, it rates whatever the
   // question text describes (e.g. "¿Qué nota le pones a Titanic?").

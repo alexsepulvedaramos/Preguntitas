@@ -5,7 +5,7 @@
     [attr.maxlength]="maxLength"
     [value]="answer()"
     (input)="onInput($any($event.target).value)"
-    placeholder="Escribe tu respuesta..."
+    [placeholder]="t('vote.answerPlaceholder')"
     class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
   ></textarea>
   <span class="text-xs text-muted-foreground self-end">{{ answer().length }}/{{ maxLength }}</span>
@@ -18,5 +18,5 @@
   [disabled]="!isValid()"
   (click)="submit()"
 >
-  Enviar respuesta
+  {{ t('vote.sendAnswer') }}
 </button>

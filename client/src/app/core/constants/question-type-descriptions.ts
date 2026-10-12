@@ -1,18 +1,14 @@
 import { QuestionType } from '../enums/question-type.enum';
+import { TranslationKey } from '../i18n/translation.types';
 
 // Short explanation + example shown in a tooltip next to each type when creating a
 // question — the type names alone aren't obvious to a first-time user (spec §5).
-export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, string> = {
-    [QuestionType.CustomPoll]:
-        'Encuesta clásica con varias opciones a elegir. Ej: "¿A qué hora quedamos para cenar?"',
-    [QuestionType.Superlative]:
-        'Se elige a una persona del grupo. Ej: "¿Quién es más probable que acabe en la cárcel?"',
-    [QuestionType.Deathmatch]:
-        'Equipo contra equipo, el grupo vota qué bando gana. Ej: "Juan y Marta VS Luis y Ana"',
-    [QuestionType.Scale]:
-        'Se puntúa del 1 al 10, a alguien o lo que sea. Ej: "¿Cómo de dramático está hoy?"',
-    [QuestionType.SecretPairing]:
-        'Se eligen las dos personas que mejor pareja harían.',
-    [QuestionType.OpenText]:
-        'Pregunta abierta: cada uno escribe su propia respuesta. Ej: "¿Mejor recuerdo del viaje?"',
+// Translation keys: render with t(QUESTION_TYPE_DESCRIPTIONS[type]).
+export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, TranslationKey> = {
+    [QuestionType.CustomPoll]: 'questionTypes.customPoll.description',
+    [QuestionType.Superlative]: 'questionTypes.superlative.description',
+    [QuestionType.Deathmatch]: 'questionTypes.deathmatch.description',
+    [QuestionType.Scale]: 'questionTypes.scale.description',
+    [QuestionType.SecretPairing]: 'questionTypes.secretPairing.description',
+    [QuestionType.OpenText]: 'questionTypes.openText.description',
 };

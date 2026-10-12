@@ -10,6 +10,7 @@ using VayaPreguntita.API.DTOs.Packs;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Extensions;
 using VayaPreguntita.API.Services;
+using VayaPreguntita.API.Localization;
 
 [Authorize]
 [ApiController]
@@ -41,10 +42,8 @@ public class PacksController(IPacksService packsService, IGroupsService groupsSe
         var (success, error) = await packsService.SetPackEnabledAsync(groupId, packId, dto.Enabled);
         return error switch
         {
-            "not_found" => NotFound("El pack no existe."),
-            "would_leave_zero_enabled" => BadRequest(
-                "No se puede desactivar: el grupo debe tener al menos un pack activo."
-            ),
+            "not_found" => NotFound(ServerText.PackNotFound),
+            "would_leave_zero_enabled" => BadRequest(ServerText.LastEnabledPack),
             _ => NoContent(),
         };
     }

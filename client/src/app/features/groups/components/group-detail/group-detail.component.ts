@@ -31,6 +31,8 @@ import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-
 import { GroupChatComponent } from '../group-chat/group-chat.component';
 import { StreakCelebrationComponent } from '../streak-celebration/streak-celebration.component';
 import { shareInvite } from '../../utils/invite-share';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -67,6 +69,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -79,7 +82,7 @@ export class GroupDetailComponent implements OnInit {
   public readonly members = signal<GroupMember[]>([]);
   public readonly loading = signal(true);
   public readonly refreshing = signal(false);
-  public readonly error = signal<string | null>(null);
+  public readonly error = signal<TranslationKey | null>(null);
 
   // Streak celebration after a vote that extends the streak (rama 19).
   public readonly celebration = signal<StreakUpdate | null>(null);
@@ -105,7 +108,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   questionTypeLabel(type: QuestionType): string {
-    return QUESTION_TYPE_LABELS[type];
+    return this.t(QUESTION_TYPE_LABELS[type]);
   }
 
   questionTypeBadgeClass(type: QuestionType): string {
@@ -113,8 +116,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   responseCountLabel(totalVotes: number): string {
-    const verb = totalVotes === 1 ? 'Ha' : 'Han';
-    return `${verb} votado ${totalVotes} de ${this.members().length}`;
+    return this.t('groupDetail.votedCount', { count: totalVotes, total: this.members().length });
   }
 
   // The backend already returns the fresh QuestionResultDto (plus the streak change) from
@@ -171,9 +173,9 @@ export class GroupDetailComponent implements OnInit {
   async inviteFriend() {
     const group = this.group();
     if (!group) return;
-    const result = await shareInvite(group.name, group.invitationCode);
-    if (result === 'copied') toast.success('Enlace de invitación copiado');
-    else if (result === 'failed') toast.error('No se ha podido compartir la invitación');
+    const result = await shareInvite(group.name, group.invitationCode, this.t);
+    if (result === 'copied') toast.success(this.t('groupDetail.inviteCopied'));
+    else if (result === 'failed') toast.error(this.t('groupDetail.inviteFailed'));
   }
 
   // Keeps the member list, the in-group frames (the crown may change hands) and the header
@@ -212,7 +214,7 @@ export class GroupDetailComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.error.set('No se ha podido cargar la información del grupo o la pregunta del día.');
+        this.error.set('groupDetail.loadError');
         this.loading.set(false);
       }
     });

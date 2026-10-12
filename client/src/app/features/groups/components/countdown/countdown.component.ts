@@ -1,5 +1,7 @@
 import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 
+import { I18nService } from '../../../../core/i18n/i18n.service';
+
 const URGENT_THRESHOLD_MS = 5 * 60 * 1000;
 
 // Live countdown to a target ISO instant (e.g. today.closesAt / selection.activatesAt — the
@@ -15,6 +17,7 @@ export class CountdownComponent {
   public readonly target = input<string | null>(null);
   public readonly compact = input(false);
   public readonly reachedZero = output<void>();
+  protected readonly t = inject(I18nService).t;
 
   private readonly now = signal(Date.now());
   private lastTargetEmitted: string | null = null;
@@ -29,10 +32,15 @@ export class CountdownComponent {
     return diffMs !== null && diffMs <= URGENT_THRESHOLD_MS;
   });
 
+  // Reached zero: the next question is due any moment (the parent refetches).
+  protected readonly due = computed(() => {
+    const diffMs = this.diffMs();
+    return diffMs !== null && diffMs <= 0;
+  });
+
   protected readonly label = computed(() => {
     const diffMs = this.diffMs();
-    if (diffMs === null) return null;
-    if (diffMs <= 0) return 'En cualquier momento';
+    if (diffMs === null || diffMs <= 0) return null;
 
     const totalSeconds = Math.floor(diffMs / 1000);
     const days = Math.floor(totalSeconds / 86400);
@@ -40,10 +48,14 @@ export class CountdownComponent {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
-    if (minutes > 0) return `${minutes}m ${seconds}s`;
-    return `${seconds}s`;
+    const d = `${days}${this.t('countdown.days')}`;
+    const h = `${hours}${this.t('countdown.hours')}`;
+    const m = `${minutes}${this.t('countdown.minutes')}`;
+    const s = `${seconds}${this.t('countdown.seconds')}`;
+    if (days > 0) return `${d} ${h} ${m} ${s}`;
+    if (hours > 0) return `${h} ${m} ${s}`;
+    if (minutes > 0) return `${m} ${s}`;
+    return s;
   });
 
   constructor() {

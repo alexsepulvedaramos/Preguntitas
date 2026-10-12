@@ -12,6 +12,7 @@ export interface UserProfileDto {
   highestStreak: number;
   highestStreakEver: number;
   selectedTitleKey: string | null; // null = automatic (highest unlocked), 'none' = hidden
+  preferredLanguage: string;
   title: string | null;
   unlockedTitles: TitleOption[];
 }
@@ -22,6 +23,7 @@ export interface UpdateProfileRequest {
   avatarUrl?: string | null;
   frameColor?: string | null;
   titleKey?: string; // 'auto', 'none' or an unlocked tier key
+  preferredLanguage?: string;
 }
 
 export interface ChangePasswordRequest {

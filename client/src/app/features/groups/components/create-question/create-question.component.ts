@@ -15,6 +15,9 @@ import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_DESCRIPTIONS } from '../../../../core/constants/question-type-descriptions';
 import { GroupMember } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 import { SuperlativeCreateComponent } from '../superlative-create/superlative-create.component';
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
@@ -22,13 +25,13 @@ import { ScaleCreateComponent } from '../scale-create/scale-create.component';
 import { CustomPollCreateComponent } from '../custom-poll-create/custom-poll-create.component';
 
 // Placeholder hint shown in the question text input, tailored to the selected type.
-const TEXT_PLACEHOLDERS: Record<QuestionType, string> = {
-  [QuestionType.Superlative]: 'p. ej. ¿Quién acabaría antes en la cárcel?',
-  [QuestionType.CustomPoll]: 'p. ej. ¿A qué hora quedamos para cenar?',
-  [QuestionType.Deathmatch]: 'p. ej. ¿Quién ganaría esta pelea?',
-  [QuestionType.Scale]: 'p. ej. ¿Qué nota le pones a Titanic?',
-  [QuestionType.SecretPairing]: 'p. ej. ¿Qué dos personas harían mejor pareja?',
-  [QuestionType.OpenText]: 'p. ej. ¿Cuál es tu mejor recuerdo del viaje?',
+const TEXT_PLACEHOLDERS: Record<QuestionType, TranslationKey> = {
+  [QuestionType.Superlative]: 'createQuestion.placeholders.superlative',
+  [QuestionType.CustomPoll]: 'createQuestion.placeholders.customPoll',
+  [QuestionType.Deathmatch]: 'createQuestion.placeholders.deathmatch',
+  [QuestionType.Scale]: 'createQuestion.placeholders.scale',
+  [QuestionType.SecretPairing]: 'createQuestion.placeholders.secretPairing',
+  [QuestionType.OpenText]: 'createQuestion.placeholders.openText',
 };
 
 const TEXT_MIN_LENGTH = 3;
@@ -58,6 +61,7 @@ const TEXT_MAX_LENGTH = 200;
 export class CreateQuestionComponent {
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<number>();
   public readonly members = input.required<GroupMember[]>();
@@ -127,8 +131,8 @@ export class CreateQuestionComponent {
     );
   }
 
-  protected readonly placeholder = computed(() => TEXT_PLACEHOLDERS[this.type()]);
-  protected readonly description = computed(() => QUESTION_TYPE_DESCRIPTIONS[this.type()]);
+  protected readonly placeholder = computed(() => this.t(TEXT_PLACEHOLDERS[this.type()]));
+  protected readonly description = computed(() => this.t(QUESTION_TYPE_DESCRIPTIONS[this.type()]));
 
   protected readonly textValid = computed(() => {
     const length = this.text().trim().length;
@@ -160,21 +164,18 @@ export class CreateQuestionComponent {
 
   protected readonly isValid = computed(() => this.textValid() && this.typeValid());
 
-  protected readonly typeError = computed((): string | null => {
+  protected readonly typeError = computed((): TranslationKey | null => {
     if (!this.typeTouched() || this.typeValid()) return null;
     switch (this.type()) {
       case QuestionType.Deathmatch:
-        return 'Todos los equipos deben tener al menos un miembro.';
+        return 'createQuestion.teamsEmpty';
       case QuestionType.CustomPoll: {
         const filled = this.options().filter((o) => o.trim().length > 0);
-        if (filled.length < this.options().length)
-          return 'Rellena todas las opciones o elimina las vacías.';
-        if (filled.length < 2) return 'Añade al menos 2 opciones.';
-        if (this.minSelections() > this.maxSelections())
-          return 'El mínimo de selecciones no puede superar el máximo.';
-        if (this.maxSelections() > filled.length)
-          return 'El máximo de selecciones no puede superar el número de opciones.';
-        return 'Revisa las opciones de la encuesta.';
+        if (filled.length < this.options().length) return 'createQuestion.fillOptions';
+        if (filled.length < 2) return 'createQuestion.minOptions';
+        if (this.minSelections() > this.maxSelections()) return 'createQuestion.minOverMax';
+        if (this.maxSelections() > filled.length) return 'createQuestion.maxOverOptions';
+        return 'createQuestion.checkPoll';
       }
       default:
         return null;
@@ -235,9 +236,9 @@ export class CreateQuestionComponent {
     run(this.buildDto());
   }
 
-  private handleError(err: { error?: string }) {
+  private handleError(err: unknown) {
     this.submitting.set(false);
-    this.error.set(err.error ?? 'No se ha podido guardar la pregunta.');
+    this.error.set(apiErrorMessage(err, this.t('createQuestion.failed')));
   }
 
   private buildDto(): CreateQuestion {

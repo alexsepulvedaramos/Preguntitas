@@ -21,6 +21,8 @@ import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-t
 import { GroupMember } from '../../models/group.models';
 import { CreateQuestionComponent } from '../create-question/create-question.component';
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 type Step = 'sources' | 'create' | 'assign-teams';
 
@@ -60,6 +62,7 @@ export class SelectQuestionDialogComponent {
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
   private readonly packsService = inject(PacksService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<number>();
   public readonly members = input.required<GroupMember[]>();
@@ -195,7 +198,7 @@ export class SelectQuestionDialogComponent {
       },
       error: (err) => {
         this.pickingKey.set(null);
-        this.error.set(err.error ?? 'No se ha podido seleccionar la pregunta.');
+        this.error.set(apiErrorMessage(err, this.t('picker.selectFailed')));
       },
     });
   }
@@ -235,7 +238,7 @@ export class SelectQuestionDialogComponent {
       },
       error: (err) => {
         this.assigningTeams.set(false);
-        this.error.set(err.error ?? 'No se ha podido confirmar los equipos.');
+        this.error.set(apiErrorMessage(err, this.t('picker.teamsFailed')));
       },
     });
   }
@@ -258,7 +261,7 @@ export class SelectQuestionDialogComponent {
       },
       error: (err) => {
         this.deletingId.set(null);
-        this.error.set(err.error ?? 'No se ha podido eliminar la pregunta.');
+        this.error.set(apiErrorMessage(err, this.t('picker.deleteFailed')));
       },
     });
   }
@@ -373,7 +376,7 @@ export class SelectQuestionDialogComponent {
         }
       },
       error: () => {
-        this.error.set('No se han podido cargar las preguntas disponibles.');
+        this.error.set(this.t('picker.loadFailed'));
         this.loading.set(false);
       },
     });
@@ -394,7 +397,7 @@ export class SelectQuestionDialogComponent {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('No se han podido cargar las preguntas disponibles.');
+          this.error.set(this.t('picker.loadFailed'));
           this.loading.set(false);
         },
       });
@@ -431,7 +434,7 @@ export class SelectQuestionDialogComponent {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se han podido cargar las preguntas disponibles.');
+        this.error.set(this.t('picker.loadFailed'));
         this.loading.set(false);
       },
     });

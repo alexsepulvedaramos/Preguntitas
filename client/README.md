@@ -30,7 +30,7 @@ src/app/
 └── shared/      # reusable UI components
 ```
 
-- **UI copy is Spanish; code is English** (identifiers, comments, commits).
+- **Code is English** (identifiers, comments, commits); **UI copy lives in `src/app/core/i18n/translations/`** — `es.ts` defines the keys, `en.ts`/`de.ts` must match them (typed, so a missing key fails the build). Templates call `t('some.key')` from `I18nService`.
 - **Design system** lives in `src/styles-lime.css` (Tailwind 4 `@theme` tokens: Sage + Electric Lime palette, `DM Serif Display` display font, class-based dark mode). Full rules in the [spec §14](../docs/specs/vaya-preguntita.md).
 - **Spartan UI** provides the primitives (buttons, cards, dialogs, forms) — don't hand-roll what it already ships.
 - **PWA**: service worker config in `ngsw-config.json`; web-push subscription handled by `PushNotificationService`.

@@ -10,6 +10,7 @@ using VayaPreguntita.API.DTOs.Daily;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Services;
+using VayaPreguntita.API.Localization;
 
 [Authorize]
 [ApiController]
@@ -58,16 +59,10 @@ public class DailyController(
         {
             SelectResult.Success => Ok(),
             SelectResult.NotYourTurn => Forbid(),
-            SelectResult.QuestionNotFound => NotFound("Pregunta no encontrada en el pool."),
-            SelectResult.InvalidQuestion => BadRequest(
-                "La pregunta no es válida para este grupo."
-            ),
-            SelectResult.AlreadyActivated => BadRequest(
-                "La pregunta ya está activa y no se puede cambiar."
-            ),
-            SelectResult.TemplateAlreadyUsed => BadRequest(
-                "Esta pregunta del pack ya se ha usado en este grupo. Elige otra."
-            ),
+            SelectResult.QuestionNotFound => NotFound(ServerText.QuestionNotInPool),
+            SelectResult.InvalidQuestion => BadRequest(ServerText.QuestionNotValidForGroup),
+            SelectResult.AlreadyActivated => BadRequest(ServerText.QuestionAlreadyActive),
+            SelectResult.TemplateAlreadyUsed => BadRequest(ServerText.TemplateAlreadyUsed),
             _ => StatusCode(500),
         };
     }
@@ -87,9 +82,9 @@ public class DailyController(
         return result switch
         {
             VoteResult.Success => Ok(response),
-            VoteResult.NoActiveQuestion => NotFound("No hay pregunta activa hoy."),
-            VoteResult.AlreadyVoted => BadRequest("Ya has votado hoy."),
-            VoteResult.InvalidPayload => BadRequest("Voto inválido para este tipo de pregunta."),
+            VoteResult.NoActiveQuestion => NotFound(ServerText.NoActiveQuestionToday),
+            VoteResult.AlreadyVoted => BadRequest(ServerText.AlreadyVoted),
+            VoteResult.InvalidPayload => BadRequest(ServerText.InvalidVote),
             _ => StatusCode(500),
         };
     }

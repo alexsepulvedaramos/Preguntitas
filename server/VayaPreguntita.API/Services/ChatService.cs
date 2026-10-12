@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Chat;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
@@ -29,15 +30,15 @@ public class ChatService(AppDbContext context, INotificationService notification
     {
         var isMember = await context.GroupMembers
             .AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
-        if (!isMember) return (false, "No perteneces a este grupo.", null);
+        if (!isMember) return (false, ServerText.NotAGroupMember, null);
 
         var entry = await GetOpenEntryAsync(groupId);
-        if (entry == null) return (false, "No hay pregunta activa en este grupo.", null);
+        if (entry == null) return (false, ServerText.NoActiveQuestionInGroup, null);
 
         var count = await context.ChatMessages
             .CountAsync(m => m.DailyEntryId == entry.Id && m.UserId == userId);
         if (count >= MaxMessagesPerUserPerDay)
-            return (false, $"Has alcanzado el límite de {MaxMessagesPerUserPerDay} mensajes por pregunta.", null);
+            return (false, ServerText.ChatLimitReached(MaxMessagesPerUserPerDay), null);
 
         var message = new ChatMessage
         {

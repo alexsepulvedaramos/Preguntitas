@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import {
   CdkDrag,
   CdkDropList,
@@ -13,6 +13,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideX } from '@ng-icons/lucide';
 
 import { GroupMember } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 const MIN_TEAMS = 2;
 const MAX_TEAMS = 4;
@@ -31,6 +32,7 @@ export class DeathmatchCreateComponent {
   public readonly members = input.required<GroupMember[]>();
   public readonly teams = model<number[][]>([[], []]);
   public readonly showErrors = input(false);
+  protected readonly t = inject(I18nService).t;
 
   // Display state holds member objects; the model holds plain id lists. Seeded once from
   // the members input (any ids already in `teams` start out assigned).

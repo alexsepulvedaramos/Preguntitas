@@ -7,21 +7,24 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { needsLightBackdrop } from '../../../../shared/utils/avatar-backdrop';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 export interface DiceBearStyle {
   id: string;
-  label: string;
+  label: TranslationKey;
 }
 
 const DICEBEAR_STYLES: DiceBearStyle[] = [
-  { id: 'bottts-neutral', label: 'Robots' },
-  { id: 'fun-emoji', label: 'Emojis' },
-  { id: 'pixel-art', label: 'Pixel Art' },
-  { id: 'adventurer', label: 'Aventureros' },
-  { id: 'notionists-neutral', label: 'Sketches' },
-  { id: 'big-smile', label: 'Sonrisas' },
-  { id: 'croodles-neutral', label: 'Garabatos' },
-  { id: 'lorelei', label: 'Retratos' },
+  { id: 'bottts-neutral', label: 'avatar.styles.robots' },
+  { id: 'fun-emoji', label: 'avatar.styles.emojis' },
+  { id: 'pixel-art', label: 'avatar.styles.pixelArt' },
+  { id: 'adventurer', label: 'avatar.styles.adventurers' },
+  { id: 'notionists-neutral', label: 'avatar.styles.sketches' },
+  { id: 'big-smile', label: 'avatar.styles.smiles' },
+  { id: 'croodles-neutral', label: 'avatar.styles.doodles' },
+  { id: 'lorelei', label: 'avatar.styles.portraits' },
 ];
 
 @Component({
@@ -37,6 +40,7 @@ export class AvatarPickerComponent {
 
   protected readonly authService = inject(AuthService);
   protected readonly userService = inject(UserService);
+  protected readonly t = inject(I18nService).t;
 
   protected readonly styles = DICEBEAR_STYLES;
   protected readonly activeTab = signal<'photo' | 'generated'>('photo');
@@ -69,7 +73,7 @@ export class AvatarPickerComponent {
       this.previewBlob.set(blob);
       this.previewUrl.set(URL.createObjectURL(blob));
     }).catch(() => {
-      this.errorMessage.set('No se pudo procesar la imagen.');
+      this.errorMessage.set(this.t('avatar.processFailed'));
     });
 
     input.value = '';
@@ -93,8 +97,10 @@ export class AvatarPickerComponent {
         this.isUploading.set(false);
         this.avatarSelected.emit();
       },
-      error: () => {
-        this.errorMessage.set('Error al subir la imagen. Inténtalo de nuevo.');
+      error: err => {
+        // A 400 explains what's wrong with the file, in the UI language.
+        const fallback = this.t('avatar.uploadFailed');
+        this.errorMessage.set(err.status === 400 ? apiErrorMessage(err, fallback) : fallback);
         this.isUploading.set(false);
       },
     });
@@ -112,7 +118,7 @@ export class AvatarPickerComponent {
         this.avatarSelected.emit();
       },
       error: () => {
-        this.errorMessage.set('Error al guardar el avatar.');
+        this.errorMessage.set(this.t('avatar.saveFailed'));
         this.isUploading.set(false);
       },
     });

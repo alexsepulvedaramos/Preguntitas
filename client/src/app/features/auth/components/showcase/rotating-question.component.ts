@@ -1,14 +1,16 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 
 /** Real seeded pack questions, shown as a teaser on the login page. */
-const SHOWCASE_QUESTIONS = [
-  '¿Quién fundaría una secta totalmente por accidente?',
-  'Del 1 al 10, ¿qué tan buen conductor te consideras?',
-  '¿Quién será la primera persona en divorciarse?',
-  'Si cambias una a una todas las piezas de un barco, ¿sigue siendo el mismo barco?',
-  'Top 3 frutos secos',
+const SHOWCASE_QUESTIONS: TranslationKey[] = [
+  'auth.showcase.question1',
+  'auth.showcase.question2',
+  'auth.showcase.question3',
+  'auth.showcase.question4',
+  'auth.showcase.question5',
 ];
 
 @Component({
@@ -18,16 +20,16 @@ const SHOWCASE_QUESTIONS = [
   template: `
     <div class="space-y-2 text-center">
       <p class="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-        Hoy podría tocaros…
+        {{ t('auth.showcase.eyebrow') }}
       </p>
       <div class="flex min-h-[6rem] items-center justify-center">
         <h1
           class="vp-question-text text-2xl md:text-3xl"
-          [innerHTML]="question() | wordStagger"
+          [innerHTML]="t(question()) | wordStagger"
         ></h1>
       </div>
       <p class="text-sm text-muted-foreground">
-        Una pregunta al día sobre tu grupo. Vota y descubre quién ha votado a quién.
+        {{ t('auth.showcase.tagline') }}
       </p>
     </div>
   `,
@@ -35,6 +37,7 @@ const SHOWCASE_QUESTIONS = [
 export class RotatingQuestionComponent implements OnInit, OnDestroy {
   private static readonly ROTATION_MS = 4500;
 
+  protected readonly t = inject(I18nService).t;
   private index = 0;
   private intervalId?: ReturnType<typeof setInterval>;
 

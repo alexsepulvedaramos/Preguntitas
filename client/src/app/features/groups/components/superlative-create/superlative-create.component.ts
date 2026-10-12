@@ -3,6 +3,7 @@ import { Component, computed, inject, input, model, signal } from '@angular/core
 import { AuthService } from '../../../../core/auth/auth.service';
 import { GroupMember } from '../../models/group.models';
 import { voteOptionClass } from '../vote/vote-option.util';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // Superlative create fields (spec §5.1, §9): who is excluded from being picked, and
 // whether voters may answer "Nadie". The creator can never blacklist themselves.
@@ -13,6 +14,7 @@ import { voteOptionClass } from '../vote/vote-option.util';
 })
 export class SuperlativeCreateComponent {
   private readonly authService = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly members = input.required<GroupMember[]>();
   public readonly allowNobody = model(false);

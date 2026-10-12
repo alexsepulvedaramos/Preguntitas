@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-4">
   <hlm-field class="grid gap-1.5">
-    <label hlmFieldLabel class="text-sm font-medium text-foreground">Tipo de pregunta</label>
+    <label hlmFieldLabel class="text-sm font-medium text-foreground">{{ t('createQuestion.type') }}</label>
     <div class="flex items-center gap-2">
       <hlm-native-select
         class="!flex-1"
@@ -8,8 +8,8 @@
         [value]="type().toString()"
         (valueChange)="onTypeChange($event)"
       >
-        @for (t of types; track t) {
-          <option hlmNativeSelectOption [value]="t">{{ QUESTION_TYPE_LABELS[t] }}</option>
+        @for (option of types; track option) {
+          <option hlmNativeSelectOption [value]="option">{{ t(QUESTION_TYPE_LABELS[option]) }}</option>
         }
       </hlm-native-select>
       <span class="relative inline-flex shrink-0">
@@ -18,7 +18,7 @@
           class="text-muted-foreground hover:text-foreground transition-colors rounded-full focus-visible:ring-2 focus-visible:ring-ring"
           (click)="toggleInfo($event)"
           [attr.aria-pressed]="infoOpen()"
-          aria-label="Qué es este tipo de pregunta"
+          [attr.aria-label]="t('createQuestion.typeInfo')"
         >
           <ng-icon hlm name="lucideInfo" size="16" />
         </button>
@@ -38,7 +38,7 @@
 
   <hlm-field class="grid gap-1.5">
     <label hlmFieldLabel for="questionText" class="text-sm font-medium text-foreground"
-      >Pregunta <span class="text-destructive" aria-hidden="true">*</span></label
+      >{{ t('createQuestion.question') }} <span class="text-destructive" aria-hidden="true">*</span></label
     >
     <input
       hlmInput
@@ -51,7 +51,7 @@
       class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
     />
     @if (!textValid() && textTouched()) {
-      <hlm-field-error>Escribe la pregunta (entre 3 y 200 caracteres).</hlm-field-error>
+      <hlm-field-error>{{ t('createQuestion.textError') }}</hlm-field-error>
     }
   </hlm-field>
 
@@ -82,19 +82,19 @@
     }
     @case (QuestionType.OpenText) {
       <p class="text-sm text-muted-foreground">
-        Cada miembro responderá con su propio texto. No hay nada más que configurar.
+        {{ t('createQuestion.openTextNote') }}
       </p>
     }
   }
 
-  @if (typeTouched() && typeError()) {
-    <p class="text-sm text-destructive">{{ typeError() }}</p>
+  @if (typeTouched() && typeError(); as typeError) {
+    <p class="text-sm text-destructive">{{ t(typeError) }}</p>
   }
 
   @if (submitting()) {
     <div class="flex items-center gap-2 text-sm text-muted-foreground">
       <hlm-spinner class="size-4" />
-      Guardando...
+      {{ t('common.saving') }}
     </div>
   }
 
@@ -106,9 +106,9 @@
     @if (!isValid() && (textTouched() || typeTouched())) {
       <p class="text-sm text-destructive">
         @if (!textValid()) {
-          Escribe la pregunta para poder continuar.
-        } @else if (typeError()) {
-          {{ typeError() }}
+          {{ t('createQuestion.writeToContinue') }}
+        } @else if (typeError(); as typeError) {
+          {{ t(typeError) }}
         }
       </p>
     }
@@ -120,7 +120,7 @@
         [disabled]="submitting()"
         (click)="selectForTomorrow()"
       >
-        Confirmar edición
+        {{ t('createQuestion.confirmEdit') }}
       </button>
     } @else {
       @if (showSelectButton()) {
@@ -131,7 +131,7 @@
           [disabled]="submitting()"
           (click)="selectForTomorrow()"
         >
-          Elegir para mañana
+          {{ t('createQuestion.selectForTomorrow') }}
         </button>
       }
       <button
@@ -142,7 +142,7 @@
         [disabled]="submitting()"
         (click)="saveToPool()"
       >
-        {{ showSelectButton() ? 'Guardar sin elegir todavía' : 'Guardar pregunta' }}
+        {{ showSelectButton() ? t('createQuestion.saveWithoutSelecting') : t('createQuestion.save') }}
       </button>
     }
   </div>

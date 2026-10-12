@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRight } from '@ng-icons/lucide';
@@ -9,6 +9,9 @@ import { FRAME_STREAK } from '../../core/constants/streak-tiers';
 import { LogoWordmarkComponent } from '../../core/layout/logo/logo-wordmark.component';
 import { ThemeComponent } from '../../core/layout/theme/theme.component';
 import { APP_VERSION } from '../../core/releases/releases';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { TranslationKey } from '../../core/i18n/translation.types';
+import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { ResultsShowcaseComponent } from '../auth/components/showcase/results-showcase.component';
 
@@ -23,6 +26,7 @@ import { ResultsShowcaseComponent } from '../auth/components/showcase/results-sh
     HlmButtonImports,
     LogoWordmarkComponent,
     ThemeComponent,
+    LanguagePickerComponent,
     UserAvatarComponent,
     ResultsShowcaseComponent,
   ],
@@ -31,32 +35,22 @@ import { ResultsShowcaseComponent } from '../auth/components/showcase/results-sh
   templateUrl: './landing-page.component.html',
 })
 export class LandingPageComponent {
+  protected readonly t = inject(I18nService).t;
   protected readonly version = APP_VERSION;
   protected readonly frameStreak = FRAME_STREAK;
 
-  protected readonly steps = [
-    {
-      emoji: '👥',
-      title: 'Crea tu grupo',
-      text: 'Ponle nombre, elige a qué hora sale la pregunta y comparte el enlace. En cuanto sois dos, empieza el juego.',
-    },
-    {
-      emoji: '❓',
-      title: 'Una pregunta al día',
-      text: '¿Quién llegaría tarde a su propia boda? Cada día a una persona le toca elegir la de mañana: de los packs o una vuestra.',
-    },
-    {
-      emoji: '🗳️',
-      title: 'Votad y que se líe',
-      text: 'Los resultados no son secretos: se ve quién ha votado a quién. Y cada pregunta tiene su chat para el debate.',
-    },
+  protected readonly steps: { emoji: string; title: TranslationKey; text: TranslationKey }[] = [
+    { emoji: '👥', title: 'landing.step1Title', text: 'landing.step1Text' },
+    { emoji: '❓', title: 'landing.step2Title', text: 'landing.step2Text' },
+    { emoji: '🗳️', title: 'landing.step3Title', text: 'landing.step3Text' },
   ];
 
   // Fictional members wearing a few of the streak frames (see /about for all of them).
+  // The last one shows "1 year" instead of a day count.
   protected readonly frames = [
-    { username: 'ana', streak: 5, label: '5 días' },
-    { username: 'carlos', streak: 30, label: '30 días' },
-    { username: 'eva', streak: 100, label: '100 días', crown: true },
-    { username: 'gus', streak: 365, label: '1 año' },
+    { username: 'ana', streak: 5 },
+    { username: 'carlos', streak: 30 },
+    { username: 'eva', streak: 100, crown: true },
+    { username: 'gus', streak: 365, oneYear: true },
   ];
 }

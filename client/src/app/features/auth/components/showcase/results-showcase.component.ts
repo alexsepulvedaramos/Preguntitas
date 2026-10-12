@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 interface ShowcaseRow {
   name: string;
@@ -14,7 +16,7 @@ interface ShowcaseRow {
   template: `
     <div class="space-y-3 rounded-xl border border-border bg-card/60 p-4" aria-hidden="true">
       <p class="vp-question-text text-lg md:text-xl text-center">
-        ¿Quién llegaría tarde a su propia boda?
+        {{ t('auth.showcase.resultsQuestion') }}
       </p>
 
       <div class="space-y-2">
@@ -56,7 +58,7 @@ interface ShowcaseRow {
       </div>
 
       <p class="text-center text-xs text-muted-foreground">
-        Resultados en vivo: mira quién ha votado a quién
+        {{ t('auth.showcase.resultsCaption') }}
       </p>
     </div>
   `,
@@ -92,6 +94,7 @@ interface ShowcaseRow {
   `,
 })
 export class ResultsShowcaseComponent {
+  protected readonly t = inject(I18nService).t;
   protected readonly rows: ShowcaseRow[] = [
     { name: 'Marta', pct: 54, color: 'var(--chart-1)', voters: ['D', 'L'] },
     { name: 'Dani', pct: 31, color: 'var(--chart-2)', voters: ['M'] },
