@@ -18,6 +18,10 @@ public class Group
     // re-disabling a pack an admin later enabled.
     public bool DefaultPacksApplied { get; set; }
 
+    // Shuffled selector rotation (§17.4): the round being drawn. Every member is selector
+    // once per round, drawn at random among those whose LastSelectorRound is below it.
+    public int SelectorRound { get; set; } = 1;
+
     public int CreatorId { get; set; }
 
     [ForeignKey(nameof(CreatorId))]

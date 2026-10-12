@@ -15,7 +15,7 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
     private static readonly DateOnly Tomorrow = Today.AddDays(1);
 
     // Today's question is open; tomorrow's was preselected automatically from a pack and
-    // it's carlos's turn to choose (day 5 since creation, 5 mod 3).
+    // carlos was drawn to choose.
     private async Task<(SeededGroup Group, int AutoPickId)> SeedPendingSelectionAsync()
     {
         var group = await SeedGroupAsync("ana", "bea", "carlos");
@@ -61,7 +61,7 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
         await using var db = NewContext();
         var entry = await db.DailyEntries.Include(d => d.Question).SingleAsync(d => d.Date == Tomorrow);
         entry.QuestionId.Should().Be(poolQuestion);
-        entry.IsAutoSelected.Should().BeFalse();
+        entry.SelectionKind.Should().Be(SelectionKind.Picked);
         entry.ActivatedAt.Should().BeNull();
         entry.Question.IsUsed.Should().BeTrue();
         entry.Question.DateActivated.Should().BeNull();
@@ -115,27 +115,85 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
     }
 
     [Fact]
-    public async Task ASelectionMadeBeforeAnyPreselection_IsKeptAndActivatesAtT()
+    public async Task BeforeTheNextSelectorIsDrawn_NobodyCanChoose()
     {
-        // Yesterday's question is still open and nothing is queued for today yet.
+        // Yesterday's question is still open and the tick hasn't queued today's yet.
         var group = await SeedGroupAsync("ana", "bea", "carlos");
         await AddActivatedDayAsync(group.Id, Today.AddDays(-1), group["ana"]);
         var chosen = await AddQuestionAsync(group.Id, text: "La elegida", creatorId: group["ana"]);
-        await AddQuestionAsync(group.Id, text: "Otra del pool", creatorId: group["ana"]);
         Clock.SetLocal(Today, new TimeOnly(10, 0));
 
-        // 2026-10-05 is day 4 since creation: 4 mod 3 → bea.
-        var result = await SelectAsync(group.Id, group["bea"], new() { ExistingQuestionId = chosen });
-        Clock.SetLocal(Today, DailyTime);
-        await TickAsync();
+        var results = new List<SelectResult>();
+        foreach (var userId in group.UserIds.Values)
+            results.Add(await SelectAsync(group.Id, userId, new() { ExistingQuestionId = chosen }));
+
+        results.Should().OnlyContain(r => r == SelectResult.NotYourTurn);
+        await using var db = NewContext();
+        (await db.DailyEntries.CountAsync()).Should().Be(1);
+        var status = await NewDailyService(db).GetCurrentStatusAsync(group.Id, group["ana"]);
+        status.Today.Status.Should().Be("voting");
+        status.Selection.Should().BeNull("the next selector hasn't been drawn yet");
+    }
+
+    [Fact]
+    public async Task CreatingAQuestionInline_IsRecordedAsCreated()
+    {
+        var (group, _) = await SeedPendingSelectionAsync();
+
+        var result = await SelectAsync(
+            group.Id,
+            group["carlos"],
+            new()
+            {
+                NewQuestion = new()
+                {
+                    Text = "¿Quién se perdería en su propio barrio?",
+                    Type = QuestionType.Superlative,
+                },
+            }
+        );
 
         result.Should().Be(SelectResult.Success);
         await using var db = NewContext();
-        var todays = await db.DailyEntries.SingleAsync(d => d.Date == Today);
-        todays.QuestionId.Should().Be(chosen);
-        todays.IsAutoSelected.Should().BeFalse();
-        todays.ActivatedAt.Should().Be(Clock.UtcNow);
-        (await db.DailyEntries.SingleAsync(d => d.Date == Tomorrow)).QuestionId.Should().NotBe(chosen);
+        var entry = await db.DailyEntries.Include(d => d.Question).SingleAsync(d => d.Date == Tomorrow);
+        entry.SelectionKind.Should().Be(SelectionKind.Created);
+        entry.Question.CreatorId.Should().Be(group["carlos"]);
+    }
+
+    [Fact]
+    public async Task ConfirmingTheAutomaticPick_KeepsTheQuestionAndCountsAsAChoice()
+    {
+        var (group, autoPick) = await SeedPendingSelectionAsync();
+
+        await using var db = NewContext();
+        var service = NewDailyService(db);
+        var notSelector = await service.ConfirmSelectionAsync(group.Id, group["ana"]);
+        var selector = await service.ConfirmSelectionAsync(group.Id, group["carlos"]);
+        var view = await service.GetCurrentStatusAsync(group.Id, group["carlos"]);
+
+        notSelector.Should().Be(SelectResult.NotYourTurn);
+        selector.Should().Be(SelectResult.Success);
+        var entry = await db.DailyEntries.AsNoTracking().SingleAsync(d => d.Date == Tomorrow);
+        entry.QuestionId.Should().Be(autoPick);
+        entry.SelectionKind.Should().Be(SelectionKind.Confirmed);
+        entry.ActivatedAt.Should().BeNull();
+        view.Selection!.IsAutoSelected.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ConfirmingAfterPicking_DoesNotDowngradeTheChoice()
+    {
+        var (group, _) = await SeedPendingSelectionAsync();
+        var poolQuestion = await AddQuestionAsync(group.Id, creatorId: group["ana"]);
+        await SelectAsync(group.Id, group["carlos"], new() { ExistingQuestionId = poolQuestion });
+
+        await using var db = NewContext();
+        var result = await NewDailyService(db).ConfirmSelectionAsync(group.Id, group["carlos"]);
+
+        result.Should().Be(SelectResult.Success);
+        (await db.DailyEntries.SingleAsync(d => d.Date == Tomorrow))
+            .SelectionKind.Should()
+            .Be(SelectionKind.Picked);
     }
 
     [Fact]

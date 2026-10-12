@@ -15,8 +15,8 @@ namespace VayaPreguntita.API.Tests.Testing;
 // push notifications mocked out. Concrete classes need [Collection(PostgresCollection.Name)].
 public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
 {
-    // Every seeded group asks its question at 21:00 (UTC+2) and was created on 2026-10-01,
-    // so the selector rotation is day N since creation → member N mod count, in join order.
+    // Every seeded group asks its question at 21:00 (UTC+2) and was created on 2026-10-01.
+    // Its members are all still due a turn in selector round 1 (§17.4).
     protected static readonly TimeOnly DailyTime = new(21, 0);
     protected static readonly DateTime GroupCreatedUtc = new(2026, 10, 1, 8, 0, 0, DateTimeKind.Utc);
 
@@ -144,7 +144,7 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
         int questionId,
         int selectorUserId,
         bool activated,
-        bool autoSelected = true
+        SelectionKind selectionKind = SelectionKind.Auto
     )
     {
         await using var db = NewContext();
@@ -155,7 +155,7 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
             Date = date,
             QuestionId = questionId,
             SelectorUserId = selectorUserId,
-            IsAutoSelected = autoSelected,
+            SelectionKind = selectionKind,
             PreselectedAt = DailyClock.ToUtc(date.AddDays(-1), DailyTime),
             ActivatedAt = activatedAt,
         };

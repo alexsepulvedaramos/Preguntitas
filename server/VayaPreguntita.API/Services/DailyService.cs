@@ -58,7 +58,7 @@ public class DailyService(
         return new DailyStatusDto
         {
             Today = await BuildTodayStateAsync(openEntry, group, userId),
-            Selection = BuildSelectionState(pendingEntry, openEntry, group, userId),
+            Selection = BuildSelectionState(pendingEntry, group, userId),
             MyStreak = await streakService.GetMyStreakAsync(groupId, userId),
         };
     }
@@ -99,7 +99,6 @@ public class DailyService(
 
     private SelectionStateDto? BuildSelectionState(
         DailyEntry? pendingEntry,
-        DailyEntry? openEntry,
         Group group,
         int userId
     )
@@ -118,7 +117,7 @@ public class DailyService(
                 SelectorUserId = pendingEntry.SelectorUserId,
                 SelectorUsername = selectorMember?.User.Username ?? string.Empty,
                 IsCurrentUserSelector = isSelector,
-                IsAutoSelected = pendingEntry.IsAutoSelected,
+                IsAutoSelected = pendingEntry.SelectionKind == SelectionKind.Auto,
                 // Only the selector sees tomorrow's question — keeps the surprise.
                 PendingQuestion = isSelector
                     ? mapper.Map<QuestionToVoteDto>(pendingEntry.Question)
@@ -126,35 +125,10 @@ public class DailyService(
             };
         }
 
-        // No preselection yet. Show whose turn it is only once the group has started
-        // a cycle (≥ 2 members); otherwise there is no selection state (pre-start).
-        if (group.Members.Count < 2)
-            return null;
-
-        var upcoming = NextActivationDate(openEntry, group);
-        var selector = CalculateSelector(group.Members, group.DateCreated, upcoming);
-
-        return new SelectionStateDto
-        {
-            Date = upcoming,
-            ActivatesAt = DailyClock.ToUtc(upcoming, group.DailyQuestionTime),
-            SelectorUserId = selector.UserId,
-            SelectorUsername = selector.User.Username,
-            IsCurrentUserSelector = selector.UserId == userId,
-            IsAutoSelected = false,
-            PendingQuestion = null,
-        };
-    }
-
-    // The next date that will activate, when no pending entry exists yet.
-    private DateOnly NextActivationDate(DailyEntry? openEntry, Group group)
-    {
-        if (openEntry != null)
-            return openEntry.Date.AddDays(1);
-
-        // Brand-new group: the first question activates today if T hasn't passed, else tomorrow.
-        var today = DailyClock.Today(clock);
-        return DailyClock.TimeOfDay(clock) < group.DailyQuestionTime ? today : today.AddDays(1);
+        // No pending entry: either the group hasn't started (< 2 members) or the next
+        // selector hasn't been drawn yet (the tick preselects right after T). The draw is
+        // random (§17.4), so nobody is the selector until it happens.
+        return null;
     }
 
     // ==========================================
@@ -178,68 +152,33 @@ public class DailyService(
             .OrderBy(d => d.Date)
             .FirstOrDefaultAsync();
 
-        DateOnly targetDate;
-        if (pendingEntry != null)
-        {
-            targetDate = pendingEntry.Date;
-        }
-        else
-        {
-            var openEntry = await context
-                .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt != null)
-                .OrderByDescending(d => d.Date)
-                .FirstOrDefaultAsync();
-            targetDate = NextActivationDate(openEntry, group);
-        }
-
-        // Only the selector for the target date may choose.
-        // If a pending entry already exists, use its stored SelectorUserId — recalculating
-        // would break for members who left and rejoined (new JoinedAt shifts the rotation).
-        var selectorUserId = pendingEntry?.SelectorUserId
-            ?? CalculateSelector(group.Members, group.DateCreated, targetDate).UserId;
-        if (selectorUserId != userId)
+        // Only the drawn selector (stored on the pending entry) may choose. Until the tick
+        // has drawn one (§17.4), nobody's turn has started.
+        if (pendingEntry == null || pendingEntry.SelectorUserId != userId)
             return SelectResult.NotYourTurn;
 
-        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId, targetDate);
+        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
         if (resolveResult != SelectResult.Success)
             return resolveResult;
 
-        if (pendingEntry == null)
-        {
-            context.DailyEntries.Add(
-                new DailyEntry
-                {
-                    GroupId = groupId,
-                    Date = targetDate,
-                    SelectorUserId = userId,
-                    QuestionId = question!.Id,
-                    ActivatedAt = null, // NEVER activate here — only the background service at T.
-                    IsAutoSelected = false,
-                    PreselectedAt = DailyClock.UtcNow(clock),
-                }
-            );
-        }
-        else
-        {
-            var oldQuestionId = pendingEntry.QuestionId;
-            pendingEntry.QuestionId = question!.Id;
-            pendingEntry.IsAutoSelected = false;
+        var oldQuestionId = pendingEntry.QuestionId;
+        pendingEntry.QuestionId = question!.Id;
+        pendingEntry.SelectionKind = SelectionKindFor(dto, pendingEntry.SelectionKind);
 
-            // Always release the old question when the selection changes, regardless of
-            // whether it was auto-selected or manually chosen. This keeps pool questions
-            // available after a re-selection instead of leaving them stranded as IsUsed=true.
-            if (oldQuestionId != question.Id)
+        // Always release the old question when the selection changes, regardless of
+        // whether it was auto-selected or manually chosen. This keeps pool questions
+        // available after a re-selection instead of leaving them stranded as IsUsed=true.
+        if (oldQuestionId != question.Id)
+        {
+            var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
+            if (oldQuestion != null)
             {
-                var oldQuestion = await context.Questions.FindAsync(oldQuestionId);
-                if (oldQuestion != null)
+                if (oldQuestion.Source == QuestionSource.Pack)
+                    context.Questions.Remove(oldQuestion); // a pack clone has no pool value
+                else
                 {
-                    if (oldQuestion.Source == QuestionSource.Pack)
-                        context.Questions.Remove(oldQuestion); // a pack clone has no pool value
-                    else
-                    {
-                        oldQuestion.IsUsed = false;
-                        oldQuestion.DateActivated = null;
-                    }
+                    oldQuestion.IsUsed = false;
+                    oldQuestion.DateActivated = null;
                 }
             }
         }
@@ -248,12 +187,43 @@ public class DailyService(
         return SelectResult.Success;
     }
 
+    // Inline create = Created (earns the selector's bonus, §17.2). Editing the pending
+    // question in place keeps a Created entry Created; any other choice is Picked.
+    private static SelectionKind SelectionKindFor(SelectQuestionDto dto, SelectionKind current) =>
+        dto.NewQuestion == null ? SelectionKind.Picked
+        : dto.OverwriteQuestionId.HasValue
+            ? (current == SelectionKind.Created ? SelectionKind.Created : SelectionKind.Picked)
+        : SelectionKind.Created;
+
+    // ==========================================
+    // CONFIRM SELECTION (§17.4)
+    // The selector keeps the auto-selected question: it becomes an active choice without
+    // changing the question. Idempotent — an entry already actively chosen stays as it is.
+    // ==========================================
+    public async Task<SelectResult> ConfirmSelectionAsync(int groupId, int userId)
+    {
+        var pendingEntry = await context
+            .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt == null)
+            .OrderBy(d => d.Date)
+            .FirstOrDefaultAsync();
+
+        if (pendingEntry == null || pendingEntry.SelectorUserId != userId)
+            return SelectResult.NotYourTurn;
+
+        if (pendingEntry.SelectionKind == SelectionKind.Auto)
+        {
+            pendingEntry.SelectionKind = SelectionKind.Confirmed;
+            await context.SaveChangesAsync();
+        }
+
+        return SelectResult.Success;
+    }
+
     // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
-        int userId,
-        DateOnly targetDate
+        int userId
     )
     {
         // Overwrite path: update an existing pending question's content in place.
@@ -540,7 +510,7 @@ public class DailyService(
         if (group == null || group.Members.Count < 2)
             return null;
 
-        var selector = CalculateSelector(group.Members, group.DateCreated, date);
+        var selector = await DrawSelectorAsync(group, isBootstrap: activateImmediately);
 
         // Pick a random unused question from the group pool.
         var question = await context
@@ -598,7 +568,7 @@ public class DailyService(
                 Date = date,
                 QuestionId = question.Id,
                 SelectorUserId = selector.UserId,
-                IsAutoSelected = true,
+                SelectionKind = SelectionKind.Auto,
                 PreselectedAt = nowUtc,
                 ActivatedAt = activateImmediately ? nowUtc : null,
             }
@@ -612,18 +582,24 @@ public class DailyService(
     // PRIVATE HELPERS
     // ==========================================
 
-    private static GroupMember CalculateSelector(
-        List<GroupMember> members,
-        DateTime groupCreatedAt,
-        DateOnly date
-    )
+    // Shuffled rounds (§17.4). The group's first question (bootstrap, §4.1) always goes to
+    // the creator, which spends their round-1 turn; every later turn is a random draw.
+    private async Task<GroupMember> DrawSelectorAsync(Group group, bool isBootstrap)
     {
-        var daysSinceCreation = date.DayNumber - DateOnly.FromDateTime(groupCreatedAt).DayNumber;
-        var ordered = members.OrderBy(m => m.JoinedAt).ToList();
-        // Safe modulo: the bootstrap entry (see JoinGroupAsync) can land one day before the
-        // group's creation date, making daysSinceCreation negative.
-        var index = ((daysSinceCreation % ordered.Count) + ordered.Count) % ordered.Count;
-        return ordered[index];
+        var creator = group.Members.FirstOrDefault(m => m.UserId == group.CreatorId);
+        if (isBootstrap && creator != null)
+        {
+            SelectorRotation.ClaimTurn(group, creator);
+            return creator;
+        }
+
+        var previousSelectorId = await context
+            .DailyEntries.Where(d => d.GroupId == group.Id)
+            .OrderByDescending(d => d.Date)
+            .Select(d => (int?)d.SelectorUserId)
+            .FirstOrDefaultAsync();
+
+        return SelectorRotation.Draw(group, previousSelectorId, Random.Shared);
     }
 
     // Total CustomPoll selections = picked options + an optional "Otro" free-text answer,

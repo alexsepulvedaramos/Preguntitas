@@ -252,7 +252,7 @@ export const en: Translation = {
     },
     select: {
       title: 'Tomorrow you pick',
-      text: 'Every day someone in the group takes their turn to pick the next day’s question: from the packs or one you write yourselves. If nobody picks, one comes from the packs.',
+      text: 'Every day someone in the group gets to pick the next day’s question: from the packs or one you write yourselves. Turns are drawn at random: everyone picks the same number of times, but nobody knows who’s next. If nobody picks, one comes from the packs.',
       pick1: 'Who would get lost even with GPS in their hand?',
       pick2: 'Pick your useless superpower:',
       pick3: 'From 1 to 10, how would you rate pineapple pizza?',
@@ -485,6 +485,9 @@ export const en: Translation = {
     createText: 'Fill in the details for the question type.',
     loading: 'Loading available questions…',
     alreadyPicked: 'Already picked for tomorrow',
+    autoPicked: 'Automatic pick for tomorrow',
+    keepIt: 'This one works',
+    keepFailed: 'Couldn’t confirm the question.',
     tapToEdit: 'Tap to edit',
     create: 'Create a new question',
     orExisting: 'or pick an existing one',

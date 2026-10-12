@@ -197,7 +197,14 @@ public class GroupsService(
         if (!userExists)
             return (false, false);
 
-        group.Members.Add(new GroupMember { UserId = userId, JoinedAt = DailyClock.UtcNow(clock), IsAdmin = false });
+        // Joining mid-round puts the newcomer in the current round, still due a turn (§17.4).
+        group.Members.Add(new GroupMember
+        {
+            UserId = userId,
+            JoinedAt = DailyClock.UtcNow(clock),
+            IsAdmin = false,
+            LastSelectorRound = SelectorRotation.RoundForNewMember(group),
+        });
         await context.SaveChangesAsync();
 
         // A member who left and comes back gets their streak rebuilt from vote history
@@ -211,7 +218,8 @@ public class GroupsService(
         // tomorrow's) — not a full 24h later — so the normal cadence resumes at the very
         // next T instead of skipping an entire cycle. It's dated one day *before* that T so
         // it doesn't collide with the regularly-queued entry, which takes the real T date;
-        // ClosesAt/ActivatesAt (Date+1@T) and CalculateSelector both work unmodified off that.
+        // ClosesAt/ActivatesAt (Date+1@T) work unmodified off that. The bootstrap turn goes
+        // to the creator; the regular entry is the first random draw (§17.4).
         if (group.Members.Count == 2)
         {
             var today = DailyClock.Today(clock);

@@ -1,10 +1,12 @@
+using VayaPreguntita.API.Enums;
+
 namespace VayaPreguntita.API.Entities;
 
 public class DailyEntry
 {
     public int Id { get; set; }
     public DateOnly Date { get; set; }
-    public bool IsAutoSelected { get; set; } = false;
+    public SelectionKind SelectionKind { get; set; } = SelectionKind.Auto;
     public DateTime PreselectedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ActivatedAt { get; set; }
     public DateTime? SelectorReminderSentAt { get; set; }
