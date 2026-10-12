@@ -1,6 +1,8 @@
-import { Component, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { EMPTY, forkJoin } from 'rxjs';
+import { catchError, exhaustMap, filter } from 'rxjs/operators';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
@@ -31,8 +33,11 @@ import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-
 import { GroupChatComponent } from '../group-chat/group-chat.component';
 import { StreakCelebrationComponent } from '../streak-celebration/streak-celebration.component';
 import { shareInvite } from '../../utils/invite-share';
+import { visiblePolling } from '../../../../shared/utils/visible-polling';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
+
+export const DAILY_POLL_INTERVAL_MS = 30_000;
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -66,6 +71,7 @@ import { TranslationKey } from '../../../../core/i18n/translation.types';
 export class GroupDetailComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dailyService = inject(DailyService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
@@ -90,6 +96,7 @@ export class GroupDetailComponent implements OnInit {
 
   ngOnInit() {
     this.loadAll();
+    this.startDailyPolling();
   }
 
   refresh() {
@@ -193,6 +200,41 @@ export class GroupDetailComponent implements OnInit {
 
     const highest = this.authService.currentUser()?.highestStreak ?? 0;
     if (current > highest) this.authService.patchCurrentUser({ highestStreak: current });
+  }
+
+  // Live refresh (spec §10): while the question is open (voting or results) re-fetch
+  // daily/current every 30 s, only when the page is visible. Silent: no skeleton, and the
+  // result is merged without disturbing a vote in progress. exhaustMap avoids overlaps.
+  private startDailyPolling() {
+    visiblePolling(DAILY_POLL_INTERVAL_MS)
+      .pipe(
+        filter(() => {
+          const status = this.daily()?.today.status;
+          return !this.loading() && !this.refreshing() && (status === 'voting' || status === 'results');
+        }),
+        exhaustMap(() => this.dailyService.getCurrent(this.numericGroupId()).pipe(catchError(() => EMPTY))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((fresh) => this.mergeDaily(fresh));
+  }
+
+  private mergeDaily(fresh: DailyStatus) {
+    const current = this.daily();
+    if (!current) return;
+
+    const sameQuestion = current.today.question?.id === fresh.today.question?.id;
+    // A poll that was in flight while the user voted can come back stale: keep the local vote.
+    if (sameQuestion && current.today.userHasVoted && !fresh.today.userHasVoted) return;
+    if (JSON.stringify(current) === JSON.stringify(fresh)) return;
+
+    this.daily.set({
+      ...fresh,
+      // Same question still waiting for a vote: keep the object so the vote form isn't reset.
+      today:
+        sameQuestion && fresh.today.status === 'voting' && current.today.status === 'voting'
+          ? { ...fresh.today, question: current.today.question }
+          : fresh.today,
+    });
   }
 
   private loadAll() {
