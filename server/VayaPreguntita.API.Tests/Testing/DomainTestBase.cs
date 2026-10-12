@@ -50,8 +50,18 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
 
     protected CoinService NewCoinService(AppDbContext db) => new(db, Clock);
 
+    protected AuthorGuessService NewAuthorGuessService(AppDbContext db) => new(db, NewCoinService(db), Clock);
+
     protected DailyService NewDailyService(AppDbContext db) =>
-        new(db, TestMapper.Instance, Notifications.Object, NewStreakService(db), NewCoinService(db), Clock);
+        new(
+            db,
+            TestMapper.Instance,
+            Notifications.Object,
+            NewStreakService(db),
+            NewCoinService(db),
+            NewAuthorGuessService(db),
+            Clock
+        );
 
     protected DailyCycleRunner NewCycleRunner(AppDbContext db) =>
         new(

@@ -49,6 +49,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)));
         CreateMap<Question, QuestionDto>()
             .ForMember(dest => dest.Text, opt => opt.MapFrom(src => ContentTranslations.Pick(src.Text, src.TextTranslations)))
+            .ForMember(dest => dest.IsMine, opt => opt.Ignore()) // depends on the caller, set by the service
             .ForMember(dest => dest.Teams, opt => opt.MapFrom(src => src.Metadata.Teams));
 
         CreateMap<Question, QuestionToVoteDto>()

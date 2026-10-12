@@ -23,6 +23,82 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.16.0',
+    date: '2026-10-12',
+    title: {
+      es: '¿Quién la escribió?',
+      en: 'Who wrote it?',
+      de: 'Wer hat sie geschrieben?',
+    },
+    items: [
+      {
+        emoji: '🕵️',
+        title: {
+          es: 'Adivina quién escribió la pregunta',
+          en: 'Guess who wrote the question',
+          de: 'Rate, wer die Frage geschrieben hat',
+        },
+        text: {
+          es: 'Cuando la pregunta del día la ha escrito alguien del grupo, después de votar puedes adivinar quién fue. Tienes un intento y la respuesta sale al momento: si aciertas, ganas 5 🪙. Si prefieres no arriesgarte, salta y descubre quién fue. Y si la escribiste tú, verás cuántos te han pillado.',
+          en: 'When today’s question was written by someone in the group, you can guess who after voting. You get one try and the answer shows right away: guess right and win 5 🪙. Rather not risk it? Skip and find out who it was. And if you wrote it, you’ll see how many people caught you.',
+          de: 'Wenn jemand aus der Gruppe die Frage des Tages geschrieben hat, kannst du nach dem Abstimmen raten, wer es war. Du hast einen Versuch und die Antwort kommt sofort: Liegst du richtig, bekommst du 5 🪙. Kein Risiko? Überspring es und sieh nach, wer es war. Und wenn die Frage von dir ist, siehst du, wie viele dich erwischt haben.',
+        },
+      },
+      {
+        emoji: '💡',
+        title: {
+          es: 'Pista de autor',
+          en: 'Author hint',
+          de: 'Tipp zur Autorschaft',
+        },
+        text: {
+          es: '¿Dudas? Por 20 🪙 la pista quita la mitad de los sospechosos que no son. Si aciertas después, ganas tus 5 🪙 igualmente.',
+          en: 'Not sure? For 20 🪙 the hint rules out half of the wrong suspects. Guess right afterwards and you still win your 5 🪙.',
+          de: 'Unsicher? Für 20 🪙 streicht der Tipp die Hälfte der falschen Verdächtigen. Rätst du danach richtig, bekommst du trotzdem deine 5 🪙.',
+        },
+      },
+      {
+        emoji: '✨',
+        title: {
+          es: 'Una pantalla de grupo más limpia',
+          en: 'A cleaner group screen',
+          de: 'Ein aufgeräumter Gruppenbildschirm',
+        },
+        text: {
+          es: 'La pregunta manda. Tu racha es ahora un pequeño 🔥 arriba que se pone naranja si está en peligro; tócalo para ver tus congelaciones. El tiempo que queda es una línea fina, y al lado ves quién ha votado ya. Los avisos importantes, como que te toca elegir, siguen saliendo encima de la pregunta.',
+          en: 'The question comes first. Your streak is now a small 🔥 at the top that turns orange when it’s at risk; tap it to see your freezes. Time left is a thin line, with who has already voted right next to it. Important notices, like your turn to pick, still show above the question.',
+          de: 'Die Frage steht im Mittelpunkt. Deine Serie ist jetzt ein kleines 🔥 oben, das orange wird, wenn sie in Gefahr ist; tipp darauf für deinen Serienschutz. Die verbleibende Zeit ist eine dünne Linie, daneben siehst du, wer schon abgestimmt hat. Wichtige Hinweise, etwa dass du mit Auswählen dran bist, stehen weiterhin über der Frage.',
+        },
+      },
+      {
+        emoji: '📜',
+        title: {
+          es: 'Autores en el historial',
+          en: 'Authors in the history',
+          de: 'Autor:innen im Verlauf',
+        },
+        text: {
+          es: 'El historial dice quién escribió cada pregunta y si lo adivinaste. Tus aciertos también salen en tus estadísticas del grupo.',
+          en: 'The history shows who wrote each question and whether you guessed it. Your right guesses also show in your group stats.',
+          de: 'Im Verlauf steht, wer welche Frage geschrieben hat und ob du richtig geraten hast. Deine Treffer stehen auch in deinen Gruppenstatistiken.',
+        },
+      },
+      {
+        emoji: '🛠️',
+        title: {
+          es: 'Avisos que ya no se esconden',
+          en: 'Notices no longer hide',
+          de: 'Hinweise verstecken sich nicht mehr',
+        },
+        text: {
+          es: 'Los avisos que salen con una ventana abierta, como «no tienes monedas suficientes» al regalar una congelación, ya se ven por encima.',
+          en: 'Notices that pop up while a window is open, like “you don’t have enough coins” when gifting a freeze, now show on top of it.',
+          de: 'Hinweise, die bei geöffnetem Fenster erscheinen, etwa „nicht genug Münzen“ beim Verschenken eines Serienschutzes, liegen jetzt darüber.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.15.0',
     date: '2026-10-12',
     title: {

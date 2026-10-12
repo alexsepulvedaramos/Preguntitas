@@ -80,12 +80,25 @@
           <!-- Question text -->
           <div class="flex-1 min-w-0 flex flex-col gap-1">
             <p class="text-sm line-clamp-2 text-foreground">{{ entry.questionText }}</p>
-            <span
-              class="inline-flex self-start items-center rounded-full px-2 py-0.5 text-xs font-semibold"
-              [class]="questionTypeBadgeClass(entry.type)"
-            >
-              {{ questionTypeLabel(entry.type) }}
-            </span>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span
+                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class]="questionTypeBadgeClass(entry.type)"
+              >
+                {{ questionTypeLabel(entry.type) }}
+              </span>
+              <!-- Who wrote it, and how your guess went (rama 36) -->
+              @if (entry.authorUsername) {
+                <span class="text-xs text-muted-foreground">
+                  {{ t('history.writtenBy', { name: entry.authorUsername }) }}
+                  @if (entry.myGuessCorrect === true) {
+                    <span class="text-primary" [attr.aria-label]="t('history.guessRight')">✓</span>
+                  } @else if (entry.myGuessCorrect === false) {
+                    <span class="text-destructive" [attr.aria-label]="t('history.guessWrong')">✗</span>
+                  }
+                </span>
+              }
+            </div>
           </div>
 
           <!-- Vote count -->
@@ -110,10 +123,11 @@
             } @else if (selectedResult()) {
               <div class="flex flex-col gap-3">
                 <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-muted-foreground">
-                    {{ t('history.voters', { count: selectedResult()!.totalVotes }) }}
-                  </span>
+                <div class="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                  <span>{{ t('history.voters', { count: selectedResult()!.totalVotes }) }}</span>
+                  @if (selectedResult()!.author; as author) {
+                    <span>· {{ t('history.writtenBy', { name: author.username }) }}</span>
+                  }
                 </div>
                 <app-results
                   [question]="syntheticQuestion(selectedResult()!)"

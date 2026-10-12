@@ -17,6 +17,7 @@ public class DailyService(
     INotificationService notificationService,
     IStreakService streakService,
     ICoinService coinService,
+    IAuthorGuessService authorGuessService,
     TimeProvider clock
 ) : IDailyService
 {
@@ -72,9 +73,13 @@ public class DailyService(
         if (openEntry == null)
             return new TodayStateDto { Status = "no_question" };
 
-        var hasVoted = await context.Votes.AnyAsync(v =>
-            v.QuestionId == openEntry.QuestionId && v.UserId == userId
-        );
+        // Who has voted is public already (the "X ha votado" push); only the answers wait.
+        var voterIds = await context
+            .Votes.Where(v => v.QuestionId == openEntry.QuestionId)
+            .Select(v => v.UserId)
+            .Distinct()
+            .ToListAsync();
+        var hasVoted = voterIds.Contains(userId);
 
         var state = new TodayStateDto
         {
@@ -82,12 +87,15 @@ public class DailyService(
             UserHasVoted = hasVoted,
             // The open question activated at Date@T and closes 24 h later, at (Date+1)@T.
             ClosesAt = DailyClock.ToUtc(openEntry.Date.AddDays(1), group.DailyQuestionTime),
+            VoterIds = voterIds,
+            MemberCount = group.Members.Count,
         };
 
         if (hasVoted)
         {
             state.Status = "results";
             state.Results = await CalculateResultsAsync(openEntry.Question);
+            state.Guess = await authorGuessService.GetStateAsync(openEntry, userId);
         }
         else
         {
@@ -106,16 +114,17 @@ public class DailyService(
         if (pendingEntry != null)
         {
             var isSelector = pendingEntry.SelectorUserId == userId;
-            var selectorMember = group.Members.FirstOrDefault(m =>
-                m.UserId == pendingEntry.SelectorUserId
-            );
 
             return new SelectionStateDto
             {
                 Date = pendingEntry.Date,
                 ActivatesAt = DailyClock.ToUtc(pendingEntry.Date, group.DailyQuestionTime),
-                SelectorUserId = pendingEntry.SelectorUserId,
-                SelectorUsername = selectorMember?.User.Username ?? string.Empty,
+                // Who picks is only told to the selector: the selector is often the author,
+                // and that would spoil "guess the author" (§17.6).
+                SelectorUserId = isSelector ? pendingEntry.SelectorUserId : null,
+                SelectorUsername = isSelector
+                    ? group.Members.FirstOrDefault(m => m.UserId == userId)?.User.Username
+                    : null,
                 IsCurrentUserSelector = isSelector,
                 IsAutoSelected = pendingEntry.SelectionKind == SelectionKind.Auto,
                 // Only the selector sees tomorrow's question — keeps the surprise.
@@ -425,7 +434,13 @@ public class DailyService(
         var results = await CalculateResultsAsync(question);
         return (
             VoteResult.Success,
-            new VoteResponseDto { Results = results, Streak = streak, Coins = coins }
+            new VoteResponseDto
+            {
+                Results = results,
+                Streak = streak,
+                Coins = coins,
+                Guess = await authorGuessService.GetStateAsync(openEntry, userId),
+            }
         );
     }
 

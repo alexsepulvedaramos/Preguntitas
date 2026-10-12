@@ -11,4 +11,7 @@ public class VoteResponseDto
     public QuestionResultDto Results { get; set; } = null!;
     public StreakUpdateDto Streak { get; set; } = null!;
     public CoinsEarnedDto Coins { get; set; } = null!;
+
+    // "Guess the author" step (§17.6); null when the question isn't guessable.
+    public AuthorGuessDto? Guess { get; set; }
 }

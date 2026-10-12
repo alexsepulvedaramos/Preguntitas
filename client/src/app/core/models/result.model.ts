@@ -35,6 +35,7 @@ export interface QuestionResult {
     totalVotes: number;
     results: OptionResult[];
     freeTextResponses: FreeTextResponse[];
+    author?: Voter | null; // history detail: who wrote it, once closed (rama 36)
     // Scale only — present when type === Scale to enable full-range distribution display.
     rangeMin?: number | null;
     rangeMax?: number | null;

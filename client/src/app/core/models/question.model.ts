@@ -45,7 +45,7 @@ export interface Question {
     isUsed: boolean;
     dateCreated: string;
     dateActivated: string | null;
-    creatorId: number | null;
+    isMine: boolean; // the API never names the creator (guess the author, §17.6)
     options: Option[];
     teams: number[][]; // only populated for Deathmatch items
 }
@@ -62,6 +62,8 @@ export interface HistoryEntry {
     questionText: string;
     type: QuestionType;
     totalVotes: number;
+    authorUsername: string | null; // member-written questions only (rama 36)
+    myGuessCorrect: boolean | null; // null when you didn't guess
 }
 
 // Mirrors backend HistoryPageDto — cursor-based paginated response.

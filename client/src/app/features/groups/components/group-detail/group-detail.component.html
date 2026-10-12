@@ -4,64 +4,78 @@
   [isRefreshing]="refreshing()"
   (pullRefresh)="refresh()"
 >
-  <div appMobileTopBar class="flex items-center justify-between gap-4">
+  <!-- Top bar: back · group name · your streak chip · history · settings (rama 36) -->
+  <div appMobileTopBar class="flex items-center gap-2">
     <a
+      hlmBtn
+      variant="ghost"
+      size="icon"
       routerLink="/groups"
-      class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
+      class="-ml-2 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+      [attr.aria-label]="t('groups.list.title')"
     >
       <ng-icon hlm name="lucideArrowLeft" />
-      {{ t('groups.list.title') }}
     </a>
+    <h1 class="min-w-0 flex-1 truncate font-display text-lg italic text-foreground">
+      {{ group()?.name }}
+    </h1>
 
     @if (!loading() && !error()) {
-      <div class="flex items-center gap-1">
-        <a
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-          [routerLink]="['/groups', numericGroupId(), 'history']"
-          [attr.aria-label]="t('groupDetail.history')"
-        >
-          <ng-icon hlm name="lucideHistory" />
-          <span class="sr-only">{{ t('groupDetail.history') }}</span>
-        </a>
-        <a
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-          [routerLink]="['/groups', numericGroupId(), 'settings']"
-          [attr.aria-label]="t('groupDetail.settings')"
-        >
-          <ng-icon hlm name="lucideSettings" />
-          <span class="sr-only">{{ t('groupDetail.settings') }}</span>
-        </a>
-        <!-- Hidden on mobile (pull-to-refresh covers that); visible on desktop -->
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="hidden sm:inline-flex shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="refreshing()"
-          (click)="refresh()"
-          [attr.aria-label]="t('groupDetail.refresh')"
-        >
-          @if (refreshing()) {
-            <hlm-spinner />
-          } @else {
-            <ng-icon hlm name="lucideRefreshCw" />
-          }
-          <span class="sr-only">{{ t('groupDetail.refresh') }}</span>
-        </button>
-      </div>
+      @if (daily()?.today?.status !== 'no_question' && daily()?.myStreak; as myStreak) {
+        <app-my-streak
+          #myStreak
+          [groupId]="numericGroupId()"
+          [streak]="myStreak"
+          [danger]="streakInDanger()"
+          (changed)="onMyStreakChanged($event)"
+        />
+      }
+      <a
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+        [routerLink]="['/groups', numericGroupId(), 'history']"
+        [attr.aria-label]="t('groupDetail.history')"
+      >
+        <ng-icon hlm name="lucideHistory" />
+        <span class="sr-only">{{ t('groupDetail.history') }}</span>
+      </a>
+      <a
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+        [routerLink]="['/groups', numericGroupId(), 'settings']"
+        [attr.aria-label]="t('groupDetail.settings')"
+      >
+        <ng-icon hlm name="lucideSettings" />
+        <span class="sr-only">{{ t('groupDetail.settings') }}</span>
+      </a>
+      <!-- Hidden on mobile (pull-to-refresh covers that); visible on desktop -->
+      <button
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        class="hidden sm:inline-flex shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="refreshing()"
+        (click)="refresh()"
+        [attr.aria-label]="t('groupDetail.refresh')"
+      >
+        @if (refreshing()) {
+          <hlm-spinner />
+        } @else {
+          <ng-icon hlm name="lucideRefreshCw" />
+        }
+        <span class="sr-only">{{ t('groupDetail.refresh') }}</span>
+      </button>
     }
   </div>
 
   @if (loading()) {
     <div class="flex flex-col gap-4">
+      <div hlmSkeleton class="h-1 w-full"></div>
       <div hlmSkeleton class="h-7 w-2/3"></div>
-      <div hlmSkeleton class="h-4 w-1/2"></div>
       <div hlmSkeleton class="h-32 w-full rounded-default"></div>
     </div>
   } @else if (error(); as error) {
@@ -70,116 +84,122 @@
     </div>
   } @else {
 
-    @if (daily()?.myStreak?.lostStreak; as lost) {
-      <div hlmAlert class="relative pr-10">
-        <ng-icon hlm name="lucideFlame" />
-        <h4 hlmAlertTitle>{{ t('groupDetail.lostStreakTitle', { count: lost }) }}</h4>
-        <div hlmAlertDescription>
-          <p>{{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}</p>
-          @if (daily()!.myStreak.repairableStreak) {
-            <p>{{ t('streakFreeze.repairHint', { price: daily()!.myStreak.repairPrice }) }}</p>
-            <button
-              hlmBtn
-              size="sm"
-              class="mt-2 focus-visible:ring-2 focus-visible:ring-ring"
-              (click)="repairStreak()"
-            >
-              {{ t('streakFreeze.repair', { price: daily()!.myStreak.repairPrice }) }}
-            </button>
-          }
+    <!-- Notices go above the question so they're always seen — one streak notice at a time -->
+    @switch (notice()) {
+      @case ('lost') {
+        <div hlmAlert class="relative pr-10">
+          <ng-icon hlm name="lucideFlame" />
+          <h4 hlmAlertTitle>{{ t('groupDetail.lostStreakTitle', { count: daily()!.myStreak.lostStreak! }) }}</h4>
+          <div hlmAlertDescription>
+            <p>{{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}</p>
+            @if (daily()!.myStreak.repairableStreak) {
+              <p>{{ t('streakFreeze.repairHint', { price: daily()!.myStreak.repairPrice }) }}</p>
+              <button
+                hlmBtn
+                size="sm"
+                class="mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+                (click)="repairStreak()"
+              >
+                {{ t('streakFreeze.repair', { price: daily()!.myStreak.repairPrice }) }}
+              </button>
+            }
+          </div>
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="dismissLostStreak()"
+            [attr.aria-label]="t('groupDetail.dismissAlert')"
+          >
+            <ng-icon hlm name="lucideX" class="size-4!" />
+            <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
+          </button>
         </div>
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
-          (click)="dismissLostStreak()"
-          [attr.aria-label]="t('groupDetail.dismissAlert')"
-        >
-          <ng-icon hlm name="lucideX" class="size-4!" />
-          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
-        </button>
-      </div>
-    }
-
-    @if (daily()?.myStreak?.freezeSavedStreak; as saved) {
-      <div hlmAlert class="relative pr-10">
-        <ng-icon hlm name="lucideSnowflake" />
-        <h4 hlmAlertTitle>{{ t('streakFreeze.savedTitle', { count: saved }) }}</h4>
-        <p hlmAlertDescription>
-          {{ t('streakFreeze.savedText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
-        </p>
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
-          (click)="dismissFreezeNotice()"
-          [attr.aria-label]="t('groupDetail.dismissAlert')"
-        >
-          <ng-icon hlm name="lucideX" class="size-4!" />
-          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
-        </button>
-      </div>
-    }
-
-    @if (daily()?.myStreak?.freezeGiftFrom; as giver) {
-      <div hlmAlert class="relative pr-10">
-        <ng-icon hlm name="lucideGift" />
-        <h4 hlmAlertTitle>{{ t('streakFreeze.giftTitle', { name: giver }) }}</h4>
-        <p hlmAlertDescription>
-          {{ t('streakFreeze.giftText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
-        </p>
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
-          (click)="dismissGiftNotice()"
-          [attr.aria-label]="t('groupDetail.dismissAlert')"
-        >
-          <ng-icon hlm name="lucideX" class="size-4!" />
-          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
-        </button>
-      </div>
-    }
-
-    @if (daily()?.today?.status !== 'no_question') {
-      <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
-        <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
-        <div class="min-w-0 flex-1">
-          <app-countdown
-            [target]="daily()?.today?.closesAt ?? null"
-            [compact]="true"
-            (reachedZero)="refresh()"
-          />
-          @if (daily()?.selection?.pendingQuestion; as q) {
-            <p class="mt-0.5 truncate text-xs text-primary/70">{{ t('groupDetail.picked', { text: q.text }) }}</p>
-          }
+      }
+      @case ('freeze') {
+        <div hlmAlert class="relative pr-10">
+          <ng-icon hlm name="lucideSnowflake" />
+          <h4 hlmAlertTitle>{{ t('streakFreeze.savedTitle', { count: daily()!.myStreak.freezeSavedStreak! }) }}</h4>
+          <p hlmAlertDescription>
+            {{ t('streakFreeze.savedText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
+          </p>
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="dismissFreezeNotice()"
+            [attr.aria-label]="t('groupDetail.dismissAlert')"
+          >
+            <ng-icon hlm name="lucideX" class="size-4!" />
+            <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
+          </button>
         </div>
-        @if (daily()?.selection; as sel) {
+      }
+      @case ('gift') {
+        <div hlmAlert class="relative pr-10">
+          <ng-icon hlm name="lucideGift" />
+          <h4 hlmAlertTitle>{{ t('streakFreeze.giftTitle', { name: daily()!.myStreak.freezeGiftFrom! }) }}</h4>
+          <p hlmAlertDescription>
+            {{ t('streakFreeze.giftText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
+          </p>
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="dismissGiftNotice()"
+            [attr.aria-label]="t('groupDetail.dismissAlert')"
+          >
+            <ng-icon hlm name="lucideX" class="size-4!" />
+            <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
+          </button>
+        </div>
+      }
+    }
+
+    <!-- Your turn to pick tomorrow's question: always above the question -->
+    @if (daily()?.selection; as sel) {
+      @if (sel.isCurrentUserSelector) {
+        <div class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5">
+          <span class="text-lg" aria-hidden="true">🎯</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-foreground">
+              {{ sel.isAutoSelected ? t('groupDetail.yourTurnTitle') : t('groupDetail.pickedTitle') }}
+            </p>
+            @if (sel.pendingQuestion; as q) {
+              <p class="truncate text-xs text-muted-foreground">{{ t('groupDetail.picked', { text: q.text }) }}</p>
+            }
+          </div>
           <app-select-question-dialog
             #selectDialog
             [groupId]="numericGroupId()"
             [members]="members()"
-            [isSelector]="sel.isCurrentUserSelector"
+            [isSelector]="true"
             [pendingQuestion]="sel.pendingQuestion"
             [isAutoSelected]="sel.isAutoSelected"
             [compact]="true"
             (selected)="refresh()"
           />
-        }
-      </div>
+        </div>
+      }
     }
 
-    <!-- Your streak and freezes in this group (rama 35) -->
-    @if (daily()?.today?.status !== 'no_question' && daily()?.myStreak; as myStreak) {
-      <app-my-streak
-        #myStreak
-        [groupId]="numericGroupId()"
-        [streak]="myStreak"
-        (changed)="onMyStreakChanged($event)"
-      />
+    @if (daily()?.today?.status !== 'no_question') {
+      <!-- Time left as a thin line, with who has voted on the same row -->
+      <app-countdown
+        [target]="daily()?.today?.closesAt ?? null"
+        [line]="true"
+        (reachedZero)="refresh()"
+      >
+        <app-today-voters
+          [groupId]="numericGroupId()"
+          [members]="members()"
+          [voterIds]="daily()?.today?.voterIds ?? []"
+          [memberCount]="daily()?.today?.memberCount ?? 0"
+        />
+      </app-countdown>
     }
 
     @switch (daily()?.today?.status) {
@@ -193,14 +213,17 @@
       }
       @case ('results') {
         <section class="flex flex-col gap-4">
-          <div class="flex flex-col gap-3">
-            <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
-            <div class="text-center">
-              <span class="text-sm text-muted-foreground">
-                {{ responseCountLabel(daily()!.today.results?.totalVotes ?? 0) }}
-              </span>
-            </div>
-          </div>
+          <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
+
+          @if (daily()!.today.guess; as guess) {
+            <app-author-guess
+              [groupId]="numericGroupId()"
+              [guess]="guess"
+              [members]="members()"
+              (changed)="onGuessChanged($event)"
+              (coinsEarned)="announceCoins($event)"
+            />
+          }
 
           <app-results [question]="daily()!.today.question!" [result]="daily()!.today.results!" />
         </section>
@@ -236,6 +259,18 @@
     }
 
     @if (daily()?.today?.status !== 'no_question') {
+      <!-- Suggest a question for the pool: a quiet secondary action for everyone but the selector -->
+      @if (!daily()?.selection?.isCurrentUserSelector) {
+        <app-select-question-dialog
+          [groupId]="numericGroupId()"
+          [members]="members()"
+          [isSelector]="false"
+          [pendingQuestion]="null"
+          [isAutoSelected]="false"
+          (selected)="refresh()"
+        />
+      }
+
       <div class="flex items-center gap-3 pt-2">
         <div class="flex-1 border-t border-border"></div>
         <span class="text-xs text-muted-foreground">{{ t('groupDetail.debate') }}</span>

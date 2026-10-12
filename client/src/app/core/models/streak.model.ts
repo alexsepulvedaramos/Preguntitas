@@ -1,5 +1,6 @@
 import { QuestionResult } from './result.model';
 import { CoinsEarned } from './coin.model';
+import type { AuthorGuess } from './daily.model';
 import { StreakTierKey } from '../constants/streak-tiers';
 
 // Mirrors backend StreakUpdateDto — returned with a successful vote. The DTO's material
@@ -24,6 +25,7 @@ export interface VoteResponse {
   results: QuestionResult;
   streak: StreakUpdate;
   coins: CoinsEarned; // rama 34
+  guess: AuthorGuess | null; // the "guess the author" step (rama 36)
 }
 
 // The current user's streak in a group (GET daily/current → myStreak).
@@ -58,6 +60,8 @@ export interface MemberStats {
   participationPercent: number;
   timesSelector: number;
   questionsCreated: number;
+  guessesMade: number; // guess the author (rama 36), skips excluded
+  guessesCorrect: number;
 }
 
 // An unlocked title the user can choose to show (GET users/me → unlockedTitles).

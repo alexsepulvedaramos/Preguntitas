@@ -10,7 +10,9 @@ public class QuestionDto
     public bool IsUsed { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime? DateActivated { get; set; }
-    public int? CreatorId { get; set; }
+    // Whether the caller wrote it (to mark "mine" in the picker). The creator itself is never
+    // sent: it would spoil "guess the author" (§17.6).
+    public bool IsMine { get; set; }
     public List<OptionDto> Options { get; set; } = [];
 
     // Only populated for Deathmatch questions so the picker can pre-fill team assignment.

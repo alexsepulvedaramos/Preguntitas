@@ -1,8 +1,10 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -12,12 +14,13 @@ import { ShopItem } from '../../../../core/models/coin.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
-// "Your streak in this group" (rama 35, §17.9): the current streak and the freezes held,
-// without leaving the group. Tapping the freezes opens the dialog to buy more; when a lost
-// streak can still be bought back, a repair button shows here too.
+// "Your streak in this group" (rama 35, §17.9): a small 🔥 chip in the group's top bar
+// (rama 36) that turns orange when the streak is at risk today. Tapping it opens the details —
+// best streak, the freezes held and the button to buy more, and the repair when a lost streak
+// can still be bought back. Drawer on mobile, dialog on desktop.
 @Component({
   selector: 'app-my-streak',
-  imports: [HlmButtonImports, HlmDialogImports, HlmSpinnerImports],
+  imports: [NgTemplateOutlet, HlmButtonImports, HlmDialogImports, HlmDrawerImports, HlmSpinnerImports],
   templateUrl: './my-streak.component.html',
 })
 export class MyStreakComponent {
@@ -27,10 +30,17 @@ export class MyStreakComponent {
 
   readonly groupId = input.required<number>();
   readonly streak = input.required<MyStreak>();
+  // Not voted yet and the question closes soon: the streak is at stake.
+  readonly danger = input(false);
   // The streak after a purchase, for the parent to merge into daily/current.
   readonly changed = output<MyStreak>();
 
   protected readonly busy = signal<ShopItem | null>(null);
+  protected readonly open = signal(false);
+  protected readonly state = computed(() => (this.open() ? 'open' : 'closed'));
+  protected readonly isDesktop = signal(
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches,
+  );
 
   protected readonly balance = computed(() => this.authService.currentUser()?.coins ?? 0);
   protected readonly slots = computed(() =>

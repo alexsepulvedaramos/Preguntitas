@@ -208,8 +208,11 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
 
         selectorView.Selection!.IsCurrentUserSelector.Should().BeTrue();
         selectorView.Selection.PendingQuestion!.Id.Should().Be(autoPick);
+        selectorView.Selection.SelectorUsername.Should().Be("carlos");
         memberView.Selection!.IsCurrentUserSelector.Should().BeFalse();
-        memberView.Selection.SelectorUsername.Should().Be("carlos");
+        // Who picks stays hidden too: the selector is often the author (§17.6).
+        memberView.Selection.SelectorUserId.Should().BeNull();
+        memberView.Selection.SelectorUsername.Should().BeNull();
         memberView.Selection.PendingQuestion.Should().BeNull();
 
         // T is 21:00 in UTC+2: today's question closes and tomorrow's opens at 19:00 UTC.

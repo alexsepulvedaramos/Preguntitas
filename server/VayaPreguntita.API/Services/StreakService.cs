@@ -392,6 +392,13 @@ public class StreakService(
                 votedActive++;
         }
 
+        var guesses = await context
+            .AuthorGuesses.Where(g =>
+                g.UserId == userId && g.DailyEntry.GroupId == groupId && g.GuessedCreatorId != null
+            )
+            .Select(g => g.IsCorrect)
+            .ToListAsync();
+
         var openId = entries.Count > 0 ? entries[^1].Id : (int?)null;
         var previousId = entries.Count > 1 ? entries[^2].Id : (int?)null;
 
@@ -410,10 +417,14 @@ public class StreakService(
             TotalVotes = voted.Count,
             ActiveQuestions = active,
             ParticipationPercent = active == 0 ? 0 : (int)Math.Round(100.0 * votedActive / active),
-            TimesSelector = entries.Count(e => e.SelectorUserId == userId),
+            // Closed entries only: counting the open one would reveal who picked today's
+            // question, and the selector is often its author ("guess the author", §17.6).
+            TimesSelector = entries.Take(Math.Max(0, entries.Count - 1)).Count(e => e.SelectorUserId == userId),
             QuestionsCreated = await context.Questions.CountAsync(q =>
                 q.GroupId == groupId && q.CreatorId == userId
             ),
+            GuessesMade = guesses.Count,
+            GuessesCorrect = guesses.Count(correct => correct),
         };
     }
 

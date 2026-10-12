@@ -27,4 +27,9 @@ public class MemberStatsDto
 
     public int TimesSelector { get; set; }
     public int QuestionsCreated { get; set; }
+
+    // "Aciertos adivinando X/Y" (§17.6): guesses made in the group (skips excluded) and how
+    // many were right.
+    public int GuessesMade { get; set; }
+    public int GuessesCorrect { get; set; }
 }

@@ -283,6 +283,32 @@ public static class ServerText
         "That person isn't a member of the group.",
         "Diese Person ist kein Mitglied der Gruppe.");
 
+    // ── Guess the author (rama 36) ──────────────────────────────────────────────────────
+    public static string GuessNotAvailable => Pick(
+        "En esta pregunta no se puede adivinar el autor.",
+        "You can't guess the author of this question.",
+        "Bei dieser Frage kannst du nicht raten, wer sie geschrieben hat.");
+
+    public static string GuessMustVoteFirst => Pick(
+        "Vota primero para adivinar quién la escribió.",
+        "Vote first to guess who wrote it.",
+        "Stimm zuerst ab, dann kannst du raten, wer sie geschrieben hat.");
+
+    public static string AlreadyGuessed => Pick(
+        "Ya has intentado adivinar el autor de esta pregunta.",
+        "You've already had your guess at this question's author.",
+        "Du hast bei dieser Frage schon geraten.");
+
+    public static string GuessInvalidCandidate => Pick(
+        "Esa persona no está entre los posibles autores.",
+        "That person isn't one of the possible authors.",
+        "Diese Person gehört nicht zu den möglichen Autor:innen.");
+
+    public static string HintNotAvailable => Pick(
+        "La pista no está disponible en esta pregunta.",
+        "The hint isn't available for this question.",
+        "Der Tipp ist bei dieser Frage nicht verfügbar.");
+
     // ── Push notifications (recipient's language) ───────────────────────────────────────
     public static class Push
     {

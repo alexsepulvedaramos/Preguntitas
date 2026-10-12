@@ -8,6 +8,11 @@ public class HistoryEntryDto
     public string QuestionText { get; set; } = string.Empty;
     public QuestionType Type { get; set; }
     public int TotalVotes { get; set; }
+
+    // Member-written questions only (§17.6): who wrote it, and whether your guess was right
+    // (null when you didn't guess, or skipped).
+    public string? AuthorUsername { get; set; }
+    public bool? MyGuessCorrect { get; set; }
 }
 
 public class HistoryPageDto

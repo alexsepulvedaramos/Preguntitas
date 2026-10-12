@@ -45,7 +45,7 @@ public class QuestionsController(
             return Forbid();
 
         pageSize = Math.Min(pageSize, 50);
-        var result = await questionsService.GetPoolAsync(groupId, type, before, pageSize);
+        var result = await questionsService.GetPoolAsync(groupId, userId, type, before, pageSize);
         return Ok(result);
     }
 
@@ -105,7 +105,7 @@ public class QuestionsController(
             return Forbid();
 
         pageSize = Math.Min(pageSize, 50);
-        var result = await questionsService.GetHistoryAsync(groupId, before, pageSize);
+        var result = await questionsService.GetHistoryAsync(groupId, userId, before, pageSize);
         return Ok(result);
     }
 

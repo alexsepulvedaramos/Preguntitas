@@ -8,6 +8,10 @@ public static class CoinRewards
     public const int Vote = 5;
     public const int FirstVoter = 3;
 
+    // Guess the author (§17.6) and its hint (§17.10).
+    public const int GuessCorrect = 5;
+    public const int AuthorHintPrice = 20;
+
     // Paid at activation when the selector made an active choice (§17.4: confirming the
     // auto-selected question counts), plus a bonus when they wrote it inline.
     public const int SelectorChoice = 5;
@@ -43,5 +47,6 @@ public static class CoinRewards
             is CoinReason.Vote
                 or CoinReason.FirstVoter
                 or CoinReason.SelectorChoice
-                or CoinReason.SelectorCreated;
+                or CoinReason.SelectorCreated
+                or CoinReason.GuessCorrect;
 }

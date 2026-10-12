@@ -14,4 +14,8 @@ public enum CoinReason
     StreakFreeze = 6,
     StreakFreezeGift = 7,
     StreakRepair = 8,
+
+    // Guess the author (rama 36)
+    GuessCorrect = 9,
+    AuthorHint = 10,
 }

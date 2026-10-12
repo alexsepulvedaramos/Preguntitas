@@ -15,6 +15,9 @@ public class QuestionResultDto
     // OpenText answers, and CustomPoll "Otro" free-text answers.
     public List<FreeTextResponseDto> FreeTextResponses { get; set; } = [];
 
+    // History detail: who wrote it (member-written questions only, never for the open one).
+    public VoterDto? Author { get; set; }
+
     // Scale only — needed by the frontend to render the full distribution range.
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }
