@@ -1,0 +1,78 @@
+<div class="min-h-dvh flex flex-col bg-background">
+  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
+    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="goBack()">
+      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
+      <span class="sr-only">{{ t('common.back') }}</span>
+    </button>
+    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('titles.shop') }}</h1>
+  </header>
+
+  <div class="flex flex-col gap-6 p-4 pb-12 max-w-lg mx-auto w-full">
+    <!-- Wallet -->
+    <section hlmCard class="items-center text-center">
+      <div hlmCardContent class="flex flex-col items-center gap-2">
+        <span class="text-sm font-medium text-muted-foreground">{{ t('coins.balanceLabel') }}</span>
+        <span
+          class="font-display text-5xl italic tabular-nums text-foreground"
+          [attr.aria-label]="t('coins.balanceAria', { count: balance() })"
+        >
+          <span aria-hidden="true">🪙 {{ balance() }}</span>
+        </span>
+        <p class="text-sm text-muted-foreground text-balance">{{ t('coins.howToEarn') }}</p>
+        <p class="text-xs text-muted-foreground">{{ t('coins.dailyCap', { cap: dailyCap }) }}</p>
+      </div>
+    </section>
+
+    <!-- Shop (catalog arrives in later ramas) -->
+    <div hlmEmpty class="border border-dashed border-border rounded-xl p-6">
+      <div hlmEmptyHeader>
+        <div hlmEmptyMedia variant="icon">
+          <ng-icon hlm name="lucideStore" />
+        </div>
+        <div hlmEmptyTitle>{{ t('coins.shopSoonTitle') }}</div>
+        <p hlmEmptyDescription>{{ t('coins.shopSoonText') }}</p>
+      </div>
+    </div>
+
+    <!-- Ledger -->
+    <section class="flex flex-col gap-3" aria-labelledby="coin-history-title">
+      <h2 id="coin-history-title" class="font-display text-xl italic tracking-tight text-foreground">
+        {{ t('coins.historyTitle') }}
+      </h2>
+
+      @if (rows().length > 0) {
+        <div hlmItemGroup class="gap-2">
+          @for (row of rows(); track row.id) {
+            <div hlmItem variant="muted" size="sm">
+              <div hlmItemMedia class="text-xl" aria-hidden="true">{{ row.emoji }}</div>
+              <div hlmItemContent>
+                <div hlmItemTitle>{{ row.label }}</div>
+                <p hlmItemDescription>
+                  {{ row.groupName ? row.groupName + ' · ' : '' }}<time [attr.datetime]="row.createdAt">{{ row.date }}</time>
+                </p>
+              </div>
+              <div hlmItemActions
+                class="font-semibold tabular-nums"
+                [class.text-primary]="row.amount > 0"
+                [class.text-destructive]="row.amount < 0"
+              >
+                {{ row.amount > 0 ? '+' : '' }}{{ row.amount }} 🪙
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (!loading() && !error()) {
+        <p class="text-sm text-muted-foreground">{{ t('coins.historyEmpty') }}</p>
+      }
+
+      @if (loading()) {
+        <div class="flex justify-center py-4"><hlm-spinner /></div>
+      } @else if (error()) {
+        <p class="text-sm text-destructive" role="alert">{{ t('coins.loadFailed') }}</p>
+        <button hlmBtn variant="outline" class="self-center" (click)="loadMore()">{{ t('common.retry') }}</button>
+      } @else if (nextBefore()) {
+        <button hlmBtn variant="outline" class="self-center" (click)="loadMore()">{{ t('coins.loadMore') }}</button>
+      }
+    </section>
+  </div>
+</div>

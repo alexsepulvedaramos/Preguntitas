@@ -25,6 +25,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DevicePushSubscription> DevicePushSubscriptions { get; set; }
     public DbSet<NotificationPreferences> NotificationPreferences { get; set; }
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
+    public DbSet<CoinTransaction> CoinTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -222,6 +223,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(u => u.PreferredLanguage)
             .HasMaxLength(5)
             .HasDefaultValue(AppLanguages.Default);
+
+        // ==========================================
+        // COINS (rama 34, §17.2) — balance on User + append-only ledger
+        // ==========================================
+        modelBuilder.Entity<User>()
+            .ToTable(t => t.HasCheckConstraint("CK_Users_Coins_NonNegative", "\"Coins\" >= 0"));
+
+        modelBuilder.Entity<CoinTransaction>(e =>
+        {
+            // Every reward is paid once per (user, reason, ref) — the tick and the client may retry.
+            e.HasIndex(t => new { t.UserId, t.Reason, t.RefId }).IsUnique();
+            // Daily-cap sum and the history page.
+            e.HasIndex(t => new { t.UserId, t.CreatedAt });
+            e.HasOne(t => t.User)
+             .WithMany()
+             .HasForeignKey(t => t.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.Group)
+             .WithMany()
+             .HasForeignKey(t => t.GroupId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 
     // A Dictionary<string, string> stored as a JSONB object ({"en": "...", "de": "..."}).

@@ -60,6 +60,12 @@ export const routes: Routes = [
                 title: 'titles.profile',
                 loadComponent: () => import('./features/profile/profile-page.component').then(m => m.ProfilePageComponent),
             },
+            {
+                // Coin wallet + ledger; the shop catalog lands in later ramas (rama 34).
+                path: 'shop',
+                title: 'titles.shop',
+                loadComponent: () => import('./features/shop/shop-page.component').then(m => m.ShopPageComponent),
+            },
         ]
     },
     {

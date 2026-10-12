@@ -11,6 +11,7 @@ import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
+import { COIN_DAILY_CAP, CoinsEarned } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -134,7 +135,7 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (!daily) return;
 
-    const { results, streak } = response;
+    const { results, streak, coins } = response;
     this.daily.set({
       ...daily,
       today: {
@@ -146,6 +147,7 @@ export class GroupDetailComponent implements OnInit {
       myStreak: { current: streak.current, best: streak.best, lostStreak: null },
     });
     this.applyOwnStreak(streak.current);
+    this.announceCoins(coins);
     // A newly unlocked title may become the one shown (automatic selection).
     if (streak.titleUnlocked)
       this.userService.getProfile().subscribe({ next: (p) => this.authService.patchCurrentUser({ title: p.title }) });
@@ -161,6 +163,17 @@ export class GroupDetailComponent implements OnInit {
     } else if (isSelector) {
       setTimeout(() => this.selectDialog()?.triggerOpen(), 600);
     }
+  }
+
+  // "+8 🪙" after voting (rama 34), or why nothing was earned when the daily cap is full.
+  private announceCoins(coins: CoinsEarned | undefined) {
+    if (!coins) return;
+    this.authService.patchCurrentUser({ coins: coins.balance });
+    const capNote = coins.capReached
+      ? this.t('coins.capReachedDescription', { cap: COIN_DAILY_CAP })
+      : undefined;
+    if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
+    else if (coins.capReached) toast(this.t('coins.capReachedToast'), { description: capNote });
   }
 
   onCelebrationDismissed() {

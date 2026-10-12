@@ -36,6 +36,7 @@ public class UserService(
             SelectedTitleKey = user.SelectedTitleKey,
             PreferredLanguage = user.PreferredLanguage,
             Title = StreakTiers.DisplayedTitle(user.HighestStreakEver, user.SelectedTitleKey),
+            Coins = user.Coins,
             UnlockedTitles = StreakTiers
                 .UnlockedBy(user.HighestStreakEver)
                 .Select(t => new DTOs.Streaks.TitleOptionDto(t.Key, t.Title, t.Material, t.MinDays))

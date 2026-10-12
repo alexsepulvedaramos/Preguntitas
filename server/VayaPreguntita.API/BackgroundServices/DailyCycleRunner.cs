@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
+using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
@@ -15,6 +16,7 @@ public class DailyCycleRunner(
     IDailyService dailyService,
     INotificationService notificationService,
     IStreakService streakService,
+    ICoinService coinService,
     TimeProvider clock,
     ILogger<DailyCycleRunner> logger
 )
@@ -80,6 +82,9 @@ public class DailyCycleRunner(
             await context.SaveChangesAsync();
 
             foreach (var entry in entriesToActivate)
+                await PaySelectorRewardAsync(entry);
+
+            foreach (var entry in entriesToActivate)
                 _ = notificationService.SendNewQuestionAsync(
                     entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations);
         }
@@ -112,5 +117,36 @@ public class DailyCycleRunner(
 
         // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
         await streakService.SendDangerRemindersAsync();
+    }
+
+    // Selector coins (§17.2) are paid at activation: until T the selector can still change
+    // their choice. Auto-selected questions earn nothing.
+    private async Task PaySelectorRewardAsync(DailyEntry entry)
+    {
+        if (entry.SelectionKind == SelectionKind.Auto)
+            return;
+        try
+        {
+            await coinService.GrantAsync(
+                entry.SelectorUserId,
+                CoinReason.SelectorChoice,
+                CoinRewards.SelectorChoice,
+                entry.GroupId,
+                entry.Id
+            );
+            if (entry.SelectionKind == SelectionKind.Created)
+                await coinService.GrantAsync(
+                    entry.SelectorUserId,
+                    CoinReason.SelectorCreated,
+                    CoinRewards.SelectorCreatedBonus,
+                    entry.GroupId,
+                    entry.Id
+                );
+        }
+        catch (Exception ex)
+        {
+            // Never block the rest of the tick over a reward.
+            logger.LogError(ex, "Selector reward failed for entry {EntryId}", entry.Id);
+        }
     }
 }

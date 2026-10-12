@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VayaPreguntita.API.DTOs.Coins;
 using VayaPreguntita.API.DTOs.Users;
 using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Services;
@@ -10,7 +11,11 @@ namespace VayaPreguntita.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UsersController(IUserService userService, IStreakService streakService) : ControllerBase
+public class UsersController(
+    IUserService userService,
+    IStreakService streakService,
+    ICoinService coinService
+) : ControllerBase
 {
     private int CurrentUserId => int.Parse(
         User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -27,6 +32,11 @@ public class UsersController(IUserService userService, IStreakService streakServ
     [HttpGet("me/group-stats")]
     public async Task<IActionResult> GetMyGroupStats() =>
         Ok(await streakService.GetUserGroupStatsAsync(CurrentUserId));
+
+    // The coin ledger, newest first, 20 per page (rama 34, §17.2).
+    [HttpGet("me/coins/history")]
+    public async Task<ActionResult<CoinHistoryPageDto>> GetCoinHistory([FromQuery] int? before) =>
+        Ok(await coinService.GetHistoryAsync(CurrentUserId, before));
 
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile(UpdateProfileRequestDto request)

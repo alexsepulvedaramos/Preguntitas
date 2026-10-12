@@ -16,5 +16,8 @@ public class UserProfileDto
     public string? SelectedTitleKey { get; set; }
     public string PreferredLanguage { get; set; } = string.Empty;
     public string? Title { get; set; }
+
+    // Coin wallet balance (rama 34, §17.2).
+    public int Coins { get; set; }
     public List<Streaks.TitleOptionDto> UnlockedTitles { get; set; } = [];
 }

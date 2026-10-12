@@ -1,8 +1,10 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
+using VayaPreguntita.API.DTOs.Coins;
 using VayaPreguntita.API.DTOs.Daily;
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.DTOs.Streaks;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
@@ -14,6 +16,7 @@ public class DailyService(
     IMapper mapper,
     INotificationService notificationService,
     IStreakService streakService,
+    ICoinService coinService,
     TimeProvider clock
 ) : IDailyService
 {
@@ -375,7 +378,7 @@ public class DailyService(
     // ==========================================
     // VOTE
     // Votes on the currently-open question (latest activated entry). Returns fresh results
-    // plus the voter's streak change (rama 19).
+    // plus the voter's streak change (rama 19) and the coins it earned (rama 34).
     // ==========================================
     public async Task<(VoteResult result, VoteResponseDto? response)> VoteAsync(
         int groupId,
@@ -412,6 +415,7 @@ public class DailyService(
         await context.SaveChangesAsync();
 
         var streak = await streakService.RegisterVoteAsync(groupId, userId, openEntry);
+        var coins = await PayVoteRewardsAsync(groupId, userId, openEntry, streak);
 
         var group = await context.Groups.FindAsync(groupId);
         var voter = await context.Users.FindAsync(userId);
@@ -419,7 +423,66 @@ public class DailyService(
             _ = notificationService.SendUserVotedAsync(groupId, userId, group.Name, voter.Username);
 
         var results = await CalculateResultsAsync(question);
-        return (VoteResult.Success, new VoteResponseDto { Results = results, Streak = streak });
+        return (
+            VoteResult.Success,
+            new VoteResponseDto { Results = results, Streak = streak, Coins = coins }
+        );
+    }
+
+    // Coins for an on-time vote (§17.2): the vote itself, the first-voter bonus and any
+    // streak tier or milestone this vote reached.
+    private async Task<CoinsEarnedDto> PayVoteRewardsAsync(
+        int groupId,
+        int userId,
+        DailyEntry entry,
+        StreakUpdateDto streak
+    )
+    {
+        var grants = new List<CoinGrant>
+        {
+            await coinService.GrantAsync(userId, CoinReason.Vote, CoinRewards.Vote, groupId, entry.Id),
+        };
+
+        // Conditional write: only the vote that claims the empty slot gets the bonus.
+        var isFirstVoter =
+            await context
+                .DailyEntries.Where(d => d.Id == entry.Id && d.FirstVoterUserId == null)
+                .ExecuteUpdateAsync(s => s.SetProperty(d => d.FirstVoterUserId, userId)) == 1;
+        if (isFirstVoter)
+            grants.Add(
+                await coinService.GrantAsync(
+                    userId,
+                    CoinReason.FirstVoter,
+                    CoinRewards.FirstVoter,
+                    groupId,
+                    entry.Id
+                )
+            );
+
+        if (streak.Current > streak.Previous)
+        {
+            if (CoinRewards.StreakTiers.TryGetValue(streak.Current, out var tierCoins))
+                grants.Add(
+                    await coinService.GrantAsync(userId, CoinReason.StreakTier, tierCoins, groupId, entry.Id)
+                );
+            if (CoinRewards.StreakMilestones.TryGetValue(streak.Current, out var milestoneCoins))
+                grants.Add(
+                    await coinService.GrantAsync(
+                        userId,
+                        CoinReason.StreakMilestone,
+                        milestoneCoins,
+                        groupId,
+                        entry.Id
+                    )
+                );
+        }
+
+        return new CoinsEarnedDto
+        {
+            Earned = grants.Sum(g => g.Granted),
+            CapReached = grants.Any(g => g.CapReached),
+            Balance = await coinService.GetBalanceAsync(userId),
+        };
     }
 
     // ==========================================

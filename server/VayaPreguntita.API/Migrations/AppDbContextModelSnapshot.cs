@@ -58,6 +58,44 @@ namespace VayaPreguntita.API.Migrations
                     b.ToTable("ChatMessages");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.CoinTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RefId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.HasIndex("UserId", "Reason", "RefId")
+                        .IsUnique();
+
+                    b.ToTable("CoinTransactions");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.DailyEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -71,6 +109,9 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<int?>("FirstVoterUserId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -464,6 +505,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
 
+                    b.Property<int>("Coins")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("DateJoined")
                         .HasColumnType("timestamp with time zone");
 
@@ -500,7 +544,10 @@ namespace VayaPreguntita.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_Coins_NonNegative", "\"Coins\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserRefreshToken", b =>
@@ -590,6 +637,24 @@ namespace VayaPreguntita.API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("DailyEntry");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.CoinTransaction", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
 
                     b.Navigation("User");
                 });

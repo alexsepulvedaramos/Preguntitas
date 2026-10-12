@@ -1,0 +1,12 @@
+namespace VayaPreguntita.API.Enums;
+
+// Why a coin transaction happened (§17.2). Stored as int — never renumber.
+public enum CoinReason
+{
+    Vote = 0,
+    FirstVoter = 1,
+    StreakTier = 2,
+    StreakMilestone = 3,
+    SelectorChoice = 4,
+    SelectorCreated = 5,
+}

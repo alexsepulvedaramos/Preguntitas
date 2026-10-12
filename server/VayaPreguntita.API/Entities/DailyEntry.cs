@@ -11,6 +11,10 @@ public class DailyEntry
     public DateTime? ActivatedAt { get; set; }
     public DateTime? SelectorReminderSentAt { get; set; }
 
+    // First member to vote on this question (§17.2 first-voter bonus). Claimed with a
+    // conditional update so two simultaneous votes can't both win it.
+    public int? FirstVoterUserId { get; set; }
+
     // ==========================================
     // FOREIGN KEYS & NAVIGATION PROPERTIES
     // ==========================================

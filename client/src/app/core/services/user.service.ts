@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MemberStats, TitleOption } from '../models/streak.model';
+import { CoinHistoryPage } from '../models/coin.model';
 
 export interface UserProfileDto {
   id: number;
@@ -15,6 +16,7 @@ export interface UserProfileDto {
   preferredLanguage: string;
   title: string | null;
   unlockedTitles: TitleOption[];
+  coins: number;
 }
 
 export interface UpdateProfileRequest {
@@ -43,6 +45,12 @@ export class UserService {
   // Own streak and stats in each group (profile card, rama 19)
   getMyGroupStats() {
     return this.http.get<MemberStats[]>(`${this.apiUrl}/me/group-stats`);
+  }
+
+  // Coin ledger, newest first (rama 34)
+  getCoinHistory(before?: number | null) {
+    const params: Record<string, number> = before ? { before } : {};
+    return this.http.get<CoinHistoryPage>(`${this.apiUrl}/me/coins/history`, { params });
   }
 
   updateProfile(request: UpdateProfileRequest) {
