@@ -18,6 +18,9 @@ public class DailyStatusDto
 
     // The current user's streak in this group (rama 19).
     public MyStreakDto MyStreak { get; set; } = new();
+
+    // Open flash questions (§17.11), oldest first; empty when there are none.
+    public List<FlashStateDto> Flashes { get; set; } = [];
 }
 
 public class TodayStateDto

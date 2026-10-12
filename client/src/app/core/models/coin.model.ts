@@ -17,6 +17,8 @@ export enum CoinReason {
   AuthorHint = 10,
   // Race to select (rama 40)
   RaceWon = 11,
+  // Flash question (rama 44)
+  FlashQuestion = 12,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -60,6 +62,9 @@ export interface PurchaseResponse {
 }
 
 export const STREAK_FREEZE_PRICE = 100;
+
+// A flash question (rama 44, §17.11): launched at once, open 24 h.
+export const FLASH_QUESTION_PRICE = 500;
 
 // Winning the race to select (rama 40, §17.5).
 export const RACE_WON_REWARD = 10;

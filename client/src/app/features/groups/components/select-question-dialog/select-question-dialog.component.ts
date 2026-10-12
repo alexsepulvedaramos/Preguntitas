@@ -13,7 +13,7 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
 import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
-import { SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
+import { LaunchFlashResponse, SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
 import { CoinsEarned } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
@@ -78,6 +78,8 @@ export class SelectQuestionDialogComponent {
   public readonly selected = output<void>();
   // Coins for winning the race to select (§17.5), for the "+10 🪙" toast.
   public readonly coinsEarned = output<CoinsEarned>();
+  // A question written here was launched as a flash question instead (rama 44, §17.11).
+  public readonly flashLaunched = output<LaunchFlashResponse>();
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
@@ -339,6 +341,11 @@ export class SelectQuestionDialogComponent {
   private finish(ctx: { close: () => void }, res: SelectResponse | null) {
     if (res?.coins) this.coinsEarned.emit(res.coins);
     this.selected.emit();
+    ctx.close();
+  }
+
+  onFlashLaunched(ctx: { close: () => void }, res: LaunchFlashResponse) {
+    this.flashLaunched.emit(res);
     ctx.close();
   }
 

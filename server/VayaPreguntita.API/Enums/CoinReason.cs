@@ -21,4 +21,7 @@ public enum CoinReason
 
     // Race to select (rama 40)
     RaceWon = 11,
+
+    // Flash question (rama 44)
+    FlashQuestion = 12,
 }

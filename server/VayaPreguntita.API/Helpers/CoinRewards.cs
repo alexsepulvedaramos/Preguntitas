@@ -20,6 +20,9 @@ public static class CoinRewards
     // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min.
     public const int RaceWon = 10;
 
+    // Flash question (§17.11): launched at once, open 24 h.
+    public const int FlashQuestionPrice = 500;
+
     // Max capped coins a user can earn per local day, across all groups (anti-farm).
     public const int DailyCap = 40;
 

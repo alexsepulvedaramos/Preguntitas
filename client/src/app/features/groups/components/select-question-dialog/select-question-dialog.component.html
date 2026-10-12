@@ -307,6 +307,7 @@
           [overwriteQuestionId]="pendingEditValue()?.id ?? null"
           (selected)="onSelectedForTomorrow(ctx, $event)"
           (savedToPool)="onSavedToPool(ctx)"
+          (flashLaunched)="onFlashLaunched(ctx, $event)"
         />
       </div>
 

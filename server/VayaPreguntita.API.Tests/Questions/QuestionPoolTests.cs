@@ -20,7 +20,7 @@ public class QuestionPoolTests(DatabaseFixture fixture) : DomainTestBase(fixture
     private async Task<(QuestionDto? Question, string? Error)> CreateAsync(int groupId, int userId, CreateQuestionDto dto)
     {
         await using var db = NewContext();
-        return await new QuestionsService(db, TestMapper.Instance).CreateAsync(groupId, userId, dto);
+        return await new QuestionsService(db, TestMapper.Instance, Clock).CreateAsync(groupId, userId, dto);
     }
 
     private async Task AddPoolQuestionsAsync(int groupId, int creatorId, int count, bool isUsed = false)

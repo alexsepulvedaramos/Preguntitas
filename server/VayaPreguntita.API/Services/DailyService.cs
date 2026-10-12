@@ -18,12 +18,10 @@ public class DailyService(
     IStreakService streakService,
     ICoinService coinService,
     IAuthorGuessService authorGuessService,
+    IFlashService flashService,
     TimeProvider clock
 ) : IDailyService
 {
-    // Max length of an OpenText answer or a CustomPoll "Otro" free-text answer.
-    private const int FreeTextMaxLength = 280;
-
     // ==========================================
     // GET CURRENT STATUS (§4.7)
     // Surfaces BOTH coexisting states: today (the open question) and selection
@@ -61,6 +59,7 @@ public class DailyService(
             Today = await BuildTodayStateAsync(openEntry, group, userId),
             Selection = BuildSelectionState(pendingEntry, group, userId),
             MyStreak = await streakService.GetMyStreakAsync(groupId, userId),
+            Flashes = await flashService.GetOpenAsync(groupId, userId),
         };
     }
 
@@ -496,10 +495,10 @@ public class DailyService(
             .Select(m => m.UserId)
             .ToHashSetAsync();
 
-        if (ValidateVotePayload(dto, question, memberIds) != null)
+        if (VotePayload.Validate(dto, question, memberIds) != null)
             return (VoteResult.InvalidPayload, null);
 
-        context.Votes.AddRange(BuildVotes(dto, question, userId));
+        context.Votes.AddRange(VotePayload.Build(dto, question, userId));
         await context.SaveChangesAsync();
 
         var streak = await streakService.RegisterVoteAsync(groupId, userId, openEntry);
@@ -555,10 +554,10 @@ public class DailyService(
             .GroupMembers.Where(m => m.GroupId == groupId)
             .Select(m => m.UserId)
             .ToHashSetAsync();
-        if (ValidateVotePayload(dto, entry.Question, memberIds) != null)
+        if (VotePayload.Validate(dto, entry.Question, memberIds) != null)
             return VoteResult.InvalidPayload;
 
-        var votes = BuildVotes(dto, entry.Question, userId);
+        var votes = VotePayload.Build(dto, entry.Question, userId);
         votes.ForEach(v => v.IsLate = true);
         context.Votes.AddRange(votes);
         await context.SaveChangesAsync();
@@ -737,196 +736,6 @@ public class DailyService(
             .FirstOrDefaultAsync();
 
         return SelectorRotation.Draw(group, previousSelectorId, Random.Shared);
-    }
-
-    // Total CustomPoll selections = picked options + an optional "Otro" free-text answer,
-    // which must land within [MinSelections, MaxSelections] and be at least 1.
-    private static bool IsPollSelectionCountValid(CreateVoteDto dto, Question question)
-    {
-        var optionCount = dto.SelectedOptionIds?.Count ?? 0;
-        var hasFreeText =
-            question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText);
-        var total = optionCount + (hasFreeText ? 1 : 0);
-
-        return total >= 1
-            && total >= question.Metadata.MinSelections
-            && total <= question.Metadata.MaxSelections;
-    }
-
-    private static string? ValidateVotePayload(
-        CreateVoteDto dto,
-        Question question,
-        ISet<int> memberIds
-    )
-    {
-        return question.Type switch
-        {
-            QuestionType.CustomPoll
-                when !question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText) =>
-                "This poll does not allow a free-text answer.",
-
-            QuestionType.CustomPoll when (dto.FreeText?.Length ?? 0) > FreeTextMaxLength =>
-                "Free-text answer is too long.",
-
-            QuestionType.CustomPoll
-                when (dto.SelectedOptionIds?.Any(id => !question.Options.Any(o => o.Id == id))
-                    ?? false) => "One or more selected options are invalid.",
-
-            QuestionType.CustomPoll
-                when dto.SelectedOptionIds != null
-                    && dto.SelectedOptionIds.Distinct().Count() != dto.SelectedOptionIds.Count =>
-                "Selected options must be unique.",
-
-            QuestionType.CustomPoll when !IsPollSelectionCountValid(dto, question) =>
-                "Number of selected options is out of the allowed range.",
-
-            QuestionType.OpenText when string.IsNullOrWhiteSpace(dto.FreeText) =>
-                "Must provide a free-text answer.",
-
-            QuestionType.OpenText when dto.FreeText!.Length > FreeTextMaxLength =>
-                "Free-text answer is too long.",
-
-            QuestionType.Superlative when dto.SelectedTargetUserId == null =>
-                "Must select a target user.",
-
-            QuestionType.Superlative
-                when dto.SelectedTargetUserId == 0 && !question.Metadata.AllowNobody =>
-                "\"Nobody\" is not allowed for this question.",
-
-            QuestionType.Superlative
-                when dto.SelectedTargetUserId != 0
-                    && question.Metadata.BlacklistedUserIds.Contains(
-                        dto.SelectedTargetUserId!.Value
-                    ) => "Selected user is blacklisted.",
-
-            QuestionType.Superlative
-                when dto.SelectedTargetUserId != 0
-                    && !memberIds.Contains(dto.SelectedTargetUserId!.Value) =>
-                "Selected user is not a group member.",
-
-            QuestionType.Scale when dto.NumericValue == null => "Must provide a numeric value.",
-
-            QuestionType.Scale
-                when dto.NumericValue < (question.Metadata.RangeMin ?? QuestionMetadata.ScaleMin)
-                    || dto.NumericValue > (question.Metadata.RangeMax ?? QuestionMetadata.ScaleMax) =>
-                "Numeric value out of range.",
-
-            QuestionType.SecretPairing
-                when dto.SelectedTargetUserIds == null
-                    || dto.SelectedTargetUserIds.Distinct().Count() != 2 =>
-                "Must select exactly 2 distinct users.",
-
-            QuestionType.SecretPairing when !dto.SelectedTargetUserIds!.All(memberIds.Contains) =>
-                "Selected users must be group members.",
-
-            QuestionType.Deathmatch
-                when dto.SelectedTargetUserIds == null
-                    || !question.Metadata.Teams.Any(t =>
-                        t.OrderBy(id => id)
-                            .SequenceEqual(dto.SelectedTargetUserIds.OrderBy(id => id))
-                    ) => "Must select a valid team.",
-
-            _ => null, // valid
-        };
-    }
-
-    private static List<Vote> BuildVotes(CreateVoteDto dto, Question question, int userId)
-    {
-        var votes = new List<Vote>();
-
-        switch (question.Type)
-        {
-            case QuestionType.CustomPoll:
-                foreach (var optionId in dto.SelectedOptionIds ?? [])
-                    votes.Add(
-                        new Vote
-                        {
-                            UserId = userId,
-                            QuestionId = question.Id,
-                            SelectedOptionId = optionId,
-                        }
-                    );
-                // An "Otro" answer rides along as an extra row carrying only FreeText.
-                if (question.Metadata.AllowOther && !string.IsNullOrWhiteSpace(dto.FreeText))
-                    votes.Add(
-                        new Vote
-                        {
-                            UserId = userId,
-                            QuestionId = question.Id,
-                            FreeText = dto.FreeText!.Trim(),
-                        }
-                    );
-                break;
-
-            case QuestionType.OpenText:
-                votes.Add(
-                    new Vote
-                    {
-                        UserId = userId,
-                        QuestionId = question.Id,
-                        FreeText = dto.FreeText!.Trim(),
-                    }
-                );
-                break;
-
-            case QuestionType.Superlative:
-                votes.Add(
-                    new Vote
-                    {
-                        UserId = userId,
-                        QuestionId = question.Id,
-                        SelectedTargetUserId =
-                            dto.SelectedTargetUserId == 0
-                                ? null // Nobody
-                                : dto.SelectedTargetUserId,
-                    }
-                );
-                break;
-
-            case QuestionType.Scale:
-                votes.Add(
-                    new Vote
-                    {
-                        UserId = userId,
-                        QuestionId = question.Id,
-                        NumericValue = dto.NumericValue,
-                    }
-                );
-                break;
-
-            case QuestionType.SecretPairing:
-                foreach (var targetId in dto.SelectedTargetUserIds!)
-                    votes.Add(
-                        new Vote
-                        {
-                            UserId = userId,
-                            QuestionId = question.Id,
-                            SelectedTargetUserId = targetId,
-                        }
-                    );
-                break;
-
-            case QuestionType.Deathmatch:
-                var matchedTeamLeader = question
-                    .Metadata.Teams.FirstOrDefault(t =>
-                        t.OrderBy(id => id)
-                            .SequenceEqual((dto.SelectedTargetUserIds ?? []).OrderBy(id => id))
-                    )
-                    ?.First();
-
-                if (matchedTeamLeader.HasValue)
-                    votes.Add(
-                        new Vote
-                        {
-                            UserId = userId,
-                            QuestionId = question.Id,
-                            SelectedTargetUserId = matchedTeamLeader,
-                        }
-                    );
-                break;
-        }
-
-        return votes;
     }
 
     // ==========================================

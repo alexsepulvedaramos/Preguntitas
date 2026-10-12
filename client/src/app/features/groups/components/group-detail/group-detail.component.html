@@ -181,6 +181,7 @@
             [isAutoSelected]="sel.isAutoSelected"
             [compact]="true"
             (selected)="refresh()"
+            (flashLaunched)="onFlashLaunched($event)"
           />
         </div>
       } @else if (sel.raceOpen) {
@@ -200,12 +201,121 @@
             [compact]="true"
             (selected)="refresh()"
             (coinsEarned)="onRaceWon($event)"
+            (flashLaunched)="onFlashLaunched($event)"
           />
         </div>
       }
     }
 
-    @if (daily()?.today?.status !== 'no_question') {
+    <!-- Open questions as a deck (rama 44): today's question plus any flash questions, one at
+         a time, with a pager. Unanswered ones carry a dot so a new flash can't go unseen. -->
+    @if (deck().length > 1) {
+      <nav class="flex items-center gap-1" [attr.aria-label]="t('flash.deckLabel')">
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="size-8 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="activeIndex() === 0"
+          (click)="stepDeck(-1)"
+          [attr.aria-label]="t('flash.previous')"
+        >
+          <ng-icon hlm name="lucideChevronLeft" />
+        </button>
+        <div class="flex min-w-0 flex-1 items-center justify-center gap-1.5 overflow-x-auto px-1 py-1">
+          @for (card of deck(); track card.key; let i = $index) {
+            <button
+              type="button"
+              class="relative inline-flex h-7 max-w-[9rem] shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              [class]="deckTabClass(card, i === activeIndex())"
+              [attr.aria-current]="i === activeIndex() ? 'true' : null"
+              [attr.aria-label]="deckTabLabel(card)"
+              (click)="goTo(card.key)"
+            >
+              @if (card.flash; as flash) {
+                <span aria-hidden="true">⚡</span>
+                <span class="truncate">{{ flash.launchedBy.username }}</span>
+              } @else {
+                {{ t('flash.dailyTab') }}
+              }
+              @if (card.pending) {
+                <span class="absolute -right-0.5 -top-0.5 size-2.5 animate-pulse rounded-full bg-destructive ring-2 ring-background"></span>
+              }
+            </button>
+          }
+        </div>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="size-8 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="activeIndex() === deck().length - 1"
+          (click)="stepDeck(1)"
+          [attr.aria-label]="t('flash.next')"
+        >
+          <ng-icon hlm name="lucideChevronRight" />
+        </button>
+      </nav>
+
+      <!-- Answered this one but another is waiting: point at it -->
+      @if (!activeCard()?.pending && nextPending(); as next) {
+        <button
+          type="button"
+          class="flex items-center gap-2 rounded-xl border border-amber-500/60 bg-amber-400/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-amber-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="goTo(next.key)"
+        >
+          <span class="text-lg" aria-hidden="true">⚡</span>
+          <span class="min-w-0 flex-1">{{ t('flash.pendingCount', { count: pendingCount() }) }}</span>
+          <ng-icon hlm name="lucideChevronRight" />
+        </button>
+      }
+    }
+
+    @for (flash of activeFlashList(); track flash.id) {
+      <section
+        class="flex flex-col gap-4 rounded-2xl border-2 border-amber-400/70 bg-amber-400/5 p-4 shadow-lg shadow-amber-400/10 animate-in fade-in slide-in-from-right-4 duration-300"
+      >
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-neutral-950">
+            <ng-icon hlm name="lucideZap" class="size-3.5!" />
+            {{ t('flash.badge') }}
+          </span>
+          <app-user-avatar
+            [avatarUrl]="flash.launchedBy.avatarUrl"
+            [username]="flash.launchedBy.username"
+            [frameColor]="flash.launchedBy.frameColor"
+            size="xs"
+          />
+          <span class="min-w-0 truncate text-xs text-muted-foreground">
+            {{ t('flash.launchedBy', { name: flash.launchedBy.username }) }}
+          </span>
+        </div>
+
+        <app-countdown [target]="flash.closesAt" [line]="true" (reachedZero)="refresh()">
+          <app-today-voters
+            [groupId]="numericGroupId()"
+            [members]="members()"
+            [voterIds]="flash.voterIds"
+            [memberCount]="members().length"
+          />
+        </app-countdown>
+
+        @if (flash.userHasVoted && flash.results) {
+          <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
+          <app-results [question]="flash.question" [result]="flash.results" />
+        } @else {
+          <app-vote
+            [groupId]="numericGroupId()"
+            [question]="flash.question"
+            [members]="members()"
+            [flashId]="flash.id"
+            (flashVoted)="onFlashVoted($event)"
+          />
+        }
+      </section>
+    }
+
+    @if (!activeFlashList().length && daily()?.today?.status !== 'no_question') {
       <!-- Time left as a thin line, with who has voted on the same row -->
       <app-countdown
         [target]="daily()?.today?.closesAt ?? null"
@@ -221,7 +331,7 @@
       </app-countdown>
     }
 
-    @switch (daily()?.today?.status) {
+    @switch (activeFlashList().length ? 'flash' : daily()?.today?.status) {
       @case ('voting') {
         <app-vote
           [groupId]="numericGroupId()"
@@ -287,6 +397,7 @@
           [pendingQuestion]="null"
           [isAutoSelected]="false"
           (selected)="refresh()"
+          (flashLaunched)="onFlashLaunched($event)"
         />
       }
 

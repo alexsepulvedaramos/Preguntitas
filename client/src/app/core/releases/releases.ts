@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.19.0',
+    date: '2026-10-13',
+    title: {
+      es: 'Preguntas flash',
+      en: 'Flash questions',
+      de: 'Blitzfragen',
+    },
+    items: [
+      {
+        emoji: '⚡',
+        title: {
+          es: 'Lanza tu pregunta ya',
+          en: 'Launch your question now',
+          de: 'Stell deine Frage sofort',
+        },
+        text: {
+          es: '¿No puedes esperar a que te toque? Al sugerir una pregunta, pulsa «Enviar ahora» y por 500 🪙 sale al momento para todo el grupo como pregunta flash, junto a la del día. Se puede votar durante 24 h y, como siempre, los resultados se ven al votar. Una por persona y día en cada grupo.',
+          en: 'Can’t wait for your turn? When you suggest a question, tap “Send now” and for 500 🪙 it goes out to the whole group right away as a flash question, next to today’s. It can be voted for 24 h and, as always, you see the results once you vote. One per person per day in each group.',
+          de: 'Du kannst nicht warten, bis du dran bist? Wenn du eine Frage vorschlägst, tipp auf „Jetzt senden“: Für 500 🪙 geht sie sofort als Blitzfrage an die ganze Gruppe, neben der Tagesfrage. Man kann 24 Std. lang abstimmen, und wie immer siehst du die Ergebnisse, sobald du abstimmst. Eine pro Person und Tag in jeder Gruppe.',
+        },
+      },
+      {
+        emoji: '🃏',
+        title: {
+          es: 'Todas las preguntas abiertas, a mano',
+          en: 'All open questions at hand',
+          de: 'Alle offenen Fragen griffbereit',
+        },
+        text: {
+          es: 'Cuando hay más de una pregunta abierta, pasas de una a otra con las pestañas de arriba. Las que te quedan por responder llevan un punto rojo y, al votar una, saltas a la siguiente. Las flash también quedan en el historial, marcadas con ⚡. Puedes desactivar su aviso en tu perfil.',
+          en: 'When more than one question is open, switch between them with the tabs at the top. The ones you haven’t answered carry a red dot, and voting one takes you to the next. Flash questions stay in the history too, marked ⚡. You can turn their notification off in your profile.',
+          de: 'Wenn mehr als eine Frage offen ist, wechselst du oben über die Tabs zwischen ihnen. Unbeantwortete tragen einen roten Punkt, und nach dem Abstimmen geht es zur nächsten. Blitzfragen bleiben auch im Verlauf, mit ⚡ markiert. Ihre Benachrichtigung kannst du in deinem Profil ausschalten.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.18.0',
     date: '2026-10-12',
     title: {

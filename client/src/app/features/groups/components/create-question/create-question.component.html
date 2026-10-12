@@ -144,6 +144,44 @@
       >
         {{ showSelectButton() ? t('createQuestion.saveWithoutSelecting') : t('createQuestion.save') }}
       </button>
+
+      <!-- Flash question (rama 44, §17.11): pay to send it right now instead -->
+      <div class="mt-2 flex flex-col gap-1.5 border-t border-border pt-3">
+        <hlm-alert-dialog #flashDlg="hlmAlertDialog">
+          <button
+            type="button"
+            hlmBtn
+            variant="outline"
+            class="w-full gap-1.5 border-amber-500/60 bg-amber-400/10 text-foreground hover:bg-amber-400/20 focus-visible:ring-2 focus-visible:ring-ring"
+            [disabled]="submitting() || flashMissing() > 0"
+            (click)="askLaunchFlash(flashDlg)"
+          >
+            <ng-icon hlm name="lucideZap" class="text-amber-500" />
+            {{ t('flash.sendNow', { price: flashPrice }) }}
+          </button>
+          <ng-template hlmAlertDialogPortal>
+            <hlm-alert-dialog-content>
+              <hlm-alert-dialog-header>
+                <h3 hlmAlertDialogTitle>{{ t('flash.confirmTitle', { price: flashPrice }) }}</h3>
+                <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
+              </hlm-alert-dialog-header>
+              <hlm-alert-dialog-footer>
+                <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
+                <button hlmAlertDialogAction (click)="flashDlg.close(); launchFlash()">
+                  {{ t('flash.confirm') }}
+                </button>
+              </hlm-alert-dialog-footer>
+            </hlm-alert-dialog-content>
+          </ng-template>
+        </hlm-alert-dialog>
+        <p class="text-center text-xs text-muted-foreground">
+          @if (flashMissing() > 0) {
+            {{ t('flash.missing', { count: flashMissing() }) }}
+          } @else {
+            {{ t('flash.sendNowHint') }}
+          }
+        </p>
+      </div>
     }
   </div>
 </div>

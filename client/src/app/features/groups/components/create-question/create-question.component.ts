@@ -5,13 +5,16 @@ import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
+import { HlmAlertDialog, HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideInfo } from '@ng-icons/lucide';
+import { lucideInfo, lucideZap } from '@ng-icons/lucide';
 
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { CreateQuestion, QuestionToVote } from '../../../../core/models/question.model';
-import { SelectResponse } from '../../../../core/models/daily.model';
+import { LaunchFlashResponse, SelectResponse } from '../../../../core/models/daily.model';
+import { FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_DESCRIPTIONS } from '../../../../core/constants/question-type-descriptions';
@@ -39,9 +42,10 @@ const TEXT_MIN_LENGTH = 3;
 const TEXT_MAX_LENGTH = 200;
 
 // Per-type question creation form (rama 8, spec §13 row 8). Owns the text + type fields
-// and hosts the per-type sub-form for the structured metadata (§5). Offers two submit
-// paths: select it for tomorrow (daily/select) or just save it to the pool (POST
-// /questions) — mirrors how app-vote owns its single API call.
+// and hosts the per-type sub-form for the structured metadata (§5). Offers three submit
+// paths: select it for tomorrow (daily/select), just save it to the pool (POST
+// /questions), or pay to launch it right now as a flash question (rama 44, POST flash) —
+// mirrors how app-vote owns its single API call.
 @Component({
   selector: 'app-create-question',
   imports: [
@@ -50,19 +54,22 @@ const TEXT_MAX_LENGTH = 200;
     HlmInputImports,
     HlmSpinnerImports,
     HlmNativeSelectImports,
+    HlmAlertDialogImports,
     NgIcon,
     SuperlativeCreateComponent,
     DeathmatchCreateComponent,
     ScaleCreateComponent,
     CustomPollCreateComponent,
   ],
-  providers: [provideIcons({ lucideInfo })],
+  providers: [provideIcons({ lucideInfo, lucideZap })],
   templateUrl: './create-question.component.html',
 })
 export class CreateQuestionComponent {
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
+  private readonly authService = inject(AuthService);
   protected readonly t = inject(I18nService).t;
+  protected readonly flashPrice = FLASH_QUESTION_PRICE;
 
   public readonly groupId = input.required<number>();
   public readonly members = input.required<GroupMember[]>();
@@ -82,6 +89,12 @@ export class CreateQuestionComponent {
   // Emitted after a successful select-for-tomorrow or save-to-pool
   public readonly selected = output<SelectResponse>();
   public readonly savedToPool = output<void>();
+  public readonly flashLaunched = output<LaunchFlashResponse>();
+
+  // "⚡ Enviar ahora" (§17.11): disabled, saying how much is missing, when you can't afford it.
+  protected readonly flashMissing = computed(() =>
+    Math.max(0, FLASH_QUESTION_PRICE - (this.authService.currentUser()?.coins ?? 0)),
+  );
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
@@ -221,6 +234,26 @@ export class CreateQuestionComponent {
         next: () => {
           this.submitting.set(false);
           this.savedToPool.emit();
+        },
+        error: (err) => this.handleError(err),
+      })
+    );
+  }
+
+  // The form is checked before asking: the confirmation only shows for a valid question.
+  askLaunchFlash(dialog: HlmAlertDialog) {
+    this.textTouched.set(true);
+    this.typeTouched.set(true);
+    if (this.isValid()) dialog.open();
+  }
+
+  launchFlash() {
+    this.submit((dto) =>
+      this.dailyService.launchFlash(this.groupId(), dto).subscribe({
+        next: (res) => {
+          this.submitting.set(false);
+          this.authService.patchCurrentUser({ coins: res.balance });
+          this.flashLaunched.emit(res);
         },
         error: (err) => this.handleError(err),
       })

@@ -73,6 +73,26 @@ export interface DailyStatus {
     // selector is drawn (§17.4)
     selection: SelectionState | null;
     myStreak: MyStreak; // the current user's streak in this group (rama 19)
+    flashes: FlashState[]; // open flash questions, oldest first (rama 44, §17.11)
+}
+
+// An open flash question (§17.11): bought for coins, launched at once, open 24 h next to the
+// daily question. Results follow the daily rule: vote to see them.
+export interface FlashState {
+    id: number;
+    question: QuestionToVote;
+    launchedBy: Voter; // public: the buyer is the author
+    activatedAt: string;
+    closesAt: string; // ISO UTC, 24 h after launch
+    userHasVoted: boolean;
+    results: QuestionResult | null; // present when userHasVoted
+    voterIds: number[];
+}
+
+// POST flash
+export interface LaunchFlashResponse {
+    flash: FlashState;
+    balance: number; // after paying
 }
 
 // POST /daily/select and /daily/select/confirm: coins only when you won the race (§17.5)
