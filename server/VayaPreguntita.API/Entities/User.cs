@@ -30,6 +30,10 @@ public class User
     // from the device's language; existing accounts default to Spanish.
     public string PreferredLanguage { get; set; } = Localization.AppLanguages.Default;
     public DateTime DateJoined { get; set; } = DateTime.UtcNow;
+
+    // Coin wallet balance, one per user across all groups (§17.2). Never negative; every
+    // change is mirrored by a CoinTransaction row.
+    public int Coins { get; set; } = 0;
     public List<GroupMember> GroupMemberships { get; set; } = [];
 
     [InverseProperty("Creator")]

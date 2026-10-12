@@ -48,8 +48,10 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
     protected StreakService NewStreakService(AppDbContext db) =>
         new(db, Notifications.Object, Clock, NullLogger<StreakService>.Instance);
 
+    protected CoinService NewCoinService(AppDbContext db) => new(db, Clock);
+
     protected DailyService NewDailyService(AppDbContext db) =>
-        new(db, TestMapper.Instance, Notifications.Object, NewStreakService(db), Clock);
+        new(db, TestMapper.Instance, Notifications.Object, NewStreakService(db), NewCoinService(db), Clock);
 
     protected DailyCycleRunner NewCycleRunner(AppDbContext db) =>
         new(
