@@ -3,7 +3,7 @@
     #triggerBtn
     hlmDialogTrigger
     hlmBtn
-    [variant]="isSelector() ? 'default' : 'secondary'"
+    [variant]="isSelector() ? 'default' : 'outline'"
     [class]="
       'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
       (isSelector()
@@ -17,6 +17,7 @@
         <ng-icon hlm name="lucideSparkles" />
         {{ pendingQuestion() ? t('picker.change') : t('picker.pick') }}
       } @else {
+        <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggest') }}
       }
     } @else {
@@ -24,6 +25,7 @@
         <ng-icon hlm name="lucideSparkles" />
         {{ t('picker.yourTurn') }}
       } @else {
+        <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggestQuestion') }}
       }
     }

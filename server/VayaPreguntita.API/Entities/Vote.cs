@@ -7,6 +7,10 @@ public class Vote
     // When did the user cast this vote?
     public DateTime DateResponded { get; set; } = DateTime.UtcNow;
 
+    // Cast from the history after the question closed (§17.7): counts in the tally like any
+    // other vote, but never for streaks, coins or monthly awards.
+    public bool IsLate { get; set; }
+
     // ==========================================
     // 1. CORE RELATIONS (Who is voting and on what?)
     // ==========================================

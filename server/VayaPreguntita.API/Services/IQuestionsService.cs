@@ -17,7 +17,9 @@ public interface IQuestionsService
         int? before = null,
         int pageSize = 12
     );
-    Task<QuestionResultDto?> GetByDateAsync(int groupId, DateOnly date);
+    // Results are gated (§17.7): until the caller has voted it, the entry comes back `Locked`
+    // with no results, plus the question to vote it late once it has closed.
+    Task<QuestionResultDto?> GetByDateAsync(int groupId, int userId, DateOnly date);
 
     // Returns the created question, or an error message when membership validation fails (§9).
     Task<(QuestionDto? question, string? error)> CreateAsync(

@@ -6,7 +6,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCalendar } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCalendar, lucideLock } from '@ng-icons/lucide';
 
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { HistoryEntry } from '../../../../core/models/question.model';
@@ -16,6 +16,11 @@ import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { ResultsComponent } from '../results/results.component';
+import { VoteFormComponent } from '../vote-form/vote-form.component';
+import { CreateVote } from '../../../../core/models/vote.model';
+import { GroupMember } from '../../models/group.models';
+import { GroupsService } from '../../services/groups.service';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
 import { GroupStreaksService } from '../../services/group-streaks.service';
@@ -34,16 +39,18 @@ import { TranslationKey } from '../../../../core/i18n/translation.types';
     HlmDatePickerImports,
     NgIcon,
     ResultsComponent,
+    VoteFormComponent,
     WordStaggerPipe,
   ],
   // The date picker is the app's only calendar: its i18n is provided here so the calendar
   // code stays in this lazy chunk.
-  providers: [provideIcons({ lucideArrowLeft, lucideCalendar }), provideCalendarI18n()],
+  providers: [provideIcons({ lucideArrowLeft, lucideCalendar, lucideLock }), provideCalendarI18n()],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
   private readonly questionsService = inject(QuestionsService);
   private readonly groupStreaks = inject(GroupStreaksService);
+  private readonly groupsService = inject(GroupsService);
   private readonly i18n = inject(I18nService);
   protected readonly t = this.i18n.t;
 
@@ -62,6 +69,13 @@ export class HistoryComponent implements OnInit {
   public readonly selectedResult = signal<QuestionResult | null>(null);
   public readonly loadingDetail = signal(false);
   public readonly detailError = signal<TranslationKey | null>(null);
+
+  // Late vote (rama 39): a locked past question opens the voting form in place. Members are
+  // only needed by the people pickers, so they load the first time the form opens.
+  public readonly members = signal<GroupMember[]>([]);
+  public readonly showLateVote = signal(false);
+  public readonly lateVoting = signal(false);
+  public readonly lateVoteError = signal<string | null>(null);
 
   // Date picker binding (JS Date, reset after each use so the trigger always shows the placeholder).
   public readonly pickerDate = signal<Date | undefined>(undefined);
@@ -121,6 +135,7 @@ export class HistoryComponent implements OnInit {
 
   // Toggle: clicking the same entry collapses it; clicking another fetches its detail.
   selectEntry(date: string) {
+    this.resetLateVote();
     if (this.selectedDate() === date) {
       this.selectedDate.set(null);
       this.selectedResult.set(null);
@@ -151,6 +166,7 @@ export class HistoryComponent implements OnInit {
   onDatePickerChange(date: Date | undefined) {
     this.pickerDate.set(undefined);
     if (!date) return;
+    this.resetLateVote();
 
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
     const dateStr = d.toISOString().slice(0, 10);
@@ -191,6 +207,42 @@ export class HistoryComponent implements OnInit {
         this.selectedDate.set(null);
       },
     });
+  }
+
+  openLateVote() {
+    this.showLateVote.set(true);
+    if (this.members().length > 0) return;
+    this.groupsService.getGroupMembers(this.numericGroupId()).subscribe({
+      next: (members) => this.members.set(members),
+    });
+  }
+
+  submitLateVote(dto: CreateVote) {
+    const date = this.selectedDate();
+    if (!date) return;
+
+    this.lateVoteError.set(null);
+    this.lateVoting.set(true);
+    this.questionsService.lateVote(this.numericGroupId(), date, dto).subscribe({
+      next: (result) => {
+        this.lateVoting.set(false);
+        this.showLateVote.set(false);
+        this.selectedResult.set(result);
+        this.entries.update((prev) =>
+          prev.map((e) => (e.date === date ? { ...e, totalVotes: result.totalVotes } : e)),
+        );
+      },
+      error: (err) => {
+        this.lateVoting.set(false);
+        this.lateVoteError.set(apiErrorMessage(err, this.t('history.lateVoteFailed')));
+      },
+    });
+  }
+
+  private resetLateVote() {
+    this.showLateVote.set(false);
+    this.lateVoting.set(false);
+    this.lateVoteError.set(null);
   }
 
   // Builds a minimal QuestionToVote from a QuestionResult so that app-results can

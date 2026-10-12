@@ -1,12 +1,21 @@
 @if (line()) {
   <div class="flex flex-col gap-1.5">
-    <hlm-progress
-      class="h-1"
-      [value]="remainingPercent()"
-      [attr.aria-label]="t('countdown.timeLeftLabel')"
-    >
-      <hlm-progress-indicator [class]="urgent() || due() ? 'bg-destructive' : 'bg-primary'" />
-    </hlm-progress>
+    <div class="flex items-center gap-2">
+      <ng-icon
+        hlm
+        name="lucideClock"
+        size="14"
+        aria-hidden="true"
+        [class]="urgent() || due() ? 'shrink-0 text-destructive' : 'shrink-0 text-muted-foreground'"
+      />
+      <hlm-progress
+        class="h-1 flex-1"
+        [value]="remainingPercent()"
+        [attr.aria-label]="t('countdown.timeLeftLabel')"
+      >
+        <hlm-progress-indicator [class]="urgent() || due() ? 'bg-destructive' : 'bg-primary'" />
+      </hlm-progress>
+    </div>
     <div class="flex min-h-6 items-center gap-2 text-xs">
       <span class="tabular-nums" [class]="urgent() || due() ? 'font-medium text-destructive' : 'text-muted-foreground'">
         @if (due()) {

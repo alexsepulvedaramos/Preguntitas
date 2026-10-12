@@ -257,7 +257,7 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         await using (var db = NewContext())
         {
-            var whileOpen = await new QuestionsService(db, TestMapper.Instance).GetByDateAsync(group.Id, Today);
+            var whileOpen = await new QuestionsService(db, TestMapper.Instance).GetByDateAsync(group.Id, group["ana"], Today);
             whileOpen!.Author.Should().BeNull();
         }
 
@@ -266,7 +266,7 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await using (var db = NewContext())
         {
             var service = new QuestionsService(db, TestMapper.Instance);
-            var detail = await service.GetByDateAsync(group.Id, Today);
+            var detail = await service.GetByDateAsync(group.Id, group["ana"], Today);
             var page = await service.GetHistoryAsync(group.Id, group["ana"], before: null);
             var carlosPage = await service.GetHistoryAsync(group.Id, group["carlos"], before: null);
 

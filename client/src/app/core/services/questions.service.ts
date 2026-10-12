@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { CreateQuestion, HistoryEntry, HistoryPage, Question, QuestionPage } from '../models/question.model';
 import { QuestionResult } from '../models/result.model';
 import { QuestionType } from '../enums/question-type.enum';
+import { CreateVote } from '../models/vote.model';
 import { environment } from '../../../environments/environment';
 
 // Pool of user-created questions within a group: list, create directly (without
@@ -53,5 +54,10 @@ export class QuestionsService {
         return this.http.get<QuestionResult>(`${this.baseUrl}/${groupId}/questions`, {
             params: { date },
         });
+    }
+
+    // Late vote on a closed question from the history (rama 39). Returns the unlocked detail.
+    lateVote(groupId: number, date: string, dto: CreateVote): Observable<QuestionResult> {
+        return this.http.post<QuestionResult>(`${this.baseUrl}/${groupId}/history/${date}/vote`, dto);
     }
 }

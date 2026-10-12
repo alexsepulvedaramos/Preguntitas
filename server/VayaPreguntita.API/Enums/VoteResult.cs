@@ -6,4 +6,8 @@ public enum VoteResult
     NoActiveQuestion,
     AlreadyVoted,
     InvalidPayload,
+
+    // Late vote from the history (§17.7)
+    QuestionNotFound,
+    QuestionNotClosed,
 }

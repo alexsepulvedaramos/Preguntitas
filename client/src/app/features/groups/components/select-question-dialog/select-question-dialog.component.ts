@@ -6,7 +6,7 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
+import { lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DailyService } from '../../../../core/services/daily.service';
@@ -54,7 +54,7 @@ const PAGE_SIZE = 10;
     CreateQuestionComponent,
     DeathmatchCreateComponent,
   ],
-  providers: [provideIcons({ lucideCheck, lucideSparkles, lucideTrash2 })],
+  providers: [provideIcons({ lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 })],
   templateUrl: './select-question-dialog.component.html',
 })
 export class SelectQuestionDialogComponent {
