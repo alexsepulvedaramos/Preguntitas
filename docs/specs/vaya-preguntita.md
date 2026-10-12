@@ -190,7 +190,7 @@ Once a group has ≥ 2 members, **every day has a question** — the base pack (
 - **No late voting:** once a question closes at T, it is frozen.
 - Results are **not anonymous** — the breakdown of who voted for what/whom is shown (`VoterDto`, `OptionResultDto.TargetUser`).
 - After a member votes, they see the **live aggregate** (kept fresh by visibility-aware polling every 30 s plus the refresh button, §10). Results of a still-open question are visible to members who have already voted.
-- **Result visibility model:** on the *live* day you must vote to see results (drives participation). The **history archive is open** in the MVP — any member sees any past day's results, voted or not. *(Rama 39, §17.7: history gated behind participation; a **late vote** unlocks it and counts in the tally, but not for streak, coins or points.)*
+- **Result visibility model:** on the *live* day you must vote to see results (drives participation). The **history archive is open** in the MVP — any member sees any past day's results, voted or not. *(Rama 39, §17.7: history gated behind participation; a **late vote** unlocks it and counts in the tally, but not for streak, coins or monthly awards. **Done in rama 39** — the archive is no longer open.)*
 - The selector/creator votes too, as a normal member.
 - Self-votes are allowed unless the creator blacklisted the user (Superlative).
 
@@ -551,7 +551,8 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 | `POST` | `/api/groups/{groupId}/questions` | ✅ | add to pool |
 | `GET` | `/api/groups/{groupId}/questions/pool` | ✅ | unused user questions |
 | `DELETE` | `/api/groups/{groupId}/questions/{id}` | 🆕 | creator/admin: remove from pool |
-| `GET` | `/api/groups/{groupId}/questions?date=YYYY-MM-DD` | ✅ | history detail for one date |
+| `GET` | `/api/groups/{groupId}/questions?date=YYYY-MM-DD` | ✅ | history detail for one **activated** date (a preselected future one is 404). Gated (rama 39, §17.7): until you vote it, `locked: true` with empty `results`/`freeTextResponses` (text, `totalVotes` and author stay), plus `lateVoteQuestion` (a `QuestionToVoteDto`) once it has closed |
+| `POST` | `/api/groups/{groupId}/history/{date}/vote` | ✅ | rama 39 — late vote on a closed question (`CreateVoteDto`, same §9 validation; targets must be current members). Stored with `Vote.IsLate`; no streak, coins or push. Returns the unlocked detail. 404 no activated entry · 400 still open / already voted / invalid |
 | `GET` | `/api/groups/{groupId}/history` | 🆕 | paginated list of past entries `{ date, questionText, type, totalVotes }` |
 
 ### Real-time / Infra
@@ -738,11 +739,12 @@ Start a disposable Postgres (`docker run -p 55432:5432 postgres:15-alpine`), run
 | Coins (rama 34, release 1.14.0): `User.Coins` + append-only `CoinTransaction` ledger + `DailyEntry.FirstVoterUserId` (migration `AddCoins`, backfills the first voter of past entries); `CoinService` (row-locked grant, idempotent per `(UserId, Reason, RefId)`, 40-coin daily cap on capped reasons, paged history); vote pays 5 + first-voter 3 (conditional update) + streak tier/milestone rewards every time they are reached; selector paid at activation for any active choice (+5 when written inline); `POST daily/vote` → `coins { earned, balance, capReached }`; `GET users/me/coins/history`; `UserProfileDto.Coins`. Angular: "+N 🪙" / daily-cap toast after voting, "Monedas y tienda" entry with balance badge in the user menu, `/shop` page (wallet, how to earn, "shop opens soon", paged history) | ✅ — rama 34 |
 | Streak freeze & repair (rama 35, release 1.15.0): `GroupMember` freeze/repair columns (migration `AddStreakFreeze`); `StreakFreezeRules` (max 2 held, 100 🪙 freeze, 300 🪙 repair, lazy monthly free freeze); close-of-cycle step in the activation tick (`StreakService.CloseCycleAsync`: spend a freeze, else record the loss for repair); `CoinService.SpendAsync` (conditional update + negative ledger row); `CoinReason` 6–8; `POST shop/purchase` (own freeze, gift, repair; member row locked); `POST daily/streak/dismiss-freeze` / `dismiss-gift`; `daily/current.myStreak` gains freezes, notices and `repairableStreak`; the "streak in danger" push says when a freeze will cover the miss. Angular: "your streak in this group" section in the group view (🔥 streak + 🧊 n/2 → buy dialog, repair button), freeze-saved and gift notices, repair button on the lost-streak notice, "gift a freeze" on other members' cards, ledger labels, about-page paragraph | ✅ — rama 35 |
 | Guess the author (rama 36, release 1.16.0): `AuthorGuess` table, one row per member and entry (migration `AddAuthorGuesses`; the commented-out `Vote.GuessedCreatorId` was dropped because a vote can span several rows); `AuthorGuessRules` (member-written + author still a member + ≥ 3 members; candidates = everyone but you; deterministic hint hiding `floor(wrong / 2)`); `AuthorGuessService` (`POST daily/guess`, `POST daily/guess/hint`, conditional writes); `CoinReason` 9–10 (`GuessCorrect` +5 capped, `AuthorHint` −20); `daily/current.today` gains `voterIds`, `memberCount`, `guess`, and the vote response `guess`; anonymity: pool/create return `isMine` instead of `creatorId`, the selector's identity goes only to the selector, the history detail names the author only once closed; history list `authorUsername` + `myGuessCorrect`; member stats `guessesMade`/`guessesCorrect`. Angular: "¿Quién la escribió?" card under the question (pick + confirm, skip, hint, reveal, "te han pillado X de Y" for the author), **calmer group screen** (group name + 🔥 chip in the top bar opening the streak panel, orange when at risk; time left as a thin bar sharing a row with "3/6 han votado" and a who-voted popover; streak notices one at a time above the question; selector banner above the question; "Sugerir una pregunta" under it), author and ✓/✗ in the history, guess stat on the member card, ledger labels; **toast fix**: the toaster joins the browser top layer (`TopLayerDirective`) so toasts show above CDK dialogs/drawers, and the gift-freeze error also shows inline on the card | ✅ — rama 36 |
+| History gating + late vote (rama 39, release 1.17.0): `Vote.IsLate` (migration `AddVoteIsLate`); `QuestionsService.GetByDateAsync` gated per caller (`Locked` + `LateVoteQuestion` on `QuestionResultDto`) and limited to activated entries; `DailyService.LateVoteAsync` + `POST history/{date}/vote` (closed = a newer entry activated; no streak, coins or push); late votes excluded from every `StreakService` vote query (rebuild, backfill, member-card participation, crown tie-break); history detail shows "Vota para ver los resultados" and votes in place with `app-vote-form`. Also: a clock icon in front of the group screen's time-left line, and the "Sugerir pregunta" button as an outline button with a + icon | ✅ — rama 39 |
 | Capacity study (rama 29, docs only): free-tier limit inventory, measured throughput of the API at Render's 0.1 vCPU / 512 MB, per-player load model and a feature budget — §11.1; reproducible scripts in `tools/loadtest/` | ✅ — rama 29 |
 
 ### Pending (MVP)
 
-MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and 33 (shuffled rotation) done; next the gameplay ramas 34 → 44, then 31 → 32. Phase 2 backlog in §16.
+MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and the gameplay ramas 33–36 done; rama 37 (points/ranking) dropped 2026-10-12, folded into the rama 41 awards; rama 38 (group streak) postponed to the backlog the same day; rama 39 done; next the gameplay ramas 40 → 44, then 31 → 32. Phase 2 backlog in §16.
 
 ---
 
@@ -801,18 +803,18 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 | 34 ✅ | `feat/coins` | §17.2 — `User.Coins` + `CoinTransaction` ledger, daily cap, rewards for vote / first voter / active selection (+created bonus) / streak tiers & milestones, `coinsEarned` in the vote response + toast, wallet chip, `/shop` shell with ledger history. **Release 1.14.0.** |
 | 35 ✅ | `feat/streak-freeze` | §17.9 — buy/hold (max 2 per group), lazy monthly free freeze, consumption in the close-of-cycle tick, "tu congelación salvó tu racha" notice, **gift a freeze**, **streak repair**. **Release 1.15.0.** |
 | 36 ✅ | `feat/guess-the-author` | §17.6 — guess stored in an `AuthorGuess` table (not `Vote.GuessedCreatorId`, see §17.6), `POST daily/guess`, guess step after voting, reveal, coins, **author hint** (pay per use); **remove `creatorId` from pool/selection DTOs** (`isMine`) and hide the selector from everyone else. Also: the calmer group screen and the toast-behind-dialogs fix. **Release 1.16.0.** |
-| 37 | `feat/points-ranking` | §17.3 — derived points, `GET ranking?month=`, "Clasificación" section, `totalPoints` on the member card (+ `GroupMember.TotalPoints`). |
-| 38 | `feat/group-streak` | §17.8 — 75 % rule at close, group-streak columns, header badge, today's progress line, milestone coins + chat message. |
-| 39 | `feat/history-gating-late-vote` | §17.7 — gated history results, `Vote.IsLate`, `POST history/{date}/vote`, exclusion of late votes from streak/coins/points. |
+| 37 ❌ | ~~`feat/points-ranking`~~ | **Dropped (developer, 2026-10-12).** Points mostly duplicated the streak (1 point per on-time vote) and the coins (which already reward voting, guessing and choosing), and a ranking among friends would mainly sort people by how many questions they write. What was genuinely new — recognising authors whose questions get played and good author-guessers — moves to the rama 41 monthly awards (§17.12). No `ranking` endpoint, no `GroupMember.TotalPoints`, no `pointsEarned`. See §17.3. |
+| 38 ⏸️ | ~~`feat/group-streak`~~ | **Postponed to the backlog (developer, 2026-10-12):** not worth it right now on top of the personal streak; kept as a possible future feature. The design in §17.8 stays valid — if it comes back, it is this same scope: 75 % rule at close, group-streak columns, header badge, today's progress line, milestone coins + chat message. |
+| 39 ✅ | `feat/history-gating-late-vote` | §17.7 — gated history results, `Vote.IsLate`, `POST history/{date}/vote`, exclusion of late votes from streak/coins/monthly awards. Also: clock icon before the time-left line, "Sugerir pregunta" as a real (outline) button. **Release 1.17.0.** |
 | 40 | `feat/race-and-priority` | §17.5 — T−10 race (`RaceOpenedAt`, `race_to_select` push + preference, conditional-update win), `TurnPriority` FIFO purchase + refund on leave. |
-| 41 | `feat/monthly-summary` | §17.12 — `MonthlySummary` snapshot (batched), awards, ranking, participation, "tu match", `monthly_summary` push, story-style viewer. |
+| 41 | `feat/monthly-summary` | §17.12 — `MonthlySummary` snapshot (batched), awards (incl. star author and best author-guesser, which replace the dropped points), participation, "tu match", `monthly_summary` push, story-style viewer. |
 | 42 | `feat/shop-cosmetics` | §17.10 — `ShopCatalog` + `UserItem`, equipped slots on `User`, ring skins, avatar accessories, name colour + badge, shop titles (via `SelectedTitleKey`), app themes, seniority frames, `/shop` catalog with live preview. |
 | 43 | `feat/vote-change-and-nudge` | §17.10 — "change my vote" (relaxes §4.6), toque/nudge push + `nudge` preference. |
 | 44 | `feat/flash-question` | §17.11 — `FlashEntry`, launch/vote endpoints, `flash` block in `daily/current`, ⚡ card and history marker, `flash_question` push. Last by decision. |
 | 31 | `perf/free-tier-optimization` | **Load speed and resource usage**, tuned to the free-tier limits measured in rama 29. Frontend: initial bundle back under the 500 kB budget (currently ~569 kB, warning), lazy-loading (never by dropping Spartan — design over bundle size), fonts/images, service-worker caching, Lighthouse pass. Backend/DB: query counts and indexes on hot paths, caching layer (absorbs the "Deferred: caching/perf hardening" item), history depth cap, polling/SignalR intervals, background-service work per tick, Render cold start, Supabase egress. Runs after the gameplay ramas so it optimizes the final shape. |
 | 32 | `feat/play-store` | Publish on Google Play (25 $ one-time fee accepted). **Starts with an analysis: Capacitor vs TWA (Bubblewrap)** — Capacitor's WebView doesn't support Web Push (backend would move Android to FCM, free) but opens native plugins (e.g. screen brightness for the QR) and iOS later; a TWA keeps the PWA and its Web Push nearly untouched but needs a real domain with Digital Asset Links (ties to the §16 free-domain item). Then: build/signing, store listing (ES/EN/DE), privacy policy, Play policies, release track. |
 
-**Phase 2 priority order (confirmed 2026-10-12):** ~~27~~ ✅ ∥ ~~28~~ ✅ → ~~29~~ ✅ → ~~30~~ ✅ → ~~33~~ ✅ → ~~34~~ ✅ → ~~35~~ ✅ → 36 → 37 → 38 → 39 → 40 → 41 → 42 → 43 → 44 → 31 → 32.
+**Phase 2 priority order (confirmed 2026-10-12):** ~~27~~ ✅ ∥ ~~28~~ ✅ → ~~29~~ ✅ → ~~30~~ ✅ → ~~33~~ ✅ → ~~34~~ ✅ → ~~35~~ ✅ → ~~36~~ ✅ → ~~37~~ ❌ *(dropped, folded into 41)* → ~~38~~ ⏸️ *(postponed to backlog)* → ~~39~~ ✅ → 40 → 41 → 42 → 43 → 44 → 31 → 32.
 
 **Next step — portfolio milestone (confirmed 2026-10-06):** everything needed for Vaya Preguntita to stand as a viable portfolio project: (1) a good explanations section and versioned release notes (**rama 26**); (2) an interactive demo when creating an account (**rama 25**, promoted); (3) English and German translation with the cultural adaptations needed to keep it funny (**ramas 23–24**); (4) the public landing for context-free visitors (**rama 21**, added to the milestone 2026-10-06), so a recruiter landing on the site understands the product before signing up. ~~Rama 16 (Scale 1–10) still lands before rama 24 so the content isn't translated twice.~~ No longer a constraint (2026-10-11): the pack Scale content was already rewritten as self-assessments in #53.
 
@@ -820,7 +822,7 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 
 **Deferred → scheduled (2026-10-12):** caching/perf hardening (reduce repeated queries, cache layer, regulate per-platform usage/limits, cap history depth) — the scaling forecast it was waiting for is rama 29; the work itself is rama 31.
 
-**Phase 2 backlog:** bundled "reparto/casting" question type · "adivina el autor" · points/ranking · priority-boost + in-app currency · frame purchasing + longevity frames (streak frames confirmed and moved to rama 19, §13) · **streak freeze** (Duolingo-style item that forgives one missed cycle; ties into coins) · **group streak** (consecutive cycles where every member voted — collective goal) · in-question chat/debate · Google OAuth · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · SSR/SEO. *(2026-10-12: invitation QR done in rama 28; caching scheduled in rama 31; the gameplay items were designed in rama 30 (§17) and scheduled as ramas 33–44, except "reparto/casting", which stays here.)* *(Multi-language gameplay and automated tests/CI were promoted out of Phase 2 into ramas 22–24 on 2026-07-16.)* **Full developer wishlist in §16.**
+**Phase 2 backlog:** bundled "reparto/casting" question type · "adivina el autor" · points/ranking · priority-boost + in-app currency · frame purchasing + longevity frames (streak frames confirmed and moved to rama 19, §13) · **streak freeze** (Duolingo-style item that forgives one missed cycle; ties into coins) · **group streak** (consecutive cycles where every member voted — collective goal) · in-question chat/debate · Google OAuth · per-group time-zone logic · activity-aware selector rotation · history late-vote-to-unlock · monthly statistics · email verification & password recovery · HttpOnly-cookie refresh tokens · SSR/SEO. *(2026-10-12: invitation QR done in rama 28; caching scheduled in rama 31; the gameplay items were designed in rama 30 (§17) and scheduled as ramas 33–44, except "reparto/casting", which stays here. Points/ranking (rama 37) was dropped the same day; its useful part lives in the rama 41 awards.)* *(Multi-language gameplay and automated tests/CI were promoted out of Phase 2 into ramas 22–24 on 2026-07-16.)* **Full developer wishlist in §16.**
 
 ---
 
@@ -970,7 +972,8 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 ### Daily, rotation & gamification
 - 🟢 **Per-group time zone column** — `Group.TimeZoneId` added now (rama 0); logic stays UTC+2 until Phase 2.
-- 🔵 **History gating + late voting** — scheduled as **rama 39** (§17.7). Decided 2026-10-12: late votes count in the tally, but not for streak, coins or points.
+- ⚪ **Group streak** *(postponed by the developer 2026-10-12, was rama 38; no priority or rama now)* — consecutive cycles where ≥ 75 % of the members voted on time, with milestone coins for everyone and a chat message. Fully designed in §17.8 (+ milestone rewards in §17.2); pick it up from there if it comes back.
+- ✅ **History gating + late voting** — done in **rama 39** (§17.7, release 1.17.0). Decided 2026-10-12: late votes count in the tally, but not for streak, coins or monthly awards.
 - 🔵 **Activity-aware selector rotation** — *(the fairness/predictability part is solved by shuffled rounds, rama 33 §17.4; weighting by activity is still open)* weight rotation by recent participation; a member inactive for weeks shouldn't keep being picked and defaulting to an auto-question. Replaces the MVP modulo rotation (§4.4).
 - 🔵 **"Race to select"** — scheduled as **rama 40** (§17.5), together with turn priority.
 - ⚪ **Auto-deactivate dead groups + admin reactivation** *(confirmed 2026-10-08, no priority or rama yet)* — if nobody answers, or only one member does, for several consecutive days, the group is **deactivated**: the daily cycle stops (no more preselection or activation of questions) until the group's **admin manually reactivates it**. On reactivation, **every member gets a push notification** that the group is active again (new notification type, e.g. `group_reactivated`, alongside the existing ones). *Why:* (1) abandoned groups keep burning compute and database space for nothing; (2) a dormant group keeps consuming its question stock — if its members ever come back to really play, ~100 questions would already have been used up (cloned, marked as used by §6.6) without anyone having seen them. Two real groups already show this pattern (played only on day one). **Open decisions, to settle when this is scheduled:** the inactivity threshold (how many days) and what exactly counts as "inactive" (zero voters vs. at most one voter — mirrors the ≥2-member start gate, §4.3); counted from the last day with ≥2 voters or the last day with any vote; what happens to the already-pending `DailyEntry` and the currently open question at the moment of deactivation; whether the admin is warned before deactivation and which UI shows the paused state to non-admin members; whether group mute also silences the reactivation push.
@@ -978,7 +981,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ⚪ **Admin can edit a badly set-up question** *(developer, 2026-10-12, no priority or rama yet)* — the group admin can fix a question that came out wrong (a typo, the wrong type, missing poll options, badly formed teams, a blacklisted member…). Today only the creator (or the selector, on the pending question) can change one, and the only admin tool is deleting it from the pool. Open when scheduled: which states can be edited (pool and pending for sure; the **open** question only while nobody has voted, because editing it after votes would make those votes meaningless); whether the creator is told; whether editing a pack clone drops its translations, as already happens when the selector rewrites one (rama 24); and whether it counts against the authorship of "guess the author" (§17.6).
 - ⚪ **Visual review: more personality** *(developer, 2026-10-12, no priority or rama yet)* — a design pass so the app feels less generic. At least: (a) **coin art** that carries the app logo (today the coin is the 🪙 emoji), used in the wallet, toasts, the shop and the ledger; (b) **logo that works on every device**: it isn't square, so it gets cropped in some places (PWA/app icons, favicon, maskable icons, avatar-sized slots) — design a square/maskable mark that reads at small sizes, alongside the existing wordmark (`LogoComponent`, `LogoWordmarkComponent`). Scope and the rest of the review are to be agreed when it is scheduled.
 - 🔵 **Re-enable `Vote.GuessedCreatorId`** — "adivina el autor", scheduled as **rama 36** (§17.6).
-- 🔵 **Monthly statistics** — monthly summary ("wrapped") with awards, ranking, participation and "tu match", scheduled as **rama 41** (§17.12).
+- 🔵 **Monthly statistics** — monthly summary ("wrapped") with awards, participation and "tu match" (no ranking: points were dropped, §17.3), scheduled as **rama 41** (§17.12).
 - 🔵 **"Reparto/casting" question type** — moved back to the backlog by the developer during rama 30 (2026-10-12); not designed.
 - 🔵 **Change a vote by paying coins** (§4.6) — designed in rama 30 (§17.10), scheduled as **rama 43**.
 - ✅ **Notification system** (push) — Web Push / VAPID; 4 types (`new_question`, `selector_turn`, `user_voted`, `new_message`); global preferences + per-group mute; nudge prompt; auto-open selector after voting (`feat/notifications`).
@@ -999,16 +1002,11 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Out of scope:** the **"reparto/casting"** question type moves back to the backlog (§16, developer decision 2026-10-12). Changing a vote by paying coins (§4.6) is in, as a shop item (§17.10).
 
-### 17.1 Two currencies: coins and points
+### 17.1 One currency: coins
 
-| | **Coins** 🪙 | **Points** ⭐ |
-|---|---|---|
-| Scope | **one global wallet per user**, earned in any group | **per group** |
-| Purpose | spent in the shop | ranking, never spent |
-| Goes down? | yes, when spending | never (spending coins doesn't affect ranking) |
-| Shown | wallet chip (user menu, shop) + "+5 🪙" toast after earning | monthly ranking in the group, all-time total on the member card |
+**Coins** 🪙 are **one global wallet per user**, earned in any group, spent in the shop, and shown in the wallet chip (user menu, shop) plus a "+5 🪙" toast after earning.
 
-**Tone (confirmed): soft competition.** The ranking that is shown is the **monthly** one and it resets every month. The all-time total only appears on each member's card. There is no permanent leaderboard.
+*(The original design had a second, per-group currency — **points** ⭐ with a monthly ranking. It was dropped on 2026-10-12, see §17.3. Recognition between members comes from the streak and the monthly awards (§17.12); there is no ranking or leaderboard of any kind.)*
 
 ### 17.2 Coin economy
 
@@ -1024,7 +1022,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 | Won the race to select (§17.5) | 10 | yes |
 | Own streak reaches a tier (the ring tiers of `StreakTiers`): 3 / 7 / 15 / 30 / 100 / 182 / 365 days | 5 / 20 / 35 / 50 / 100 / 150 / 300 | no |
 | Own streak milestone (the `StreakTiers` milestones): 21 / 50 / 200 / 300 days | 25 / 50 / 100 / 150 | no |
-| Group streak milestone (§17.8): 7 / 30 / 100 / 365 — **every member** | 20 / 50 / 100 / 250 | no |
+| Group streak milestone (§17.8, *postponed to backlog*): 7 / 30 / 100 / 365 — **every member** | 20 / 50 / 100 / 250 | no |
 
 - **Streak rewards pay every time** a streak reaches the tier, even after losing and rebuilding it (developer, rama 34, 2026-10-12). The amounts grow fast enough that holding one long streak always beats rebuilding short ones: one 7-day streak pays 5 + 20 = 25 against 10 for two 3-day streaks, and one 15-day streak pays 60 against 50 for two 7-day streaks. (The design draft listed tiers 3/7/30/… and milestones 14/…; rama 34 aligned them with the tiers and milestones the app already celebrates.)
 - **Daily cap: 40 capped coins per user per local day across all groups.** It closes off the "fake groups with a second account" farm: each group gives at most one question a day, and the cap bounds the total. Rewards for rare milestones are uncapped.
@@ -1051,11 +1049,17 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Data model.** `User.Coins` (int, balance, check ≥ 0) **plus** an append-only ledger `CoinTransaction { Id, UserId, Amount (±), Reason (enum), GroupId?, RefId?, CreatedAt }`. The balance and the row are written in the same DB transaction. A unique index `(UserId, Reason, RefId)` makes every reward idempotent (the tick may retry); vote, first-voter, streak and selector rewards use the `DailyEntry` id as `RefId`. `CoinReason { Vote, FirstVoter, StreakTier, StreakMilestone, SelectorChoice, SelectorCreated, StreakFreeze, StreakFreezeGift, StreakRepair }` (int, never renumbered; later ramas append). Purchases write a negative row: freezes and gifts with `RefId = null` (Postgres treats nulls as distinct, so they repeat), repairs with the missed entry's id. `CoinService.GrantAsync` locks the user's row (`SELECT … FOR UPDATE`) so two votes at once can't both pass the cap. The first-voter bonus is claimed with a conditional update on `DailyEntry.FirstVoterUserId` (`WHERE FirstVoterUserId IS NULL`); the `AddCoins` migration backfills it from the earliest vote of every activated entry. An index `(UserId, CreatedAt)` lets the cap be computed by summing today's capped rows. The balance makes reads O(1) and the ledger gives auditing, refunds and anti-abuse forensics. Spending uses a conditional `UPDATE … SET Coins = Coins - @p WHERE Coins >= @p` so it can never go negative under concurrent purchases.
 
-**When rewards are paid.** Vote and guess rewards are paid in the vote request, and the vote response carries `coins: { earned, balance, capReached }` (rama 34; `pointsEarned` arrives with rama 37) for the toast: "+8 🪙", or "no more coins today" when the cap ate the whole reward. Selector rewards are paid **at activation** (tick at T, batched per due group), because until T the selector can still change their choice: 5 🪙 for any `SelectionKind` other than `Auto`, +5 for `Created`; a failed grant is logged and never blocks the rest of the tick. Streak and group-streak rewards are paid where the streak is evaluated.
+**When rewards are paid.** Vote and guess rewards are paid in the vote request, and the vote response carries `coins: { earned, balance, capReached }` (rama 34) for the toast: "+8 🪙", or "no more coins today" when the cap ate the whole reward. Selector rewards are paid **at activation** (tick at T, batched per due group), because until T the selector can still change their choice: 5 🪙 for any `SelectionKind` other than `Auto`, +5 for `Created`; a failed grant is logged and never blocks the rest of the tick. Streak and group-streak rewards are paid where the streak is evaluated.
 
 **API.** `GET /api/users/me` gains `coins`. `GET /api/users/me/coins/history?before=` returns the ledger, 20 per page, as `{ items: [{ id, amount, reason, groupId, groupName, createdAt }], nextBefore }` (built in rama 34). `GET /api/shop` returns the catalog plus what you own. `POST /api/shop/purchase { item, groupId?, targetUserId? }` returns 409 if there aren't enough coins or a limit is reached (built in rama 35 for the group items; see §8).
 
-### 17.3 Points (ranking)
+### 17.3 Points (ranking) — dropped
+
+**Dropped (developer, 2026-10-12), before implementation.** The designed points (1 per on-time vote, 2 per correct author guess, 3 when your member-written question is played + 1 per on-time answer it gets) mostly duplicated the streak and the coins: in an active group everyone votes daily, so the ranking would really sort members by how many questions they write — competitive pressure the "soft competition" tone wanted to avoid. The two genuinely new ideas — **recognising authors whose questions get played** and **good author-guessers** — live on as monthly awards (§17.12), computed from the same data when the summary is built. Nothing is stored or shown for points: no `ranking` endpoint, no "Clasificación" section, no `GroupMember.TotalPoints`, no `pointsEarned`.
+
+- **Definition kept (used by §17.6 and §17.12):** "member-written" means `Source == UserCreated` and `CreatorId != null`. Pack clones don't count, even when a member edited them. A question earns its author recognition only once it is **played**, never just for being created (so the pool can't be farmed with junk).
+
+<details><summary>Original points design (historical)</summary>
 
 | Event | Points (in that group) |
 |---|---|
@@ -1064,11 +1068,11 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 | **Your** member-written question is played | 3 |
 | … + per answer it receives on time (other members only) | +1 each |
 
-- **Creating a question gives nothing until it is played** (confirmed): it can't be farmed by filling the pool with junk.
-- "Member-written" means `Source == UserCreated` and `CreatorId != null`. Pack clones don't count, even when a member edited them.
 - **No new storage for points:** everything is derivable from `Vote` (+ `IsLate`), `AuthorGuess` (+ `IsCorrect`) and `DailyEntry` + `Question.CreatorId`. The **current month** is computed on demand. It is bounded: ≤ 31 entries × ≤ 30 members, one query using the existing `(GroupId, Date)` index. Past months are read from the month-end snapshot (§17.12). All-time = `GroupMember.TotalPoints`, accumulated when each month is snapshotted, plus the current month on the fly.
 - **API:** `GET /api/groups/{id}/ranking?month=YYYY-MM` (default: current). The member-card stats (`…/members/{userId}/stats`) gain `totalPoints`.
 - **UI:** a "Clasificación" tab/section in the group, showing this month's ranking with a short "se reinicia cada mes" note. There is no crown and no permanent podium.
+
+</details>
 
 ### 17.4 Selector rotation: shuffled rounds (replaces §4.4 modulo)
 
@@ -1094,7 +1098,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 ### 17.6 "Guess the author"
 
 - **Only for member-written questions** (§17.3 definition), and only when the author is still a member. The author can't guess their own question. *(Planned extension, backlog §16 "Suggest a pack question": a pack question a member suggested is also guessable, as "¿Quién la sugirió?". Keep the guessable check easy to extend.)*
-- **Optional, right after voting** (confirmed: revealed immediately, not at close): the vote screen adds "¿Quién la escribió?" with the member avatars and a "Saltar" button. The answer is revealed **at once**: "¡Era Ana!" plus 5 🪙 / 2 ⭐ if correct. We accept that someone may spoil it in the chat; spoiling only hurts whoever hasn't voted yet.
+- **Optional, right after voting** (confirmed: revealed immediately, not at close): the vote screen adds "¿Quién la escribió?" with the member avatars and a "Saltar" button. The answer is revealed **at once**: "¡Era Ana!" plus 5 🪙 if correct. We accept that someone may spoil it in the chat; spoiling only hurts whoever hasn't voted yet.
 - The guess can be sent with the vote or later the same day, but only once and only while the question is open. `Vote.GuessedCreatorId` is re-enabled (it's commented out today) together with `Vote.GuessedAt`. Endpoint: `POST /api/groups/{id}/daily/guess { creatorId }`. `daily/current.today` gains `guessable`, `myGuess`, and `author` (only once you have guessed or skipped).
 - **Anonymity leak to fix in the same rama:** the pool/selection endpoints return `creatorId` today (the picker uses it to mark "mine"). Replace it with `isMine: bool` so nobody can read authorship from the API. Until results, `QuestionToVoteDto` must not carry the creator either.
 - The result card says who wrote the question once you have guessed or skipped. The history shows the author normally.
@@ -1124,10 +1128,12 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 ### 17.7 History gating + late vote
 
 - **Gating (changes §4.6, open archive):** a past day's results show only if you voted that question, on time or late. Otherwise the history item shows the question, total votes and a "Vota para ver los resultados" button. The history list stays as it is (a teaser).
-- **Late vote (confirmed):** answering a closed question **counts in its tally like any other vote, with no mark**, but earns **no streak, no coins and no points**. Stored as `Vote.IsLate = true` (needed to exclude it from streak/points/awards). Endpoint: `POST /api/groups/{id}/history/{date}/vote` (same `CreateVoteDto` + validation; targets must be current members). Free.
+- **Late vote (confirmed):** answering a closed question **counts in its tally like any other vote, with no mark**, but earns **no streak, no coins and doesn't count for the monthly awards**. Stored as `Vote.IsLate = true` (needed to exclude it from streak/coins/awards). Endpoint: `POST /api/groups/{id}/history/{date}/vote` (same `CreateVoteDto` + validation; targets must be current members). Free.
 - Applies to every past question of the group, including those from before you joined: it makes exploring the archive fun. The author also has to vote to see the results of their own question.
 
 ### 17.8 Group streak
+
+*Postponed to the backlog (developer, 2026-10-12): rama 38 is not scheduled. The design below is kept for when it comes back.*
 
 - A cycle **counts** if voters **on time** ≥ **75 %** of the members at close, rounded up (confirmed). A member who used a freeze didn't vote, so they don't count. **Frozen cycles** (no active question, §13 rama 19 rule) neither add nor break.
 - Evaluated **when a cycle closes** (tick at T, batched per due group, O(members)). Model: `Group.CurrentGroupStreak`, `BestGroupStreak`, `LastGroupStreakEntryId`.
@@ -1168,7 +1174,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Game items (confirmed; pay per use, no inventory except freezes):**
 - **Author hint** (20 🪙): in "guess the author" (§17.6) it removes half of the wrong candidates. A correct guess still pays its normal reward.
-- **Change my vote** (50 🪙): redo your vote once while the question is open. This relaxes §4.6 ("the vote is final"). It doesn't change the first-voter reward, the streak or the points, and late votes can't be changed. The UI shows "Cambiar voto · 50 🪙" on the results card.
+- **Change my vote** (50 🪙): redo your vote once while the question is open. This relaxes §4.6 ("the vote is final"). It doesn't change the first-voter reward or the streak, and late votes can't be changed. The UI shows "Cambiar voto · 50 🪙" on the results card.
 - **Gift a freeze** (100 🪙) and **streak repair** (300 🪙): see §17.9.
 - **Toque / nudge** (10 🪙): push "👉 Ana te está esperando en *Grupo*" to a member who hasn't voted today's question. Max 1 per target per day (from anyone). Respects the target's group mute and a new `nudge` notification preference. Cost: one push per use.
 
@@ -1182,7 +1188,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 Confirmed by the developer as **an extra question that lives alongside the daily one**. It never replaces it and never touches the golden rule (§4.1), which governs the daily question only.
 
-- Bought for **500 🪙** by any member. It is **launched immediately**, stays **open for 24 h** from launch (not until the next T), and is limited to **1 per group per local day**. It doesn't count for streaks, coins or points. Its card looks different (⚡).
+- Bought for **500 🪙** by any member. It is **launched immediately**, stays **open for 24 h** from launch (not until the next T), and is limited to **1 per group per local day**. It doesn't count for streaks, coins or the monthly awards. Its card looks different (⚡).
 - The author is public: the buyer launches it, so there is no "guess the author". Results follow the daily rule: vote to see them. It appears in the history marked ⚡, under the same gating as §17.7.
 - Model: `FlashEntry { Id, GroupId, QuestionId, LaunchedByUserId, ActivatedAt, ClosesAt, LocalDate }` with a unique index `(GroupId, LocalDate)`. Votes reuse `Vote`.
 - **API:** `POST /api/groups/{id}/flash` (create inline, same validation as §9; charges coins atomically and refunds on any failure) and `POST /api/groups/{id}/flash/vote`. It is folded into `daily/current` as a `flash` block (null when there isn't one), **not** a second polled endpoint (§11.1 budget). Push: a new `flash_question` type to all members (toggleable, respects mute). The 30-s poll also runs while a flash question is open.
@@ -1190,20 +1196,19 @@ Confirmed by the developer as **an extra question that lives alongside the daily
 
 ### 17.12 Monthly summary ("wrapped")
 
-- **Snapshot, not on the fly:** on the 1st of each month the tick builds `MonthlySummary { GroupId, Month, Payload (JSONB), CreatedAt }` for every group with ≥ 1 activated entry last month, **batched** (a few groups per tick) so the 00:00 burst never competes with requests. The same pass adds the month's points to `GroupMember.TotalPoints`.
-- **Contents (all four confirmed):**
-  - **Monthly awards:** most voted in superlatives, most active selector (active choices), best author-guesser, most consistent (participation %), star author (their questions got the most answers).
-  - **The month's ranking** (points §17.3).
-  - **Participation:** group and per member, best streaks, group streak.
+- **Snapshot, not on the fly:** on the 1st of each month the tick builds `MonthlySummary { GroupId, Month, Payload (JSONB), CreatedAt }` for every group with ≥ 1 activated entry last month, **batched** (a few groups per tick) so the 00:00 burst never competes with requests.
+- **Contents (all three confirmed; the fourth, "the month's ranking", was dropped with points on 2026-10-12, §17.3):**
+  - **Monthly awards:** most voted in superlatives, most active selector (active choices), 🕵️ **best author-guesser** (most correct guesses), 📅 **most consistent** (participation %), 🖋️ **star author** (the member-written question played that month that got the most on-time answers; ties → most member-written questions played). Awards are titles, not positions: no ordered list of members is shown. These absorb the recognition the dropped points were meant to give.
+  - **Participation:** group and per member, best streaks (plus the group streak, only if §17.8 is ever built).
   - **"Tu match"** (developer, 2026-10-12): the member you voted for most **mutually**, counting Superlative picks and Secret Pairing picks in both directions (A→B + B→A). Both must have picked the other at least once. It is personal: each member sees their own match. Computed per pair while building the snapshot (≤ 30 members → ≤ 435 pairs, trivial).
 - **Push on the 1st** (`monthly_summary` type, toggleable, respects mute): "Ya está el resumen de octubre en *Grupo*", sent at the group's T together with that day's activation so no new burst is added.
-- **UI:** a story-style full-screen sequence (tap to advance, `prefers-reduced-motion` → static cards), reachable from the group page for the last 12 months. **API:** `GET /api/groups/{id}/monthly-summaries` (list of months) and `…/monthly-summaries/{YYYY-MM}`. The personal part (your match, your position) is cut out for the caller server-side.
+- **UI:** a story-style full-screen sequence (tap to advance, `prefers-reduced-motion` → static cards), reachable from the group page for the last 12 months. **API:** `GET /api/groups/{id}/monthly-summaries` (list of months) and `…/monthly-summaries/{YYYY-MM}`. The personal part (your match) is cut out for the caller server-side.
 
 ### 17.13 Cost against the §11.1 budget
 
 | Item | Hot-path impact | Tick impact |
 |---|---|---|
-| Coins / points | vote request +1 insert (ledger) | activation-time selector reward, O(due groups) |
+| Coins | vote request +1 insert (ledger) | activation-time selector reward, O(due groups) |
 | Shuffled rotation | none | one random draw per preselection (already O(due groups)) |
 | Race / priority | `daily/current` +1 bool | T−10 pass, O(groups due at T−10), batched push |
 | Guess the author | `daily/current` +3 small fields | none |
@@ -1214,7 +1219,7 @@ Confirmed by the developer as **an extra question that lives alongside the daily
 | Nudge | one push per use | none |
 | Flash | `daily/current` +1 small query (indexed `(GroupId, LocalDate)`) | none |
 
-No item adds polling. Every new list (ledger, ranking, summaries) is capped and indexed.
+No item adds polling. Every new list (ledger, summaries) is capped and indexed.
 
 ### 17.14 Implementation ramas
 

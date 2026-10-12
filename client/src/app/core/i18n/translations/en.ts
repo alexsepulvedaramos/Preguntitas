@@ -532,6 +532,10 @@ export const en: Translation = {
     writtenBy: 'Written by {name}',
     guessRight: 'You guessed who wrote it',
     guessWrong: 'You didn’t guess who wrote it',
+    locked: 'Vote to see the results',
+    lockedNote: 'Your vote will count in the tally, though it no longer adds to your streak or coins.',
+    lockedOpen: 'This question is still open: vote on it from the group screen.',
+    lateVoteFailed: 'Your vote couldn’t be sent.',
   },
   calendar: {
     previous: 'Go to the previous month',

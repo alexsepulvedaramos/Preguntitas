@@ -49,9 +49,10 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
 
     // ==========================================
     // GET BY DATE
-    // Devuelve la pregunta y resultados de una fecha concreta (historial)
+    // Devuelve la pregunta y resultados de una fecha concreta (historial). Gated (§17.7):
+    // without your vote you get the question and the vote count, not the results.
     // ==========================================
-    public async Task<QuestionResultDto?> GetByDateAsync(int groupId, DateOnly date)
+    public async Task<QuestionResultDto?> GetByDateAsync(int groupId, int userId, DateOnly date)
     {
         var entry = await context
             .DailyEntries.Include(d => d.Question)
@@ -62,7 +63,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
             .Include(d => d.Question)
                 .ThenInclude(q => q.Votes)
                     .ThenInclude(v => v.SelectedTargetUser)
-            .FirstOrDefaultAsync(d => d.GroupId == groupId && d.Date == date);
+            // Only activated entries: tomorrow's preselected question stays a surprise.
+            .FirstOrDefaultAsync(d => d.GroupId == groupId && d.Date == date && d.ActivatedAt != null);
 
         if (entry == null)
             return null;
@@ -86,6 +88,16 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
                     FrameColor = u.FrameColor,
                 })
                 .FirstOrDefaultAsync();
+
+        if (!entry.Question.Votes.Any(v => v.UserId == userId))
+        {
+            result.Locked = true;
+            result.Results = [];
+            result.FreeTextResponses = [];
+            // The open question is voted from the group screen, not from here.
+            if (isClosed)
+                result.LateVoteQuestion = mapper.Map<QuestionToVoteDto>(entry.Question);
+        }
 
         return result;
     }

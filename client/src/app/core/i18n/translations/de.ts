@@ -532,6 +532,10 @@ export const de: Translation = {
     writtenBy: 'Von {name}',
     guessRight: 'Du hast richtig geraten, wer sie geschrieben hat',
     guessWrong: 'Du hast falsch geraten, wer sie geschrieben hat',
+    locked: 'Stimm ab, um die Ergebnisse zu sehen',
+    lockedNote: 'Deine Stimme zählt im Ergebnis mit, bringt aber keine Serie und keine Münzen mehr.',
+    lockedOpen: 'Diese Frage ist noch offen: Stimm im Gruppenbildschirm ab.',
+    lateVoteFailed: 'Deine Stimme konnte nicht gesendet werden.',
   },
   calendar: {
     previous: 'Zum vorherigen Monat',

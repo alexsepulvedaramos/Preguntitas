@@ -444,6 +444,49 @@ public class DailyService(
         );
     }
 
+    // ==========================================
+    // LATE VOTE (§17.7)
+    // Votes on a closed question from the history. It counts in the tally with no mark, but
+    // is stored as IsLate so it never earns streak, coins or monthly awards; no push either.
+    // Same validation as the live vote (targets must be current members).
+    // ==========================================
+    public async Task<VoteResult> LateVoteAsync(int groupId, int userId, DateOnly date, CreateVoteDto dto)
+    {
+        var entry = await context
+            .DailyEntries.Include(d => d.Question)
+                .ThenInclude(q => q.Options)
+            .FirstOrDefaultAsync(d => d.GroupId == groupId && d.Date == date && d.ActivatedAt != null);
+        if (entry == null)
+            return VoteResult.QuestionNotFound;
+
+        // Closed = a newer entry has activated (the lifecycle runs on ActivatedAt, not dates).
+        var isClosed = await context.DailyEntries.AnyAsync(d =>
+            d.GroupId == groupId && d.ActivatedAt != null && d.Date > date
+        );
+        if (!isClosed)
+            return VoteResult.QuestionNotClosed;
+
+        var alreadyVoted = await context.Votes.AnyAsync(v =>
+            v.QuestionId == entry.QuestionId && v.UserId == userId
+        );
+        if (alreadyVoted)
+            return VoteResult.AlreadyVoted;
+
+        var memberIds = await context
+            .GroupMembers.Where(m => m.GroupId == groupId)
+            .Select(m => m.UserId)
+            .ToHashSetAsync();
+        if (ValidateVotePayload(dto, entry.Question, memberIds) != null)
+            return VoteResult.InvalidPayload;
+
+        var votes = BuildVotes(dto, entry.Question, userId);
+        votes.ForEach(v => v.IsLate = true);
+        context.Votes.AddRange(votes);
+        await context.SaveChangesAsync();
+
+        return VoteResult.Success;
+    }
+
     // Coins for an on-time vote (§17.2): the vote itself, the first-voter bonus and any
     // streak tier or milestone this vote reached.
     private async Task<CoinsEarnedDto> PayVoteRewardsAsync(

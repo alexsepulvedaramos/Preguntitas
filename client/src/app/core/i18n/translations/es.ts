@@ -533,6 +533,10 @@ export const es = {
     writtenBy: 'Escrita por {name}',
     guessRight: 'Acertaste quién la escribió',
     guessWrong: 'No acertaste quién la escribió',
+    locked: 'Vota para ver los resultados',
+    lockedNote: 'Tu voto contará en el recuento, aunque ya no suma racha ni monedas.',
+    lockedOpen: 'Esta pregunta sigue abierta: vótala desde la pantalla del grupo.',
+    lateVoteFailed: 'No se ha podido enviar tu voto.',
   },
   calendar: {
     previous: 'Ir al mes anterior',

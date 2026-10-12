@@ -122,17 +122,54 @@
               <p class="text-sm text-destructive text-center">{{ t(detailError) }}</p>
             } @else if (selectedResult()) {
               <div class="flex flex-col gap-3">
-                <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
+                <!-- The late-vote form brings its own question heading -->
+                @if (!showLateVote()) {
+                  <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
+                }
                 <div class="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
                   <span>{{ t('history.voters', { count: selectedResult()!.totalVotes }) }}</span>
                   @if (selectedResult()!.author; as author) {
                     <span>· {{ t('history.writtenBy', { name: author.username }) }}</span>
                   }
                 </div>
-                <app-results
-                  [question]="syntheticQuestion(selectedResult()!)"
-                  [result]="selectedResult()!"
-                />
+                @if (!selectedResult()!.locked) {
+                  <app-results
+                    [question]="syntheticQuestion(selectedResult()!)"
+                    [result]="selectedResult()!"
+                  />
+                } @else if (selectedResult()!.lateVoteQuestion; as lateQuestion) {
+                  <!-- Gated results (rama 39): vote late to unlock them -->
+                  @if (showLateVote()) {
+                    <app-vote-form
+                      class="contents"
+                      [question]="lateQuestion"
+                      [members]="members()"
+                      (vote)="submitLateVote($event)"
+                    />
+                    @if (lateVoting()) {
+                      <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                        <hlm-spinner class="size-4" />
+                        {{ t('vote.sending') }}
+                      </div>
+                    }
+                    @if (lateVoteError(); as lateVoteError) {
+                      <p class="text-sm text-destructive">{{ lateVoteError }}</p>
+                    }
+                  } @else {
+                    <div class="flex flex-col items-center gap-2 py-2 text-center">
+                      <button hlmBtn class="gap-1.5" (click)="openLateVote()">
+                        <ng-icon hlm name="lucideLock" />
+                        {{ t('history.locked') }}
+                      </button>
+                      <p class="text-xs text-muted-foreground">{{ t('history.lockedNote') }}</p>
+                    </div>
+                  }
+                } @else {
+                  <p class="flex items-center justify-center gap-1.5 py-2 text-sm text-muted-foreground text-center">
+                    <ng-icon hlm name="lucideLock" />
+                    {{ t('history.lockedOpen') }}
+                  </p>
+                }
               </div>
             }
           </div>

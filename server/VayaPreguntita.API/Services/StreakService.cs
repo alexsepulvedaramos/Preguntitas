@@ -151,7 +151,7 @@ public class StreakService(
         var userIds = tied.Select(m => m.UserId).ToList();
         var questionIds = questionByEntry.Values.Distinct().ToList();
         var voteTimes = await context
-            .Votes.Where(v => userIds.Contains(v.UserId) && questionIds.Contains(v.QuestionId))
+            .Votes.Where(v => !v.IsLate && userIds.Contains(v.UserId) && questionIds.Contains(v.QuestionId))
             .GroupBy(v => new { v.UserId, v.QuestionId })
             .Select(g => new { g.Key.UserId, g.Key.QuestionId, At = g.Min(v => v.DateResponded) })
             .ToListAsync();
@@ -370,7 +370,7 @@ public class StreakService(
 
         var entries = await LoadActivatedEntriesAsync(groupId);
         var votedQuestionIds = await context
-            .Votes.Where(v => v.UserId == userId && v.Question.GroupId == groupId)
+            .Votes.Where(v => !v.IsLate && v.UserId == userId && v.Question.GroupId == groupId)
             .Select(v => v.QuestionId)
             .Distinct()
             .ToListAsync();
@@ -473,7 +473,7 @@ public class StreakService(
         var entries = await LoadActivatedEntriesAsync(groupId);
         var votedQuestionIds = (
             await context
-                .Votes.Where(v => v.UserId == userId && v.Question.GroupId == groupId)
+                .Votes.Where(v => !v.IsLate && v.UserId == userId && v.Question.GroupId == groupId)
                 .Select(v => v.QuestionId)
                 .Distinct()
                 .ToListAsync()
@@ -502,7 +502,7 @@ public class StreakService(
 
             var userIds = group.Select(m => m.UserId).ToList();
             var votes = await context
-                .Votes.Where(v => v.Question.GroupId == group.Key && userIds.Contains(v.UserId))
+                .Votes.Where(v => !v.IsLate && v.Question.GroupId == group.Key && userIds.Contains(v.UserId))
                 .Select(v => new { v.UserId, v.QuestionId })
                 .Distinct()
                 .ToListAsync();

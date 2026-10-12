@@ -18,6 +18,13 @@ public class QuestionResultDto
     // History detail: who wrote it (member-written questions only, never for the open one).
     public VoterDto? Author { get; set; }
 
+    // History gating (§17.7): true until the caller votes this question; then Results and
+    // FreeTextResponses stay empty and only the text and TotalVotes are shown.
+    public bool Locked { get; set; }
+
+    // Locked and closed: the question to vote late from the history (null otherwise).
+    public QuestionToVoteDto? LateVoteQuestion { get; set; }
+
     // Scale only — needed by the frontend to render the full distribution range.
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }

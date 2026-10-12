@@ -645,6 +645,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("FreeText")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsLate")
+                        .HasColumnType("boolean");
+
                     b.Property<int?>("NumericValue")
                         .HasColumnType("integer");
 

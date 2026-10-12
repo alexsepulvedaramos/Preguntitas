@@ -18,6 +18,7 @@ using VayaPreguntita.API.Localization;
 public class QuestionsController(
     IQuestionsService questionsService,
     IGroupsService groupsService,
+    IDailyService dailyService,
     TimeProvider clock
 ) : ControllerBase
 {
@@ -64,6 +65,7 @@ public class QuestionsController(
 
         var result = await questionsService.GetByDateAsync(
             groupId,
+            userId,
             date ?? DailyClock.Today(clock)
         );
         if (result == null)
@@ -107,6 +109,29 @@ public class QuestionsController(
         pageSize = Math.Min(pageSize, 50);
         var result = await questionsService.GetHistoryAsync(groupId, userId, before, pageSize);
         return Ok(result);
+    }
+
+    // POST api/groups/{groupId}/history/{date}/vote
+    // Voto tardío desde el historial (§17.7): cuenta en el recuento pero no para rachas,
+    // monedas ni premios. Devuelve el detalle ya desbloqueado.
+    [HttpPost("/api/groups/{groupId}/history/{date}/vote")]
+    public async Task<ActionResult<QuestionResultDto>> LateVote(int groupId, DateOnly date, CreateVoteDto dto)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var result = await dailyService.LateVoteAsync(groupId, userId, date, dto);
+        return result switch
+        {
+            VoteResult.Success => Ok(await questionsService.GetByDateAsync(groupId, userId, date)),
+            VoteResult.QuestionNotFound => NotFound(ServerText.NoQuestionForDate),
+            VoteResult.QuestionNotClosed => BadRequest(ServerText.LateVoteNotClosed),
+            VoteResult.AlreadyVoted => BadRequest(ServerText.AlreadyVotedThis),
+            VoteResult.InvalidPayload => BadRequest(ServerText.InvalidVote),
+            _ => StatusCode(500),
+        };
     }
 
     // DELETE api/groups/{groupId}/questions/{id}

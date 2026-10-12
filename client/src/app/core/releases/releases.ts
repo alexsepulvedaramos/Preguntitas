@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.17.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Vota para verlo',
+      en: 'Vote to see it',
+      de: 'Abstimmen, um es zu sehen',
+    },
+    items: [
+      {
+        emoji: '🔒',
+        title: {
+          es: 'El historial, solo para quien vota',
+          en: 'The history, only for voters',
+          de: 'Der Verlauf nur für alle, die abstimmen',
+        },
+        text: {
+          es: 'Los resultados de cada día del historial ahora solo se ven si votaste esa pregunta. ¿Te la perdiste? Vota desde el historial y descúbrelos: tu voto cuenta en el recuento, aunque ya no suma racha ni monedas. Vale para todas las preguntas del grupo, también las de antes de que entraras.',
+          en: 'Each day’s results in the history now only show if you voted that question. Missed it? Vote from the history to find out: your vote counts in the tally, though it no longer adds to your streak or coins. It works for every question in the group, even the ones from before you joined.',
+          de: 'Die Ergebnisse eines Tages im Verlauf siehst du jetzt nur, wenn du bei der Frage abgestimmt hast. Verpasst? Stimm im Verlauf ab und finde es heraus: Deine Stimme zählt im Ergebnis mit, bringt aber keine Serie und keine Münzen mehr. Das gilt für alle Fragen der Gruppe, auch für die von vor deinem Beitritt.',
+        },
+      },
+      {
+        emoji: '✨',
+        title: {
+          es: 'Pequeños retoques',
+          en: 'Small touches',
+          de: 'Kleine Verbesserungen',
+        },
+        text: {
+          es: 'La línea del tiempo que queda lleva ahora un reloj delante, para que se entienda de un vistazo. Y el botón de sugerir pregunta por fin parece un botón.',
+          en: 'The time-left line now has a clock in front of it, so it reads at a glance. And the suggest-a-question button finally looks like a button.',
+          de: 'Die Linie mit der verbleibenden Zeit hat jetzt eine Uhr davor, damit man sie auf einen Blick versteht. Und der Knopf zum Vorschlagen einer Frage sieht endlich wie ein Knopf aus.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.16.0',
     date: '2026-10-12',
     title: {

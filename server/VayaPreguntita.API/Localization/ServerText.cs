@@ -165,6 +165,16 @@ public static class ServerText
         "You've already voted today.",
         "Du hast heute schon abgestimmt.");
 
+    public static string AlreadyVotedThis => Pick(
+        "Ya has votado esta pregunta.",
+        "You've already voted on this question.",
+        "Du hast bei dieser Frage schon abgestimmt.");
+
+    public static string LateVoteNotClosed => Pick(
+        "Esta pregunta sigue abierta: vótala desde la pantalla del grupo.",
+        "This question is still open: vote on it from the group screen.",
+        "Diese Frage ist noch offen: Stimm im Gruppenbildschirm ab.");
+
     public static string InvalidVote => Pick(
         "Voto inválido para este tipo de pregunta.",
         "Invalid vote for this type of question.",

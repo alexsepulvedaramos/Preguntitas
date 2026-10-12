@@ -1,6 +1,8 @@
 import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideClock } from '@ng-icons/lucide';
 
 import { I18nService } from '../../../../core/i18n/i18n.service';
 
@@ -12,10 +14,12 @@ const CYCLE_MS = 24 * 60 * 60 * 1000;
 // next T, spec §4.7). Presentation-only: ticks every second, recomputes the remaining label.
 // Emits `reachedZero` once per target when the countdown hits 0, so the parent can refetch
 // without waiting for a manual reload. The `line` layout (group screen, rama 36) is a thin
-// bar with "Quedan 5 h 12 min" under it; projected content sits at the right of that row.
+// bar led by a clock icon, with "Quedan 5 h 12 min" under it; projected content sits at the
+// right of that row.
 @Component({
   selector: 'app-countdown',
-  imports: [HlmProgressImports],
+  imports: [HlmProgressImports, NgIcon],
+  providers: [provideIcons({ lucideClock })],
   templateUrl: './countdown.component.html',
 })
 export class CountdownComponent {

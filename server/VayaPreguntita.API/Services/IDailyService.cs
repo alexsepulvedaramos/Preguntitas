@@ -15,6 +15,8 @@ public interface IDailyService
         int userId,
         CreateVoteDto dto
     );
+    // Late vote on a closed question from the history (§17.7): no streak, coins or push.
+    Task<VoteResult> LateVoteAsync(int groupId, int userId, DateOnly date, CreateVoteDto dto);
     // Returns the selectorUserId if a new entry was created, null if it already existed (idempotent).
     Task<int?> PreselectForGroupAsync(int groupId, DateOnly date, bool activateImmediately = false);
 }
