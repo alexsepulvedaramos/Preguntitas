@@ -76,6 +76,9 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
             Clock
         );
 
+    protected MonthlySummaryService NewMonthlySummaryService(AppDbContext db) =>
+        new(db, Notifications.Object, Clock, NullLogger<MonthlySummaryService>.Instance);
+
     protected DailyCycleRunner NewCycleRunner(AppDbContext db) =>
         new(
             db,
@@ -83,6 +86,7 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
             Notifications.Object,
             NewStreakService(db),
             NewCoinService(db),
+            NewMonthlySummaryService(db),
             Clock,
             NullLogger<DailyCycleRunner>.Instance
         );

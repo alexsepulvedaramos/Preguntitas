@@ -346,6 +346,11 @@ public static class ServerText
         "That flash question doesn't exist.",
         "Diese Blitzfrage gibt es nicht.");
 
+    public static string MonthlySummaryNotFound => Pick(
+        "No hay resumen de ese mes.",
+        "There's no summary for that month.",
+        "Für diesen Monat gibt es keine Zusammenfassung.");
+
     // ── Push notifications (recipient's language) ───────────────────────────────────────
     public static class Push
     {
@@ -401,5 +406,27 @@ public static class ServerText
             $"Nadie ha elegido la próxima pregunta y sale en 10 minutos. Quien la elija primero gana {coins} 🪙.",
             $"Nobody has chosen the next question and it goes out in 10 minutes. First to choose wins {coins} 🪙.",
             $"Niemand hat die nächste Frage gewählt, und in 10 Minuten geht sie raus. Wer zuerst wählt, bekommt {coins} 🪙.");
+
+        // Monthly summary (§17.12): every member, on the 1st at T.
+        public static string MonthlySummaryTitle(string lang, string groupName) => Pick(lang,
+            $"🎉 Resumen del mes en {groupName}",
+            $"🎉 Your month in {groupName}",
+            $"🎉 Monatsrückblick in {groupName}");
+
+        public static string MonthlySummaryBody(string lang, int month, string groupName) => Pick(lang,
+            $"Ya está el resumen de {MonthNames.Es[month - 1]} en {groupName}: premios, participación y tu match.",
+            $"Your {MonthNames.En[month - 1]} summary for {groupName} is here: awards, participation and your match.",
+            $"Der Rückblick auf den {MonthNames.De[month - 1]} in {groupName} ist da: Auszeichnungen, Beteiligung und dein Match.");
+    }
+
+    // Hardcoded so the container's globalization settings never change a push.
+    private static class MonthNames
+    {
+        public static readonly string[] Es =
+            ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+        public static readonly string[] En =
+            ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        public static readonly string[] De =
+            ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
     }
 }

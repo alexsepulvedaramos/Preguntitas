@@ -371,12 +371,47 @@ namespace VayaPreguntita.API.Migrations
                     b.ToTable("GroupMembers");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.MonthlySummary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("NotifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId", "Month")
+                        .IsUnique();
+
+                    b.ToTable("MonthlySummaries");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.NotificationPreferences", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("FlashQuestion")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("MonthlySummary")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("NewMessage")
@@ -918,6 +953,17 @@ namespace VayaPreguntita.API.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.MonthlySummary", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.NotificationPreferences", b =>

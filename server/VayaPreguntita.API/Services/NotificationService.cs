@@ -31,6 +31,7 @@ public class NotificationService(
     private static readonly TimeSpan VotedTtl = TimeSpan.FromHours(6);
     private static readonly TimeSpan MessageTtl = TimeSpan.FromHours(24);
     private static readonly TimeSpan QuestionTtl = TimeSpan.FromHours(24);
+    private static readonly TimeSpan SummaryTtl = TimeSpan.FromDays(3);
 
     // Each dispatch runs fire-and-forget, so it must log its own failures — an exception
     // here (e.g. the recipients query) would otherwise vanish with the discarded task.
@@ -105,6 +106,20 @@ public class NotificationService(
                     ServerText.Push.FlashQuestionTitle(lang, groupName),
                     ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
                     groupId, groupName, "flash_question", lang, actor: launcherUsername
+                ));
+        });
+
+    // Opens the group page straight on that month's story.
+    public Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month) =>
+        RunLoggedAsync("monthly_summary", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.MonthlySummary);
+            var url = $"/groups/{groupId}?summary={month.ToString("yyyy-MM", CultureInfo.InvariantCulture)}";
+            await SendLocalizedAsync(context, recipients, SummaryTtl, lang =>
+                BuildPayload(
+                    ServerText.Push.MonthlySummaryTitle(lang, groupName),
+                    ServerText.Push.MonthlySummaryBody(lang, month.Month, groupName),
+                    groupId, groupName, "monthly_summary", lang, url: url
                 ));
         });
 
@@ -258,9 +273,9 @@ public class NotificationService(
         }
     }
 
-    private static string BuildPayload(string title, string body, int groupId, string groupName, string kind, string lang, string? actor = null)
+    private static string BuildPayload(string title, string body, int groupId, string groupName, string kind, string lang, string? actor = null, string? url = null)
     {
-        var url = $"/groups/{groupId}";
+        url ??= $"/groups/{groupId}";
         return JsonSerializer.Serialize(new
         {
             notification = new
