@@ -23,6 +23,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                             highestStreak: profile.highestStreak,
                             title: profile.title,
                             coins: profile.coins,
+                            inventory: profile.inventory,
                         });
                         // Another device may have changed the account's language
                         language.applyAccount(profile.preferredLanguage);

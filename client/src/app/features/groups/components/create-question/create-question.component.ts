@@ -13,7 +13,7 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { CreateQuestion, QuestionToVote } from '../../../../core/models/question.model';
 import { LaunchFlashResponse, SelectResponse } from '../../../../core/models/daily.model';
-import { FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
+import { EMPTY_INVENTORY, FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -92,6 +92,10 @@ export class CreateQuestionComponent {
   public readonly flashLaunched = output<LaunchFlashResponse>();
 
   // "⚡ Enviar ahora" (§17.11): disabled, saying how much is missing, when you can't afford it.
+  // Flash questions bought ahead in the shop (rama 45) launch without charging.
+  protected readonly ownedFlashes = computed(
+    () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion,
+  );
   protected readonly flashMissing = computed(() =>
     Math.max(0, FLASH_QUESTION_PRICE - (this.authService.currentUser()?.coins ?? 0)),
   );
@@ -249,10 +253,10 @@ export class CreateQuestionComponent {
 
   launchFlash() {
     this.submit((dto) =>
-      this.dailyService.launchFlash(this.groupId(), dto).subscribe({
+      this.dailyService.launchFlash(this.groupId(), dto, this.ownedFlashes() > 0).subscribe({
         next: (res) => {
           this.submitting.set(false);
-          this.authService.patchCurrentUser({ coins: res.balance });
+          this.authService.patchCurrentUser({ coins: res.balance, inventory: res.inventory });
           this.flashLaunched.emit(res);
         },
         error: (err) => this.handleError(err),

@@ -649,6 +649,25 @@ namespace VayaPreguntita.API.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserInventoryItem", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Item")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "Item");
+
+                    b.ToTable("UserInventory", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_UserInventory_Quantity_NonNegative", "\"Quantity\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserRefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -1045,6 +1064,17 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired();
 
                     b.Navigation("QuestionTemplate");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserInventoryItem", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserRefreshToken", b =>

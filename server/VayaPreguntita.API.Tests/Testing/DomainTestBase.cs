@@ -46,14 +46,23 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
     // ── Services wired as in production, minus the push client ──────────────
 
     protected StreakService NewStreakService(AppDbContext db) =>
-        new(db, Notifications.Object, NewCoinService(db), Clock, NullLogger<StreakService>.Instance);
+        new(
+            db,
+            Notifications.Object,
+            NewCoinService(db),
+            NewInventoryService(db),
+            Clock,
+            NullLogger<StreakService>.Instance
+        );
 
     protected CoinService NewCoinService(AppDbContext db) => new(db, Clock);
 
-    protected AuthorGuessService NewAuthorGuessService(AppDbContext db) => new(db, NewCoinService(db), Clock);
+    protected InventoryService NewInventoryService(AppDbContext db) => new(db, NewCoinService(db));
+
+    protected AuthorGuessService NewAuthorGuessService(AppDbContext db) => new(db, NewCoinService(db), NewInventoryService(db), Clock);
 
     protected FlashService NewFlashService(AppDbContext db) =>
-        new(db, TestMapper.Instance, NewCoinService(db), Notifications.Object, Clock);
+        new(db, TestMapper.Instance, NewCoinService(db), NewInventoryService(db), Notifications.Object, Clock);
 
     protected DailyService NewDailyService(AppDbContext db) =>
         new(

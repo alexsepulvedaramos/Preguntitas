@@ -75,6 +75,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<ICoinService, CoinService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IAuthorGuessService, AuthorGuessService>();
 builder.Services.AddScoped<IFlashService, FlashService>();
 builder.Services.AddSingleton(TimeProvider.System);

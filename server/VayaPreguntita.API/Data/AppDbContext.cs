@@ -28,6 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CoinTransaction> CoinTransactions { get; set; }
     public DbSet<AuthorGuess> AuthorGuesses { get; set; }
     public DbSet<FlashEntry> FlashEntries { get; set; }
+    public DbSet<UserInventoryItem> UserInventory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -290,6 +291,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(f => f.LaunchedByUserId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ==========================================
+        // ITEM INVENTORY (rama 45, §17.10)
+        // ==========================================
+        modelBuilder.Entity<UserInventoryItem>(e =>
+        {
+            e.ToTable("UserInventory", t =>
+                t.HasCheckConstraint("CK_UserInventory_Quantity_NonNegative", "\"Quantity\" >= 0"));
+            e.HasKey(i => new { i.UserId, i.Item });
+            e.HasOne(i => i.User)
+             .WithMany()
+             .HasForeignKey(i => i.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

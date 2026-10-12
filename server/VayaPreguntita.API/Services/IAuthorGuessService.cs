@@ -18,5 +18,10 @@ public interface IAuthorGuessService
     );
 
     // Idempotent: buying it again returns the same candidates and charges nothing.
-    Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(int groupId, int userId);
+    // useOwned: takes a hint from the inventory instead of paying (rama 45).
+    Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(
+        int groupId,
+        int userId,
+        bool useOwned = false
+    );
 }

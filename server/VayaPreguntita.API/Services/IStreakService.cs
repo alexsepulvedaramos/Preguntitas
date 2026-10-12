@@ -37,10 +37,11 @@ public interface IStreakService
     Task CloseCycleAsync(int groupId, DateOnly openedDate);
 
     // Buys a freeze for the receiver (the buyer themself, or a gift to another member).
-    Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId);
+    // useOwned: takes one from the buyer's inventory instead of paying (rama 45).
+    Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId, bool useOwned = false);
 
-    // Buys back a streak lost in the last closed cycle.
-    Task<StreakPurchaseResult> RepairAsync(int groupId, int userId);
+    // Buys back a streak lost in the last closed cycle (or uses an owned repair).
+    Task<StreakPurchaseResult> RepairAsync(int groupId, int userId, bool useOwned = false);
 
     Task<MemberStatsDto?> GetMemberStatsAsync(int groupId, int userId);
 

@@ -13,6 +13,7 @@ public class StreakService(
     AppDbContext context,
     INotificationService notificationService,
     ICoinService coinService,
+    IInventoryService inventoryService,
     TimeProvider clock,
     ILogger<StreakService> logger
 ) : IStreakService
@@ -262,7 +263,7 @@ public class StreakService(
     // ==========================================
     // PURCHASES (rama 35, §17.9)
     // ==========================================
-    public async Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId)
+    public async Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId, bool useOwned = false)
     {
         if (buyerId != receiverId && !await IsMemberAsync(groupId, buyerId))
             return StreakPurchaseResult.InvalidTarget;
@@ -282,15 +283,18 @@ public class StreakService(
         }
 
         var isGift = buyerId != receiverId;
-        var paid = await coinService.SpendAsync(
-            buyerId,
-            isGift ? CoinReason.StreakFreezeGift : CoinReason.StreakFreeze,
-            StreakFreezeRules.FreezePrice,
-            groupId,
-            null
-        );
+        // From the inventory (rama 45) or paid in place.
+        var paid = useOwned
+            ? await inventoryService.TryConsumeAsync(buyerId, InventoryItem.StreakFreeze)
+            : await coinService.SpendAsync(
+                buyerId,
+                isGift ? CoinReason.StreakFreezeGift : CoinReason.StreakFreeze,
+                StreakFreezeRules.FreezePrice,
+                groupId,
+                null
+            );
         if (!paid)
-            return StreakPurchaseResult.NotEnoughCoins;
+            return useOwned ? StreakPurchaseResult.NoneOwned : StreakPurchaseResult.NotEnoughCoins;
 
         receiver.StreakFreezes++;
         if (isGift)
@@ -300,7 +304,7 @@ public class StreakService(
         return StreakPurchaseResult.Success;
     }
 
-    public async Task<StreakPurchaseResult> RepairAsync(int groupId, int userId)
+    public async Task<StreakPurchaseResult> RepairAsync(int groupId, int userId, bool useOwned = false)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
         var member = await LockMemberAsync(groupId, userId);
@@ -314,15 +318,19 @@ public class StreakService(
                 ? StreakPurchaseResult.RepairLimitReached
                 : StreakPurchaseResult.NotRepairable;
 
-        var paid = await coinService.SpendAsync(
-            userId,
-            CoinReason.StreakRepair,
-            StreakFreezeRules.RepairPrice,
-            groupId,
-            member.LostStreakEntryId
-        );
+        // From the inventory (rama 45) or paid in place. The window and the monthly limit
+        // above apply either way.
+        var paid = useOwned
+            ? await inventoryService.TryConsumeAsync(userId, InventoryItem.StreakRepair)
+            : await coinService.SpendAsync(
+                userId,
+                CoinReason.StreakRepair,
+                StreakFreezeRules.RepairPrice,
+                groupId,
+                member.LostStreakEntryId
+            );
         if (!paid)
-            return StreakPurchaseResult.NotEnoughCoins;
+            return useOwned ? StreakPurchaseResult.NoneOwned : StreakPurchaseResult.NotEnoughCoins;
 
         // Back to the lost value, plus today's vote if it already started a new streak.
         // The missed cycle itself isn't added.

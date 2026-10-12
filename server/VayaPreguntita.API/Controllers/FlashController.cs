@@ -26,16 +26,21 @@ public class FlashController(IFlashService flashService, IGroupsService groupsSe
 
     // POST api/groups/{groupId}/flash
     // Buys and launches a flash question at once (500 coins). 409 when coins are short or the
-    // member already launched one today in this group.
+    // member already launched one today in this group. ?useOwned=true launches it with one from
+    // the inventory instead of paying (rama 45); 409 when none is left.
     [HttpPost]
-    public async Task<ActionResult<LaunchFlashResponseDto>> Launch(int groupId, CreateQuestionDto dto)
+    public async Task<ActionResult<LaunchFlashResponseDto>> Launch(
+        int groupId,
+        CreateQuestionDto dto,
+        [FromQuery] bool useOwned = false
+    )
     {
         if (!TryGetCurrentUserId(out var userId))
             return Unauthorized();
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var (result, response) = await flashService.LaunchAsync(groupId, userId, dto);
+        var (result, response) = await flashService.LaunchAsync(groupId, userId, dto, useOwned);
         return result == FlashResult.Success ? Ok(response) : Error(result);
     }
 
@@ -77,6 +82,7 @@ public class FlashController(IFlashService flashService, IGroupsService groupsSe
             FlashResult.InvalidQuestion => BadRequest(ServerText.QuestionNotValidForGroup),
             FlashResult.DailyLimitReached => Conflict(ServerText.FlashDailyLimit),
             FlashResult.NotEnoughCoins => Conflict(ServerText.NotEnoughCoins),
+            FlashResult.NoneOwned => Conflict(ServerText.NoItemOwned),
             FlashResult.NotFound => NotFound(ServerText.FlashNotFound),
             FlashResult.AlreadyVoted => BadRequest(ServerText.AlreadyVotedThis),
             FlashResult.InvalidVote => BadRequest(ServerText.InvalidVote),

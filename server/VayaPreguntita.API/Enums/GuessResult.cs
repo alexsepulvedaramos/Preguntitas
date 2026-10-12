@@ -11,4 +11,7 @@ public enum GuessResult
     InvalidCandidate,
     NotEnoughCoins,
     HintNotAvailable,
+
+    // Using a hint from the inventory (rama 45), but none is left.
+    NoneOwned,
 }

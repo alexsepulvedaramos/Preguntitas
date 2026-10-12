@@ -19,5 +19,8 @@ public class UserProfileDto
 
     // Coin wallet balance (rama 34, §17.2).
     public int Coins { get; set; }
+
+    // Game items held (rama 45, §17.10).
+    public Coins.InventoryDto Inventory { get; set; } = new();
     public List<Streaks.TitleOptionDto> UnlockedTitles { get; set; } = [];
 }

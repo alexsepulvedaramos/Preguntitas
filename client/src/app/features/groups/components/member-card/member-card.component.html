@@ -53,7 +53,7 @@
       @if (canGift()) {
         <button
           hlmBtn
-          variant="outline"
+          [variant]="ownedFreezes() > 0 ? 'default' : 'outline'"
           class="w-full gap-2 focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="gifting()"
           (click)="giftFreeze()"
@@ -61,7 +61,11 @@
           @if (gifting()) {
             <hlm-spinner class="size-4" />
           }
-          🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
+          @if (ownedFreezes() > 0) {
+            🎁 {{ t('inventory.giftOwned', { count: ownedFreezes() }) }}
+          } @else {
+            🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
+          }
         </button>
         <!-- Shown here too: a toast from inside the card is easy to miss -->
         @if (giftError(); as message) {

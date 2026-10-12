@@ -16,6 +16,7 @@ public class FlashService(
     AppDbContext context,
     IMapper mapper,
     ICoinService coinService,
+    IInventoryService inventoryService,
     INotificationService notificationService,
     TimeProvider clock
 ) : IFlashService
@@ -30,7 +31,8 @@ public class FlashService(
     public async Task<(FlashResult Result, LaunchFlashResponseDto? Response)> LaunchAsync(
         int groupId,
         int userId,
-        CreateQuestionDto dto
+        CreateQuestionDto dto,
+        bool useOwned = false
     )
     {
         var group =
@@ -91,7 +93,13 @@ public class FlashService(
             return (FlashResult.DailyLimitReached, null);
         }
 
-        if (
+        // From the inventory (rama 45) or paid in place. Disposing the transaction rolls back.
+        if (useOwned)
+        {
+            if (!await inventoryService.TryConsumeAsync(userId, InventoryItem.FlashQuestion))
+                return (FlashResult.NoneOwned, null);
+        }
+        else if (
             !await coinService.SpendAsync(
                 userId,
                 CoinReason.FlashQuestion,
@@ -100,7 +108,7 @@ public class FlashService(
                 flash.Id
             )
         )
-            return (FlashResult.NotEnoughCoins, null); // disposing the transaction rolls back
+            return (FlashResult.NotEnoughCoins, null);
 
         await transaction.CommitAsync();
 
@@ -119,6 +127,7 @@ public class FlashService(
             {
                 Flash = (await BuildStatesAsync([flash.Id], userId)).Single(),
                 Balance = await coinService.GetBalanceAsync(userId),
+                Inventory = await inventoryService.GetAsync(userId),
             }
         );
     }

@@ -4,7 +4,7 @@ import { QuestionType } from '../enums/question-type.enum';
 import { CreateQuestion, QuestionToVote } from './question.model';
 import { QuestionResult, Voter } from './result.model';
 import { MyStreak } from './streak.model';
-import { CoinsEarned } from './coin.model';
+import { CoinsEarned, Inventory } from './coin.model';
 
 // ── GET /daily/current — the redesigned { today, selection } shape (spec §4.7) ──
 
@@ -51,6 +51,7 @@ export interface GuessAuthorResponse {
 export interface AuthorHintResponse {
     guess: AuthorGuess;
     balance: number;
+    inventory: Inventory; // rama 45
 }
 
 // The next-day question being selected (the "te toca elegir" panel).
@@ -93,6 +94,7 @@ export interface FlashState {
 export interface LaunchFlashResponse {
     flash: FlashState;
     balance: number; // after paying
+    inventory: Inventory; // rama 45
 }
 
 // POST /daily/select and /daily/select/confirm: coins only when you won the race (§17.5)

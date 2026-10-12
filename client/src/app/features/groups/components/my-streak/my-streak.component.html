@@ -34,7 +34,7 @@
       <p class="text-xs text-muted-foreground">{{ t('streakFreeze.repairHint', { price: streak().repairPrice }) }}</p>
       <button
         hlmBtn
-        variant="outline"
+        [variant]="inventory().streakRepair > 0 ? 'default' : 'outline'"
         class="w-full focus-visible:ring-2 focus-visible:ring-ring"
         [disabled]="!!busy()"
         (click)="repair()"
@@ -42,7 +42,11 @@
         @if (busy() === 'streakRepair') {
           <hlm-spinner class="size-4" />
         }
-        {{ t('streakFreeze.repair', { price: streak().repairPrice }) }}
+        @if (inventory().streakRepair > 0) {
+          🔧 {{ t('inventory.use', { count: inventory().streakRepair }) }}
+        } @else {
+          {{ t('streakFreeze.repair', { price: streak().repairPrice }) }}
+        }
       </button>
     </div>
   }
@@ -72,17 +76,23 @@
     <button
       hlmBtn
       class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-      [disabled]="atLimit() || missingCoins() > 0 || !!busy()"
+      [disabled]="atLimit() || (inventory().streakFreeze === 0 && missingCoins() > 0) || !!busy()"
       (click)="buyFreeze()"
     >
       @if (busy() === 'streakFreeze') {
         <hlm-spinner class="size-4" />
       }
-      {{ t('streakFreeze.buy', { price: streak().freezePrice }) }}
+      @if (inventory().streakFreeze > 0) {
+        🧊 {{ t('inventory.use', { count: inventory().streakFreeze }) }}
+      } @else {
+        {{ t('streakFreeze.buy', { price: streak().freezePrice }) }}
+      }
     </button>
     <p class="text-center text-xs text-muted-foreground" aria-live="polite">
       @if (atLimit()) {
         {{ t('streakFreeze.atLimit') }}
+      } @else if (inventory().streakFreeze > 0) {
+        {{ t('inventory.confirmText') }}
       } @else if (missingCoins() > 0) {
         {{ t('streakFreeze.notEnough', { count: missingCoins() }) }}
       } @else {

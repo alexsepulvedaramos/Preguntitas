@@ -152,17 +152,24 @@
             type="button"
             hlmBtn
             variant="outline"
-            class="w-full gap-1.5 border-amber-500/60 bg-amber-400/10 text-foreground hover:bg-amber-400/20 focus-visible:ring-2 focus-visible:ring-ring"
-            [disabled]="submitting() || flashMissing() > 0"
+            class="w-full gap-1.5 border-amber-500/60 text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            [class]="ownedFlashes() > 0 ? 'bg-amber-400/30 hover:bg-amber-400/40' : 'bg-amber-400/10 hover:bg-amber-400/20'"
+            [disabled]="submitting() || (ownedFlashes() === 0 && flashMissing() > 0)"
             (click)="askLaunchFlash(flashDlg)"
           >
             <ng-icon hlm name="lucideZap" class="text-amber-500" />
-            {{ t('flash.sendNow', { price: flashPrice }) }}
+            @if (ownedFlashes() > 0) {
+              {{ t('inventory.use', { count: ownedFlashes() }) }}
+            } @else {
+              {{ t('flash.sendNow', { price: flashPrice }) }}
+            }
           </button>
           <ng-template hlmAlertDialogPortal>
             <hlm-alert-dialog-content>
               <hlm-alert-dialog-header>
-                <h3 hlmAlertDialogTitle>{{ t('flash.confirmTitle', { price: flashPrice }) }}</h3>
+                <h3 hlmAlertDialogTitle>
+                  {{ ownedFlashes() > 0 ? t('flash.confirmTitleOwned') : t('flash.confirmTitle', { price: flashPrice }) }}
+                </h3>
                 <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
               </hlm-alert-dialog-header>
               <hlm-alert-dialog-footer>
@@ -175,7 +182,7 @@
           </ng-template>
         </hlm-alert-dialog>
         <p class="text-center text-xs text-muted-foreground">
-          @if (flashMissing() > 0) {
+          @if (ownedFlashes() === 0 && flashMissing() > 0) {
             {{ t('flash.missing', { count: flashMissing() }) }}
           } @else {
             {{ t('flash.sendNowHint') }}

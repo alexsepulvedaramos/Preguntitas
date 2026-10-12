@@ -23,7 +23,73 @@
       </div>
     </section>
 
-    <!-- Shop (catalog arrives in later ramas) -->
+    <!-- Game items (rama 45): bought here, used later from their spot in any group -->
+    <section class="flex flex-col gap-3" aria-labelledby="shop-items-title">
+      <div class="flex flex-col gap-1">
+        <h2 id="shop-items-title" class="font-display text-xl italic tracking-tight text-foreground">
+          {{ t('inventory.title') }}
+        </h2>
+        <p class="text-sm text-muted-foreground text-balance">{{ t('inventory.intro') }}</p>
+      </div>
+
+      <div hlmItemGroup class="gap-2">
+        @for (entry of shopItems(); track entry.item) {
+          <div hlmItem variant="outline">
+            <div hlmItemMedia class="text-2xl" aria-hidden="true">{{ entry.emoji }}</div>
+            <div hlmItemContent class="gap-2">
+              <div hlmItemTitle>{{ entry.name }}</div>
+              <p hlmItemDescription class="line-clamp-none">{{ entry.text }}</p>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span
+                  class="text-xs font-medium tabular-nums"
+                  [class]="entry.owned > 0 ? 'text-primary' : 'text-muted-foreground'"
+                  aria-live="polite"
+                >
+                  @if (entry.missing > 0) {
+                    {{ t('inventory.notEnough', { count: entry.missing }) }}
+                  } @else {
+                    {{ t('inventory.owned', { count: entry.owned }) }}
+                  }
+                </span>
+                <hlm-alert-dialog #buyDlg="hlmAlertDialog">
+                  <button
+                    type="button"
+                    hlmBtn
+                    size="sm"
+                    class="focus-visible:ring-2 focus-visible:ring-ring"
+                    [disabled]="busy() !== null || entry.missing > 0"
+                    (click)="buyDlg.open()"
+                  >
+                    @if (busy() === entry.item) {
+                      <hlm-spinner class="size-4" />
+                    }
+                    {{ t('inventory.buy', { price: entry.price }) }}
+                  </button>
+                  <ng-template hlmAlertDialogPortal>
+                    <hlm-alert-dialog-content>
+                      <hlm-alert-dialog-header>
+                        <h3 hlmAlertDialogTitle>
+                          {{ t('inventory.confirmTitle', { name: entry.name, price: entry.price }) }}
+                        </h3>
+                        <p hlmAlertDialogDescription>{{ t('inventory.confirmText') }}</p>
+                      </hlm-alert-dialog-header>
+                      <hlm-alert-dialog-footer>
+                        <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
+                        <button hlmAlertDialogAction (click)="buyDlg.close(); buy(entry.item)">
+                          {{ entry.emoji }} {{ t('inventory.confirm') }}
+                        </button>
+                      </hlm-alert-dialog-footer>
+                    </hlm-alert-dialog-content>
+                  </ng-template>
+                </hlm-alert-dialog>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Cosmetics arrive with rama 42 -->
     <div hlmEmpty class="border border-dashed border-border rounded-xl p-6">
       <div hlmEmptyHeader>
         <div hlmEmptyMedia variant="icon">

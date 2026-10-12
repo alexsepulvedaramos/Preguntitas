@@ -268,6 +268,11 @@ public static class ServerText
         "You don't have enough coins.",
         "Du hast nicht genug Münzen.");
 
+    public static string NoItemOwned => Pick(
+        "No te queda ninguno en tu inventario.",
+        "You don't have any left in your inventory.",
+        "Du hast keins mehr in deinem Inventar.");
+
     public static string FreezeLimitReached => Pick(
         "Ya tienes el máximo de congelaciones en este grupo.",
         "You already hold the maximum number of freezes in this group.",
