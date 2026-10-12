@@ -1,0 +1,24 @@
+{
+  "pack": "Polémicas y bandos",
+  "name": "Streitfragen",
+  "description": "Belanglose Themen, die du bis aufs Blut verteidigst.",
+  "templates": {
+    "polemicas-el-papel-higienico-se-coloca": { "text": "Das Klopapier hängt …", "options": ["Mit dem Blatt nach vorne", "Mit dem Blatt nach hinten"] },
+    "polemicas-marca-todas-las-posturas-que-defenderias-a": { "text": "Kreuz ALLE Positionen an, die du bis aufs Blut verteidigen würdest:", "options": ["Das Wochenende beginnt am Freitag", "Sommer ist besser als Winter", "Kaffee schmeckt ohne Zucker besser", "Am Wochenende früh aufstehen ist Wahnsinn"] },
+    "polemicas-la-peor-de-estas-costumbres-ajenas-es": { "text": "Die schlimmste dieser Angewohnheiten anderer Leute:", "options": ["Im Kino quatschen", "Mit offenem Mund kauen", "In der Öffentlichkeit auf Lautsprecher telefonieren", "Den Einkaufswagen mitten im Gang stehen lassen"] },
+    "polemicas-para-vacacionar-de-verdad": { "text": "Für richtigen Urlaub:", "options": ["Strand", "Berge"] },
+    "polemicas-para-ver-una-serie-o-peli-extranjera": { "text": "Für ausländische Serien oder Filme:", "options": ["Originalfassung mit Untertiteln", "Synchronisiert"] },
+    "polemicas-en-una-casa-compartida-la-tapa-del": { "text": "In der WG gilt für den Klodeckel:", "options": ["Immer runter", "Egal, bleibt, wie er ist"] },
+    "polemicas-a-la-hora-de-dormir": { "text": "Zum Schlafen:", "options": ["Mit Socken", "Niemals mit Socken"] },
+    "polemicas-nada-mas-levantarte": { "text": "Direkt nach dem Aufstehen:", "options": ["Ich mache immer das Bett", "Wozu, ich leg mich ja eh wieder rein?"] },
+    "polemicas-mandar-audios-de-3-minutos-por-whatsapp": { "text": "3-minütige Sprachnachrichten auf WhatsApp:", "options": ["Praktisch und völlig normal", "Eine Frechheit"] },
+    "polemicas-en-el-avion-reclinar-tu-asiento-hacia": { "text": "Im Flugzeug die Rückenlehne zurückstellen:", "options": ["Dafür ist sie da, das ist dein gutes Recht", "Purer Egoismus"] },
+    "polemicas-sandalias-con-calcetines": { "text": "Socken in Sandalen:", "options": ["Bequemlichkeit geht vor", "Unverzeihliches Modeverbrechen"] },
+    "polemicas-llegar-a-una-fiesta-en-casa-de": { "text": "Zu einer Party bei jemandem zu Hause kommt man …", "options": ["Pünktlich zur genannten Uhrzeit", "15–30 Minuten später, das gehört sich so"] },
+    "polemicas-el-doble-check-azul-de-whatsapp": { "text": "Die blauen Haken bei WhatsApp (Lesebestätigung):", "options": ["An, ich hab nichts zu verbergen", "Aus, mein Leben gehört mir"] },
+    "polemicas-cada-cuanto-lavas-la-toalla-de-bano": { "text": "Wie oft wäschst du dein Handtuch?", "options": ["Hält wochenlang, man trocknet sich ja sauber ab", "Alle paar Male, der Hygiene wegen"] },
+    "polemicas-quien-es-mas-capaz-de-discutir-una": { "text": "Wer würde am ehesten eine Stunde über eine Kleinigkeit streiten, ohne je nachzugeben?" },
+    "polemicas-quien-defiende-las-opiniones-mas-impopulares-solo": { "text": "Wer vertritt die unbeliebtesten Meinungen, nur um zu widersprechen?" },
+    "polemicas-el-turron": { "text": "Turrón (spanischer Weihnachtsnougat):", "options": ["Hart", "Weich", "Keins, danke"] }
+  }
+}

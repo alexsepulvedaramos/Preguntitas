@@ -1,0 +1,22 @@
+{
+  "pack": "Nostalgia y cringe",
+  "name": "Nostalgia & cringe",
+  "description": "Childhood, teenage years and embarrassing throwbacks.",
+  "templates": {
+    "nostalgia-quien-tuvo-la-fase-mas-vergonzosa-en": { "text": "Who had the most embarrassing phase as a teenager?" },
+    "nostalgia-quien-era-el-tipico-empollon-del-colegio": { "text": "Who was the classic teacher's pet at school?" },
+    "nostalgia-quien-era-el-mas-gamberro-de-clase": { "text": "Who was the biggest troublemaker in class?" },
+    "nostalgia-quien-tenia-el-corte-de-pelo-mas": { "text": "Who had the most questionable haircut growing up?" },
+    "nostalgia-quien-ha-pegado-el-mayor-cambio-glow": { "text": "Who's had the biggest glow-up over the years?" },
+    "nostalgia-que-epoca-era-mejor": { "text": "Which era was better?", "options": ["Before everyone had phones", "Now, with everything one click away"] },
+    "nostalgia-si-pudieras-volver-a-una-etapa-a": { "text": "If you could go back to one stage of your life, which one?", "options": ["Carefree childhood", "Rebellious teenage years", "The wild party years", "None, the present is better"] },
+    "nostalgia-que-reliquia-tecnologica-echas-de-menos": { "text": "Which tech relic do you miss?", "options": ["Your childhood games console", "The flip phone with buttons", "CDs and cassettes", "MSN Messenger"] },
+    "nostalgia-que-recuerdas-con-mas-carino-de-pequeno": { "text": "What do you remember most fondly from being a kid?", "options": ["Saturday morning cartoons", "Playing outside until it got dark", "Snacks at a friend's house after school", "Summers that never seemed to end"] },
+    "nostalgia-marca-las-tribus-en-las-que-encajabas": { "text": "Tick every clique you fit into as a teenager:", "options": ["Preppy", "Geek", "Rebel / bad kid", "Hippie / alternative", "Skater", "The normal one nobody noticed"] },
+    "nostalgia-que-dos-personas-habrian-sido-los-pesados": { "text": "Which two people would have been the most annoying pair in class?" },
+    "nostalgia-del-1-al-10-como-de-cringe": { "text": "On a scale of 1 to 10, how cringe was your teenage self?" },
+    "nostalgia-cuentanos-tu-momento-mas-cringe-de-la": { "text": "Your most cringe moment as a teenager, in one sentence." },
+    "nostalgia-cual-era-tu-grupo-o-cancion-favorita": { "text": "What band or song did you love growing up that embarrasses you now?" },
+    "nostalgia-cual-era-tu-sueno-de-pequeno-que": { "text": "What was your childhood dream that now makes you smile (or laugh)? Answer in one sentence." }
+  }
+}

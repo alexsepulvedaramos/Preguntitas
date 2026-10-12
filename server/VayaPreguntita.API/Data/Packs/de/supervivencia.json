@@ -1,0 +1,21 @@
+{
+  "pack": "Supervivencia y apocalipsis",
+  "name": "Überleben & Apokalypse",
+  "description": "Einsame Insel, Schiffbruch und Weltuntergang. Würdest du überleben?",
+  "templates": {
+    "supervivencia-naufragio-que-equipo-monta-una-balsa-que": { "text": "Schiffbruch: Welches Team baut ein Floß, das wirklich schwimmt?" },
+    "supervivencia-quien-seria-el-primero-en-palmarla-en": { "text": "Wer würde in einer Zombie-Apokalypse als Erstes draufgehen?" },
+    "supervivencia-quien-se-autoproclamaria-lider-sin-tener-ni": { "text": "Wer würde sich zum Anführer erklären, ohne den blassesten Schimmer zu haben?" },
+    "supervivencia-quien-entraria-en-panico-nada-mas-empezar": { "text": "Wer würde in Panik geraten, sobald das Chaos losgeht?" },
+    "supervivencia-quien-se-quedaria-dormido-en-su-turno": { "text": "Wer würde bei der eigenen Nachtwache einschlafen?" },
+    "supervivencia-quien-haria-una-heroicidad-estupida-que-pondria": { "text": "Wer würde eine dumme Heldentat abziehen, die die ganze Gruppe in Gefahr bringt?" },
+    "supervivencia-que-dos-personas-montarian-la-alianza-mas": { "text": "Welche zwei würden die tödlichste Überlebensallianz bilden?" },
+    "supervivencia-tras-el-fin-del-mundo-que-dos": { "text": "Nach dem Weltuntergang: Welche zwei wären die letzte Hoffnung, um die Zivilisation wieder aufzubauen?" },
+    "supervivencia-fin-del-mundo-en-24-horas-que": { "text": "In 24 Stunden geht die Welt unter. Was machst du?", "options": ["Hemmungslos feiern", "Zeit mit der Familie", "Läden plündern", "Seelenruhig schlafen"] },
+    "supervivencia-marca-lo-que-no-aguantarias-sin": { "text": "Kreuz an, ohne was du es NICHT aushalten würdest:", "options": ["Kaffee", "Handy", "Heiße Dusche", "Deine Lieblingsserie"] },
+    "supervivencia-solo-puedes-coger-un-arma-cuerpo-a": { "text": "Du darfst nur eine Nahkampfwaffe in die Zombie-Apokalypse mitnehmen. Welche?", "options": ["Baseballschläger", "Katana", "Machete", "Gusseiserne Pfanne"] },
+    "supervivencia-montas-tu-kit-de-supervivencia-y-solo": { "text": "Du packst dein Überlebenskit und es passt nur noch eine Sache in den Rucksack. Was nimmst du?", "options": ["Essen für eine Woche", "Ein gutes Messer", "Einen Erste-Hilfe-Kasten", "Ein Feuerzeug"] },
+    "supervivencia-en-un-apocalipsis-que-tipo-de-superviviente": { "text": "Was für ein Überlebenstyp wärst du in der Apokalypse?", "options": ["Wer Vorräte hortet", "Wer allen hilft", "Der einsame Wolf", "Wer sich versteckt und betet"] },
+    "supervivencia-si-el-mundo-se-fuera-a-acabar": { "text": "Wenn die Welt untergehen müsste – welches Ende wäre dir am liebsten?", "options": ["Sofortiger Meteoriteneinschlag", "Zombie-Invasion", "Langsame Pandemie", "Atomkrieg"] }
+  }
+}

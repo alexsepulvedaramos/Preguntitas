@@ -1,0 +1,22 @@
+{
+  "pack": "Qué prefieres: absurdos",
+  "name": "Would you rather: absurd",
+  "description": "Silly everyday either-ors, no gross-out, no drama.",
+  "templates": {
+    "que-prefieres-absurdos-desayunar-toda-la-vida": { "text": "Breakfast for the rest of your life:", "options": ["Only Spanish omelette", "Only cereal"] },
+    "que-prefieres-absurdos-elige-tu-efecto-sonoro-de-por-vida": { "text": "Pick your lifelong sound effect:", "options": ["A honk every time you laugh", "A sad trombone every time you get angry"] },
+    "que-prefieres-absurdos-tu-rareza-corporal": { "text": "Your body quirk:", "options": ["Sneezing glitter", "Hiccups that sound like a duck"] },
+    "que-prefieres-absurdos-tu-voz-te-delata": { "text": "Your voice gives you away:", "options": ["Chipmunk voice when you lie", "Darth Vader voice when you tell the truth"] },
+    "que-prefieres-absurdos-molestia-constante-elige-una": { "text": "Constant annoyance, pick one:", "options": ["A pebble in your shoe", "A wet sock"] },
+    "que-prefieres-absurdos-clima-extremo-en-casa": { "text": "Extreme weather at home:", "options": ["A whole summer at 40 °C with no AC", "A whole winter at 5 °C with no heating"] },
+    "que-prefieres-absurdos-tu-movil-tu-eleccion": { "text": "Your phone, your choice:", "options": ["Infinite battery but painfully slow internet", "Perfect internet but only 1 hour of battery"] },
+    "que-prefieres-absurdos-como-te-tratan-los-demas": { "text": "How people address you:", "options": ["Everyone calls you “Sir” or “Madam”", "Everyone calls you by a ridiculous nickname"] },
+    "que-prefieres-absurdos-tu-entrada-y-tu-salida": { "text": "Your entrance and your exit:", "options": ["Your theme song plays when you walk in", "You get a round of applause when you leave"] },
+    "que-prefieres-absurdos-comer-toda-la-vida": { "text": "Eat for the rest of your life:", "options": ["Only pizza", "Only burgers"] },
+    "que-prefieres-absurdos-elige-tu-mini-maldicion": { "text": "Pick your mini curse:", "options": ["Your phone always lands screen down", "The toilet paper always runs out on you", "You always pick the slowest checkout line"] },
+    "que-prefieres-absurdos-pequeno-lujo-cotidiano": { "text": "A small everyday luxury:", "options": ["Always skipping YouTube ads", "The elevator is always on your floor when you call it"] },
+    "que-prefieres-absurdos-una-hora-al-dia-obligatoria": { "text": "One mandatory hour a day:", "options": ["Speaking in rhyme", "Speaking in whispers"] },
+    "que-prefieres-absurdos-delegar-en-tu-mejor-amigo": { "text": "Hand over to your best friend:", "options": ["They always pick your clothes", "They always pick your food"] },
+    "que-prefieres-absurdos-con-que-mundo-te-quedas": { "text": "Which world would you keep?", "options": ["A world without potatoes", "A world without any sauces"] }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "pack": "Vida nocturna y resaca",
+  "name": "Nachtleben & Kater",
+  "description": "Partys, Saufnächte und epische Kater.",
+  "templates": {
+    "vida-nocturna-quien-es-el-primero-en-caer-redondo": { "text": "Wer pennt als Erstes sturzbetrunken weg?" },
+    "vida-nocturna-quien-acaba-bailando-encima-de-una-mesa": { "text": "Wer tanzt am Ende auf dem Tisch?" },
+    "vida-nocturna-quien-hace-la-bomba-de-humo-y": { "text": "Wer verabschiedet sich auf Französisch und ist plötzlich einfach weg?" },
+    "vida-nocturna-quien-manda-los-mensajes-mas-vergonzosos-a": { "text": "Wer schreibt um 4 Uhr morgens die peinlichsten Nachrichten?" },
+    "vida-nocturna-quien-propone-la-ultima-y-acaban-siendo": { "text": "Wer schlägt „noch einen Letzten“ vor – und plötzlich ist es 7 Uhr?" },
+    "vida-nocturna-quien-se-pone-mas-monas-y-carinoso": { "text": "Wer wird betrunken am anhänglichsten und kuschelbedürftigsten?" },
+    "vida-nocturna-quien-tiene-resacas-de-tres-dias-y": { "text": "Wer hat drei Tage Kater und schwört, nie wieder zu trinken?" },
+    "vida-nocturna-que-dos-personas-se-irian-de-after": { "text": "Welche zwei würden bis zum Sonnenaufgang auf die Afterparty gehen?" },
+    "vida-nocturna-la-cura-milagrosa-de-la-resaca": { "text": "Das Wundermittel gegen Kater:", "options": ["Bis 15 Uhr schlafen", "Fettiges Essen wie ein König", "Konterbier", "Still leiden"] },
+    "vida-nocturna-que-resaca-prefieres": { "text": "Welchen Kater hättest du lieber?", "options": ["Den körperlichen – du bist völlig im Eimer", "Den moralischen – die Scham über das, was du getan hast"] },
+    "vida-nocturna-a-las-6-de-la-manana-eres": { "text": "Um 6 Uhr morgens bist du …", "options": ["Wer „Einen noch!“ ruft", "Wer schon das Taxi bestellt"] },
+    "vida-nocturna-plan-de-viernes-ideal": { "text": "Der ideale Freitagabend:", "options": ["Feiern bis zum Umfallen", "Sofa, Decke und ein Film"] },
+    "vida-nocturna-la-bebida-que-nunca-te-falla": { "text": "Das Getränk, das dich nie im Stich lässt:", "options": ["Bier", "Wein", "Longdrinks", "Shots"] },
+    "vida-nocturna-te-despiertas-con-resacon-y-20-mensajes": { "text": "Du wachst mit einem Riesenkater und 20 ungelesenen Nachrichten auf. Was tust du?", "options": ["Alle auf einmal lesen und dem Schaden ins Auge sehen", "Handy aus und alles verdrängen"] },
+    "vida-nocturna-del-1-al-10-como-de-fiestero": { "text": "Von 1 bis 10: Wie sehr bist du wirklich ein Partytier?" },
+    "vida-nocturna-maraton-de-fiesta-hasta-el-amanecer-que": { "text": "Partymarathon bis zum Sonnenaufgang: Welches Team hält durch, ohne umzufallen?" },
+    "vida-nocturna-del-1-al-10-que-tal-bailas": { "text": "Von 1 bis 10: Wie gut tanzt du, wenn keiner hinschaut?" }
+  }
+}

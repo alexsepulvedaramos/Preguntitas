@@ -1,0 +1,27 @@
+{
+  "pack": "Viajes y planes",
+  "name": "Reisen & Pläne",
+  "description": "Kurztrips, Roadtrips und wer sich zuerst verläuft.",
+  "templates": {
+    "viajes-escapada-de-fin-de-semana": { "text": "Wochenendtrip:", "options": ["Hütte in den Bergen", "Ferienwohnung am Strand", "Eine europäische Stadt", "Camping"] },
+    "viajes-en-un-viaje-en-grupo-tu-eres": { "text": "Auf Gruppenreisen bist du …", "options": ["Wer alles organisiert", "Wer bei allem dabei ist", "Wer fragt: „Sind wir bald da?“", "Wer sich verläuft"] },
+    "viajes-vacaciones-perfectas": { "text": "Der perfekte Urlaub:", "options": ["Totale Entspannung, ohne sich zu bewegen", "Abenteuer ohne Pause"] },
+    "viajes-alojamiento-ideal": { "text": "Die ideale Unterkunft:", "options": ["Hotel mit Frühstücksbuffet", "Landhaus mit Grill"] },
+    "viajes-en-el-coche": { "text": "Im Auto:", "options": ["Ich fahre", "Beifahrer mit der Macht über die Musik", "Ich schlafe ein, sobald es losgeht", "Hinten sitzen und den Verkehr kommentieren"] },
+    "viajes-como-planificas-un-viaje": { "text": "Wie du eine Reise planst:", "options": ["Spontan, ganz ohne Plan", "70 % der Zeit stundengenau verplant"] },
+    "viajes-quien-perderia-el-vuelo-por-ir-un": { "text": "Wer würde den Flug verpassen, weil er „nur kurz“ aufs Klo wollte?" },
+    "viajes-quien-organizaria-el-mejor-itinerario-de-viaje": { "text": "Wer würde den besten Reiseplan aufstellen?" },
+    "viajes-quien-acabaria-hablando-con-medio-pueblo-nada": { "text": "Wer würde sich direkt nach der Ankunft mit dem halben Dorf unterhalten?" },
+    "viajes-quien-se-dormiria-en-el-coche-en": { "text": "Wer würde in der ersten Minute im Auto einschlafen?" },
+    "viajes-quien-llevaria-la-maleta-mas-pesada": { "text": "Wer hätte den schwersten Koffer dabei?" },
+    "viajes-quien-haria-amigos-con-los-locales-y": { "text": "Wer würde sich mit den Einheimischen anfreunden und am Ende zu einer Hochzeit eingeladen werden?" },
+    "viajes-quien-seria-el-ultimo-en-estar-listo": { "text": "Wer wäre jeden Morgen der Reise als Letztes fertig?" },
+    "viajes-a-donde-deberia-ser-el-proximo-viaje": { "text": "Wohin sollte die nächste Reise der Gruppe gehen? (Stadt und warum)" },
+    "viajes-en-que-ciudad-vivirias-si-no-vivieses": { "text": "In welcher Stadt würdest du wohnen, wenn nicht in deiner?" },
+    "viajes-top-3-canciones-para-un-viaje-en": { "text": "Top 3 Songs für einen Roadtrip." },
+    "viajes-top-3-sitios-del-mundo-a-los": { "text": "Top 3 Orte auf der Welt, an die du morgen sofort reisen würdest." },
+    "viajes-del-1-al-10-que-tal-copiloto": { "text": "Von 1 bis 10: Wie gut bist du als Beifahrer auf langen Fahrten?" },
+    "viajes-del-1-al-10-que-tan-puntual": { "text": "Von 1 bis 10: Wie pünktlich bist du deiner Meinung nach?" },
+    "viajes-del-1-al-10-que-tal-te": { "text": "Von 1 bis 10: Wie gut findest du dich ohne Navi zurecht?" }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "pack": "Talentos del grupo",
+  "name": "The group's talents",
+  "description": "Who's best at what: skills, knacks and hidden talents.",
+  "templates": {
+    "talentos-quien-ganaria-un-concurso-de-comer-mas": { "text": "Who would win a speed-eating contest?" },
+    "talentos-quien-montaria-un-mueble-de-ikea-sin": { "text": "Who would build IKEA furniture without looking at the instructions… and get it right?" },
+    "talentos-quien-aguantaria-mas-tiempo-sin-reirse-en": { "text": "Who would last the longest without laughing in a staring contest?" },
+    "talentos-quien-seria-el-mejor-guia-turistico-improvisado": { "text": "Who would make the best improvised tour guide?" },
+    "talentos-quien-sacaria-mejor-nota-en-un-examen": { "text": "Who would ace an exam about everyone else's life?" },
+    "talentos-quien-ganaria-una-discusion-aunque-no-tuviera": { "text": "Who would win an argument even when they're wrong?" },
+    "talentos-quien-es-el-mejor-para-sacar-la": { "text": "Who's best at taking the perfect photo at just the right moment?" },
+    "talentos-quien-se-sabe-mas-canciones-de-memoria": { "text": "Who knows the most songs by heart?" },
+    "talentos-quien-ganaria-un-concurso-de-imitaciones": { "text": "Who would win an impressions contest?" },
+    "talentos-quien-presentaria-mejor-un-programa-de-television": { "text": "Who would make the best TV host?" },
+    "talentos-quien-conseguiria-mesa-en-el-restaurante-mas": { "text": "Who would get a table at the busiest restaurant without a reservation?" },
+    "talentos-quien-convenceria-al-grupo-de-hacer-cualquier": { "text": "Who could talk the group into any plan?" },
+    "talentos-que-dos-personas-ganarian-un-concurso-de": { "text": "Which two people would win a cooking contest in pairs?" },
+    "talentos-que-dos-personas-serian-el-mejor-duo": { "text": "Which two people would make the best comedy duo?" },
+    "talentos-del-1-al-10-que-tal-das": { "text": "On a scale of 1 to 10, how good are you at giving advice?" },
+    "talentos-del-1-al-10-que-tal-anfitrion": { "text": "On a scale of 1 to 10, how good a host would you be at a party at your place?" },
+    "talentos-del-1-al-10-que-tal-cuentas": { "text": "On a scale of 1 to 10, how good are you at telling a story?" }
+  }
+}

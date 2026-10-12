@@ -1,0 +1,17 @@
+{
+  "pack": "Dilemas",
+  "name": "Dilemmas",
+  "description": "Philosophische und moralische Dilemmas ohne richtige Antwort.",
+  "templates": {
+    "dilemas-te-dan-mal-el-cambio-a-tu": { "text": "Du bekommst zu viel Wechselgeld zurück (10 € zu viel) und merkst es. Sagst du was?", "options": ["Ja, ich gebe es immer zurück", "Kommt drauf an: Bei einer großen Kette halte ich den Mund, beim kleinen Laden sag ich's", "Ich sag nichts und freu mich, egal bei wem"] },
+    "dilemas-puedes-salvar-a-5-desconocidos-o-a": { "text": "Du kannst 5 Fremde retten oder einen geliebten Menschen. Wen rettest du?", "options": ["Die 5 Fremden", "Den geliebten Menschen"] },
+    "dilemas-mentirias-a-un-amigo-para-no-hacerle": { "text": "Würdest du einen Freund anlügen, um ihn nicht zu verletzen?", "options": ["Ja, eine Notlüge", "Nein, Ehrlichkeit geht vor"] },
+    "dilemas-el-fin-justifica-los-medios": { "text": "Heiligt der Zweck die Mittel?", "options": ["Ja, wenn das Ergebnis gut ist", "Nein, niemals"] },
+    "dilemas-que-vida-prefieres": { "text": "Welches Leben hättest du lieber?", "options": ["Kurz, aber intensiv – und unvergessen", "Lang und ruhig, ohne Höhen und Tiefen"] },
+    "dilemas-saber-que-hay-tras-la-muerte-pero": { "text": "Wissen, was nach dem Tod kommt, aber es nie jemandem erzählen dürfen – oder es nie erfahren?", "options": ["Wissen und schweigen", "Es nie erfahren"] },
+    "dilemas-un-tren-va-a-atropellar-a-5": { "text": "Ein Zug rast auf 5 Menschen zu. Du kannst ihn auf ein Gleis umleiten, auf dem nur 1 Mensch steht. Ziehst du den Hebel?", "options": ["Ja, ich leite um (1 stirbt, 5 überleben)", "Ich greife nicht ein (5 sterben)"] },
+    "dilemas-solo-puedes-salvar-a-5-desconocidos-empujando": { "text": "Du kannst 5 Fremde nur retten, wenn du selbst einen anderen Fremden vor den Zug stößt. Tust du es?", "options": ["Ja", "Nein"] },
+    "dilemas-te-ofrecen-enchufarte-para-siempre-a-una": { "text": "Man bietet dir an, dich für immer an eine Maschine anzuschließen, die ein perfektes Leben simuliert – ohne dass du merkst, dass es nicht echt ist. Machst du mit?", "options": ["Ja, her mit dem perfekten Leben", "Nein, lieber die Realität, auch wenn sie wehtut"] },
+    "dilemas-viajas-al-pasado-y-tienes-delante-a": { "text": "Du reist in die Vergangenheit und Baby-Hitler liegt vor dir. Tötest du ihn?", "options": ["Ja", "Nein"] }
+  }
+}

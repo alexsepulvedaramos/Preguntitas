@@ -1,0 +1,24 @@
+{
+  "pack": "Vida nocturna y resaca",
+  "name": "Nightlife & hangovers",
+  "description": "Parties, drunken nights and epic hangovers.",
+  "templates": {
+    "vida-nocturna-quien-es-el-primero-en-caer-redondo": { "text": "Who's the first to pass out drunk?" },
+    "vida-nocturna-quien-acaba-bailando-encima-de-una-mesa": { "text": "Who ends up dancing on a table?" },
+    "vida-nocturna-quien-hace-la-bomba-de-humo-y": { "text": "Who pulls a disappearing act and vanishes without saying goodbye?" },
+    "vida-nocturna-quien-manda-los-mensajes-mas-vergonzosos-a": { "text": "Who sends the most embarrassing texts at 4 am?" },
+    "vida-nocturna-quien-propone-la-ultima-y-acaban-siendo": { "text": "Who suggests “one last drink” and suddenly it's 7 am?" },
+    "vida-nocturna-quien-se-pone-mas-monas-y-carinoso": { "text": "Who gets the most soppy and affectionate when they drink?" },
+    "vida-nocturna-quien-tiene-resacas-de-tres-dias-y": { "text": "Who has three-day hangovers and swears they'll never drink again?" },
+    "vida-nocturna-que-dos-personas-se-irian-de-after": { "text": "Which two people would hit the afterparty until sunrise?" },
+    "vida-nocturna-la-cura-milagrosa-de-la-resaca": { "text": "The miracle hangover cure:", "options": ["Sleeping until 3 pm", "A greasy feast fit for a king", "Hair of the dog", "Suffering in silence"] },
+    "vida-nocturna-que-resaca-prefieres": { "text": "Which hangover would you rather have?", "options": ["The physical one, your body wrecked", "The moral one, the shame of what you did"] },
+    "vida-nocturna-a-las-6-de-la-manana-eres": { "text": "At 6 am you're:", "options": ["The one shouting “one more!”", "The one already calling a cab"] },
+    "vida-nocturna-plan-de-viernes-ideal": { "text": "Ideal Friday night:", "options": ["Going out until you drop", "Couch, blanket and a movie"] },
+    "vida-nocturna-la-bebida-que-nunca-te-falla": { "text": "The drink that never lets you down:", "options": ["Beer", "Wine", "Mixed drinks", "Shots"] },
+    "vida-nocturna-te-despiertas-con-resacon-y-20-mensajes": { "text": "You wake up with a monster hangover and 20 unread messages. What do you do?", "options": ["Read them all at once and face the damage", "Turn off your phone and live in denial"] },
+    "vida-nocturna-del-1-al-10-como-de-fiestero": { "text": "On a scale of 1 to 10, how much of a party animal are you really?" },
+    "vida-nocturna-maraton-de-fiesta-hasta-el-amanecer-que": { "text": "Party marathon until sunrise: which team is still standing?" },
+    "vida-nocturna-del-1-al-10-que-tal-bailas": { "text": "On a scale of 1 to 10, how well do you dance when nobody's watching?" }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "pack": "Viajes y planes",
+  "name": "Trips & plans",
+  "description": "Getaways, road trips and who gets lost first.",
+  "templates": {
+    "viajes-escapada-de-fin-de-semana": { "text": "Weekend getaway:", "options": ["Cabin in the mountains", "Apartment by the beach", "A European city", "Camping"] },
+    "viajes-en-un-viaje-en-grupo-tu-eres": { "text": "On a group trip, you are:", "options": ["The one who organizes everything", "The one who's up for anything", "The one asking “are we there yet?”", "The one who gets lost"] },
+    "viajes-vacaciones-perfectas": { "text": "The perfect vacation:", "options": ["Total relaxation, not moving an inch", "Nonstop adventure"] },
+    "viajes-alojamiento-ideal": { "text": "Ideal place to stay:", "options": ["Hotel with a breakfast buffet", "Country cottage with a barbecue"] },
+    "viajes-en-el-coche": { "text": "In the car:", "options": ["I'm driving", "Co-pilot in charge of the music", "Asleep before we leave the street", "In the back commenting on the traffic"] },
+    "viajes-como-planificas-un-viaje": { "text": "How you plan a trip:", "options": ["Improvised, no plan at all", "70% of the time planned hour by hour"] },
+    "viajes-quien-perderia-el-vuelo-por-ir-un": { "text": "Who would miss the flight for a “quick” bathroom break?" },
+    "viajes-quien-organizaria-el-mejor-itinerario-de-viaje": { "text": "Who would plan the best travel itinerary?" },
+    "viajes-quien-acabaria-hablando-con-medio-pueblo-nada": { "text": "Who would be chatting with half the town the moment they arrive?" },
+    "viajes-quien-se-dormiria-en-el-coche-en": { "text": "Who would fall asleep in the car within the first minute?" },
+    "viajes-quien-llevaria-la-maleta-mas-pesada": { "text": "Who would bring the heaviest suitcase?" },
+    "viajes-quien-haria-amigos-con-los-locales-y": { "text": "Who would make friends with the locals and end up invited to a wedding?" },
+    "viajes-quien-seria-el-ultimo-en-estar-listo": { "text": "Who would be the last one ready every morning of the trip?" },
+    "viajes-a-donde-deberia-ser-el-proximo-viaje": { "text": "Where should the group's next trip be? (city and why)" },
+    "viajes-en-que-ciudad-vivirias-si-no-vivieses": { "text": "Which city would you live in if not your own?" },
+    "viajes-top-3-canciones-para-un-viaje-en": { "text": "Top 3 songs for a road trip." },
+    "viajes-top-3-sitios-del-mundo-a-los": { "text": "Top 3 places in the world you'd go to tomorrow." },
+    "viajes-del-1-al-10-que-tal-copiloto": { "text": "On a scale of 1 to 10, how good a co-pilot are you on a long drive?" },
+    "viajes-del-1-al-10-que-tan-puntual": { "text": "On a scale of 1 to 10, how punctual do you think you are?" },
+    "viajes-del-1-al-10-que-tal-te": { "text": "On a scale of 1 to 10, how good is your sense of direction without GPS?" }
+  }
+}

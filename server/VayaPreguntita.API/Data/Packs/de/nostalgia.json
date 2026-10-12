@@ -1,0 +1,22 @@
+{
+  "pack": "Nostalgia y cringe",
+  "name": "Nostalgie & Cringe",
+  "description": "Kindheit, Teenagerjahre und peinliche Erinnerungen.",
+  "templates": {
+    "nostalgia-quien-tuvo-la-fase-mas-vergonzosa-en": { "text": "Wer hatte als Teenager die peinlichste Phase?" },
+    "nostalgia-quien-era-el-tipico-empollon-del-colegio": { "text": "Wer war in der Schule der typische Streber?" },
+    "nostalgia-quien-era-el-mas-gamberro-de-clase": { "text": "Wer war der größte Rabauke der Klasse?" },
+    "nostalgia-quien-tenia-el-corte-de-pelo-mas": { "text": "Wer hatte früher die fragwürdigste Frisur?" },
+    "nostalgia-quien-ha-pegado-el-mayor-cambio-glow": { "text": "Wer hatte über die Jahre den größten Glow-up?" },
+    "nostalgia-que-epoca-era-mejor": { "text": "Welche Zeit war besser?", "options": ["Als es noch keine Handys gab", "Jetzt, mit allem nur einen Klick entfernt"] },
+    "nostalgia-si-pudieras-volver-a-una-etapa-a": { "text": "Wenn du in eine Lebensphase zurückkönntest – in welche?", "options": ["Die sorglose Kindheit", "Die rebellische Pubertät", "Die wilden Partyjahre", "Keine, die Gegenwart ist besser"] },
+    "nostalgia-que-reliquia-tecnologica-echas-de-menos": { "text": "Welches Technik-Relikt vermisst du?", "options": ["Die Spielkonsole deiner Kindheit", "Das Klapphandy mit Tasten", "CDs und Kassetten", "Den MSN Messenger"] },
+    "nostalgia-que-recuerdas-con-mas-carino-de-pequeno": { "text": "Woran aus deiner Kindheit denkst du am liebsten zurück?", "options": ["Zeichentrick am Samstagmorgen", "Draußen spielen, bis es dunkel wurde", "Nachmittags bei Freunden etwas naschen", "Sommerferien, die nie zu Ende gingen"] },
+    "nostalgia-marca-las-tribus-en-las-que-encajabas": { "text": "Kreuz an, in welche Cliquen du als Teenager gepasst hast:", "options": ["Schickimicki", "Nerd", "Rebell / Proll", "Hippie / Öko", "Skater", "Der Normale, den keiner bemerkt hat"] },
+    "nostalgia-que-dos-personas-habrian-sido-los-pesados": { "text": "Welche zwei wären zusammen die nervigsten Leute der Klasse gewesen?" },
+    "nostalgia-del-1-al-10-como-de-cringe": { "text": "Von 1 bis 10: Wie cringe war dein Teenager-Ich?" },
+    "nostalgia-cuentanos-tu-momento-mas-cringe-de-la": { "text": "Dein cringigster Moment als Teenager – in einem Satz." },
+    "nostalgia-cual-era-tu-grupo-o-cancion-favorita": { "text": "Welche Band oder welcher Song war früher dein Liebling und ist dir heute peinlich?" },
+    "nostalgia-cual-era-tu-sueno-de-pequeno-que": { "text": "Was war dein Kindheitstraum, über den du heute schmunzeln (oder lachen) musst? Antworte in einem Satz." }
+  }
+}

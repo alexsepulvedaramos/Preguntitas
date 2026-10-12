@@ -1,0 +1,21 @@
+{
+  "pack": "Crimen y misterio",
+  "name": "Verbrechen & Mysterien",
+  "description": "Perfekte Verbrechen, Verdächtige und große Rätsel.",
+  "templates": {
+    "crimen-quien-cometeria-el-crimen-perfecto-y-no": { "text": "Wer würde das perfekte Verbrechen begehen und nie erwischt werden?" },
+    "crimen-quien-confesaria-entre-lagrimas-al-primer-interrogatorio": { "text": "Wer würde schon beim ersten Verhör unter Tränen gestehen?" },
+    "crimen-quien-seria-el-cerebro-de-una-banda": { "text": "Wer wäre der Kopf einer Verbrecherbande?" },
+    "crimen-quien-acabaria-detenido-por-la-tonteria-mas": { "text": "Wer würde wegen der dümmsten Kleinigkeit festgenommen?" },
+    "crimen-quien-parece-el-mas-inocente-pero-esconde": { "text": "Wer wirkt am unschuldigsten, hat aber die dunkelste Seite?" },
+    "crimen-a-quien-acusarian-primero-si-apareciera-un": { "text": "Wen würden alle zuerst verdächtigen, wenn beim Gruppenessen eine Leiche auftaucht?" },
+    "crimen-quien-se-libraria-de-una-multa-hablandole": { "text": "Wer würde sich bei einer Polizeikontrolle aus dem Strafzettel rausquatschen?" },
+    "crimen-que-dos-personas-formarian-el-duo-criminal": { "text": "Welche zwei wären das gefürchtetste Verbrecherduo?" },
+    "crimen-que-dos-personas-se-delatarian-mutuamente-en": { "text": "Welche zwei würden sich gegenseitig verpfeifen, sobald man ein bisschen Druck macht?" },
+    "crimen-que-clase-de-criminal-serias": { "text": "Was für ein Verbrecher wärst du?", "options": ["Das Gehirn", "Die Muskeln", "Wer die Kontakte hat", "Wer nur den Fluchtwagen fährt"] },
+    "crimen-si-tuvieras-que-cometer-un-crimen-y": { "text": "Wenn du ein Verbrechen begehen müsstest und davonkämst – welches?", "options": ["Bewaffneter Banküberfall", "Millionen-Hack vom Sofa aus", "Ein Gemälde aus dem Museum klauen", "Ein richtig großes Schneeballsystem"] },
+    "crimen-que-gran-misterio-te-gustaria-resolver-de": { "text": "Welches große Rätsel würdest du wirklich gern lösen?", "options": ["Wer JFK getötet hat", "Was im Bermudadreieck los ist", "Ob wir allein im Universum sind", "Was wirklich mit Flug MH370 passiert ist"] },
+    "crimen-del-1-al-10-como-de-bien": { "text": "Von 1 bis 10: Wie gut lügst du unter Druck?" },
+    "crimen-confiesa-que-es-lo-mas-caro-que": { "text": "Gib's zu: Was ist das Teuerste, das du je hast mitgehen lassen – und wo?" }
+  }
+}
