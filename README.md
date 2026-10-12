@@ -7,6 +7,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-316192?logo=postgresql&logoColor=white)
 ![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?logo=tailwind-css&logoColor=white)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
+[![CI](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/ci.yml/badge.svg)](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/ci.yml)
 [![Deploy Backend](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/deploy-backend.yml/badge.svg)](https://github.com/alexsepulvedaramos/Preguntitas/actions/workflows/deploy-backend.yml)
 
 **🎮 Live demo:** [vayapreguntita.vercel.app](https://vayapreguntita.vercel.app)
@@ -83,24 +84,18 @@ flowchart LR
 ├── client/                        # Angular 22 PWA (standalone components, Signals)
 ├── server/
 │   ├── VayaPreguntita.API/        # ASP.NET Core (.NET 10) REST API
-│   ├── VayaPreguntita.API.Tests/  # xUnit integration tests (Testcontainers)
+│   ├── VayaPreguntita.API.Tests/  # xUnit domain + integration tests (Testcontainers)
 │   └── Dockerfile                 # Render deployment image
 ├── docs/specs/vaya-preguntita.md  # Living spec — single source of truth
-└── .github/workflows/             # CI: build + test + deploy on master
+└── .github/workflows/             # CI on every PR; backend deploy on master
 ```
 
 ## Status & roadmap
 
-The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, all question types, voting, results, history, group admin, notifications, thematic packs). The next passes are specced and prioritized:
+The **MVP is feature-complete and live** (daily lifecycle, all question types, voting, results, history, group admin, notifications, thematic packs), and so is the post-MVP pass: public landing page and interactive demo, per-group voting streaks with animated avatar frames, versioned release notes, grouped push notifications, and core-domain tests with CI on every PR. Next up:
 
-1. Mid-cycle daily-time change re-anchoring (rama 20)
-2. Avatar dark-mode contrast + invite-link register flow (rama 17)
-3. Fixed 1–10 Scale range (rama 16)
-4. Public landing page for visitors without an account (rama 21)
-5. **Play in English & German** — the UI is done (rama 23); next, all 300+ seeded questions, adapted so the humour survives (rama 24)
-6. Per-group voting streaks with animated avatar frames (rama 19)
-7. Unified mobile group header (rama 18)
-8. Core-domain test coverage + full CI on PRs (rama 22); demo experience for solo visitors (rama 25)
+1. **Play in English & German** — the UI is done (rama 23); next, all 300+ seeded questions, culturally adapted rather than translated word for word (rama 24)
+2. Real-time updates with SignalR instead of pull-to-refresh (rama 13, optional)
 
 **Phase 2 backlog** includes richer in-question debate threads (evolving the shipped chat), Google OAuth, points & rankings, monthly stats, and email verification/password recovery. The full plan lives in the [spec §13/§16](docs/specs/vaya-preguntita.md).
 
@@ -110,7 +105,8 @@ The **MVP is feature-complete and live** (ramas 0–15 merged: daily lifecycle, 
 - **One branch per rama** (backend + its Angular UI), cut from `master`, Conventional Commits throughout.
 - **English code, translated UI** — identifiers, comments and commits in English; all user-facing copy lives in typed es/en/de dictionaries, never hardcoded in templates.
 - **Clean boundaries** — DTOs at the API edge (never EF entities), business logic in services only, FluentValidation for input, every schema change through an EF migration.
-- **CI/CD** — GitHub Actions builds, tests and deploys the backend to Render on every push to `master`.
+- **Tested where the domain is hardest** — the daily cycle runs against a real PostgreSQL (Testcontainers) at pinned instants through an injected `TimeProvider`: preselection and activation at the daily time, selector rotation, the 2-member start gate, pool → pack fallbacks, per-type vote validation, streaks, results aggregation and pool quotas. The client has Vitest specs.
+- **CI/CD** — GitHub Actions builds and tests both stacks on every PR; pushes to `master` also deploy the backend to Render (the client deploys on Vercel).
 
 ## Getting started
 

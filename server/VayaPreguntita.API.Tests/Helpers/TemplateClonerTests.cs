@@ -100,6 +100,23 @@ public class TemplateClonerTests
     }
 
     [Fact]
+    public void CloneToGroup_CopiesTheTemplateMetadataInsteadOfSharingIt()
+    {
+        var template = new QuestionTemplate
+        {
+            Text = "¿Quién ganaría un concurso de siestas?",
+            Type = QuestionType.Superlative,
+            Metadata = new QuestionMetadata { AllowNobody = true, BlacklistedUserIds = [11] },
+        };
+
+        var clone = TemplateCloner.CloneToGroup(template, groupId: 7, Members);
+        clone.Metadata.BlacklistedUserIds.Add(12);
+
+        clone.Metadata.AllowNobody.Should().BeTrue();
+        template.Metadata.BlacklistedUserIds.Should().Equal(11);
+    }
+
+    [Fact]
     public void CloneToGroup_Poll_MarksTheQuestionAsFromThePack()
     {
         var template = CustomPollTemplate(allowOther: false);

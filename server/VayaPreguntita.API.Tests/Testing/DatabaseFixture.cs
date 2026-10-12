@@ -6,15 +6,14 @@ public sealed class DatabaseFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgres;
 
-    public AppDbContext Context { get; private set; }
+    public AppDbContext Context { get; private set; } = null!;
 
     // Expose the raw connection string directly from the container to keep the password intact
     public string ConnectionString => _postgres.GetConnectionString();
 
     public DatabaseFixture()
     {
-        _postgres = new PostgreSqlBuilder()
-            .WithImage("postgres:15-alpine")
+        _postgres = new PostgreSqlBuilder("postgres:15-alpine")
             .WithCleanUp(true)
             .Build();
     }
