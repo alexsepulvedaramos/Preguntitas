@@ -165,6 +165,7 @@
             <p class="text-xs text-muted-foreground">
               {{ t('groupDetail.orCode') }} <span class="font-mono font-semibold text-foreground">{{ g.invitationCode }}</span>
             </p>
+            <app-invite-qr [invitationCode]="g.invitationCode" [groupName]="g.name" />
           }
         </div>
       }

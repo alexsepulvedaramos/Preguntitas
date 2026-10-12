@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.12.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Invita con un QR',
+      en: 'Invite with a QR code',
+      de: 'Einladen per QR-Code',
+    },
+    items: [
+      {
+        emoji: '📱',
+        title: {
+          es: 'Código QR para unirse',
+          en: 'A QR code to join',
+          de: 'Ein QR-Code zum Beitreten',
+        },
+        text: {
+          es: 'Cada grupo tiene ahora su código QR: tu amigo lo escanea con la cámara del móvil y entra directo al grupo. Lo encuentras al invitar desde la lista de grupos, en el aviso para invitar cuando el grupo aún no ha empezado y en los ajustes del grupo.',
+          en: 'Every group now has its own QR code: your friend scans it with their phone camera and lands straight in the group. You’ll find it when inviting from the group list, in the invite prompt while the group hasn’t started yet, and in the group settings.',
+          de: 'Jede Gruppe hat jetzt ihren eigenen QR-Code: Deine Freunde scannen ihn mit der Handykamera und sind direkt in der Gruppe. Du findest ihn beim Einladen in der Gruppenliste, im Einladungshinweis, solange die Gruppe noch nicht gestartet ist, und in den Gruppeneinstellungen.',
+        },
+      },
+      {
+        emoji: '🔍',
+        title: {
+          es: 'A pantalla completa',
+          en: 'Full screen',
+          de: 'Im Vollbild',
+        },
+        text: {
+          es: 'Toca el QR para verlo en grande y que lo escaneen desde tu móvil; la pantalla no se apaga mientras lo enseñas. Y el diálogo de invitar se ha puesto guapo: ahora se ve claro a qué grupo estás invitando.',
+          en: 'Tap the QR to show it big so friends can scan it off your phone; the screen stays on while you show it. The invite dialog got a makeover too: it’s now clear which group you’re inviting to.',
+          de: 'Tippe auf den QR-Code, um ihn groß anzuzeigen, damit andere ihn von deinem Handy scannen können; der Bildschirm bleibt dabei an. Auch der Einladungsdialog ist hübscher geworden: Man sieht jetzt klar, in welche Gruppe du einlädst.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.11.1',
     date: '2026-10-12',
     title: {

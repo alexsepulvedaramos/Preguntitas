@@ -18,6 +18,7 @@ import {
 import { GroupResponse } from '../../models/group.models';
 import { inviteLink, shareInvite } from '../../utils/invite-share';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 
 @Component({
   selector: 'app-group-card',
@@ -27,7 +28,8 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
     HlmCardImports,
     HlmDialogImports,
     HlmInputImports,
-    NgIcon
+    NgIcon,
+    InviteQrComponent,
   ],
   providers: [provideIcons({ lucideUserPlus, lucideShare2, lucideCopy, lucideCheck, lucideClock, lucideFlame })],
   templateUrl: './group-card.component.html',

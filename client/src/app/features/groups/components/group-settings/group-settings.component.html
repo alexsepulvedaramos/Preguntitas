@@ -250,6 +250,10 @@
           </button>
         </div>
 
+        @if (group(); as g) {
+          <app-invite-qr class="self-center" [invitationCode]="g.invitationCode" [groupName]="g.name" />
+        }
+
         <hlm-alert-dialog #regenDlg="hlmAlertDialog">
           <button
             hlmBtn
