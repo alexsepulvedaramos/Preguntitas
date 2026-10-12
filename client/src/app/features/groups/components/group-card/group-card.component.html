@@ -80,9 +80,9 @@
       <button
         hlmDialogTrigger
         hlmBtn
-        variant="outline"
+        variant="secondary"
         size="sm"
-        class="shrink-0 border-border transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+        class="shrink-0 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
         (click)="$event.stopPropagation()"
       >
         <ng-icon hlm name="lucideUserPlus" />
@@ -90,13 +90,26 @@
       </button>
 
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
-        <hlm-dialog-header>
-          <h3 hlmDialogTitle class="font-display text-xl text-foreground">
-            {{ t('groups.invite.title', { group: group().name }) }}
+        <hlm-dialog-header class="items-center text-center">
+          <span
+            class="inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold truncate"
+            [class]="accentBadgeClass()"
+          >
+            {{ group().name }}
+          </span>
+          <h3 hlmDialogTitle class="font-display italic text-2xl text-foreground">
+            {{ t('groups.invite.heading') }}
           </h3>
+          <p hlmDialogDescription class="text-sm text-muted-foreground">
+            {{ t('groups.invite.subtitle') }}
+          </p>
         </hlm-dialog-header>
 
-        <div class="flex flex-col gap-2 py-4">
+        <div class="flex justify-center">
+          <app-invite-qr [invitationCode]="group().invitationCode" [groupName]="group().name" />
+        </div>
+
+        <div class="flex flex-col gap-2">
           <div class="flex flex-col gap-1.5">
             <label
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider"

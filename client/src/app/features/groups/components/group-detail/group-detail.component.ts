@@ -36,6 +36,7 @@ import { shareInvite } from '../../utils/invite-share';
 import { visiblePolling } from '../../../../shared/utils/visible-polling';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -61,6 +62,7 @@ export const DAILY_POLL_INTERVAL_MS = 30_000;
     GroupChatComponent,
     HlmAlertImports,
     StreakCelebrationComponent,
+    InviteQrComponent,
   ],
   providers: [
     provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX }),
