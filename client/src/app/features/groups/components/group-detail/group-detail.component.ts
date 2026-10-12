@@ -11,7 +11,7 @@ import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
-import { COIN_DAILY_CAP, CoinsEarned } from '../../../../core/models/coin.model';
+import { COIN_DAILY_CAP, CoinsEarned, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -58,7 +58,7 @@ type StreakNotice = 'lost' | 'freeze' | 'gift' | null;
 // question stands out: the streak became a chip in the top bar, the time left a thin line
 // sharing a row with who has voted, notices sit above the question one at a time, and
 // "suggest a question" moved below it. After voting, "¿Quién la escribió?" sits under the
-// question when it was written by a member.
+// question when it was written by a member. Rama 40: the "¡Elige tú!" race banner.
 @Component({
   selector: 'app-group-detail',
   imports: [
@@ -96,6 +96,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   protected readonly t = inject(I18nService).t;
+  protected readonly raceReward = RACE_WON_REWARD;
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -220,6 +221,12 @@ export class GroupDetailComponent implements OnInit {
       : undefined;
     if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
     else if (coins.capReached) toast(this.t('coins.capReachedToast'), { description: capNote });
+  }
+
+  // First to choose in the race (§17.5): the turn is yours, plus the race coins.
+  onRaceWon(coins: CoinsEarned) {
+    toast.success(this.t('groupDetail.raceWon'));
+    this.announceCoins(coins);
   }
 
   onCelebrationDismissed() {

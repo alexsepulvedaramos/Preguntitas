@@ -9,6 +9,8 @@ public interface INotificationService
         IReadOnlyDictionary<string, string> textTranslations
     );
     Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
+    // "¡Elige tú!" (§17.5): every member but the selector, 10 minutes before T.
+    Task SendRaceToSelectAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
     Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview);
     // Caller has already checked the user's StreakDanger preference, lead time and group mute.

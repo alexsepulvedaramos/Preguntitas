@@ -7,7 +7,9 @@ public record NotificationPreferencesDto(
     bool NewMessage,
     bool StreakDanger = true,
     // Hours before the cycle closes; one of NotificationPreferencesDto.AllowedStreakDangerHours.
-    int StreakDangerHoursBefore = 3
+    int StreakDangerHoursBefore = 3,
+    // "¡Elige tú!" — the race to select (§17.5).
+    bool RaceToSelect = true
 )
 {
     public static readonly int[] AllowedStreakDangerHours = [1, 2, 3, 4, 6, 8];

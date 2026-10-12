@@ -151,6 +151,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("QuestionId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("RaceOpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("SelectionKind")
                         .HasColumnType("integer");
 
@@ -337,6 +340,9 @@ namespace VayaPreguntita.API.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("NewQuestion")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RaceToSelect")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("SelectorTurn")

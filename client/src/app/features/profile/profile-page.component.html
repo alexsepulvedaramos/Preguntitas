@@ -352,6 +352,17 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
+            <p class="text-sm text-foreground">{{ t('profile.prefRaceToSelect') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefRaceToSelectHint') }}</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().raceToSelect"
+            (checkedChange)="togglePref('raceToSelect')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
             <p class="text-sm text-foreground">{{ t('profile.prefUserVoted') }}</p>
           </div>
           <hlm-switch

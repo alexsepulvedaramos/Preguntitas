@@ -8,8 +8,8 @@ using VayaPreguntita.API.Services;
 namespace VayaPreguntita.API.BackgroundServices;
 
 // One tick of the daily cycle (§4.3): preselect tomorrow's question once T has passed,
-// activate today's at T, remind selectors who haven't chosen, and send the "streak in
-// danger" pushes. DailyPreselectionService runs it every minute in its own DI scope;
+// activate today's at T, remind selectors who haven't chosen, open the race to select at
+// T − 10 min, and send the "streak in danger" pushes. DailyPreselectionService runs it every minute in its own DI scope;
 // tests run it directly at a fixed instant.
 public class DailyCycleRunner(
     AppDbContext context,
@@ -23,6 +23,9 @@ public class DailyCycleRunner(
 {
     // After this many hours without a manual selection, send a reminder to the selector.
     public static readonly TimeSpan SelectorReminderDelay = TimeSpan.FromHours(3);
+
+    // How long before T the race to select opens if the selector hasn't chosen (§17.5).
+    public static readonly TimeSpan RaceLead = TimeSpan.FromMinutes(10);
 
     public async Task RunOnceAsync()
     {
@@ -118,8 +121,43 @@ public class DailyCycleRunner(
         if (pendingWithoutSelection.Count > 0)
             await context.SaveChangesAsync();
 
+        // ── RACE TO SELECT (§17.5): T − 10 min and still auto-selected ─────────────
+        await OpenRacesAsync(nowUtc);
+
         // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
         await streakService.SendDangerRemindersAsync();
+    }
+
+    // A pending entry is due for the race when its activation (Date at T) is at most
+    // RaceLead away: the activation check, run on the clock shifted RaceLead ahead.
+    private async Task OpenRacesAsync(DateTime nowUtc)
+    {
+        var raceLocal = DailyClock.Now(clock) + RaceLead;
+        var raceDate = DateOnly.FromDateTime(raceLocal);
+        var raceTime = TimeOnly.FromDateTime(raceLocal);
+
+        var entries = await context
+            .DailyEntries.Include(d => d.Group)
+            .Where(d =>
+                d.ActivatedAt == null
+                && d.SelectionKind == SelectionKind.Auto
+                && d.RaceOpenedAt == null
+                && (d.Date < raceDate || (d.Date == raceDate && raceTime >= d.Group.DailyQuestionTime))
+            )
+            .ToListAsync();
+        if (entries.Count == 0)
+            return;
+
+        foreach (var entry in entries)
+            entry.RaceOpenedAt = nowUtc;
+        await context.SaveChangesAsync();
+
+        foreach (var entry in entries)
+        {
+            logger.LogInformation("Carrera por elegir abierta en grupo {GroupId}", entry.GroupId);
+            _ = notificationService.SendRaceToSelectAsync(
+                entry.GroupId, entry.SelectorUserId, entry.Group.Name, entry.Group.DailyQuestionTime);
+        }
     }
 
     // Activating an entry closes the previous cycle: streak freezes are spent and lost

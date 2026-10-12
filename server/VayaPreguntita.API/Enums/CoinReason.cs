@@ -18,4 +18,7 @@ public enum CoinReason
     // Guess the author (rama 36)
     GuessCorrect = 9,
     AuthorHint = 10,
+
+    // Race to select (rama 40)
+    RaceWon = 11,
 }

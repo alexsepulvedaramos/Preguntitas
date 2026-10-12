@@ -11,6 +11,7 @@ import { lucideInfo } from '@ng-icons/lucide';
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { CreateQuestion, QuestionToVote } from '../../../../core/models/question.model';
+import { SelectResponse } from '../../../../core/models/daily.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_DESCRIPTIONS } from '../../../../core/constants/question-type-descriptions';
@@ -79,7 +80,7 @@ export class CreateQuestionComponent {
   public readonly overwriteQuestionId = input<number | null>(null);
 
   // Emitted after a successful select-for-tomorrow or save-to-pool
-  public readonly selected = output<void>();
+  public readonly selected = output<SelectResponse>();
   public readonly savedToPool = output<void>();
 
   protected readonly QuestionType = QuestionType;
@@ -205,9 +206,9 @@ export class CreateQuestionComponent {
           overwriteQuestionId: overwriteId,
         })
         .subscribe({
-        next: () => {
+        next: (res) => {
           this.submitting.set(false);
-          this.selected.emit();
+          this.selected.emit(res);
         },
         error: (err) => this.handleError(err),
       })

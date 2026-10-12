@@ -58,7 +58,7 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
     private async Task<SelectResult> SelectAsync(int groupId, int userId, SelectQuestionDto dto)
     {
         await using var db = NewContext();
-        return await NewDailyService(db).SelectQuestionAsync(groupId, userId, dto);
+        return (await NewDailyService(db).SelectQuestionAsync(groupId, userId, dto)).Result;
     }
 
     // The UI language arrives as Accept-Language and becomes CurrentUICulture. Setting it inside

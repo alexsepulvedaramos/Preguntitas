@@ -8,6 +8,7 @@ import {
     GuessAuthorRequest,
     GuessAuthorResponse,
     SelectQuestion,
+    SelectResponse,
 } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { VoteResponse } from '../models/streak.model';
@@ -28,14 +29,15 @@ export class DailyService {
         return this.http.get<DailyStatus>(`${this.baseUrl}/${groupId}/daily/current`);
     }
 
-    // The selector sets the next-day question (never activates it early)
-    select(groupId: number, dto: SelectQuestion): Observable<void> {
-        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/select`, dto);
+    // The selector sets the next-day question (never activates it early); during the race
+    // (§17.5) any member may, and 409 means someone else got there first
+    select(groupId: number, dto: SelectQuestion): Observable<SelectResponse> {
+        return this.http.post<SelectResponse>(`${this.baseUrl}/${groupId}/daily/select`, dto);
     }
 
     // The selector keeps the auto-selected question as their choice (§17.4)
-    confirmSelection(groupId: number): Observable<void> {
-        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/select/confirm`, {});
+    confirmSelection(groupId: number): Observable<SelectResponse> {
+        return this.http.post<SelectResponse>(`${this.baseUrl}/${groupId}/daily/select/confirm`, {});
     }
 
     // Submit a vote on the currently-open question; returns the fresh results plus the

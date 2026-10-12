@@ -11,6 +11,10 @@ public class DailyEntry
     public DateTime? ActivatedAt { get; set; }
     public DateTime? SelectorReminderSentAt { get; set; }
 
+    // Set at T − 10 min when the selector still hasn't chosen (§17.5): from then on any
+    // member may pick, and the first one to do it becomes the selector.
+    public DateTime? RaceOpenedAt { get; set; }
+
     // First member to vote on this question (§17.2 first-voter bonus). Claimed with a
     // conditional update so two simultaneous votes can't both win it.
     public int? FirstVoterUserId { get; set; }

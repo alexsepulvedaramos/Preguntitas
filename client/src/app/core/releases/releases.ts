@@ -23,6 +23,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.18.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Elige tú',
+      en: 'Your pick',
+      de: 'Du wählst',
+    },
+    items: [
+      {
+        emoji: '⏱️',
+        title: {
+          es: 'La carrera por elegir',
+          en: 'The race to pick',
+          de: 'Das Rennen ums Auswählen',
+        },
+        text: {
+          es: 'Si a 10 minutos de que salga la pregunta nadie la ha elegido, avisamos a quienes ya han votado la de hoy: el primero que la elija (o que diga «Me vale esta») se queda el turno y gana 10 🪙. Puedes desactivar este aviso en tu perfil.',
+          en: 'If nobody has chosen the question 10 minutes before it goes out, everyone who has already voted today gets a heads-up: the first to choose it (or tap “This one works”) takes the turn and wins 10 🪙. You can turn this notification off in your profile.',
+          de: 'Hat 10 Minuten vor dem Start noch niemand die Frage gewählt, bekommen alle Bescheid, die heute schon abgestimmt haben: Wer zuerst wählt (oder „Passt so“ tippt), übernimmt die Runde und bekommt 10 🪙. Du kannst diese Benachrichtigung in deinem Profil ausschalten.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.17.0',
     date: '2026-10-12',
     title: {

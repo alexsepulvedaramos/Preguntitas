@@ -67,6 +67,33 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendRaceToSelectAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime) =>
+        RunLoggedAsync("race_to_select", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: selectorUserId, pref => pref.RaceToSelect);
+
+            // Only members who have already voted today's open question: they're the ones
+            // playing today, so nobody else gets an extra push (developer, rama 40).
+            var openQuestionId = await context.DailyEntries
+                .Where(d => d.GroupId == groupId && d.ActivatedAt != null)
+                .OrderByDescending(d => d.Date)
+                .Select(d => (int?)d.QuestionId)
+                .FirstOrDefaultAsync();
+            var voterIds = await context.Votes
+                .Where(v => v.QuestionId == openQuestionId)
+                .Select(v => v.UserId)
+                .Distinct()
+                .ToListAsync();
+            recipients = recipients.Where(r => voterIds.Contains(r.Subscription.UserId)).ToList();
+
+            await SendLocalizedAsync(context, recipients, UntilNextDailyTime(dailyTime), lang =>
+                BuildPayload(
+                    ServerText.Push.RaceToSelectTitle(lang, groupName),
+                    ServerText.Push.RaceToSelectBody(lang, CoinRewards.RaceWon),
+                    groupId, groupName, "race_to_select", lang
+                ));
+        });
+
     public Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername) =>
         RunLoggedAsync("user_voted", groupId, async context =>
         {

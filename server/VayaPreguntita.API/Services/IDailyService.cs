@@ -1,4 +1,5 @@
 // Services/IDailyService.cs
+using VayaPreguntita.API.DTOs.Coins;
 using VayaPreguntita.API.DTOs.Daily;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Enums;
@@ -8,8 +9,13 @@ namespace VayaPreguntita.API.Services;
 public interface IDailyService
 {
     Task<DailyStatusDto> GetCurrentStatusAsync(int groupId, int userId);
-    Task<SelectResult> SelectQuestionAsync(int groupId, int userId, SelectQuestionDto dto);
-    Task<SelectResult> ConfirmSelectionAsync(int groupId, int userId);
+    // Coins is set only when the caller won the race to select (§17.5).
+    Task<(SelectResult Result, CoinsEarnedDto? Coins)> SelectQuestionAsync(
+        int groupId,
+        int userId,
+        SelectQuestionDto dto
+    );
+    Task<(SelectResult Result, CoinsEarnedDto? Coins)> ConfirmSelectionAsync(int groupId, int userId);
     Task<(VoteResult result, VoteResponseDto? response)> VoteAsync(
         int groupId,
         int userId,

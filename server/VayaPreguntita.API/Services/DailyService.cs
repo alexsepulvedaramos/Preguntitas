@@ -114,6 +114,7 @@ public class DailyService(
         if (pendingEntry != null)
         {
             var isSelector = pendingEntry.SelectorUserId == userId;
+            var raceOpen = IsRaceOpen(pendingEntry);
 
             return new SelectionStateDto
             {
@@ -127,8 +128,10 @@ public class DailyService(
                     : null,
                 IsCurrentUserSelector = isSelector,
                 IsAutoSelected = pendingEntry.SelectionKind == SelectionKind.Auto,
-                // Only the selector sees tomorrow's question — keeps the surprise.
-                PendingQuestion = isSelector
+                RaceOpen = raceOpen,
+                // Only the selector sees tomorrow's question — keeps the surprise. During the
+                // race (§17.5) anyone may keep it, so everyone gets to see it.
+                PendingQuestion = isSelector || raceOpen
                     ? mapper.Map<QuestionToVoteDto>(pendingEntry.Question)
                     : null,
             };
@@ -145,7 +148,7 @@ public class DailyService(
     // The selector chooses the NEXT-day question. It is NEVER activated here — activation
     // happens only at T in DailyPreselectionService.
     // ==========================================
-    public async Task<SelectResult> SelectQuestionAsync(
+    public async Task<(SelectResult Result, CoinsEarnedDto? Coins)> SelectQuestionAsync(
         int groupId,
         int userId,
         SelectQuestionDto dto
@@ -161,16 +164,27 @@ public class DailyService(
             .OrderBy(d => d.Date)
             .FirstOrDefaultAsync();
 
-        // Only the drawn selector (stored on the pending entry) may choose. Until the tick
-        // has drawn one (§17.4), nobody's turn has started.
-        if (pendingEntry == null || pendingEntry.SelectorUserId != userId)
-            return SelectResult.NotYourTurn;
+        var access = CheckSelectAccess(pendingEntry, userId);
+        if (access != SelectResult.Success)
+            return (access, null);
+
+        // The race claim and the choice commit together: a choice that fails validation
+        // gives the turn back.
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        var wonRace = false;
+        if (IsRaceOpen(pendingEntry!))
+        {
+            if (!await ClaimRaceAsync(pendingEntry!, userId))
+                return (SelectResult.RaceLost, null);
+            wonRace = pendingEntry!.SelectorUserId != userId;
+            pendingEntry.SelectorUserId = userId;
+        }
 
         var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
         if (resolveResult != SelectResult.Success)
-            return resolveResult;
+            return (resolveResult, null);
 
-        var oldQuestionId = pendingEntry.QuestionId;
+        var oldQuestionId = pendingEntry!.QuestionId;
         pendingEntry.QuestionId = question!.Id;
         pendingEntry.SelectionKind = SelectionKindFor(dto, pendingEntry.SelectionKind);
 
@@ -193,7 +207,9 @@ public class DailyService(
         }
 
         await context.SaveChangesAsync();
-        return SelectResult.Success;
+        var coins = wonRace ? await PayRaceRewardAsync(pendingEntry, userId) : null;
+        await transaction.CommitAsync();
+        return (SelectResult.Success, coins);
     }
 
     // Inline create = Created (earns the selector's bonus, §17.2). Editing the pending
@@ -209,23 +225,86 @@ public class DailyService(
     // The selector keeps the auto-selected question: it becomes an active choice without
     // changing the question. Idempotent — an entry already actively chosen stays as it is.
     // ==========================================
-    public async Task<SelectResult> ConfirmSelectionAsync(int groupId, int userId)
+    public async Task<(SelectResult Result, CoinsEarnedDto? Coins)> ConfirmSelectionAsync(
+        int groupId,
+        int userId
+    )
     {
         var pendingEntry = await context
             .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt == null)
             .OrderBy(d => d.Date)
             .FirstOrDefaultAsync();
 
-        if (pendingEntry == null || pendingEntry.SelectorUserId != userId)
-            return SelectResult.NotYourTurn;
+        var access = CheckSelectAccess(pendingEntry, userId);
+        if (access != SelectResult.Success)
+            return (access, null);
+        if (pendingEntry!.SelectionKind != SelectionKind.Auto)
+            return (SelectResult.Success, null);
 
-        if (pendingEntry.SelectionKind == SelectionKind.Auto)
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        var wonRace = false;
+        if (IsRaceOpen(pendingEntry))
         {
-            pendingEntry.SelectionKind = SelectionKind.Confirmed;
-            await context.SaveChangesAsync();
+            if (!await ClaimRaceAsync(pendingEntry, userId))
+                return (SelectResult.RaceLost, null);
+            wonRace = pendingEntry.SelectorUserId != userId;
+            pendingEntry.SelectorUserId = userId;
         }
 
-        return SelectResult.Success;
+        pendingEntry.SelectionKind = SelectionKind.Confirmed;
+        await context.SaveChangesAsync();
+        var coins = wonRace ? await PayRaceRewardAsync(pendingEntry, userId) : null;
+        await transaction.CommitAsync();
+        return (SelectResult.Success, coins);
+    }
+
+    // ==========================================
+    // RACE TO SELECT (§17.5)
+    // From T − 10 min, while the pending question is still the automatic pick, any member
+    // may choose and the first write wins. Before that, only the drawn selector may.
+    // ==========================================
+    private static bool IsRaceOpen(DailyEntry entry) =>
+        entry.RaceOpenedAt != null && entry.SelectionKind == SelectionKind.Auto;
+
+    private static SelectResult CheckSelectAccess(DailyEntry? entry, int userId)
+    {
+        // Until the tick has drawn a selector (§17.4), nobody's turn has started.
+        if (entry == null)
+            return SelectResult.NotYourTurn;
+        if (entry.SelectorUserId == userId)
+            return SelectResult.Success;
+        if (entry.RaceOpenedAt == null)
+            return SelectResult.NotYourTurn;
+        // The race opened, but the selector or a faster member has already chosen.
+        return entry.SelectionKind == SelectionKind.Auto ? SelectResult.Success : SelectResult.RaceLost;
+    }
+
+    // Conditional update: the row lock queues concurrent claims, and once the first one
+    // commits a real choice the others match nothing. The original selector claims too,
+    // so a racer can never overwrite their choice.
+    private async Task<bool> ClaimRaceAsync(DailyEntry entry, int userId) =>
+        await context
+            .DailyEntries.Where(d =>
+                d.Id == entry.Id && d.ActivatedAt == null && d.SelectionKind == SelectionKind.Auto
+            )
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.SelectorUserId, userId)) == 1;
+
+    // The winner is paid now; the active-choice reward follows at T as for any selector.
+    private async Task<CoinsEarnedDto> PayRaceRewardAsync(DailyEntry entry, int userId)
+    {
+        var grant = await coinService.GrantAsync(
+            userId,
+            CoinReason.RaceWon,
+            CoinRewards.RaceWon,
+            entry.GroupId,
+            entry.Id
+        );
+        return new CoinsEarnedDto
+        {
+            Earned = grant.Granted,
+            CapReached = grant.CapReached,
+            Balance = await coinService.GetBalanceAsync(userId),
+        };
     }
 
     // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.

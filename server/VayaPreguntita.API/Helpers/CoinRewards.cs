@@ -17,6 +17,9 @@ public static class CoinRewards
     public const int SelectorChoice = 5;
     public const int SelectorCreatedBonus = 5;
 
+    // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min.
+    public const int RaceWon = 10;
+
     // Max capped coins a user can earn per local day, across all groups (anti-farm).
     public const int DailyCap = 40;
 
@@ -48,5 +51,6 @@ public static class CoinRewards
                 or CoinReason.FirstVoter
                 or CoinReason.SelectorChoice
                 or CoinReason.SelectorCreated
-                or CoinReason.GuessCorrect;
+                or CoinReason.GuessCorrect
+                or CoinReason.RaceWon;
 }

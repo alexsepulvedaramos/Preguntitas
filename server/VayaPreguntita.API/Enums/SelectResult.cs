@@ -8,4 +8,7 @@ public enum SelectResult
     AlreadyActivated,
     InvalidQuestion,
     TemplateAlreadyUsed,
+
+    // Someone else won the race to select first (§17.5).
+    RaceLost,
 }

@@ -62,6 +62,9 @@ export interface SelectionState {
     isCurrentUserSelector: boolean;
     pendingQuestion: QuestionToVote | null; // only returned to the selector
     isAutoSelected: boolean; // still the automatic pick: not picked, created or confirmed yet
+    // T − 10 min and still the automatic pick (§17.5): anyone may choose ("¡Elige tú!"), so
+    // pendingQuestion is sent to everyone
+    raceOpen: boolean;
 }
 
 export interface DailyStatus {
@@ -70,6 +73,11 @@ export interface DailyStatus {
     // selector is drawn (§17.4)
     selection: SelectionState | null;
     myStreak: MyStreak; // the current user's streak in this group (rama 19)
+}
+
+// POST /daily/select and /daily/select/confirm: coins only when you won the race (§17.5)
+export interface SelectResponse {
+    coins: CoinsEarned | null;
 }
 
 // ── POST /daily/select — exactly one source must be provided ──
