@@ -12,6 +12,10 @@ public class GroupMember
     public bool IsAdmin { get; set; } = false;
     public bool NotificationsMuted { get; set; } = false;
 
+    // Shuffled selector rotation (§17.4): the last Group.SelectorRound this member was the
+    // selector in. Members below the group's current round are still due a turn in it.
+    public int LastSelectorRound { get; set; } = 0;
+
     // ==========================================
     // VOTING STREAK (rama 19) — per group, counted in daily cycles (§13)
     // ==========================================

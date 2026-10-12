@@ -27,6 +27,11 @@ export class DailyService {
         return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/select`, dto);
     }
 
+    // The selector keeps the auto-selected question as their choice (§17.4)
+    confirmSelection(groupId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/select/confirm`, {});
+    }
+
     // Submit a vote on the currently-open question; returns the fresh results plus the
     // voter's streak change (rama 19)
     vote(groupId: number, dto: CreateVote): Observable<VoteResponse> {

@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.13.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Turnos sorteados',
+      en: 'Turns drawn at random',
+      de: 'Ausgeloste Runden',
+    },
+    items: [
+      {
+        emoji: '🎲',
+        title: {
+          es: 'Nadie sabe a quién le toca',
+          en: 'Nobody knows who’s next',
+          de: 'Niemand weiß, wer als Nächstes dran ist',
+        },
+        text: {
+          es: 'El turno para elegir la pregunta ya no sigue un orden fijo: se sortea cada día entre quienes aún no han elegido en esta ronda. Todos eligen las mismas veces, pero ya no se puede adivinar quién viene después. Y nadie repite dos días seguidos.',
+          en: 'Picking the question no longer follows a fixed order: each day’s turn is drawn among those who haven’t picked yet this round. Everyone picks the same number of times, but you can’t guess who’s next any more. And nobody gets two days in a row.',
+          de: 'Wer die Frage auswählt, folgt keiner festen Reihenfolge mehr: Jeden Tag wird unter denen gelost, die in dieser Runde noch nicht dran waren. Alle sind gleich oft dran, aber man kann nicht mehr erraten, wer als Nächstes kommt. Und niemand ist zwei Tage hintereinander dran.',
+        },
+      },
+      {
+        emoji: '👍',
+        title: {
+          es: '«Me vale esta»',
+          en: '“This one works”',
+          de: '„Passt so“',
+        },
+        text: {
+          es: 'Si te toca elegir y te gusta la pregunta que ha salido automáticamente, ahora puedes quedártela con un toque en lugar de buscar otra.',
+          en: 'If it’s your turn and you like the question that was picked automatically, you can now keep it with one tap instead of looking for another.',
+          de: 'Wenn du dran bist und dir die automatisch ausgewählte Frage gefällt, kannst du sie jetzt mit einem Tipp behalten, statt eine andere zu suchen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.12.0',
     date: '2026-10-12',
     title: {

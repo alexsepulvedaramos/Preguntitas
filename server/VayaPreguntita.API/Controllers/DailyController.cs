@@ -67,6 +67,20 @@ public class DailyController(
         };
     }
 
+    // POST api/groups/{groupId}/daily/select/confirm
+    // The selector keeps the auto-selected question as their choice (§17.4)
+    [HttpPost("select/confirm")]
+    public async Task<ActionResult> ConfirmSelection(int groupId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var result = await dailyService.ConfirmSelectionAsync(groupId, userId);
+        return result == SelectResult.Success ? Ok() : Forbid();
+    }
+
     // POST api/groups/{groupId}/daily/vote
     // El usuario envía su voto
     [HttpPost("vote")]

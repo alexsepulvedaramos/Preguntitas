@@ -19,12 +19,14 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
     private static readonly DateOnly Today = new(2026, 10, 5);
     private static readonly DateOnly Tomorrow = Today.AddDays(1);
 
-    // Today's question is open and it's carlos's turn to choose tomorrow's (day 5 since
-    // creation, 5 mod 3). The pack has one translated poll.
+    // Today's question is open and carlos was drawn to choose tomorrow's. The pack has one
+    // translated poll.
     private async Task<(SeededGroup Group, int TemplateId)> SeedAsync()
     {
         var group = await SeedGroupAsync("ana", "bea", "carlos");
         await AddActivatedDayAsync(group.Id, Today, group["bea"]);
+        var autoPick = await AddQuestionAsync(group.Id, text: "Elegida automáticamente", creatorId: group["ana"]);
+        await AddEntryAsync(group.Id, Tomorrow, autoPick, group["carlos"], activated: false);
         Clock.SetLocal(Today, new TimeOnly(22, 0));
 
         await using var db = NewContext();

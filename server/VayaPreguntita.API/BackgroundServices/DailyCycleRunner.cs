@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
+using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Services;
 
@@ -89,7 +90,7 @@ public class DailyCycleRunner(
             .DailyEntries.Include(d => d.Group)
             .Where(d =>
                 d.ActivatedAt == null
-                && d.IsAutoSelected
+                && d.SelectionKind == SelectionKind.Auto
                 && d.PreselectedAt <= reminderCutoff
                 && d.SelectorReminderSentAt == null
             )

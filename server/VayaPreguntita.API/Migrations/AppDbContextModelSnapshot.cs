@@ -75,13 +75,13 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsAutoSelected")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("PreselectedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SelectionKind")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("SelectorReminderSentAt")
@@ -170,6 +170,9 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("SelectorRound")
+                        .HasColumnType("integer");
+
                     b.Property<string>("TimeZoneId")
                         .HasColumnType("text");
 
@@ -214,6 +217,9 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LastSelectorRound")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("LastStreakEntryId")
                         .HasColumnType("integer");
