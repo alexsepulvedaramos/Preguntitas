@@ -28,6 +28,7 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.GuessCorrect]: 'coins.reasons.guessCorrect',
   [CoinReason.AuthorHint]: 'coins.reasons.authorHint',
   [CoinReason.RaceWon]: 'coins.reasons.raceWon',
+  [CoinReason.FlashQuestion]: 'coins.reasons.flashQuestion',
 };
 
 const REASON_EMOJI: Record<CoinReason, string> = {
@@ -43,6 +44,7 @@ const REASON_EMOJI: Record<CoinReason, string> = {
   [CoinReason.GuessCorrect]: '🕵️',
   [CoinReason.AuthorHint]: '💡',
   [CoinReason.RaceWon]: '⏱️',
+  [CoinReason.FlashQuestion]: '⚡',
 };
 
 // Coins & shop (rama 34, §17.2): the wallet, how coins are earned and the ledger. The

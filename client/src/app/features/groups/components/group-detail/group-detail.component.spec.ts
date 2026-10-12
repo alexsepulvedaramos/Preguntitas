@@ -138,4 +138,56 @@ describe('GroupDetailComponent live refresh', () => {
     currentRequests()[0].flush(stale);
     expect(fixture.componentInstance.daily()?.today.userHasVoted).toBe(true);
   });
+
+  // ── Question deck: today's question + flash questions (rama 44) ──
+
+  const flash = (id: number, userHasVoted = false) => ({
+    id,
+    question: { id: 100 + id, text: `flash ${id}`, type: 0 },
+    launchedBy: { id: 9, username: 'ana', avatarUrl: null, frameColor: null },
+    activatedAt: '2026-10-12T08:00:00Z',
+    closesAt: '2026-10-13T08:00:00Z',
+    userHasVoted,
+    results: userHasVoted ? { id: 100 + id, text: `flash ${id}`, type: 0, totalVotes: 1, results: [], freeTextResponses: [] } : null,
+    voterIds: [],
+  });
+
+  const flushWithFlashes = (status: 'voting' | 'results', flashes: unknown[]) => {
+    http.expectOne((r) => r.url.endsWith('/daily/current')).flush({ ...daily(status), flashes });
+    http.expectOne((r) => r.url.endsWith('/members')).flush([]);
+    http.expectOne((r) => /\/groups\/1$/.test(r.url)).flush({ id: 1, name: 'g' });
+  };
+
+  const activeKey = () => fixture.componentInstance['activeCard']()?.key;
+
+  it('opens on the first unanswered question of the deck', () => {
+    fixture.detectChanges();
+    flushWithFlashes('results', [flash(1, true), flash(2)]);
+
+    expect(fixture.componentInstance['deck']().map((c) => c.key)).toEqual(['daily', 'flash-1', 'flash-2']);
+    expect(activeKey()).toBe('flash-2');
+  });
+
+  it('moves on to the next unanswered question after voting a flash', () => {
+    fixture.detectChanges();
+    flushWithFlashes('voting', [flash(1)]);
+    fixture.componentInstance.goTo('flash-1');
+
+    fixture.componentInstance.onFlashVoted(flash(1, true) as never);
+    expect(activeKey()).toBe('flash-1');
+    vi.advanceTimersByTime(1500);
+    expect(activeKey()).toBe('daily');
+  });
+
+  it('polls while a flash question is open, keeping a local flash vote', () => {
+    fixture.detectChanges();
+    http.expectOne((r) => r.url.endsWith('/daily/current')).flush({ ...daily('no_question'), flashes: [flash(1)] });
+    http.expectOne((r) => r.url.endsWith('/members')).flush([]);
+    http.expectOne((r) => /\/groups\/1$/.test(r.url)).flush({ id: 1, name: 'g' });
+    fixture.componentInstance.onFlashVoted(flash(1, true) as never);
+
+    vi.advanceTimersByTime(DAILY_POLL_INTERVAL_MS);
+    currentRequests()[0].flush({ ...daily('no_question'), flashes: [flash(1)] });
+    expect(fixture.componentInstance.daily()?.flashes[0].userHasVoted).toBe(true);
+  });
 });

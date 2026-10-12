@@ -47,7 +47,7 @@ public class LateVoteTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     private async Task<QuestionResultDto?> DetailAsync(SeededGroup group, string viewer, DateOnly date)
     {
         await using var db = NewContext();
-        return await new QuestionsService(db, TestMapper.Instance).GetByDateAsync(group.Id, group[viewer], date);
+        return await new QuestionsService(db, TestMapper.Instance, Clock).GetByDateAsync(group.Id, group[viewer], date);
     }
 
     [Fact]

@@ -533,7 +533,7 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 
 | Method | Endpoint | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/groups/{groupId}/daily/current` | ✅ | redesigned → `{ today, selection, myStreak }` (§4.7; `myStreak` added in rama 19); driven off `ActivatedAt` state. Rama 36: `today` gains `voterIds` (who has voted, never their answers), `memberCount` and `guess` (§17.6, once you have voted); `selection.selectorUserId`/`selectorUsername` are only sent to the selector themself. Rama 40: `selection.raceOpen` (during the race `pendingQuestion` goes to everyone, §17.5) |
+| `GET` | `/api/groups/{groupId}/daily/current` | ✅ | redesigned → `{ today, selection, myStreak }` (§4.7; `myStreak` added in rama 19); driven off `ActivatedAt` state. Rama 36: `today` gains `voterIds` (who has voted, never their answers), `memberCount` and `guess` (§17.6, once you have voted); `selection.selectorUserId`/`selectorUsername` are only sent to the selector themself. Rama 40: `selection.raceOpen` (during the race `pendingQuestion` goes to everyone, §17.5). Rama 44: `flashes` — the open flash questions, oldest first (§17.11) |
 | `POST` | `/api/groups/{groupId}/daily/select` | ✅ | sets the **pending (next-day)** question; never activates early; inline-create runs full §9 validation. Pool/pack pick → `SelectionKind.Picked`, inline create → `Created` (editing it in place keeps `Created`). Rama 40: returns `{ coins }` (non-null only for the race winner, §17.5); during the race any member may call it, 409 "Alguien se te ha adelantado" once someone has chosen |
 | `POST` | `/api/groups/{groupId}/daily/select/confirm` | ✅ | rama 33 — the selector keeps the auto-selected question ("Me vale esta"): `Auto → Confirmed`, idempotent (an already-picked entry is left as is); 403 if not the drawn selector. Rama 40: same `{ coins }` response and race rules as `select` |
 | `POST` | `/api/groups/{groupId}/daily/vote` | ✅ | submit vote; returns `{ results: QuestionResultDto, streak: StreakUpdateDto, coins: { earned, balance, capReached } }` (rama 19 — before/after streak + tier info for the celebration; rama 34 — coins paid, §17.2); rama 36 — `guess`, the \"¿Quién la escribió?\" step or null |
@@ -544,6 +544,9 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 | `POST` | `/api/groups/{groupId}/daily/streak/dismiss-freeze` | ✅ | rama 35 — acknowledges "your freeze saved your streak" (`myStreak.freezeSavedStreak`) |
 | `POST` | `/api/groups/{groupId}/daily/streak/dismiss-gift` | ✅ | rama 35 — acknowledges "X gave you a freeze" (`myStreak.freezeGiftFrom`) |
 | `POST` | `/api/shop/purchase` | ✅ | rama 35 — `{ item: "streakFreeze" \| "streakRepair", groupId, targetUserId? }` (a freeze with another member as `targetUserId` is a gift) → `{ balance, myStreak }`; 409 not enough coins / freeze limit (yours or the receiver's) / repair not available or already used this month; 400 target not in the group; 403 not a member (§17.9). |
+| `POST` | `/api/groups/{groupId}/flash` | ✅ | rama 44 — buy and launch a flash question at once (`CreateQuestionDto`, §9 validation; 500 🪙, one per member per group per local day) → `{ flash, balance }`; 409 not enough coins / already launched one today, 400 group not started or question not valid for the group (§17.11) |
+| `POST` | `/api/groups/{groupId}/flash/{flashId}/vote` | ✅ | rama 44 — vote a flash question: while open → the fresh flash state (no streak, coins or push); once closed → late vote from the history (`IsLate`, 204) |
+| `GET` | `/api/groups/{groupId}/flash/{flashId}` | ✅ | rama 44 — history detail of a flash question, gated like a daily one (§17.7); `author` = who launched it |
 | `GET` | `/api/groups/{groupId}/daily/selection-sources` | 🆕 | questions the selector can pick (pool + base pack) |
 
 ### Questions (pool & history)
@@ -555,7 +558,7 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 | `DELETE` | `/api/groups/{groupId}/questions/{id}` | 🆕 | creator/admin: remove from pool |
 | `GET` | `/api/groups/{groupId}/questions?date=YYYY-MM-DD` | ✅ | history detail for one **activated** date (a preselected future one is 404). Gated (rama 39, §17.7): until you vote it, `locked: true` with empty `results`/`freeTextResponses` (text, `totalVotes` and author stay), plus `lateVoteQuestion` (a `QuestionToVoteDto`) once it has closed |
 | `POST` | `/api/groups/{groupId}/history/{date}/vote` | ✅ | rama 39 — late vote on a closed question (`CreateVoteDto`, same §9 validation; targets must be current members). Stored with `Vote.IsLate`; no streak, coins or push. Returns the unlocked detail. 404 no activated entry · 400 still open / already voted / invalid |
-| `GET` | `/api/groups/{groupId}/history` | 🆕 | paginated list of past entries `{ date, questionText, type, totalVotes }` |
+| `GET` | `/api/groups/{groupId}/history` | 🆕 | paginated list of past entries `{ date, questionText, type, totalVotes }`. Rama 44: closed flash questions are merged in by launch date with `flashId` (open them with `GET flash/{flashId}`) |
 
 ### Real-time / Infra
 
@@ -603,7 +606,7 @@ Validators live in `Validators/` (FluentValidation). Vote-payload validation is 
 | What | Mechanism |
 |---|---|
 | Group chat | re-fetch `chat` every **15 s** while the chat component is mounted and the page is visible |
-| Daily state | re-fetch `daily/current` every **30 s** only while the group is in the `voting` or `results` state and the page is visible (vote count / result bars update by themselves) |
+| Daily state | re-fetch `daily/current` every **30 s** only while the group is in the `voting` or `results` state, or has an open flash question (rama 44), and the page is visible (vote count / result bars update by themselves) |
 | Hidden page | **no requests**; when the page becomes visible again both refresh immediately and the interval resumes |
 | Manual | refresh button and pull-to-refresh stay as they are |
 
@@ -742,12 +745,13 @@ Start a disposable Postgres (`docker run -p 55432:5432 postgres:15-alpine`), run
 | Streak freeze & repair (rama 35, release 1.15.0): `GroupMember` freeze/repair columns (migration `AddStreakFreeze`); `StreakFreezeRules` (max 2 held, 100 🪙 freeze, 300 🪙 repair, lazy monthly free freeze); close-of-cycle step in the activation tick (`StreakService.CloseCycleAsync`: spend a freeze, else record the loss for repair); `CoinService.SpendAsync` (conditional update + negative ledger row); `CoinReason` 6–8; `POST shop/purchase` (own freeze, gift, repair; member row locked); `POST daily/streak/dismiss-freeze` / `dismiss-gift`; `daily/current.myStreak` gains freezes, notices and `repairableStreak`; the "streak in danger" push says when a freeze will cover the miss. Angular: "your streak in this group" section in the group view (🔥 streak + 🧊 n/2 → buy dialog, repair button), freeze-saved and gift notices, repair button on the lost-streak notice, "gift a freeze" on other members' cards, ledger labels, about-page paragraph | ✅ — rama 35 |
 | Guess the author (rama 36, release 1.16.0): `AuthorGuess` table, one row per member and entry (migration `AddAuthorGuesses`; the commented-out `Vote.GuessedCreatorId` was dropped because a vote can span several rows); `AuthorGuessRules` (member-written + author still a member + ≥ 3 members; candidates = everyone but you; deterministic hint hiding `floor(wrong / 2)`); `AuthorGuessService` (`POST daily/guess`, `POST daily/guess/hint`, conditional writes); `CoinReason` 9–10 (`GuessCorrect` +5 capped, `AuthorHint` −20); `daily/current.today` gains `voterIds`, `memberCount`, `guess`, and the vote response `guess`; anonymity: pool/create return `isMine` instead of `creatorId`, the selector's identity goes only to the selector, the history detail names the author only once closed; history list `authorUsername` + `myGuessCorrect`; member stats `guessesMade`/`guessesCorrect`. Angular: "¿Quién la escribió?" card under the question (pick + confirm, skip, hint, reveal, "te han pillado X de Y" for the author), **calmer group screen** (group name + 🔥 chip in the top bar opening the streak panel, orange when at risk; time left as a thin bar sharing a row with "3/6 han votado" and a who-voted popover; streak notices one at a time above the question; selector banner above the question; "Sugerir una pregunta" under it), author and ✓/✗ in the history, guess stat on the member card, ledger labels; **toast fix**: the toaster joins the browser top layer (`TopLayerDirective`) so toasts show above CDK dialogs/drawers, and the gift-freeze error also shows inline on the card | ✅ — rama 36 |
 | Race to select (rama 40, release 1.18.0): migration `AddRaceToSelect` (`DailyEntry.RaceOpenedAt`, `NotificationPreferences.RaceToSelect`); `DailyCycleRunner` opens the race at T − 10 min (`RaceLead`) and sends `race_to_select`; `DailyService` race claim (conditional update inside the select/confirm transaction) + 10 🪙 `CoinReason.RaceWon = 11`; `select`/`select/confirm` return `{ coins }`. UI: "¡Elige tú la próxima!" banner with the normal picker, "¡Elige tú!" toggle in the profile. Turn priority was built and then dropped before merging (§17.5) | ✅ — rama 40 |
+| Flash question (rama 44, release 1.19.0): migration `AddFlashQuestion` (`FlashEntry` table, unique `(GroupId, LaunchedByUserId, LocalDate)`, `NotificationPreferences.FlashQuestion`); `FlashService` (launch in one transaction with the 500 🪙 charge, `CoinReason.FlashQuestion = 12`; vote on time or late; open list; gated detail) + `FlashController` (`POST flash`, `POST flash/{id}/vote`, `GET flash/{id}`); `daily/current.flashes`; closed flashes merged into the history by date; `flash_question` push; vote validation shared in `VotePayload`. UI: the group screen becomes a deck of open questions ("Hoy" + "⚡ {name}" tabs, red dot on unanswered ones, auto-advance after voting, "Te quedan N por responder"), amber ⚡ card, "⚡ Enviar ahora · 500 🪙" with confirmation in the create-question form, ⚡ marker and flash detail/late vote in the history, "Preguntas flash" preference, merged-notification line in `sw.js` | ✅ — rama 44 |
 | History gating + late vote (rama 39, release 1.17.0): `Vote.IsLate` (migration `AddVoteIsLate`); `QuestionsService.GetByDateAsync` gated per caller (`Locked` + `LateVoteQuestion` on `QuestionResultDto`) and limited to activated entries; `DailyService.LateVoteAsync` + `POST history/{date}/vote` (closed = a newer entry activated; no streak, coins or push); late votes excluded from every `StreakService` vote query (rebuild, backfill, member-card participation, crown tie-break); history detail shows "Vota para ver los resultados" and votes in place with `app-vote-form`. Also: a clock icon in front of the group screen's time-left line, and the "Sugerir pregunta" button as an outline button with a + icon | ✅ — rama 39 |
 | Capacity study (rama 29, docs only): free-tier limit inventory, measured throughput of the API at Render's 0.1 vCPU / 512 MB, per-player load model and a feature budget — §11.1; reproducible scripts in `tools/loadtest/` | ✅ — rama 29 |
 
 ### Pending (MVP)
 
-MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and the gameplay ramas 33–36 done; rama 37 (points/ranking) dropped 2026-10-12, folded into the rama 41 awards; rama 38 (group streak) postponed to the backlog the same day; ramas 39–40 done (turn priority dropped from 40); next the flash question (rama 44, brought forward), then 41 → 43, then 31 → 32. Phase 2 backlog in §16.
+MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and the gameplay ramas 33–36 done; rama 37 (points/ranking) dropped 2026-10-12, folded into the rama 41 awards; rama 38 (group streak) postponed to the backlog the same day; ramas 39–40 done (turn priority dropped from 40); the flash question (rama 44, brought forward) done; next the item inventory (rama 45, added 2026-10-12), then 41 → 43, then 31 → 32. Phase 2 backlog in §16.
 
 ---
 
@@ -810,7 +814,8 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 | 38 ⏸️ | ~~`feat/group-streak`~~ | **Postponed to the backlog (developer, 2026-10-12):** not worth it right now on top of the personal streak; kept as a possible future feature. The design in §17.8 stays valid — if it comes back, it is this same scope: 75 % rule at close, group-streak columns, header badge, today's progress line, milestone coins + chat message. |
 | 39 ✅ | `feat/history-gating-late-vote` | §17.7 — gated history results, `Vote.IsLate`, `POST history/{date}/vote`, exclusion of late votes from streak/coins/monthly awards. Also: clock icon before the time-left line, "Sugerir pregunta" as a real (outline) button. **Release 1.17.0.** |
 | 40 ✅ | `feat/race-to-select` | §17.5 — T−10 race (`RaceOpenedAt`, `race_to_select` push + preference, conditional-update win). **Release 1.18.0.** Turn priority ("Reservar turno") was planned here too and **dropped (developer, 2026-10-12)**: paying to get your question played is the flash question's job (§17.5). |
-| 44 | `feat/flash-question` | §17.11 — `FlashEntry`, launch/vote endpoints, `flash` block in `daily/current`, ⚡ card and history marker, `flash_question` push; bought from the "Sugerir pregunta" dialog with a paid "⚡ Enviar ahora" button. **Next (developer, 2026-10-12)**, brought forward from last: it replaces turn priority as the way to pay to get your question played. |
+| 44 ✅ | `feat/flash-question` | §17.11 — `FlashEntry`, launch/vote endpoints, `flashes` list in `daily/current`, ⚡ card in a deck of open questions and history marker, `flash_question` push; bought from the "Sugerir pregunta" dialog with a paid "⚡ Enviar ahora" button. Brought forward from last (developer, 2026-10-12): it replaces turn priority as the way to pay to get your question played. **Release 1.19.0.** |
+| 45 | `feat/shop-inventory` | §17.10 "Item inventory" — buy game items in the shop ahead of time and use them later in any group: flash question, streak freeze (own or gift), author hint, streak repair. `UserInventory` stock per item, `/shop` section to buy them, "Usar · tienes N" in each item's own spot (paying in place stays when you have none). **Added by the developer 2026-10-12**, right after rama 44 and before 41. |
 | 41 | `feat/monthly-summary` | §17.12 — `MonthlySummary` snapshot (batched), awards (incl. star author and best author-guesser, which replace the dropped points), participation, "tu match", `monthly_summary` push, story-style viewer. |
 | 42 | `feat/shop-cosmetics` | §17.10 — `ShopCatalog` + `UserItem`, equipped slots on `User`, ring skins, avatar accessories, name colour + badge, shop titles (via `SelectedTitleKey`), app themes, seniority frames, `/shop` catalog with live preview. |
 | 43 | `feat/vote-change-and-nudge` | §17.10 — "change my vote" (relaxes §4.6), toque/nudge push + `nudge` preference. |
@@ -1046,7 +1051,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 | Avatar accessory (§17.10) | 200–500 by rarity | each owned once | 1–2 months |
 | Streak repair (§17.9) | 300 | within the next cycle after the loss; max 1 per month per group | ~6 weeks |
 | Ring skin (§17.10) | 400–1 000 by rarity | each owned once | 2–4 months |
-| Flash question (§17.11) | 500 | max 1 per group per day | ~2 months |
+| Flash question (§17.11) | 500 | max 1 per member per group per day (several can be open at once) | ~2 months |
 
 **Gifts are items, never coins** (anti-farm: a second account could otherwise earn up to the cap every day and pass it on).
 
@@ -1182,7 +1187,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Seniority frames (free, confirmed):** unlocked by time in **that group** (`JoinedAt`): 1 month, 6 months, 1 year, 2 years. They are a frame option `"seniority"` with the same semantics as `"streak"` (inside a group: your seniority there; outside: your highest). Being a frame, it is an *alternative* to the streak ring, which is fine because it is free and optional. Rejoining a group resets it (accepted).
 
-**Game items (confirmed; pay per use, no inventory except freezes):**
+**Game items (confirmed; pay per use, no inventory except freezes — superseded by the item inventory below, rama 45):**
 - **Author hint** (20 🪙): in "guess the author" (§17.6) it removes half of the wrong candidates. A correct guess still pays its normal reward.
 - **Change my vote** (50 🪙): redo your vote once while the question is open. This relaxes §4.6 ("the vote is final"). It doesn't change the first-voter reward or the streak, and late votes can't be changed. The UI shows "Cambiar voto · 50 🪙" on the results card.
 - **Gift a freeze** (100 🪙) and **streak repair** (300 🪙): see §17.9.
@@ -1194,16 +1199,37 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Shop page** `/shop`: wallet, the cosmetics catalog with a live preview on your own avatar, freezes / gifts (choose group and member), and the ledger history. Pay-per-use items are bought where they are used (hint in the guess step, change vote on the results card, nudge on the member list / today's voter list).
 
+**Item inventory (developer, 2026-10-12; rama 45).** Everything you can buy with coins is also in the shop, even when it has its own spot in a group. Game items bought in the shop go to a **global inventory** (not tied to a group) and are **used later in a specific group**, from that item's usual spot:
+
+| Item | Bought in the shop | Used from |
+|---|---|---|
+| Flash question (§17.11) | 500 🪙 | "⚡ Enviar ahora" in the create-question form |
+| Streak freeze (§17.9) | 100 🪙 | the group's streak panel, for yourself, or a member's card as a gift. Activating one counts towards the max 2 held per group (the receiver's cap for gifts) |
+| Author hint (§17.10) | 20 🪙 | the "¿Quién la escribió?" step |
+| Streak repair (§17.9) | 300 🪙 | the lost-streak notice / streak panel. Buying ahead works as insurance; the 1-per-month-per-group limit and the repair window still apply when it is used |
+
+- **The button in each spot:** with stock it reads **"Usar · tienes N"**, highlighted, and uses one without charging. With none, it keeps today's pay-in-place button (buy and use in one step).
+- **No stock limit** per item: coins are the brake. Freezes keep their max 2 *active* per group.
+- Cosmetics are not part of this: they stay bought once and equipped (above). Change my vote and the nudge are not in the inventory yet (they don't exist yet; decide when they are built).
+
 ### 17.11 Flash question (instant)
 
 Confirmed by the developer as **an extra question that lives alongside the daily one**. It never replaces it and never touches the golden rule (§4.1), which governs the daily question only.
 
-- Bought for **500 🪙** by any member. It is **launched immediately**, stays **open for 24 h** from launch (not until the next T), and is limited to **1 per group per local day**. It doesn't count for streaks, coins or the monthly awards. Its card looks different (⚡).
+- Bought for **500 🪙** by any member (the selector too). It is **launched immediately**, stays **open for 24 h** from launch (not until the next T), and is limited to **1 per member per group per local day** (developer, rama 44: being expensive, there is no group-wide limit, so several flashes can be open at once). The group must have started (≥ 2 members). It doesn't count for streaks, coins or the monthly awards. Its card looks different (⚡).
 - The author is public: the buyer launches it, so there is no "guess the author". Results follow the daily rule: vote to see them. It appears in the history marked ⚡, under the same gating as §17.7.
-- Model: `FlashEntry { Id, GroupId, QuestionId, LaunchedByUserId, ActivatedAt, ClosesAt, LocalDate }` with a unique index `(GroupId, LocalDate)`. Votes reuse `Vote`.
-- **API:** `POST /api/groups/{id}/flash` (create inline, same validation as §9; charges coins atomically and refunds on any failure) and `POST /api/groups/{id}/flash/vote`. It is folded into `daily/current` as a `flash` block (null when there isn't one), **not** a second polled endpoint (§11.1 budget). Push: a new `flash_question` type to all members (toggleable, respects mute). The 30-s poll also runs while a flash question is open.
-- **Where it is bought (developer, 2026-10-12):** in the "Sugerir pregunta" dialog. After writing the question, next to "save to the pool" there is a paid button **"⚡ Enviar ahora · 500 🪙"** that launches it as a flash question instead. Final wording is settled at branch time.
+- Model: `FlashEntry { Id, GroupId, QuestionId, LaunchedByUserId, ActivatedAt, ClosesAt, LocalDate }` with a unique index `(GroupId, LaunchedByUserId, LocalDate)` and an index `(GroupId, ClosesAt)` for the open ones. The flash has its own `Question` (`IsUsed = true` from birth, so it never enters the pool or the daily draw). Votes reuse `Vote`.
+- **API:** `POST /api/groups/{id}/flash` (body = `CreateQuestionDto`, same validation as §9; the question, the flash and the charge commit in one transaction, so any failure refunds) and `POST /api/groups/{id}/flash/{flashId}/vote`. It is folded into `daily/current` as a `flashes` list (empty when there are none), **not** a second polled endpoint (§11.1 budget). Push: a new `flash_question` type to all members but the buyer (toggleable, respects mute). The 30-s poll also runs while a flash question is open.
+- **Where it is bought (developer, 2026-10-12):** in the "Sugerir pregunta" dialog (and in the selector's own create form). After writing the question, below "save to the pool" there is a paid button **"⚡ Enviar ahora · 500 🪙"** that launches it as a flash question instead. Final wording is settled at branch time.
 - Goes in **its own rama**, because it touches the group-detail layout and the vote/results flow for two coexisting questions. Originally scheduled last; **brought forward to right after rama 40 (developer, 2026-10-12)** once turn priority was dropped (§17.5).
+
+**As built (rama 44, release 1.19.0; decisions confirmed with the developer 2026-10-12):**
+
+- **Launch:** `POST flash` → `{ flash, balance }`; 409 "not enough coins" / "already launched one today in this group", 400 when the group hasn't started or the question isn't valid for the group. Ledger row `CoinReason.FlashQuestion = 12`, `RefId` = flash id. Before charging, the button asks for confirmation ("¿Lanzar ahora por 500 🪙?"); with too few coins it is disabled and says how many are missing.
+- **The group screen is a deck** (developer, rama 44): today's question plus every open flash, one card at a time, with a pager on top ("Hoy" · "⚡ {name}" tabs, arrows) shown only when there is more than one. Unanswered cards carry a pulsing red dot. The screen opens on the first unanswered card (today's first), and after voting one it moves on to the next unanswered after a short pause; on today's question it waits while "¿Quién la escribió?" is still pending. When the card you're on is answered and another isn't, an "⚡ Te quedan N por responder" button points at it. The flash card has an amber ⚡ frame, who launched it, its own time-left line and voters row. The buyer lands on their new flash right after launching it.
+- **Vote:** `POST flash/{flashId}/vote` returns the fresh flash state while it's open; after it closes the same endpoint is the late vote from the history (stored `IsLate`, returns 204). A flash vote never earns streak or coins and sends no "X ha votado" push.
+- **History:** closed flashes are merged into `GET history` by local launch date, as items with `flashId` (and `authorUsername` = the buyer); a page covers the days of its daily entries, so the date cursor never splits or repeats a flash. The detail is `GET flash/{flashId}`, gated like a daily question (§17.7).
+- **Push `flash_question`:** "⚡ Pregunta flash en {grupo}" / "{nombre} pregunta: {texto}", 24 h TTL, new **"Preguntas flash"** preference in the profile (default on).
 
 ### 17.12 Monthly summary ("wrapped")
 
@@ -1228,7 +1254,7 @@ Confirmed by the developer as **an extra question that lives alongside the daily
 | Monthly summary | none | monthly batched snapshot |
 | Shop cosmetics | ~4 short strings per user in avatar-carrying DTOs | none |
 | Nudge | one push per use | none |
-| Flash | `daily/current` +1 small query (indexed `(GroupId, LocalDate)`) | none |
+| Flash | `daily/current` +1 small query (indexed `(GroupId, ClosesAt)`) | none |
 
 No item adds polling. Every new list (ledger, summaries) is capped and indexed.
 

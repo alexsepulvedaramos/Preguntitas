@@ -6,6 +6,7 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { VoteResponse } from '../../../../core/models/streak.model';
+import { FlashState } from '../../../../core/models/daily.model';
 import { GroupMember } from '../../models/group.models';
 
 import { VoteFormComponent } from '../vote-form/vote-form.component';
@@ -14,7 +15,8 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 // Voting dispatcher (rama 6, spec §13 row 6): renders today's question through
 // `app-vote-form` (question + per-type picker) and owns the single POST daily/vote call,
-// so error/loading handling isn't duplicated across the per-type components.
+// so error/loading handling isn't duplicated across the per-type components. With a
+// `flashId` it votes that flash question instead (rama 44).
 @Component({
   selector: 'app-vote',
   imports: [HlmSpinnerImports, VoteFormComponent],
@@ -27,8 +29,10 @@ export class VoteComponent {
   public readonly groupId = input.required<number>();
   public readonly question = input.required<QuestionToVote>();
   public readonly members = input.required<GroupMember[]>();
+  public readonly flashId = input<number | null>(null);
 
   public readonly voted = output<VoteResponse>();
+  public readonly flashVoted = output<FlashState>();
 
   public readonly submitting = signal(false);
   public readonly error = signal<string | null>(null);
@@ -37,15 +41,29 @@ export class VoteComponent {
     this.error.set(null);
     this.submitting.set(true);
 
+    const flashId = this.flashId();
+    const onError = (err: unknown) => {
+      this.submitting.set(false);
+      this.error.set(apiErrorMessage(err, this.t('vote.failed')));
+    };
+
+    if (flashId != null) {
+      this.dailyService.voteFlash(this.groupId(), flashId, dto).subscribe({
+        next: (state) => {
+          this.submitting.set(false);
+          if (state) this.flashVoted.emit(state);
+        },
+        error: onError,
+      });
+      return;
+    }
+
     this.dailyService.vote(this.groupId(), dto).subscribe({
       next: (response) => {
         this.submitting.set(false);
         this.voted.emit(response);
       },
-      error: (err) => {
-        this.submitting.set(false);
-        this.error.set(apiErrorMessage(err, this.t('vote.failed')));
-      },
+      error: onError,
     });
   }
 }

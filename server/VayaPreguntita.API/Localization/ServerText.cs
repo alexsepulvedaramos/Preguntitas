@@ -325,6 +325,22 @@ public static class ServerText
         "Someone beat you to it: the question has already been chosen.",
         "Da war jemand schneller: Die Frage ist schon ausgewählt.");
 
+    // ── Flash question (rama 44) ────────────────────────────────────────────────────────
+    public static string FlashGroupNotStarted => Pick(
+        "El grupo necesita al menos 2 miembros para lanzar una pregunta flash.",
+        "The group needs at least 2 members to launch a flash question.",
+        "Die Gruppe braucht mindestens 2 Mitglieder für eine Blitzfrage.");
+
+    public static string FlashDailyLimit => Pick(
+        "Ya has lanzado una pregunta flash hoy en este grupo. Vuelve mañana.",
+        "You've already launched a flash question in this group today. Come back tomorrow.",
+        "Du hast heute in dieser Gruppe schon eine Blitzfrage gestartet. Versuch es morgen wieder.");
+
+    public static string FlashNotFound => Pick(
+        "Esa pregunta flash no existe.",
+        "That flash question doesn't exist.",
+        "Diese Blitzfrage gibt es nicht.");
+
     // ── Push notifications (recipient's language) ───────────────────────────────────────
     public static class Push
     {
@@ -358,6 +374,17 @@ public static class ServerText
             $"Vota antes de las {time} en {groupName}. Si no, gastarás una congelación 🧊 para salvar tu racha de {streak} días.",
             $"Vote in {groupName} before {time}, or you'll spend a freeze 🧊 to save your {streak}-day streak.",
             $"Stimm in {groupName} vor {time} Uhr ab, sonst verbrauchst du einen Serienschutz 🧊, um deine {streak}-Tage-Serie zu retten.");
+
+        // Flash question (§17.11): to everyone but the buyer, as soon as it is launched.
+        public static string FlashQuestionTitle(string lang, string groupName) => Pick(lang,
+            $"⚡ Pregunta flash en {groupName}",
+            $"⚡ Flash question in {groupName}",
+            $"⚡ Blitzfrage in {groupName}");
+
+        public static string FlashQuestionBody(string lang, string launcher, string text) => Pick(lang,
+            $"{launcher} pregunta: {text}",
+            $"{launcher} asks: {text}",
+            $"{launcher} fragt: {text}");
 
         // Race to select (§17.5): to everyone but the selector, 10 minutes before T.
         public static string RaceToSelectTitle(string lang, string groupName) => Pick(lang,

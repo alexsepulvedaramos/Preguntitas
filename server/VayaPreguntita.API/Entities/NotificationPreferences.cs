@@ -14,4 +14,7 @@ public class NotificationPreferences
 
     // "¡Elige tú!" — the selector hasn't chosen 10 minutes before T (§17.5).
     public bool RaceToSelect { get; set; } = true;
+
+    // "⚡ Pregunta flash" — a member launched a flash question (§17.11).
+    public bool FlashQuestion { get; set; } = true;
 }

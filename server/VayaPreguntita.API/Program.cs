@@ -76,6 +76,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IStreakService, StreakService>();
 builder.Services.AddScoped<ICoinService, CoinService>();
 builder.Services.AddScoped<IAuthorGuessService, AuthorGuessService>();
+builder.Services.AddScoped<IFlashService, FlashService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<DailyCycleRunner>();
 builder.Services.AddHostedService<DailyPreselectionService>();

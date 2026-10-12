@@ -10,7 +10,7 @@ using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
-public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestionsService
+public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider clock) : IQuestionsService
 {
     // §11 abuse-protection limits on the pool of unused (IsUsed == false) questions.
     private const int MaxUnusedQuestionsPerUserPerGroup = 20;
@@ -106,6 +106,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     // GET HISTORY
     // Lista paginada de preguntas ya cerradas (cursor-based, más recientes primero).
     // Excluye la pregunta activa de hoy y las preseleccionadas futuras.
+    // Closed flash questions (§17.11) are merged in by date: a page covers the days of its
+    // daily entries, so the date cursor never splits or repeats a flash.
     // ==========================================
     public async Task<HistoryPageDto> GetHistoryAsync(int groupId, int userId, DateOnly? before, int pageSize = 20)
     {
@@ -130,6 +132,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
             .Select(d => new
             {
                 d.Date,
+                d.ActivatedAt,
                 d.Question.Text,
                 d.Question.TextTranslations,
                 d.Question.Type,
@@ -146,22 +149,67 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
             })
             .ToListAsync();
 
-        var items = rows.Select(d => new HistoryEntryDto
-            {
-                Date = d.Date,
-                QuestionText = ContentTranslations.Pick(d.Text, d.TextTranslations),
-                Type = d.Type,
-                TotalVotes = d.TotalVotes,
-                AuthorUsername = d.AuthorUsername,
-                MyGuessCorrect = d.MyGuessCorrect,
-            })
+        var hasMore = rows.Count > pageSize;
+        if (hasMore)
+            rows.RemoveAt(rows.Count - 1);
+
+        var items = rows.Select(d => (
+                SortKey: d.ActivatedAt!.Value,
+                Item: new HistoryEntryDto
+                {
+                    Date = d.Date,
+                    QuestionText = ContentTranslations.Pick(d.Text, d.TextTranslations),
+                    Type = d.Type,
+                    TotalVotes = d.TotalVotes,
+                    AuthorUsername = d.AuthorUsername,
+                    MyGuessCorrect = d.MyGuessCorrect,
+                }
+            ))
             .ToList();
 
-        var hasMore = items.Count > pageSize;
-        if (hasMore)
-            items.RemoveAt(items.Count - 1);
+        // Flashes on the days this page covers: down to its oldest day while more pages
+        // follow, all the way back on the last page.
+        DateOnly? oldestDay = hasMore ? rows[^1].Date : null;
+        var nowUtc = DailyClock.UtcNow(clock);
+        var flashes = await context
+            .FlashEntries.Where(f => f.GroupId == groupId && f.ClosesAt <= nowUtc)
+            .Where(f => before == null || f.LocalDate < before)
+            .Where(f => oldestDay == null || f.LocalDate >= oldestDay)
+            .Select(f => new
+            {
+                f.Id,
+                f.LocalDate,
+                f.ActivatedAt,
+                f.Question.Text,
+                f.Question.Type,
+                TotalVotes = f.Question.Votes.Select(v => v.UserId).Distinct().Count(),
+                f.LaunchedBy.Username,
+            })
+            .ToListAsync();
+        items.AddRange(
+            flashes.Select(f => (
+                SortKey: f.ActivatedAt,
+                Item: new HistoryEntryDto
+                {
+                    Date = f.LocalDate,
+                    QuestionText = f.Text,
+                    Type = f.Type,
+                    TotalVotes = f.TotalVotes,
+                    AuthorUsername = f.Username,
+                    FlashId = f.Id,
+                }
+            ))
+        );
 
-        return new HistoryPageDto { Items = items, HasMore = hasMore };
+        return new HistoryPageDto
+        {
+            Items = items
+                .OrderByDescending(i => i.Item.Date)
+                .ThenByDescending(i => i.SortKey)
+                .Select(i => i.Item)
+                .ToList(),
+            HasMore = hasMore,
+        };
     }
 
     // ==========================================

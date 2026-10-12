@@ -9,14 +9,14 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
-import { AuthorGuess, DailyStatus } from '../../../../core/models/daily.model';
+import { AuthorGuess, DailyStatus, FlashState, LaunchFlashResponse } from '../../../../core/models/daily.model';
 import { MyStreak, StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -41,6 +41,7 @@ import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { MyStreakComponent } from '../my-streak/my-streak.component';
 import { TodayVotersComponent } from '../today-voters/today-voters.component';
 import { AuthorGuessComponent } from '../author-guess/author-guess.component';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -51,6 +52,16 @@ const STREAK_DANGER_MS = 3 * 60 * 60 * 1000;
 // One dismissible streak notice at a time, in this order of importance.
 type StreakNotice = 'lost' | 'freeze' | 'gift' | null;
 
+// One open question in the deck (rama 44): today's question, or a flash question.
+export interface DeckCard {
+  key: string; // 'daily' | 'flash-{id}'
+  flash: FlashState | null;
+  pending: boolean; // not answered yet
+}
+
+// After answering, the next unanswered question slides in once the results have had a moment.
+const ADVANCE_DELAY_MS = 1500;
+
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
 // is `app-vote` (rama 6); full results visualization lands in rama 7. The selection
@@ -59,6 +70,8 @@ type StreakNotice = 'lost' | 'freeze' | 'gift' | null;
 // sharing a row with who has voted, notices sit above the question one at a time, and
 // "suggest a question" moved below it. After voting, "¿Quién la escribió?" sits under the
 // question when it was written by a member. Rama 40: the "¡Elige tú!" race banner.
+// Rama 44: flash questions — the open questions become a deck (today's + each flash), shown
+// one at a time with a pager; answering one moves on to the next unanswered.
 @Component({
   selector: 'app-group-detail',
   imports: [
@@ -81,9 +94,10 @@ type StreakNotice = 'lost' | 'freeze' | 'gift' | null;
     MyStreakComponent,
     TodayVotersComponent,
     AuthorGuessComponent,
+    UserAvatarComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX }),
+    provideIcons({ lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
@@ -130,6 +144,33 @@ export class GroupDetailComponent implements OnInit {
     return new Date(today.closesAt).getTime() - this.now() <= STREAK_DANGER_MS;
   });
 
+  // ── Question deck (rama 44) ──
+  protected readonly deck = computed<DeckCard[]>(() => {
+    const daily = this.daily();
+    if (!daily) return [];
+    const cards: DeckCard[] = [];
+    if (daily.today.status !== 'no_question')
+      cards.push({ key: 'daily', flash: null, pending: daily.today.status === 'voting' });
+    for (const flash of daily.flashes ?? [])
+      cards.push({ key: `flash-${flash.id}`, flash, pending: !flash.userHasVoted });
+    return cards;
+  });
+
+  private readonly activeKey = signal<string | null>(null);
+  private advanceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  protected readonly activeIndex = computed(() =>
+    Math.max(0, this.deck().findIndex((c) => c.key === this.activeKey())),
+  );
+  protected readonly activeCard = computed<DeckCard | null>(() => this.deck()[this.activeIndex()] ?? null);
+  // A one-item list so the flash card is rebuilt (and its vote form reset) per flash.
+  protected readonly activeFlashList = computed(() => {
+    const flash = this.activeCard()?.flash;
+    return flash ? [flash] : [];
+  });
+  protected readonly pendingCount = computed(() => this.deck().filter((c) => c.pending).length);
+  protected readonly nextPending = computed(() => this.findNextPending());
+
   // Streak celebration after a vote that extends the streak (rama 19).
   public readonly celebration = signal<StreakUpdate | null>(null);
   private openSelectorAfterCelebration = false;
@@ -138,7 +179,10 @@ export class GroupDetailComponent implements OnInit {
     this.loadAll();
     this.startDailyPolling();
     const tick = setInterval(() => this.now.set(Date.now()), 60_000);
-    this.destroyRef.onDestroy(() => clearInterval(tick));
+    this.destroyRef.onDestroy(() => {
+      clearInterval(tick);
+      this.cancelAdvance();
+    });
   }
 
   refresh() {
@@ -154,6 +198,76 @@ export class GroupDetailComponent implements OnInit {
         this.refreshing.set(false);
       },
     });
+  }
+
+  goTo(key: string) {
+    this.cancelAdvance();
+    this.activeKey.set(key);
+  }
+
+  stepDeck(delta: number) {
+    const card = this.deck()[this.activeIndex() + delta];
+    if (card) this.goTo(card.key);
+  }
+
+  deckTabClass(card: DeckCard, active: boolean): string {
+    if (active)
+      return card.flash ? 'bg-amber-400 text-neutral-950' : 'bg-primary text-primary-foreground';
+    return card.flash
+      ? 'bg-amber-400/15 text-foreground hover:bg-amber-400/25'
+      : 'bg-muted text-muted-foreground hover:bg-muted/70';
+  }
+
+  deckTabLabel(card: DeckCard): string {
+    const label = card.flash
+      ? this.t('flash.tabLabel', { name: card.flash.launchedBy.username })
+      : this.t('flash.dailyTabLabel');
+    return card.pending ? `${label} · ${this.t('flash.unanswered')}` : label;
+  }
+
+  // The flash question you just bought (rama 44): it goes out at once, and you see it first.
+  onFlashLaunched(res: LaunchFlashResponse) {
+    toast.success(this.t('flash.launched'));
+    const daily = this.daily();
+    if (daily) this.daily.set({ ...daily, flashes: [...(daily.flashes ?? []), res.flash] });
+    this.goTo(`flash-${res.flash.id}`);
+  }
+
+  onFlashVoted(state: FlashState) {
+    const daily = this.daily();
+    if (!daily) return;
+    this.daily.set({
+      ...daily,
+      flashes: (daily.flashes ?? []).map((f) => (f.id === state.id ? state : f)),
+    });
+    this.scheduleAdvance();
+  }
+
+  // Moves on to the next unanswered question, unless the user navigates first.
+  private scheduleAdvance() {
+    this.cancelAdvance();
+    if (!this.findNextPending()) return;
+    this.advanceTimer = setTimeout(() => {
+      this.advanceTimer = null;
+      const next = this.findNextPending();
+      if (next) this.activeKey.set(next.key);
+    }, ADVANCE_DELAY_MS);
+  }
+
+  private cancelAdvance() {
+    if (this.advanceTimer) clearTimeout(this.advanceTimer);
+    this.advanceTimer = null;
+  }
+
+  // The first unanswered card after the active one, wrapping around.
+  private findNextPending(): DeckCard | null {
+    const cards = this.deck();
+    const start = this.activeIndex();
+    for (let i = 1; i < cards.length; i++) {
+      const card = cards[(start + i) % cards.length];
+      if (card.pending) return card;
+    }
+    return null;
   }
 
   questionTypeLabel(type: QuestionType): string {
@@ -195,6 +309,9 @@ export class GroupDetailComponent implements OnInit {
 
     // If this user is the selector for the next question, auto-open the picker —
     // after the celebration when one is shown.
+    // "¿Quién la escribió?" is the next step after voting: only move on when it isn't waiting.
+    if (guess?.state !== 'pending') this.scheduleAdvance();
+
     const isSelector = !!daily.selection?.isCurrentUserSelector;
     if (streak.current > streak.previous) {
       this.openSelectorAfterCelebration = isSelector;
@@ -209,6 +326,7 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (!daily) return;
     this.daily.set({ ...daily, today: { ...daily.today, guess } });
+    if (guess.state !== 'pending') this.scheduleAdvance();
   }
 
   // "+8 🪙" after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
@@ -306,7 +424,8 @@ export class GroupDetailComponent implements OnInit {
       .pipe(
         filter(() => {
           const status = this.daily()?.today.status;
-          return !this.loading() && !this.refreshing() && (status === 'voting' || status === 'results');
+          const hasFlashes = (this.daily()?.flashes?.length ?? 0) > 0;
+          return !this.loading() && !this.refreshing() && (status === 'voting' || status === 'results' || hasFlashes);
         }),
         exhaustMap(() => this.dailyService.getCurrent(this.numericGroupId()).pipe(catchError(() => EMPTY))),
         takeUntilDestroyed(this.destroyRef),
@@ -330,7 +449,17 @@ export class GroupDetailComponent implements OnInit {
         sameQuestion && fresh.today.status === 'voting' && current.today.status === 'voting'
           ? { ...fresh.today, question: current.today.question }
           : fresh.today,
+      flashes: (fresh.flashes ?? []).map((f) => this.mergeFlash(current.flashes ?? [], f)),
     });
+  }
+
+  // Same rules per flash question: keep a local vote a stale poll doesn't know about yet, and
+  // keep the question object while it's still waiting for a vote.
+  private mergeFlash(current: FlashState[], fresh: FlashState): FlashState {
+    const local = current.find((f) => f.id === fresh.id);
+    if (!local) return fresh;
+    if (local.userHasVoted && !fresh.userHasVoted) return local;
+    return !local.userHasVoted && !fresh.userHasVoted ? { ...fresh, question: local.question } : fresh;
   }
 
   private loadAll() {
@@ -346,6 +475,8 @@ export class GroupDetailComponent implements OnInit {
       next: (res) => {
         this.group.set(res.group);
         this.daily.set(res.daily);
+        // Open on the first unanswered question, today's first.
+        this.activeKey.set(this.deck().find((c) => c.pending)?.key ?? null);
         this.members.set(res.members);
         this.groupStreaks.set(this.numericGroupId(), res.members);
         this.loading.set(false);

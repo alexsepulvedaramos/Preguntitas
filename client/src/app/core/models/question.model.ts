@@ -64,6 +64,7 @@ export interface HistoryEntry {
     totalVotes: number;
     authorUsername: string | null; // member-written questions only (rama 36)
     myGuessCorrect: boolean | null; // null when you didn't guess
+    flashId?: number | null; // a closed flash question (rama 44, marked ⚡); authorUsername = who launched it
 }
 
 // Mirrors backend HistoryPageDto — cursor-based paginated response.

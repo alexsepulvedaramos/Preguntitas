@@ -94,6 +94,20 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendFlashQuestionAsync(
+        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText) =>
+        RunLoggedAsync("flash_question", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: launcherUserId, pref => pref.FlashQuestion);
+            var text = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
+            await SendLocalizedAsync(context, recipients, FlashService.OpenFor, lang =>
+                BuildPayload(
+                    ServerText.Push.FlashQuestionTitle(lang, groupName),
+                    ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
+                    groupId, groupName, "flash_question", lang, actor: launcherUsername
+                ));
+        });
+
     public Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername) =>
         RunLoggedAsync("user_voted", groupId, async context =>
         {

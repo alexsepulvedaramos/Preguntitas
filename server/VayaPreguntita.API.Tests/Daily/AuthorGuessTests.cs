@@ -257,7 +257,7 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         await using (var db = NewContext())
         {
-            var whileOpen = await new QuestionsService(db, TestMapper.Instance).GetByDateAsync(group.Id, group["ana"], Today);
+            var whileOpen = await new QuestionsService(db, TestMapper.Instance, Clock).GetByDateAsync(group.Id, group["ana"], Today);
             whileOpen!.Author.Should().BeNull();
         }
 
@@ -265,7 +265,7 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         await using (var db = NewContext())
         {
-            var service = new QuestionsService(db, TestMapper.Instance);
+            var service = new QuestionsService(db, TestMapper.Instance, Clock);
             var detail = await service.GetByDateAsync(group.Id, group["ana"], Today);
             var page = await service.GetHistoryAsync(group.Id, group["ana"], before: null);
             var carlosPage = await service.GetHistoryAsync(group.Id, group["carlos"], before: null);
@@ -285,7 +285,7 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await AddQuestionAsync(group.Id, text: "De bea", creatorId: group["bea"]);
 
         await using var db = NewContext();
-        var page = await new QuestionsService(db, TestMapper.Instance).GetPoolAsync(group.Id, group["ana"]);
+        var page = await new QuestionsService(db, TestMapper.Instance, Clock).GetPoolAsync(group.Id, group["ana"]);
 
         page.Items.Single(q => q.Text == "De ana").IsMine.Should().BeTrue();
         page.Items.Single(q => q.Text == "De bea").IsMine.Should().BeFalse();

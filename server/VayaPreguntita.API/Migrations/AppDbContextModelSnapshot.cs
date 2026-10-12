@@ -211,6 +211,46 @@ namespace VayaPreguntita.API.Migrations
                     b.ToTable("DevicePushSubscriptions");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.FlashEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ClosesAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LaunchedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("LocalDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LaunchedByUserId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("GroupId", "ClosesAt");
+
+                    b.HasIndex("GroupId", "LaunchedByUserId", "LocalDate")
+                        .IsUnique();
+
+                    b.ToTable("FlashEntries");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.Group", b =>
                 {
                     b.Property<int>("Id")
@@ -335,6 +375,9 @@ namespace VayaPreguntita.API.Migrations
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("FlashQuestion")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("NewMessage")
                         .HasColumnType("boolean");
@@ -780,6 +823,33 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.FlashEntry", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "LaunchedBy")
+                        .WithMany()
+                        .HasForeignKey("LaunchedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("LaunchedBy");
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.Group", b =>

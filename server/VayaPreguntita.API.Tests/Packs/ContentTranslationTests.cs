@@ -168,7 +168,7 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
     {
         CultureInfo.CurrentUICulture = new CultureInfo(language);
         await using var db = NewContext();
-        var page = await new QuestionsService(db, TestMapper.Instance).GetHistoryAsync(groupId, userId: 0, before: null);
+        var page = await new QuestionsService(db, TestMapper.Instance, Clock).GetHistoryAsync(groupId, userId: 0, before: null);
         return page.Items.Select(i => i.QuestionText).ToList();
     }
 

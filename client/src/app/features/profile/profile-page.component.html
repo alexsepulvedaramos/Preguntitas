@@ -363,6 +363,17 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
+            <p class="text-sm text-foreground">{{ t('profile.prefFlashQuestion') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefFlashQuestionHint') }}</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().flashQuestion"
+            (checkedChange)="togglePref('flashQuestion')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
             <p class="text-sm text-foreground">{{ t('profile.prefUserVoted') }}</p>
           </div>
           <hlm-switch

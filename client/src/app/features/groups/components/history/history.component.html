@@ -55,14 +55,15 @@
   <!-- History list -->
   } @else {
     <div class="flex flex-col gap-2">
-      @for (entry of entries(); track entry.date) {
+      @for (entry of entries(); track historyKey(entry)) {
 
         <!-- Entry row -->
         <button
           class="flex items-start gap-3 p-3 text-left rounded-default border transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          [class.bg-muted]="selectedDate() === entry.date"
-          [class.border-primary]="selectedDate() === entry.date"
-          (click)="selectEntry(entry.date)"
+          [class.bg-muted]="selectedKey() === historyKey(entry)"
+          [class.border-primary]="selectedKey() === historyKey(entry)"
+          [class.border-amber-400/60]="entry.flashId != null && selectedKey() !== historyKey(entry)"
+          (click)="selectEntry(entry)"
         >
           <!-- Date column -->
           <div class="flex flex-col items-center text-center min-w-[42px] pt-0.5">
@@ -81,14 +82,25 @@
           <div class="flex-1 min-w-0 flex flex-col gap-1">
             <p class="text-sm line-clamp-2 text-foreground">{{ entry.questionText }}</p>
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <!-- Flash question (rama 44) -->
+              @if (entry.flashId != null) {
+                <span class="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-bold text-neutral-950">
+                  <ng-icon hlm name="lucideZap" class="size-3!" />
+                  {{ t('flash.badge') }}
+                </span>
+              }
               <span
                 class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
                 [class]="questionTypeBadgeClass(entry.type)"
               >
                 {{ questionTypeLabel(entry.type) }}
               </span>
-              <!-- Who wrote it, and how your guess went (rama 36) -->
-              @if (entry.authorUsername) {
+              <!-- Who wrote it, and how your guess went (rama 36); who launched a flash -->
+              @if (entry.flashId != null && entry.authorUsername) {
+                <span class="text-xs text-muted-foreground">
+                  {{ t('flash.launchedBy', { name: entry.authorUsername }) }}
+                </span>
+              } @else if (entry.authorUsername) {
                 <span class="text-xs text-muted-foreground">
                   {{ t('history.writtenBy', { name: entry.authorUsername }) }}
                   @if (entry.myGuessCorrect === true) {
@@ -108,7 +120,7 @@
         </button>
 
         <!-- Inline detail panel — shown when this entry is selected -->
-        @if (selectedDate() === entry.date) {
+        @if (selectedKey() === historyKey(entry)) {
           <div class="rounded-default border bg-card p-4 flex flex-col gap-4 -mt-1">
             <p class="text-xs uppercase tracking-wide text-muted-foreground">
               {{ formatFullDate(entry.date) }}
@@ -129,7 +141,7 @@
                 <div class="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
                   <span>{{ t('history.voters', { count: selectedResult()!.totalVotes }) }}</span>
                   @if (selectedResult()!.author; as author) {
-                    <span>· {{ t('history.writtenBy', { name: author.username }) }}</span>
+                    <span>· {{ entry.flashId != null ? t('flash.launchedBy', { name: author.username }) : t('history.writtenBy', { name: author.username }) }}</span>
                   }
                 </div>
                 @if (!selectedResult()!.locked) {

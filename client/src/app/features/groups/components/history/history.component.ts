@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -6,9 +7,10 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCalendar, lucideLock } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCalendar, lucideLock, lucideZap } from '@ng-icons/lucide';
 
 import { QuestionsService } from '../../../../core/services/questions.service';
+import { DailyService } from '../../../../core/services/daily.service';
 import { HistoryEntry } from '../../../../core/models/question.model';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionToVote } from '../../../../core/models/question.model';
@@ -28,6 +30,13 @@ import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { provideCalendarI18n } from '../../../../core/i18n/calendar-i18n';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
+
+// A day's question is keyed by its date; a flash question (rama 44) by its id, since it can
+// share the day with the daily one.
+export function historyKey(entry: HistoryEntry): string {
+  return entry.flashId != null ? `flash-${entry.flashId}` : entry.date;
+}
+
 @Component({
   selector: 'app-history',
   imports: [
@@ -44,11 +53,12 @@ import { TranslationKey } from '../../../../core/i18n/translation.types';
   ],
   // The date picker is the app's only calendar: its i18n is provided here so the calendar
   // code stays in this lazy chunk.
-  providers: [provideIcons({ lucideArrowLeft, lucideCalendar, lucideLock }), provideCalendarI18n()],
+  providers: [provideIcons({ lucideArrowLeft, lucideCalendar, lucideLock, lucideZap }), provideCalendarI18n()],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
   private readonly questionsService = inject(QuestionsService);
+  private readonly dailyService = inject(DailyService);
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly groupsService = inject(GroupsService);
   private readonly i18n = inject(I18nService);
@@ -64,8 +74,9 @@ export class HistoryComponent implements OnInit {
   public readonly loadingMore = signal(false);
   public readonly error = signal<TranslationKey | null>(null);
 
-  // Detail state — the currently-expanded date and its full results.
-  public readonly selectedDate = signal<string | null>(null);
+  // Detail state — the currently-expanded entry (see historyKey) and its full results.
+  public readonly selectedKey = signal<string | null>(null);
+  private readonly selectedEntry = signal<HistoryEntry | null>(null);
   public readonly selectedResult = signal<QuestionResult | null>(null);
   public readonly loadingDetail = signal(false);
   public readonly detailError = signal<TranslationKey | null>(null);
@@ -92,6 +103,7 @@ export class HistoryComponent implements OnInit {
   });
 
   protected readonly QuestionType = QuestionType;
+  protected readonly historyKey = historyKey;
 
   ngOnInit() {
     // Results avatars read members' streak rings from here (rama 19).
@@ -134,20 +146,27 @@ export class HistoryComponent implements OnInit {
   }
 
   // Toggle: clicking the same entry collapses it; clicking another fetches its detail.
-  selectEntry(date: string) {
+  selectEntry(entry: HistoryEntry) {
     this.resetLateVote();
-    if (this.selectedDate() === date) {
-      this.selectedDate.set(null);
+    const key = historyKey(entry);
+    if (this.selectedKey() === key) {
+      this.selectedKey.set(null);
+      this.selectedEntry.set(null);
       this.selectedResult.set(null);
       return;
     }
 
-    this.selectedDate.set(date);
+    this.selectedKey.set(key);
+    this.selectedEntry.set(entry);
     this.selectedResult.set(null);
     this.loadingDetail.set(true);
     this.detailError.set(null);
 
-    this.questionsService.getByDate(this.numericGroupId(), date).subscribe({
+    const detail$ =
+      entry.flashId != null
+        ? this.dailyService.getFlash(this.numericGroupId(), entry.flashId)
+        : this.questionsService.getByDate(this.numericGroupId(), entry.date);
+    detail$.subscribe({
       next: (result) => {
         this.selectedResult.set(result);
         this.loadingDetail.set(false);
@@ -171,14 +190,14 @@ export class HistoryComponent implements OnInit {
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
     const dateStr = d.toISOString().slice(0, 10);
 
-    const alreadyLoaded = this.entries().some(e => e.date === dateStr);
-    if (alreadyLoaded) {
-      this.selectEntry(dateStr);
+    const loaded = this.entries().find(e => e.date === dateStr && e.flashId == null);
+    if (loaded) {
+      this.selectEntry(loaded);
       return;
     }
 
     // Date not yet in the list — fetch its result and inject a synthetic entry.
-    this.selectedDate.set(dateStr);
+    this.selectedKey.set(dateStr);
     this.selectedResult.set(null);
     this.loadingDetail.set(true);
     this.detailError.set(null);
@@ -193,6 +212,7 @@ export class HistoryComponent implements OnInit {
           authorUsername: result.author?.username ?? null,
           myGuessCorrect: null, // the detail doesn't carry your guess; the list row does
         };
+        this.selectedEntry.set(synthetic);
         this.entries.update(prev => {
           const insertAt = prev.findIndex(e => e.date < dateStr);
           if (insertAt === -1) return [...prev, synthetic];
@@ -204,7 +224,7 @@ export class HistoryComponent implements OnInit {
       error: () => {
         this.detailError.set('history.noResults');
         this.loadingDetail.set(false);
-        this.selectedDate.set(null);
+        this.selectedKey.set(null);
       },
     });
   }
@@ -218,18 +238,28 @@ export class HistoryComponent implements OnInit {
   }
 
   submitLateVote(dto: CreateVote) {
-    const date = this.selectedDate();
-    if (!date) return;
+    const entry = this.selectedEntry();
+    if (!entry) return;
+    const key = historyKey(entry);
+    const groupId = this.numericGroupId();
+
+    // A flash question's late vote returns nothing: re-read its (now unlocked) detail.
+    const vote$ =
+      entry.flashId != null
+        ? this.dailyService
+            .voteFlash(groupId, entry.flashId, dto)
+            .pipe(switchMap(() => this.dailyService.getFlash(groupId, entry.flashId!)))
+        : this.questionsService.lateVote(groupId, entry.date, dto);
 
     this.lateVoteError.set(null);
     this.lateVoting.set(true);
-    this.questionsService.lateVote(this.numericGroupId(), date, dto).subscribe({
+    vote$.subscribe({
       next: (result) => {
         this.lateVoting.set(false);
         this.showLateVote.set(false);
         this.selectedResult.set(result);
         this.entries.update((prev) =>
-          prev.map((e) => (e.date === date ? { ...e, totalVotes: result.totalVotes } : e)),
+          prev.map((e) => (historyKey(e) === key ? { ...e, totalVotes: result.totalVotes } : e)),
         );
       },
       error: (err) => {

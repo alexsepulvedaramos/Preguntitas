@@ -27,6 +27,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
     public DbSet<CoinTransaction> CoinTransactions { get; set; }
     public DbSet<AuthorGuess> AuthorGuesses { get; set; }
+    public DbSet<FlashEntry> FlashEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -267,6 +268,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(g => g.GuessedCreatorId)
              .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ==========================================
+        // FLASH ENTRY (rama 44, §17.11) — one per member, group and local day
+        // ==========================================
+        modelBuilder.Entity<FlashEntry>(e =>
+        {
+            e.HasIndex(f => new { f.GroupId, f.LaunchedByUserId, f.LocalDate }).IsUnique();
+            // daily/current reads the group's open flashes (ClosesAt > now) on every poll.
+            e.HasIndex(f => new { f.GroupId, f.ClosesAt });
+            e.HasOne(f => f.Group)
+             .WithMany()
+             .HasForeignKey(f => f.GroupId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(f => f.Question)
+             .WithMany()
+             .HasForeignKey(f => f.QuestionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(f => f.LaunchedBy)
+             .WithMany()
+             .HasForeignKey(f => f.LaunchedByUserId)
+             .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

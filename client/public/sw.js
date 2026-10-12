@@ -70,6 +70,7 @@ const TEXT = {
   es: {
     selectorTurn: '¡Te toca elegir la pregunta!',
     raceToSelect: '¡Elige tú la próxima pregunta!',
+    flash: (name) => `Pregunta flash de ${name}`,
     voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
     messages: (count, names) => `${count} mensajes nuevos de ${names}`,
     and: 'y',
@@ -78,6 +79,7 @@ const TEXT = {
   en: {
     selectorTurn: "It's your turn to pick the question!",
     raceToSelect: 'Your pick: the next question is up for grabs!',
+    flash: (name) => `Flash question from ${name}`,
     voted: (names) => `${names} voted`,
     messages: (count, names) => `${count} new messages from ${names}`,
     and: 'and',
@@ -86,6 +88,7 @@ const TEXT = {
   de: {
     selectorTurn: 'Du bist dran, die Frage auszuwählen!',
     raceToSelect: 'Du darfst die nächste Frage wählen!',
+    flash: (name) => `Blitzfrage von ${name}`,
     voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
     messages: (count, names) => `${count} neue Nachrichten von ${names}`,
     and: 'und',
@@ -105,6 +108,11 @@ function summarize(events, text) {
 
   const question = latest('new_question');
   if (question) lines.push(`❓ ${question.body}`);
+
+  // Flash questions (rama 44) live 24 h on their own, so every one stays listed.
+  const flashes = events.filter((e) => e.kind === 'flash_question');
+  if (flashes.length === 1) lines.push(`⚡ ${flashes[0].body}`);
+  else flashes.forEach((e) => lines.push(`⚡ ${text.flash(e.actor)}`));
 
   const voters = unique(events.filter((e) => e.kind === 'user_voted').map((e) => e.actor));
   if (voters.length) lines.push(`🗳️ ${text.voted(listNames(voters, text), voters.length)}`);

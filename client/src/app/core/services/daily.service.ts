@@ -5,12 +5,16 @@ import { Observable } from 'rxjs';
 import {
     AuthorHintResponse,
     DailyStatus,
+    FlashState,
     GuessAuthorRequest,
     GuessAuthorResponse,
+    LaunchFlashResponse,
     SelectQuestion,
     SelectResponse,
 } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
+import { CreateQuestion } from '../models/question.model';
+import { QuestionResult } from '../models/result.model';
 import { VoteResponse } from '../models/streak.model';
 import { ChatMessage } from '../models/chat-message.model';
 import { environment } from '../../../environments/environment';
@@ -69,6 +73,23 @@ export class DailyService {
     // Acknowledge "X te ha regalado una congelación" (rama 35)
     dismissGiftNotice(groupId: number): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/streak/dismiss-gift`, {});
+    }
+
+    // Buy and launch a flash question at once (rama 44, §17.11); 409 when coins are short or
+    // you already launched one today in this group
+    launchFlash(groupId: number, dto: CreateQuestion): Observable<LaunchFlashResponse> {
+        return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto);
+    }
+
+    // Vote a flash question: the fresh state while it's open, nothing (204) when it's a late
+    // vote from the history
+    voteFlash(groupId: number, flashId: number, dto: CreateVote): Observable<FlashState | null> {
+        return this.http.post<FlashState | null>(`${this.baseUrl}/${groupId}/flash/${flashId}/vote`, dto);
+    }
+
+    // History detail of a flash question, gated like a daily one (§17.7)
+    getFlash(groupId: number, flashId: number): Observable<QuestionResult> {
+        return this.http.get<QuestionResult>(`${this.baseUrl}/${groupId}/flash/${flashId}`);
     }
 
     // Chat messages for the currently-open daily question
