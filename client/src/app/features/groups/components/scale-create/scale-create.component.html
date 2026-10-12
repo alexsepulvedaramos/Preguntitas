@@ -6,12 +6,12 @@
       [checked]="aboutPerson()"
       (change)="toggleAboutPerson()"
     />
-    <span class="text-sm text-foreground">¿Es sobre alguien del grupo?</span>
+    <span class="text-sm text-foreground">{{ t('createQuestion.aboutPerson') }}</span>
   </label>
 
   @if (aboutPerson()) {
     <div class="flex flex-col gap-1.5">
-      <p class="text-sm text-muted-foreground">¿A quién se puntúa?</p>
+      <p class="text-sm text-muted-foreground">{{ t('createQuestion.whoRated') }}</p>
       <div class="flex flex-col gap-2">
         @for (member of members(); track member.id) {
           <button
@@ -27,5 +27,5 @@
     </div>
   }
 
-  <p class="text-sm text-muted-foreground">Cada uno puntúa del 1 al 10.</p>
+  <p class="text-sm text-muted-foreground">{{ t('createQuestion.scaleNote') }}</p>
 </div>

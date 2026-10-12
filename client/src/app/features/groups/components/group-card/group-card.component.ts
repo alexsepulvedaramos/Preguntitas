@@ -17,6 +17,7 @@ import {
 
 import { GroupResponse } from '../../models/group.models';
 import { inviteLink, shareInvite } from '../../utils/invite-share';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 @Component({
   selector: 'app-group-card',
@@ -34,6 +35,7 @@ import { inviteLink, shareInvite } from '../../utils/invite-share';
 })
 export class GroupCardComponent {
   private readonly router = inject(Router);
+  protected readonly t = inject(I18nService).t;
 
   public group = input.required<GroupResponse>();
 
@@ -108,7 +110,7 @@ export class GroupCardComponent {
 
   // Triggers the device's native sharing context sheet
   async shareWithNativeApi() {
-    const result = await shareInvite(this.group().name, this.group().invitationCode);
+    const result = await shareInvite(this.group().name, this.group().invitationCode, this.t);
     if (result === 'copied') {
       this.isLinkCopied.set(true);
       setTimeout(() => this.isLinkCopied.set(false), 3000);

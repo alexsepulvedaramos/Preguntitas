@@ -1,13 +1,14 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 
 import { QuestionToVote } from '../../../../core/models/question.model';
-import { QuestionResult } from '../../../../core/models/result.model';
+import { OptionResult, QuestionResult } from '../../../../core/models/result.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
 import { ScaleResultComponent } from '../scale-result/scale-result.component';
 import { DeathmatchResultComponent } from '../deathmatch-result/deathmatch-result.component';
 import { FreeTextResponsesComponent } from '../free-text-responses/free-text-responses.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // Results dispatcher (rama 7, spec §13 row 7): mirrors the voting dispatcher (rama 6,
 // `app-vote`). Custom Poll, Superlative and Secret Pairing share the exact same shape
@@ -29,11 +30,23 @@ export class ResultsComponent {
   public readonly result = input.required<QuestionResult>();
 
   protected readonly QuestionType = QuestionType;
+  protected readonly t = inject(I18nService).t;
+
+  // The API labels a Superlative's "nobody" row in Spanish (id 0, no target user); show it
+  // in the UI language instead.
+  protected readonly rows = computed<OptionResult[]>(() => {
+    const { type } = this.question();
+    return this.result().results.map((r) =>
+      type === QuestionType.Superlative && r.id === 0 && !r.targetUser
+        ? { ...r, displayText: this.t('vote.nobody') }
+        : r
+    );
+  });
 
   // Normalizes bar widths: max-vote option → 100%, rest proportional.
   // If all tied (including zero-vote tie), everyone gets 100% so content is readable.
   protected readonly barWidths = computed(() => {
-    const results = this.result().results;
+    const results = this.rows();
     if (!results.length) return [] as number[];
     const maxVotes = Math.max(...results.map(r => r.voteCount));
     if (maxVotes === 0) return results.map(() => 0);

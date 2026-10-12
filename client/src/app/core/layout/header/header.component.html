@@ -5,7 +5,7 @@
   <a
     [routerLink]="authService.isAuthenticated() ? '/groups' : '/'"
     class="min-w-0 whitespace-nowrap rounded-default focus-visible:ring-2 focus-visible:ring-ring outline-none"
-    aria-label="Inicio"
+    [attr.aria-label]="t('layout.home')"
   >
     <app-logo-wordmark />
   </a>
@@ -14,7 +14,8 @@
     @if (authService.isAuthenticated()) {
       <app-user-menu></app-user-menu>
     } @else {
-      <!-- Signed-in users pick the theme from the user menu -->
+      <!-- Signed-in users pick the theme and language from the user menu -->
+      <app-language-picker />
       <app-theme></app-theme>
     }
   </div>

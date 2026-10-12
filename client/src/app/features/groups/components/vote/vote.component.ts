@@ -9,6 +9,8 @@ import { VoteResponse } from '../../../../core/models/streak.model';
 import { GroupMember } from '../../models/group.models';
 
 import { VoteFormComponent } from '../vote-form/vote-form.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 // Voting dispatcher (rama 6, spec §13 row 6): renders today's question through
 // `app-vote-form` (question + per-type picker) and owns the single POST daily/vote call,
@@ -20,6 +22,7 @@ import { VoteFormComponent } from '../vote-form/vote-form.component';
 })
 export class VoteComponent {
   private readonly dailyService = inject(DailyService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<number>();
   public readonly question = input.required<QuestionToVote>();
@@ -41,7 +44,7 @@ export class VoteComponent {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.error.set(err.error ?? 'No se ha podido registrar tu voto.');
+        this.error.set(apiErrorMessage(err, this.t('vote.failed')));
       },
     });
   }

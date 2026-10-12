@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { TranslationKey } from '../../../core/i18n/translation.types';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { MemberStats } from '../../../core/models/streak.model';
@@ -22,7 +23,8 @@ export class GroupsService {
 
     private readonly _groups = signal<GroupResponse[]>([]);
     private readonly _loading = signal(false);
-    private readonly _error = signal<string | null>(null);
+    // A translation key, so the message follows the UI language.
+    private readonly _error = signal<TranslationKey | null>(null);
 
     readonly groups = this._groups.asReadonly();
     readonly loading = this._loading.asReadonly();
@@ -39,7 +41,7 @@ export class GroupsService {
                 this._loading.set(false);
             },
             error: () => {
-                this._error.set('No se han podido cargar los grupos.');
+                this._error.set('groups.list.loadError');
                 this._loading.set(false);
             }
         });

@@ -13,6 +13,7 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { DailyService } from '../../../../core/services/daily.service';
 import { ChatMessage } from '../../../../core/models/chat-message.model';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 @Component({
   selector: 'app-group-chat',
@@ -23,6 +24,7 @@ import { ChatMessage } from '../../../../core/models/chat-message.model';
 export class GroupChatComponent implements OnInit {
   private readonly dailyService = inject(DailyService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<number>();
 
@@ -65,7 +67,8 @@ export class GroupChatComponent implements OnInit {
         this.sending.set(false);
       },
       error: (err) => {
-        this.sendError.set(err?.error?.error ?? 'No se ha podido enviar el mensaje.');
+        // The API answers in the UI language (Accept-Language)
+        this.sendError.set(err?.error?.error ?? this.t('chat.sendError'));
         this.sending.set(false);
       },
     });

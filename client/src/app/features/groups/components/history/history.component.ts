@@ -20,6 +20,9 @@ import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { provideCalendarI18n } from '../../../../core/i18n/calendar-i18n';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 @Component({
   selector: 'app-history',
   imports: [
@@ -33,12 +36,16 @@ import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-
     ResultsComponent,
     WordStaggerPipe,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCalendar })],
+  // The date picker is the app's only calendar: its i18n is provided here so the calendar
+  // code stays in this lazy chunk.
+  providers: [provideIcons({ lucideArrowLeft, lucideCalendar }), provideCalendarI18n()],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
   private readonly questionsService = inject(QuestionsService);
   private readonly groupStreaks = inject(GroupStreaksService);
+  private readonly i18n = inject(I18nService);
+  protected readonly t = this.i18n.t;
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -48,13 +55,13 @@ export class HistoryComponent implements OnInit {
   public readonly hasMore = signal(false);
   public readonly loading = signal(true);
   public readonly loadingMore = signal(false);
-  public readonly error = signal<string | null>(null);
+  public readonly error = signal<TranslationKey | null>(null);
 
   // Detail state — the currently-expanded date and its full results.
   public readonly selectedDate = signal<string | null>(null);
   public readonly selectedResult = signal<QuestionResult | null>(null);
   public readonly loadingDetail = signal(false);
-  public readonly detailError = signal<string | null>(null);
+  public readonly detailError = signal<TranslationKey | null>(null);
 
   // Date picker binding (JS Date, reset after each use so the trigger always shows the placeholder).
   public readonly pickerDate = signal<Date | undefined>(undefined);
@@ -89,7 +96,7 @@ export class HistoryComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('No se ha podido cargar el historial.');
+        this.error.set('history.loadError');
         this.loading.set(false);
       },
     });
@@ -131,7 +138,7 @@ export class HistoryComponent implements OnInit {
         this.loadingDetail.set(false);
       },
       error: () => {
-        this.detailError.set('No hay resultados para esa fecha.');
+        this.detailError.set('history.noResults');
         this.loadingDetail.set(false);
       },
     });
@@ -177,7 +184,7 @@ export class HistoryComponent implements OnInit {
         this.loadingDetail.set(false);
       },
       error: () => {
-        this.detailError.set('No hay resultados para esa fecha.');
+        this.detailError.set('history.noResults');
         this.loadingDetail.set(false);
         this.selectedDate.set(null);
       },
@@ -209,7 +216,7 @@ export class HistoryComponent implements OnInit {
 
   formatFullDate(dateStr: string): string {
     const d = new Date(`${dateStr}T12:00:00`);
-    return d.toLocaleDateString('es-ES', {
+    return this.i18n.formatDate(d, {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -219,7 +226,7 @@ export class HistoryComponent implements OnInit {
 
   getDayName(dateStr: string): string {
     const d = new Date(`${dateStr}T12:00:00`);
-    return d.toLocaleDateString('es-ES', { weekday: 'short' });
+    return this.i18n.formatDate(d, { weekday: 'short' });
   }
 
   getDayNumber(dateStr: string): string {
@@ -228,11 +235,11 @@ export class HistoryComponent implements OnInit {
 
   getMonthName(dateStr: string): string {
     const d = new Date(`${dateStr}T12:00:00`);
-    return d.toLocaleDateString('es-ES', { month: 'short' });
+    return this.i18n.formatDate(d, { month: 'short' });
   }
 
   questionTypeLabel(type: QuestionType): string {
-    return QUESTION_TYPE_LABELS[type];
+    return this.t(QUESTION_TYPE_LABELS[type]);
   }
 
   questionTypeBadgeClass(type: QuestionType): string {

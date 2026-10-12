@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VayaPreguntita.API.DTOs.Users;
+using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Services;
 
 namespace VayaPreguntita.API.Controllers;
@@ -35,8 +36,12 @@ public class UsersController(IUserService userService, IStreakService streakServ
         {
             return error switch
             {
-                "USERNAME_TAKEN" => Conflict("Username is already in use."),
-                "EMAIL_TAKEN" => Conflict("Email is already in use."),
+                "USERNAME_TAKEN" => Conflict(ServerText.UsernameTaken),
+                "EMAIL_TAKEN" => Conflict(ServerText.EmailTaken),
+                "USER_NOT_FOUND" => NotFound(ServerText.UserNotFound),
+                "INVALID_FRAME_COLOR" => BadRequest(ServerText.InvalidFrameColor),
+                "TITLE_NOT_UNLOCKED" => BadRequest(ServerText.TitleNotUnlocked),
+                "INVALID_LANGUAGE" => BadRequest(ServerText.InvalidLanguage),
                 _ => BadRequest(error),
             };
         }
@@ -52,7 +57,10 @@ public class UsersController(IUserService userService, IStreakService streakServ
         {
             return error switch
             {
-                "WRONG_PASSWORD" => BadRequest("Current password is incorrect."),
+                "WRONG_PASSWORD" => BadRequest(ServerText.WrongPassword),
+                "PASSWORDS_REQUIRED" => BadRequest(ServerText.PasswordsRequired),
+                "PASSWORD_TOO_SHORT" => BadRequest(ServerText.NewPasswordTooShort),
+                "USER_NOT_FOUND" => NotFound(ServerText.UserNotFound),
                 _ => BadRequest(error),
             };
         }
@@ -66,11 +74,15 @@ public class UsersController(IUserService userService, IStreakService streakServ
         var (success, avatarUrl, error) = await userService.UploadAvatarAsync(CurrentUserId, file);
         if (!success)
         {
-            // Distinguish validation errors (400) from storage failures (503)
-            var isValidationError = error is "No file provided." or "File exceeds 5 MB limit." or "Invalid image type.";
-            return isValidationError
-                ? BadRequest(error)
-                : StatusCode(StatusCodes.Status503ServiceUnavailable, error);
+            // Validation errors are 400; anything else is a storage failure (503)
+            return error switch
+            {
+                "NO_FILE" => BadRequest(ServerText.NoFileProvided),
+                "FILE_TOO_LARGE" => BadRequest(ServerText.FileTooLarge),
+                "INVALID_IMAGE_TYPE" => BadRequest(ServerText.InvalidImageType),
+                "USER_NOT_FOUND" => NotFound(ServerText.UserNotFound),
+                _ => StatusCode(StatusCodes.Status503ServiceUnavailable, error),
+            };
         }
         return Ok(new { avatarUrl });
     }

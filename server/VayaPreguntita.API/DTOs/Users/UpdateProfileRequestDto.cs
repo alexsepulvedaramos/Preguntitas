@@ -9,4 +9,7 @@ public class UpdateProfileRequestDto
 
     // Title to show: "auto" (highest unlocked), "none", or an unlocked tier key. null = unchanged.
     public string? TitleKey { get; set; }
+
+    // "es", "en" or "de". null = unchanged.
+    public string? PreferredLanguage { get; set; }
 }

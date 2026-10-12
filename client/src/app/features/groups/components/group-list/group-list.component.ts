@@ -7,6 +7,8 @@ import { GroupsService } from '../../services/groups.service';
 import { CreateGroupDialogComponent } from "../create-group-dialog/create-group-dialog.component";
 import { JoinGroupDialogComponent } from '../join-group-dialog/join-group-dialog.component';
 import { GroupCardComponent } from "../group-card/group-card.component";
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
 
 @Component({
   selector: 'app-group-list',
@@ -22,25 +24,17 @@ import { GroupCardComponent } from "../group-card/group-card.component";
 })
 export class GroupListComponent {
   private groupsService = inject(GroupsService);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groups = this.groupsService.groups;
   public readonly loading = this.groupsService.loading;
   public readonly error = this.groupsService.error;
 
   // Empty-state walkthrough (rama 21): makes the ≥2-member start gate (§4.3) explicit.
-  protected readonly startSteps = [
-    {
-      title: 'Crea un grupo o únete a uno',
-      text: 'Con los botones de aquí abajo. Para unirte necesitas el código o el enlace de un amigo.',
-    },
-    {
-      title: 'Invita al menos a una persona',
-      text: 'El juego arranca en cuanto el grupo tiene dos miembros. Comparte el enlace desde el grupo.',
-    },
-    {
-      title: 'Una pregunta cada día',
-      text: 'A la hora que elija el grupo. Votáis, veis quién ha votado qué y alguien elige la de mañana.',
-    },
+  protected readonly startSteps: { title: TranslationKey; text: TranslationKey }[] = [
+    { title: 'groups.list.step1Title', text: 'groups.list.step1Text' },
+    { title: 'groups.list.step2Title', text: 'groups.list.step2Text' },
+    { title: 'groups.list.step3Title', text: 'groups.list.step3Text' },
   ];
 
   ngOnInit() {

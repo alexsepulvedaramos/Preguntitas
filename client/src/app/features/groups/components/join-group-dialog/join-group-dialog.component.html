@@ -5,7 +5,7 @@
     variant="link"
     class="w-full text-primary underline underline-offset-4 transition-colors hover:text-primary-hover focus-visible:ring-2 focus-visible:ring-ring"
   >
-    Unirse a un grupo existente
+    {{ t('groups.join.open') }}
   </button>
 
   <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-2xl max-w-[95vw]">
@@ -14,11 +14,11 @@
         hlmDialogTitle
         class="font-display text-xl italic tracking-wider text-foreground"
       >
-        Unirse a un grupo
+        {{ t('groups.join.title') }}
       </h3>
 
       <p hlmDialogDescription>
-        Introduce el código de invitación para unirte a un grupo existente.
+        {{ t('groups.join.text') }}
       </p>
     </hlm-dialog-header>
 
@@ -26,13 +26,13 @@
       <hlm-field-group class="py-4">
         <hlm-field class="grid gap-1.5">
           <label hlmFieldLabel for="invitationCode" class="text-sm font-medium text-foreground">
-            Código de invitación
+            {{ t('groups.join.code') }}
           </label>
 
           <input
             hlmInput
             id="invitationCode"
-            placeholder="p. ej. ABC123"
+            [placeholder]="t('groups.join.codePlaceholder')"
             formControlName="invitationCode"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
@@ -46,7 +46,7 @@
               form.controls.invitationCode.touched)
           ) {
             <hlm-field-error>
-              Introduce un código de invitación válido. Por ejemplo, ABC123.
+              {{ t('groups.join.codeError') }}
             </hlm-field-error>
           }
         </hlm-field>
@@ -60,7 +60,7 @@
           [disabled]="form.invalid"
           class="transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:pointer-events-none"
         >
-          Unirse al grupo
+          {{ t('groups.join.submit') }}
         </button>
       </hlm-dialog-footer>
     </form>

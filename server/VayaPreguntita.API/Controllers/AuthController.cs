@@ -6,6 +6,7 @@ using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Services;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Controllers;
 
@@ -28,7 +29,7 @@ public class AuthController(
     public async Task<ActionResult<AuthResponseDto>> Register(RegisterRequestDto request)
     {
         if (!IsValidRegistration(request))
-            return BadRequest("Username, email and password are required.");
+            return BadRequest(ServerText.RegistrationFieldsRequired);
 
         var normalizedUsername = request.Username.Trim();
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
@@ -38,16 +39,21 @@ public class AuthController(
         );
 
         if (usernameExists)
-            return Conflict("Username is already in use.");
+            return Conflict(ServerText.UsernameTaken);
 
         var emailExists = await _context.Users.AnyAsync(user =>
             user.Email.ToLower() == normalizedEmail
         );
 
         if (emailExists)
-            return Conflict("Email is already in use.");
+            return Conflict(ServerText.EmailTaken);
 
-        var user = new User { Username = normalizedUsername, Email = normalizedEmail };
+        var user = new User
+        {
+            Username = normalizedUsername,
+            Email = normalizedEmail,
+            PreferredLanguage = AppLanguages.Normalize(request.PreferredLanguage),
+        };
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
@@ -68,7 +74,7 @@ public class AuthController(
     public async Task<ActionResult<AuthResponseDto>> Login(LoginRequestDto request)
     {
         if (!IsValidLogin(request))
-            return BadRequest("Identifier and password are required.");
+            return BadRequest(ServerText.LoginFieldsRequired);
 
         var normalizedIdentifier = request.Identifier.Trim();
 
@@ -78,7 +84,7 @@ public class AuthController(
         );
 
         if (user == null)
-            return Unauthorized("Invalid credentials.");
+            return Unauthorized(ServerText.InvalidCredentials);
 
         var verification = _passwordHasher.VerifyHashedPassword(
             user,
@@ -86,7 +92,7 @@ public class AuthController(
             request.Password
         );
         if (verification == PasswordVerificationResult.Failed)
-            return Unauthorized("Invalid credentials.");
+            return Unauthorized(ServerText.InvalidCredentials);
 
         if (verification == PasswordVerificationResult.SuccessRehashNeeded)
         {
@@ -104,7 +110,7 @@ public class AuthController(
     public async Task<ActionResult<AuthResponseDto>> Refresh(RefreshTokenRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
-            return BadRequest("Refresh token is required.");
+            return BadRequest(ServerText.RefreshTokenRequired);
 
         var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
@@ -115,7 +121,7 @@ public class AuthController(
                 && t.ExpiresAt > DateTime.UtcNow);
 
         if (existingToken == null)
-            return Unauthorized("Invalid or expired refresh token.");
+            return Unauthorized(ServerText.InvalidRefreshToken);
 
         var user = existingToken.User;
 
@@ -136,7 +142,7 @@ public class AuthController(
     public async Task<IActionResult> Logout(RefreshTokenRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
-            return BadRequest("Refresh token is required.");
+            return BadRequest(ServerText.RefreshTokenRequired);
 
         var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
@@ -231,6 +237,7 @@ public class AuthController(
             Username = user.Username,
             Email = user.Email,
             AvatarUrl = user.AvatarUrl,
+            PreferredLanguage = user.PreferredLanguage,
             AccessToken = accessToken,
             AccessTokenExpiresAt = accessTokenExpiresAt,
             RefreshToken = refreshToken,

@@ -7,7 +7,7 @@
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-default focus-visible:ring-2 focus-visible:ring-ring"
     >
       <ng-icon hlm name="lucideArrowLeft" />
-      Volver
+      {{ t('common.back') }}
     </a>
   </div>
 
@@ -18,13 +18,13 @@
       <div hlmSkeleton class="h-32 w-full rounded-default"></div>
       <div hlmSkeleton class="h-32 w-full rounded-default"></div>
     </div>
-  } @else if (error()) {
+  } @else if (error(); as error) {
     <div class="text-center py-8">
-      <p class="font-display italic text-lg text-destructive">{{ error() }}</p>
+      <p class="font-display italic text-lg text-destructive">{{ t(error) }}</p>
     </div>
   } @else {
     <div class="flex flex-col gap-1">
-      <h1 class="font-display italic text-2xl text-foreground">Ajustes</h1>
+      <h1 class="font-display italic text-2xl text-foreground">{{ t('settings.title') }}</h1>
       <p class="text-sm text-muted-foreground">{{ group()?.name }}</p>
     </div>
 
@@ -32,12 +32,12 @@
     @if (isAdmin()) {
       <section class="flex flex-col gap-4">
         <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
-          Información del grupo
+          {{ t('settings.infoTitle') }}
         </h2>
 
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="group-name">Nombre</label>
+            <label hlmLabel for="group-name">{{ t('settings.name') }}</label>
             <input
               hlmInput
               id="group-name"
@@ -50,7 +50,7 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="group-desc">Descripción</label>
+            <label hlmLabel for="group-desc">{{ t('settings.description') }}</label>
             <input
               hlmInput
               id="group-desc"
@@ -63,7 +63,7 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="group-time">Hora de la pregunta diaria</label>
+            <label hlmLabel for="group-time">{{ t('settings.time') }}</label>
             <input
               hlmInput
               id="group-time"
@@ -83,7 +83,7 @@
             @if (saving()) {
               <hlm-spinner size="sm" class="mr-2" />
             }
-            Guardar cambios
+            {{ t('settings.saveChanges') }}
           </button>
         </div>
       </section>
@@ -94,7 +94,7 @@
     <!-- Members -->
     <section class="flex flex-col gap-4">
       <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
-        Miembros ({{ members().length }})
+        {{ t('settings.members', { count: members().length }) }}
       </h2>
 
       <ul class="flex flex-col gap-2">
@@ -105,7 +105,7 @@
               type="button"
               class="flex items-center gap-3 min-w-0 flex-1 rounded-default text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
               (click)="memberCard.open(numericGroupId(), member.id)"
-              [attr.aria-label]="'Ver estadísticas de ' + member.username"
+              [attr.aria-label]="t('results.memberStats', { name: member.username })"
             >
             <app-user-avatar
               [avatarUrl]="member.avatarUrl"
@@ -121,14 +121,14 @@
               <span class="flex items-center gap-2 text-sm font-medium text-foreground">
                 <span class="truncate">{{ member.username }}</span>
                 @if (member.currentStreak > 0) {
-                  <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="'Racha de ' + member.currentStreak + ' días'">
+                  <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="t('settings.streakLabel', { count: member.currentStreak })">
                     🔥 {{ member.currentStreak }}
                   </span>
                 }
               </span>
               @if (member.title || member.isAdmin) {
                 <span class="text-xs text-muted-foreground truncate">
-                  {{ member.title }}{{ member.title && member.isAdmin ? ' · ' : '' }}{{ member.isAdmin ? 'Administrador' : '' }}
+                  {{ member.title }}{{ member.title && member.isAdmin ? ' · ' : '' }}{{ member.isAdmin ? t('settings.admin') : '' }}
                 </span>
               }
             </div>
@@ -146,31 +146,30 @@
                     size="icon"
                     hlmAlertDialogTrigger
                     [disabled]="!!transferringId()"
-                    aria-label="Hacer administrador"
+                    [attr.aria-label]="t('settings.makeAdmin')"
                   >
                     @if (transferringId() === member.id) {
                       <hlm-spinner size="sm" />
                     } @else {
                       <ng-icon hlm name="lucideShield" />
                     }
-                    <span class="sr-only">Hacer administrador</span>
+                    <span class="sr-only">{{ t('settings.makeAdmin') }}</span>
                   </button>
                   <ng-template hlmAlertDialogPortal>
                     <hlm-alert-dialog-content>
                       <hlm-alert-dialog-header>
-                        <h3 hlmAlertDialogTitle>¿Transferir administración?</h3>
+                        <h3 hlmAlertDialogTitle>{{ t('settings.transferTitle') }}</h3>
                         <p hlmAlertDialogDescription>
-                          {{ member.username }} pasará a ser el administrador del grupo.
-                          Tú perderás los privilegios de administración.
+                          {{ t('settings.transferText', { name: member.username }) }}
                         </p>
                       </hlm-alert-dialog-header>
                       <hlm-alert-dialog-footer>
-                        <button hlmAlertDialogCancel>Cancelar</button>
+                        <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                         <button
                           hlmAlertDialogAction
                           (click)="transferDlg.close(); transferAdmin(member)"
                         >
-                          Transferir
+                          {{ t('settings.transfer') }}
                         </button>
                       </hlm-alert-dialog-footer>
                     </hlm-alert-dialog-content>
@@ -185,32 +184,31 @@
                     size="icon"
                     hlmAlertDialogTrigger
                     [disabled]="!!kickingId()"
-                    aria-label="Expulsar"
+                    [attr.aria-label]="t('settings.kick')"
                   >
                     @if (kickingId() === member.id) {
                       <hlm-spinner size="sm" />
                     } @else {
                       <ng-icon hlm name="lucideUserMinus" class="text-destructive" />
                     }
-                    <span class="sr-only">Expulsar</span>
+                    <span class="sr-only">{{ t('settings.kick') }}</span>
                   </button>
                   <ng-template hlmAlertDialogPortal>
                     <hlm-alert-dialog-content>
                       <hlm-alert-dialog-header>
-                        <h3 hlmAlertDialogTitle>¿Expulsar a {{ member.username }}?</h3>
+                        <h3 hlmAlertDialogTitle>{{ t('settings.kickTitle', { name: member.username }) }}</h3>
                         <p hlmAlertDialogDescription>
-                          {{ member.username }} perderá el acceso al grupo y no podrá
-                          volver a unirse a menos que use un código de invitación.
+                          {{ t('settings.kickText', { name: member.username }) }}
                         </p>
                       </hlm-alert-dialog-header>
                       <hlm-alert-dialog-footer>
-                        <button hlmAlertDialogCancel>Cancelar</button>
+                        <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                         <button
                           hlmAlertDialogAction
                           class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           (click)="kickDlg.close(); kickMember(member)"
                         >
-                          Expulsar
+                          {{ t('settings.kick') }}
                         </button>
                       </hlm-alert-dialog-footer>
                     </hlm-alert-dialog-content>
@@ -230,7 +228,7 @@
 
       <section class="flex flex-col gap-4">
         <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
-          Código de invitación
+          {{ t('groups.invite.code') }}
         </h2>
 
         <div class="flex items-center gap-2">
@@ -245,10 +243,10 @@
             variant="outline"
             size="icon"
             (click)="copyCode()"
-            aria-label="Copiar código"
+            [attr.aria-label]="t('groups.invite.copyCode')"
           >
             <ng-icon hlm name="lucideCopy" />
-            <span class="sr-only">Copiar código</span>
+            <span class="sr-only">{{ t('groups.invite.copyCode') }}</span>
           </button>
         </div>
 
@@ -265,21 +263,20 @@
             } @else {
               <ng-icon hlm name="lucideRefreshCw" class="mr-2" />
             }
-            Regenerar código
+            {{ t('settings.regenerate') }}
           </button>
           <ng-template hlmAlertDialogPortal>
             <hlm-alert-dialog-content>
               <hlm-alert-dialog-header>
-                <h3 hlmAlertDialogTitle>¿Regenerar código de invitación?</h3>
+                <h3 hlmAlertDialogTitle>{{ t('settings.regenerateTitle') }}</h3>
                 <p hlmAlertDialogDescription>
-                  El código actual dejará de funcionar. Cualquier enlace de invitación
-                  que hayas compartido quedará invalidado.
+                  {{ t('settings.regenerateText') }}
                 </p>
               </hlm-alert-dialog-header>
               <hlm-alert-dialog-footer>
-                <button hlmAlertDialogCancel>Cancelar</button>
+                <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                 <button hlmAlertDialogAction (click)="regenDlg.close(); regenerateCode()">
-                  Regenerar
+                  {{ t('settings.regenerateConfirm') }}
                 </button>
               </hlm-alert-dialog-footer>
             </hlm-alert-dialog-content>
@@ -293,7 +290,7 @@
       <hr class="border-border" />
 
       <section class="flex flex-col gap-3">
-        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Packs</h2>
+        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('settings.packs') }}</h2>
 
         <hlm-dialog>
           <button
@@ -302,9 +299,9 @@
             class="flex items-center justify-between gap-3 rounded-default border border-border px-4 py-3 text-left hover:bg-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div class="flex flex-col gap-0.5">
-              <p class="text-sm font-medium text-foreground">Gestionar packs</p>
+              <p class="text-sm font-medium text-foreground">{{ t('settings.managePacks') }}</p>
               <p class="text-xs text-muted-foreground">
-                {{ enabledPacksCount() }}/{{ packs().length }} activos
+                {{ t('settings.packsActive', { enabled: enabledPacksCount(), total: packs().length }) }}
               </p>
             </div>
             <ng-icon hlm name="lucideChevronRight" class="text-muted-foreground shrink-0" />
@@ -316,11 +313,10 @@
                 hlmDialogTitle
                 class="font-display text-xl italic tracking-wider text-foreground"
               >
-                Packs
+                {{ t('settings.packs') }}
               </h3>
               <p hlmDialogDescription>
-                Elige qué packs de preguntas están disponibles para este grupo. Debe
-                quedar al menos uno activo.
+                {{ t('settings.packsText') }}
               </p>
             </hlm-dialog-header>
 
@@ -347,11 +343,11 @@
 
     <!-- Notifications -->
     <section class="flex flex-col gap-3">
-      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">Notificaciones</h2>
+      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('settings.notifications') }}</h2>
       <div class="flex items-center justify-between gap-3">
         <div class="flex flex-col gap-0.5">
-          <p class="text-sm font-medium text-foreground">Silenciar este grupo</p>
-          <p class="text-xs text-muted-foreground">No recibirás notificaciones de este grupo.</p>
+          <p class="text-sm font-medium text-foreground">{{ t('settings.mute') }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('settings.muteText') }}</p>
         </div>
         <hlm-switch [checked]="notifMuted()" (checkedChange)="toggleMute()" />
       </div>
@@ -362,19 +358,19 @@
 
     <section class="flex flex-col gap-4">
       <h2 class="text-sm font-semibold text-destructive uppercase tracking-wide">
-        Zona de peligro
+        {{ t('settings.danger') }}
       </h2>
 
       <div class="flex items-start justify-between gap-4">
         <div class="flex flex-col gap-0.5">
-          <p class="text-sm font-medium text-foreground">Abandonar el grupo</p>
+          <p class="text-sm font-medium text-foreground">{{ t('settings.leaveTitle') }}</p>
           @if (isAdmin() && members().length > 1) {
             <p class="text-xs text-muted-foreground">
-              El miembro más antiguo pasará a ser administrador automáticamente.
+              {{ t('settings.leaveAdminNote') }}
             </p>
           } @else if (members().length === 1) {
             <p class="text-xs text-muted-foreground">
-              Como único miembro, el grupo se eliminará.
+              {{ t('settings.leaveLastNote') }}
             </p>
           }
         </div>
@@ -390,33 +386,30 @@
             @if (leaving()) {
               <hlm-spinner size="sm" class="mr-2" />
             }
-            Abandonar
+            {{ t('settings.leave') }}
           </button>
           <ng-template hlmAlertDialogPortal>
             <hlm-alert-dialog-content>
               <hlm-alert-dialog-header>
-                <h3 hlmAlertDialogTitle>¿Abandonar el grupo?</h3>
+                <h3 hlmAlertDialogTitle>{{ t('settings.leaveConfirmTitle') }}</h3>
                 <p hlmAlertDialogDescription>
                   @if (members().length === 1) {
-                    Eres el único miembro. El grupo se eliminará permanentemente junto con
-                    todas sus preguntas e historial.
+                    {{ t('settings.leaveLastText') }}
                   } @else if (isAdmin()) {
-                    Perderás la administración del grupo. El miembro más antiguo pasará a
-                    ser el nuevo administrador.
+                    {{ t('settings.leaveAdminText') }}
                   } @else {
-                    Perderás el acceso al grupo. Podrás volver a unirte con un código de
-                    invitación.
+                    {{ t('settings.leaveMemberText') }}
                   }
                 </p>
               </hlm-alert-dialog-header>
               <hlm-alert-dialog-footer>
-                <button hlmAlertDialogCancel>Cancelar</button>
+                <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                 <button
                   hlmAlertDialogAction
                   class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   (click)="leaveDlg.close(); leaveGroup()"
                 >
-                  Abandonar
+                  {{ t('settings.leave') }}
                 </button>
               </hlm-alert-dialog-footer>
             </hlm-alert-dialog-content>

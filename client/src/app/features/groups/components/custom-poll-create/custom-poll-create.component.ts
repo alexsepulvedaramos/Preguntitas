@@ -1,10 +1,12 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, inject, input, model } from '@angular/core';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideX } from '@ng-icons/lucide';
+
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 const MIN_OPTIONS = 2;
 const MAX_OPTIONS = 8;
@@ -22,6 +24,7 @@ export class CustomPollCreateComponent {
   public readonly minSelections = model(1);
   public readonly maxSelections = model(1);
   public readonly allowOther = model(false);
+  protected readonly t = inject(I18nService).t;
 
   protected readonly canAddOption = computed(() => this.options().length < MAX_OPTIONS);
   protected readonly canRemoveOption = computed(() => this.options().length > MIN_OPTIONS);

@@ -1,7 +1,8 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 
 import { QuestionResult } from '../../../../core/models/result.model';
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // One row per team (always both, even at 0 votes — it's a head-to-head comparison, hiding
 // a side would look broken). The backend resolves DisplayText as "Jugador1 + Jugador2"
@@ -14,11 +15,13 @@ import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar
 })
 export class DeathmatchResultComponent {
   public readonly result = input.required<QuestionResult>();
+  protected readonly t = inject(I18nService).t;
 
-  protected readonly leadingLabel = computed(() => {
+  // The leading team's label, or null on a tie (including no votes yet).
+  protected readonly leader = computed(() => {
     const results = this.result().results;
     const maxVotes = Math.max(...results.map((r) => r.voteCount), 0);
     const leaders = results.filter((r) => r.voteCount === maxVotes);
-    return maxVotes === 0 || leaders.length > 1 ? 'Empate' : leaders[0].displayText;
+    return maxVotes === 0 || leaders.length > 1 ? null : leaders[0].displayText;
   });
 }

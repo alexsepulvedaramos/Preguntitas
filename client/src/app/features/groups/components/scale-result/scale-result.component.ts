@@ -1,8 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { OptionResult, QuestionResult } from '../../../../core/models/result.model';
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // Scale results are a distribution over the question's fixed [rangeMin, rangeMax] range,
 // not a ranking — so every value in the range renders a bin, including ones with zero votes,
@@ -15,6 +16,7 @@ import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar
 export class ScaleResultComponent {
   public readonly question = input.required<QuestionToVote>();
   public readonly result = input.required<QuestionResult>();
+  protected readonly t = inject(I18nService).t;
 
   protected readonly bins = computed<OptionResult[]>(() => {
     const min = this.question().rangeMin ?? 1;

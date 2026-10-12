@@ -96,7 +96,7 @@
     <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
       <hlm-dialog-header>
         <h3 hlmDialogTitle class="font-display text-lg italic tracking-wider">
-          Resumen de votos
+          {{ t('results.summary') }}
         </h3>
       </hlm-dialog-header>
 
@@ -110,7 +110,7 @@
                     type="button"
                     class="shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     (click)="openMemberCard(option.targetUser.id)"
-                    [attr.aria-label]="'Ver estadísticas de ' + option.targetUser.username"
+                    [attr.aria-label]="t('results.memberStats', { name: option.targetUser.username })"
                   >
                     <app-user-avatar
                       [avatarUrl]="option.targetUser.avatarUrl"

@@ -4,7 +4,7 @@
       hlmFieldLabel
       for="questionText"
       class="text-sm font-medium text-foreground"
-      >Opciones
+      >{{ t('createQuestion.options') }}
       <span class="text-destructive" aria-hidden="true">*</span></label
     >
     @for (option of options(); track $index; let i = $index) {
@@ -13,7 +13,7 @@
           hlmInput
           [value]="option"
           (input)="updateOption(i, $any($event.target).value)"
-          placeholder="Opción {{ i + 1 }}"
+          [placeholder]="t('createQuestion.option', { n: i + 1 })"
           maxlength="80"
           class="flex-1 bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         />
@@ -25,7 +25,7 @@
             size="icon"
             class="size-8 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
             (click)="removeOption(i)"
-            aria-label="Quitar opción"
+            [attr.aria-label]="t('createQuestion.removeOption')"
           >
             <ng-icon hlm name="lucideX" size="14" />
           </button>
@@ -42,7 +42,7 @@
         (click)="addOption()"
       >
         <ng-icon hlm name="lucidePlus" />
-        Añadir opción
+        {{ t('createQuestion.addOption') }}
       </button>
     }
   </div>
@@ -53,7 +53,7 @@
         hlmFieldLabel
         for="minSelections"
         class="text-sm font-medium text-foreground"
-        >Selecciones mínimas</label
+        >{{ t('createQuestion.minSelections') }}</label
       >
       <input
         hlmInput
@@ -72,7 +72,7 @@
         hlmFieldLabel
         for="maxSelections"
         class="text-sm font-medium text-foreground"
-        >Selecciones máximas</label
+        >{{ t('createQuestion.maxSelections') }}</label
       >
       <input
         hlmInput
@@ -95,7 +95,7 @@
       (change)="toggleAllowOther()"
     />
     <span class="text-sm text-foreground"
-      >Permitir respuesta libre ("Otro")</span
+      >{{ t('createQuestion.allowOther') }}</span
     >
   </label>
 </div>

@@ -1,5 +1,6 @@
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Enums;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Helpers;
 
@@ -15,19 +16,19 @@ public static class QuestionMembershipValidator
         {
             case QuestionType.Superlative:
                 if (dto.BlacklistedUserIds.Contains(creatorId))
-                    return "El creador no puede estar en la lista de excluidos.";
+                    return ServerText.CreatorBlacklisted;
                 if (dto.BlacklistedUserIds.Any(id => !memberIds.Contains(id)))
-                    return "Los usuarios excluidos deben ser miembros del grupo.";
+                    return ServerText.BlacklistedNotMembers;
                 break;
 
             case QuestionType.Scale:
                 if (dto.TargetUserId is int target && !memberIds.Contains(target))
-                    return "El usuario objetivo debe ser miembro del grupo.";
+                    return ServerText.TargetNotMember;
                 break;
 
             case QuestionType.Deathmatch:
                 if (dto.Teams.SelectMany(team => team).Any(id => !memberIds.Contains(id)))
-                    return "Todos los miembros de los equipos deben pertenecer al grupo.";
+                    return ServerText.TeamMembersNotInGroup;
                 break;
 
             // SecretPairing / CustomPoll reference no user ids at creation time —

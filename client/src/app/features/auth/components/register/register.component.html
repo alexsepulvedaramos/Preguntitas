@@ -5,11 +5,10 @@
 >
   <hlm-card-header class="space-y-1 text-center">
     <h3 hlmCardTitle class="text-2xl font-bold tracking-tight text-foreground">
-      Crea tu cuenta
+      {{ t('auth.register.title') }}
     </h3>
     <p hlmCardDescription class="text-sm text-muted-foreground">
-      Únete al juego. Introduce tus datos para empezar a votar y picarte con tus
-      amigos.
+      {{ t('auth.register.subtitle') }}
     </p>
   </hlm-card-header>
 
@@ -21,24 +20,24 @@
             hlmFieldLabel
             for="username"
             class="text-sm font-medium text-foreground"
-            >Nombre de usuario</label
+            >{{ t('auth.register.username') }}</label
           >
           <input
             hlmInput
             type="text"
             id="username"
-            placeholder="Tu apodo o nombre"
+            [placeholder]="t('auth.register.usernamePlaceholder')"
             formControlName="username"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >El nombre de usuario es obligatorio.</hlm-field-error
+            >{{ t('auth.register.usernameRequired') }}</hlm-field-error
           >
           <hlm-field-error validator="minlength"
-            >Debe tener al menos 3 caracteres.</hlm-field-error
+            >{{ t('auth.register.usernameMin') }}</hlm-field-error
           >
           <hlm-field-error validator="usernameTaken"
-            >Este nombre de usuario ya está en uso.</hlm-field-error
+            >{{ t('auth.register.usernameTaken') }}</hlm-field-error
           >
         </hlm-field>
 
@@ -47,30 +46,30 @@
             hlmFieldLabel
             for="email"
             class="text-sm font-medium text-foreground"
-            >Correo electrónico</label
+            >{{ t('auth.register.email') }}</label
           >
           <input
             hlmInput
             type="email"
             id="email"
-            placeholder="nombre@ejemplo.com"
+            [placeholder]="t('auth.register.emailPlaceholder')"
             formControlName="email"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >El correo electrónico es obligatorio.</hlm-field-error
+            >{{ t('auth.register.emailRequired') }}</hlm-field-error
           >
           <hlm-field-error validator="email"
-            >Introduce una dirección de correo válida.</hlm-field-error
+            >{{ t('auth.register.emailInvalid') }}</hlm-field-error
           >
           <hlm-field-error validator="emailTaken">
-            Este correo ya está registrado. Si es tuyo,
+            {{ t('auth.register.emailTaken') }}
             <a
               routerLink="/auth/login"
               queryParamsHandling="preserve"
               class="font-medium text-primary underline-offset-4 hover:underline"
             >
-              inicia sesión</a
+              {{ t('auth.register.emailTakenLogin') }}</a
             >.
           </hlm-field-error>
         </hlm-field>
@@ -80,7 +79,7 @@
             hlmFieldLabel
             for="password"
             class="text-sm font-medium text-foreground"
-            >Contraseña</label
+            >{{ t('auth.register.password') }}</label
           >
           <input
             hlmInput
@@ -90,10 +89,10 @@
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >La contraseña es obligatoria.</hlm-field-error
+            >{{ t('auth.register.passwordRequired') }}</hlm-field-error
           >
           <hlm-field-error validator="minlength"
-            >Debe tener al menos 8 caracteres.</hlm-field-error
+            >{{ t('auth.register.passwordMin') }}</hlm-field-error
           >
         </hlm-field>
 
@@ -102,7 +101,7 @@
             hlmFieldLabel
             for="confirmPassword"
             class="text-sm font-medium text-foreground"
-            >Confirmar contraseña</label
+            >{{ t('auth.register.confirmPassword') }}</label
           >
           <input
             hlmInput
@@ -120,12 +119,12 @@
             )
           ) {
             <p hlmFieldDescription class="text-xs text-muted-foreground">
-              Confirma la contraseña que has escrito arriba.
+              {{ t('auth.register.confirmHint') }}
             </p>
           }
 
           <hlm-field-error validator="required"
-            >Es obligatorio confirmar la contraseña.</hlm-field-error
+            >{{ t('auth.register.confirmRequired') }}</hlm-field-error
           >
 
           @if (
@@ -133,14 +132,14 @@
             !form.controls.confirmPassword.errors?.['required']
           ) {
             <hlm-field-error forceShow
-              >Las contraseñas no coinciden.</hlm-field-error
+              >{{ t('auth.register.mismatch') }}</hlm-field-error
             >
           }
         </hlm-field>
       </hlm-field-group>
 
-      @if (serverError()) {
-        <p class="text-sm text-destructive">{{ serverError() }}</p>
+      @if (serverError(); as error) {
+        <p class="text-sm text-destructive">{{ t(error) }}</p>
       }
 
       <div class="grid gap-2 pt-2">
@@ -150,7 +149,7 @@
           [disabled]="form.invalid"
           class="w-full bg-primary text-primary-foreground hover:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
         >
-          Crear cuenta
+          {{ t('auth.register.submit') }}
         </button>
 
         <!-- TODO: Google OAuth — implementar antes de descomentar
@@ -169,13 +168,13 @@
         hlmFieldDescription
         class="text-center text-sm text-muted-foreground pt-2"
       >
-        ¿Ya tienes una cuenta?
+        {{ t('auth.register.haveAccount') }}
         <a
           routerLink="/auth/login"
           queryParamsHandling="preserve"
           class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
         >
-          Inicia sesión
+          {{ t('auth.register.login') }}
         </a>
       </p>
       <p class="text-center text-xs text-muted-foreground">
@@ -183,7 +182,7 @@
           routerLink="/demo"
           class="underline-offset-4 hover:underline hover:text-foreground transition-colors"
         >
-          ¿Aún no lo tienes claro? Pruébalo sin registrarte
+          {{ t('auth.tryDemo') }}
         </a>
       </p>
     </form>

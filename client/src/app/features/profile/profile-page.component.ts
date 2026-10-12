@@ -29,20 +29,24 @@ import {
 } from '../../core/services/notification-preferences.service';
 import { MemberCardService } from '../../core/services/member-card.service';
 import {
-  FRAME_NONE, FRAME_STREAK, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor,
+  FRAME_NONE, FRAME_STREAK, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor,
 } from '../../core/constants/streak-tiers';
 import { UserProfileDto } from '../../core/services/user.service';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { TranslationKey } from '../../core/i18n/translation.types';
+import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
+import { apiErrorMessage } from '../../shared/utils/api-error';
 
-const FRAME_COLORS = [
-  { label: 'Racha', value: FRAME_STREAK },
-  { label: 'Morado', value: '#8b5cf6' },
-  { label: 'Azul', value: '#3b82f6' },
-  { label: 'Verde', value: '#22c55e' },
-  { label: 'Amarillo', value: '#eab308' },
-  { label: 'Naranja', value: '#f97316' },
-  { label: 'Rojo', value: '#ef4444' },
-  { label: 'Rosa', value: '#ec4899' },
-  { label: 'Ninguno', value: FRAME_NONE },
+const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
+  { label: 'profile.frameColors.streak', value: FRAME_STREAK },
+  { label: 'profile.frameColors.purple', value: '#8b5cf6' },
+  { label: 'profile.frameColors.blue', value: '#3b82f6' },
+  { label: 'profile.frameColors.green', value: '#22c55e' },
+  { label: 'profile.frameColors.yellow', value: '#eab308' },
+  { label: 'profile.frameColors.orange', value: '#f97316' },
+  { label: 'profile.frameColors.red', value: '#ef4444' },
+  { label: 'profile.frameColors.pink', value: '#ec4899' },
+  { label: 'profile.frameColors.none', value: FRAME_NONE },
 ];
 
 @Component({
@@ -60,6 +64,7 @@ const FRAME_COLORS = [
     NgIcon,
     UserAvatarComponent,
     AvatarPickerComponent,
+    LanguagePickerComponent,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame })],
   templateUrl: './profile-page.component.html',
@@ -72,6 +77,7 @@ export class ProfilePageComponent implements OnInit {
   protected readonly pushService = inject(PushNotificationService);
   private readonly prefsService = inject(NotificationPreferencesService);
   private readonly memberCard = inject(MemberCardService);
+  protected readonly t = inject(I18nService).t;
 
   protected readonly frameColors = FRAME_COLORS;
   protected readonly frameNone = FRAME_NONE;
@@ -100,9 +106,10 @@ export class ProfilePageComponent implements OnInit {
     return frameFollowsStreak(frame) ? FRAME_STREAK : frame;
   });
 
-  protected readonly streakFrameMaterial = computed(
-    () => streakTierFor(this.user()?.highestStreak)?.material ?? null
-  );
+  protected readonly streakFrameMaterial = computed(() => {
+    const tier = streakTierFor(this.user()?.highestStreak);
+    return tier ? this.t(STREAK_MATERIAL_KEYS[tier.key]) : null;
+  });
 
   // Titles (rama 19): unlocked forever by the best streak ever; the user picks which to show.
   protected readonly profile = signal<UserProfileDto | null>(null);
@@ -147,7 +154,7 @@ export class ProfilePageComponent implements OnInit {
         this.isSavingTitle.set(false);
       },
       error: () => {
-        toast.error('No se ha podido cambiar el título.');
+        toast.error(this.t('profile.titleFailed'));
         this.isSavingTitle.set(false);
       },
     });
@@ -170,8 +177,8 @@ export class ProfilePageComponent implements OnInit {
     } else if (!(await this.pushService.requestAndSubscribe())) {
       toast.error(
         this.pushService.permission() === 'denied'
-          ? 'Has bloqueado las notificaciones en el navegador'
-          : 'No se han podido activar las notificaciones. Inténtalo de nuevo.'
+          ? this.t('profile.pushBlockedToast')
+          : this.t('profile.pushFailedToast')
       );
     }
   }
@@ -207,8 +214,7 @@ export class ProfilePageComponent implements OnInit {
         setTimeout(() => this.profileSuccess.set(false), 3000);
       },
       error: err => {
-        const msg = err.status === 409 ? 'El nombre de usuario o email ya está en uso.' : 'Error al guardar.';
-        this.profileError.set(msg);
+        this.profileError.set(this.t(err.status === 409 ? 'profile.taken' : 'profile.saveFailed'));
         this.isSavingProfile.set(false);
       },
     });
@@ -219,7 +225,7 @@ export class ProfilePageComponent implements OnInit {
     const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
 
     if (newPassword !== confirmPassword) {
-      this.passwordError.set('Las contraseñas no coinciden.');
+      this.passwordError.set(this.t('auth.register.mismatch'));
       return;
     }
 
@@ -235,10 +241,9 @@ export class ProfilePageComponent implements OnInit {
         setTimeout(() => this.passwordSuccess.set(false), 3000);
       },
       error: err => {
-        const msg = err.status === 400 && err.error?.includes?.('incorrect')
-          ? 'La contraseña actual es incorrecta.'
-          : 'Error al cambiar la contraseña.';
-        this.passwordError.set(msg);
+        // A 400 carries the API's reason (e.g. wrong current password) in the UI language.
+        const fallback = this.t('profile.passwordFailed');
+        this.passwordError.set(err.status === 400 ? apiErrorMessage(err, fallback) : fallback);
         this.isSavingPassword.set(false);
       },
     });

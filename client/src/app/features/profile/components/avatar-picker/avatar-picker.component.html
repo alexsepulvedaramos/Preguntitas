@@ -9,7 +9,7 @@
       (click)="activeTab.set('photo')"
     >
       <ng-icon hlm name="lucideCamera" class="size-4!" />
-      Foto
+      {{ t('avatar.photo') }}
     </button>
     <button
       hlmBtn
@@ -19,7 +19,7 @@
       (click)="activeTab.set('generated')"
     >
       <ng-icon hlm name="lucideImage" class="size-4!" />
-      Avatar generado
+      {{ t('avatar.generated') }}
     </button>
   </div>
 
@@ -31,15 +31,15 @@
         <div class="flex flex-col items-center gap-3">
           <img
             [src]="previewUrl()!"
-            alt="Preview"
+            [alt]="t('avatar.preview')"
             class="size-32 rounded-full object-cover ring-2 ring-primary"
           />
-          <p class="text-sm text-muted-foreground">¿Te gusta?</p>
+          <p class="text-sm text-muted-foreground">{{ t('avatar.like') }}</p>
         </div>
         <div class="flex gap-2 w-full">
           <button hlmBtn variant="outline" class="flex-1 gap-2" (click)="retakePhoto()">
             <ng-icon hlm name="lucideRefreshCw" class="size-4!" />
-            Repetir
+            {{ t('avatar.retake') }}
           </button>
           <button
             hlmBtn
@@ -48,7 +48,7 @@
             (click)="confirmPhotoUpload()"
           >
             <ng-icon hlm name="lucideCheck" class="size-4!" />
-            {{ isUploading() ? 'Subiendo...' : 'Usar esta foto' }}
+            {{ isUploading() ? t('avatar.uploading') : t('avatar.usePhoto') }}
           </button>
         </div>
       } @else {
@@ -58,12 +58,12 @@
             <ng-icon hlm name="lucideCamera" class="size-10! text-muted-foreground" />
           </div>
           <p class="text-sm text-muted-foreground text-center">
-            Haz una foto o elige una de tu galería
+            {{ t('avatar.pickHint') }}
           </p>
         </div>
         <button hlmBtn class="w-full gap-2" (click)="triggerFileInput()">
           <ng-icon hlm name="lucideCamera" class="size-4!" />
-          Elegir foto
+          {{ t('avatar.pickPhoto') }}
         </button>
         <input
           #fileInput
@@ -78,7 +78,7 @@
     <!-- DiceBear presets tab -->
     <div class="flex flex-col gap-3">
       <p class="text-sm text-muted-foreground text-center">
-        Tu nombre genera un avatar único en cada estilo
+        {{ t('avatar.generatedHint') }}
       </p>
       <div class="grid grid-cols-4 gap-3">
         @for (style of styles; track style.id) {
@@ -89,12 +89,12 @@
           >
             <img
               [src]="diceBearUrl(style.id)"
-              [alt]="style.label"
+              [alt]="t(style.label)"
               class="size-14 rounded-full"
               [class]="lightBackdrop(style.id) ? 'bg-white' : 'bg-muted'"
               loading="lazy"
             />
-            <span class="text-xs text-muted-foreground text-center leading-tight">{{ style.label }}</span>
+            <span class="text-xs text-muted-foreground text-center leading-tight">{{ t(style.label) }}</span>
           </button>
         }
       </div>

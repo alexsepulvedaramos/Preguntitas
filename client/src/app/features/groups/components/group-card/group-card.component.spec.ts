@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { GroupCardComponent } from './group-card.component';
 import { GroupResponse } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 const group: GroupResponse = {
   id: 1,
@@ -20,6 +21,8 @@ describe('GroupCardComponent', () => {
       imports: [GroupCardComponent],
       providers: [provideRouter([])],
     }).compileComponents();
+    // The copy comes from the i18n dictionary (rama 23): assert against the Spanish one.
+    await TestBed.inject(I18nService).use('es', false);
   });
 
   async function renderText(overrides: Partial<GroupResponse>): Promise<string> {

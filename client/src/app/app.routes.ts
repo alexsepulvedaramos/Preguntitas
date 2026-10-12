@@ -2,12 +2,13 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { guestGuard } from './core/auth/guest.guard';
 
+// Route titles are translation keys, resolved by I18nTitleStrategy (rama 23).
 export const routes: Routes = [
     {
         // Public landing (rama 21): guests only, signed-in users go straight to /groups.
         path: '',
         pathMatch: 'full',
-        title: 'Vaya Preguntita — Una pregunta al día sobre tu grupo de amigos',
+        title: 'titles.landing',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/landing/landing-page.component').then(m => m.LandingPageComponent),
     },
@@ -18,12 +19,12 @@ export const routes: Routes = [
         children: [
             {
                 path: 'register',
-                title: 'Register',
+                title: 'titles.register',
                 loadComponent: () => import('./features/auth/components/register/register.component').then(m => m.RegisterComponent)
             },
             {
                 path: 'login',
-                title: 'Login',
+                title: 'titles.login',
                 loadComponent: () => import('./features/auth/components/login/login.component').then(m => m.LoginComponent)
             },
             {
@@ -56,7 +57,7 @@ export const routes: Routes = [
             },
             {
                 path: 'profile',
-                title: 'Mi perfil',
+                title: 'titles.profile',
                 loadComponent: () => import('./features/profile/profile-page.component').then(m => m.ProfilePageComponent),
             },
         ]
@@ -68,12 +69,12 @@ export const routes: Routes = [
         children: [
             {
                 path: 'about',
-                title: 'Cómo funciona',
+                title: 'titles.about',
                 loadComponent: () => import('./features/info/about-page.component').then(m => m.AboutPageComponent),
             },
             {
                 path: 'releases',
-                title: 'Novedades',
+                title: 'titles.releases',
                 loadComponent: () => import('./features/info/releases-page.component').then(m => m.ReleasesPageComponent),
             },
         ]
@@ -82,12 +83,12 @@ export const routes: Routes = [
         // Interactive demo (rama 25): one simulated day with mock data. No guard — open to
         // guests and signed-in users; own light layout like the landing.
         path: 'demo',
-        title: 'Pruébalo — Vaya Preguntita',
+        title: 'titles.demo',
         loadComponent: () => import('./features/demo/demo-page.component').then(m => m.DemoPageComponent),
     },
     {
         path: 'join/:code',
-        title: 'Unirse al grupo',
+        title: 'titles.join',
         loadComponent: () => import('./features/groups/components/join-by-link/join-by-link.component').then(m => m.JoinByLinkComponent),
     },
     {

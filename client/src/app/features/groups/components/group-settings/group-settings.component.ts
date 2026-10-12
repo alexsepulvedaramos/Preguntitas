@@ -37,6 +37,9 @@ import { MemberCardService } from '../../../../core/services/member-card.service
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { Pack } from '../../../../core/models/pack.model';
 import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
+import { I18nService } from '../../../../core/i18n/i18n.service';
+import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 @Component({
   selector: 'app-group-settings',
@@ -74,6 +77,7 @@ export class GroupSettingsComponent implements OnInit {
   private readonly groupStreaks = inject(GroupStreaksService);
   protected readonly memberCard = inject(MemberCardService);
   private readonly router = inject(Router);
+  protected readonly t = inject(I18nService).t;
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -82,7 +86,7 @@ export class GroupSettingsComponent implements OnInit {
   protected readonly members = signal<GroupMember[]>([]);
   protected readonly packs = signal<Pack[]>([]);
   protected readonly loading = signal(true);
-  protected readonly error = signal<string | null>(null);
+  protected readonly error = signal<TranslationKey | null>(null);
 
   // Edit form state
   protected readonly editName = signal('');
@@ -127,16 +131,14 @@ export class GroupSettingsComponent implements OnInit {
         this.group.set(updated);
         this.saving.set(false);
         if (updated.dailyTimeChangeAppliesFromTomorrow) {
-          toast.success(
-            'Grupo actualizado. El nuevo horario se aplicará a partir de mañana, porque la pregunta de hoy ya está activa.'
-          );
+          toast.success(this.t('settings.updatedFromTomorrow'));
         } else {
-          toast.success('Información del grupo actualizada');
+          toast.success(this.t('settings.updated'));
         }
       },
       error: () => {
         this.saving.set(false);
-        toast.error('No se ha podido actualizar el grupo');
+        toast.error(this.t('settings.updateFailed'));
       },
     });
   }
@@ -145,7 +147,7 @@ export class GroupSettingsComponent implements OnInit {
     const code = this.group()?.invitationCode;
     if (!code) return;
     navigator.clipboard.writeText(code).then(() => {
-      toast.success('Código copiado al portapapeles');
+      toast.success(this.t('settings.codeCopied'));
     });
   }
 
@@ -157,11 +159,11 @@ export class GroupSettingsComponent implements OnInit {
       next: (updated) => {
         this.group.set(updated);
         this.regenerating.set(false);
-        toast.success('Nuevo código de invitación generado');
+        toast.success(this.t('settings.codeRegenerated'));
       },
       error: () => {
         this.regenerating.set(false);
-        toast.error('No se ha podido regenerar el código');
+        toast.error(this.t('settings.regenerateFailed'));
       },
     });
   }
@@ -174,11 +176,11 @@ export class GroupSettingsComponent implements OnInit {
       next: () => {
         this.members.update((list) => list.filter((m) => m.id !== member.id));
         this.kickingId.set(null);
-        toast.success(`${member.username} ha sido expulsado del grupo`);
+        toast.success(this.t('settings.kicked', { name: member.username }));
       },
       error: () => {
         this.kickingId.set(null);
-        toast.error('No se ha podido expulsar al miembro');
+        toast.error(this.t('settings.kickFailed'));
       },
     });
   }
@@ -195,11 +197,11 @@ export class GroupSettingsComponent implements OnInit {
             list.map((m) => ({ ...m, isAdmin: m.id === member.id }))
           );
           this.transferringId.set(null);
-          toast.success(`${member.username} es ahora el administrador`);
+          toast.success(this.t('settings.transferred', { name: member.username }));
         },
         error: () => {
           this.transferringId.set(null);
-          toast.error('No se ha podido transferir la administración');
+          toast.error(this.t('settings.transferFailed'));
         },
       });
   }
@@ -210,7 +212,7 @@ export class GroupSettingsComponent implements OnInit {
     this.groupsService.setGroupMute(this.numericGroupId(), muted).subscribe({
       error: () => {
         this.notifMuted.set(!muted);
-        toast.error('No se ha podido cambiar la configuración');
+        toast.error(this.t('settings.muteFailed'));
       },
     });
   }
@@ -226,7 +228,7 @@ export class GroupSettingsComponent implements OnInit {
         this.packs.update((list) =>
           list.map((p) => (p.id === pack.id ? { ...p, enabled: !enabled } : p))
         );
-        toast.error(err.error ?? 'No se ha podido cambiar el pack.');
+        toast.error(apiErrorMessage(err, this.t('settings.packFailed')));
       },
     });
   }
@@ -242,7 +244,7 @@ export class GroupSettingsComponent implements OnInit {
       },
       error: () => {
         this.leaving.set(false);
-        toast.error('No se ha podido abandonar el grupo');
+        toast.error(this.t('settings.leaveFailed'));
       },
     });
   }
@@ -267,7 +269,7 @@ export class GroupSettingsComponent implements OnInit {
             this.loading.set(false);
           },
           error: () => {
-            this.error.set('No se han podido cargar los miembros.');
+            this.error.set('settings.membersLoadError');
             this.loading.set(false);
           },
         });
@@ -280,7 +282,7 @@ export class GroupSettingsComponent implements OnInit {
         });
       },
       error: () => {
-        this.error.set('No se ha podido cargar el grupo.');
+        this.error.set('settings.groupLoadError');
         this.loading.set(false);
       },
     });

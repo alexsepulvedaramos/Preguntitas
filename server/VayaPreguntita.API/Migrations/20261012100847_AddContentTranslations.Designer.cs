@@ -12,7 +12,7 @@ using VayaPreguntita.API.Data;
 namespace VayaPreguntita.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261011232755_AddContentTranslations")]
+    [Migration("20261012100847_AddContentTranslations")]
     partial class AddContentTranslations
     {
         /// <inheritdoc />
@@ -471,6 +471,13 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasDefaultValue("es");
 
                     b.Property<string>("SelectedTitleKey")
                         .HasColumnType("text");

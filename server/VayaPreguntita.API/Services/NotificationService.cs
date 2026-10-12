@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Lib.Net.Http.WebPush;
 using Lib.Net.Http.WebPush.Authentication;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Options;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Helpers;
+using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Options;
 using LibPushSubscription = Lib.Net.Http.WebPush.PushSubscription;
 
@@ -32,39 +34,40 @@ public class NotificationService(
 
     // Each dispatch runs fire-and-forget, so it must log its own failures — an exception
     // here (e.g. the recipients query) would otherwise vanish with the discarded task.
+    // Text is written in each recipient's PreferredLanguage (rama 23): one payload per language.
     public Task SendNewQuestionAsync(int groupId, string groupName, string questionText) =>
         RunLoggedAsync("new_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.NewQuestion);
             var body = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
-            var payload = BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question");
-            await SendToManyAsync(context, recipients, payload, QuestionTtl);
+            await SendLocalizedAsync(context, recipients, QuestionTtl, lang =>
+                BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question", lang));
         });
 
     public Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime) =>
         RunLoggedAsync("selector_turn", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.SelectorTurn);
-            recipients = recipients.Where(r => r.UserId == selectorUserId).ToList();
-            var timeStr = dailyTime.ToString("HH:mm");
-            var payload = BuildPayload(
-                $"🎯 ¡Te toca elegir en {groupName}!",
-                $"Eres el selector de hoy. Elige la pregunta antes de las {timeStr}.",
-                groupId, groupName, "selector_turn"
-            );
-            await SendToManyAsync(context, recipients, payload, UntilNextDailyTime(dailyTime));
+            recipients = recipients.Where(r => r.Subscription.UserId == selectorUserId).ToList();
+            var time = FormatTime(dailyTime);
+            await SendLocalizedAsync(context, recipients, UntilNextDailyTime(dailyTime), lang =>
+                BuildPayload(
+                    ServerText.Push.SelectorTurnTitle(lang, groupName),
+                    ServerText.Push.SelectorTurnBody(lang, time),
+                    groupId, groupName, "selector_turn", lang
+                ));
         });
 
     public Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername) =>
         RunLoggedAsync("user_voted", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: voterUserId, pref => pref.UserVoted);
-            var payload = BuildPayload(
-                groupName,
-                $"{voterUsername} ha votado. ¿Cuál será su respuesta? 🗳️",
-                groupId, groupName, "user_voted", actor: voterUsername
-            );
-            await SendToManyAsync(context, recipients, payload, VotedTtl);
+            await SendLocalizedAsync(context, recipients, VotedTtl, lang =>
+                BuildPayload(
+                    groupName,
+                    ServerText.Push.UserVotedBody(lang, voterUsername),
+                    groupId, groupName, "user_voted", lang, actor: voterUsername
+                ));
         });
 
     public Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview) =>
@@ -72,23 +75,39 @@ public class NotificationService(
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: senderUserId, pref => pref.NewMessage);
             var preview = messagePreview.Length > 80 ? messagePreview[..77] + "…" : messagePreview;
-            var payload = BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", groupId, groupName, "new_message", actor: senderUsername);
-            await SendToManyAsync(context, recipients, payload, MessageTtl);
+            await SendLocalizedAsync(context, recipients, MessageTtl, lang =>
+                BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", groupId, groupName, "new_message", lang, actor: senderUsername));
         });
 
     public Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime) =>
         RunLoggedAsync("streak_danger", groupId, async context =>
         {
-            var subscriptions = await context.DevicePushSubscriptions
+            var recipients = await context.DevicePushSubscriptions
                 .Where(s => s.UserId == userId)
+                .Select(s => new Recipient(s, s.User.PreferredLanguage))
                 .ToListAsync();
-            var payload = BuildPayload(
-                "🔥 ¡Tu racha está en peligro!",
-                $"Tu racha de {streak} días en {groupName} termina a las {dailyTime.ToString("HH:mm")}. ¡Vota antes!",
-                groupId, groupName, "streak_danger"
-            );
-            await SendToManyAsync(context, subscriptions, payload, UntilNextDailyTime(dailyTime));
+            var time = FormatTime(dailyTime);
+            await SendLocalizedAsync(context, recipients, UntilNextDailyTime(dailyTime), lang =>
+                BuildPayload(
+                    ServerText.Push.StreakDangerTitle(lang),
+                    ServerText.Push.StreakDangerBody(lang, streak, groupName, time),
+                    groupId, groupName, "streak_danger", lang
+                ));
         });
+
+    private sealed record Recipient(DevicePushSubscription Subscription, string Language);
+
+    private static string FormatTime(TimeOnly time) => time.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+    private async Task SendLocalizedAsync(
+        AppDbContext context,
+        IEnumerable<Recipient> recipients,
+        TimeSpan ttl,
+        Func<string, string> payloadFor)
+    {
+        foreach (var byLanguage in recipients.GroupBy(r => AppLanguages.Normalize(r.Language)))
+            await SendToManyAsync(context, byLanguage.Select(r => r.Subscription), payloadFor(byLanguage.Key), ttl);
+    }
 
     private async Task RunLoggedAsync(string kind, int groupId, Func<AppDbContext, Task> send)
     {
@@ -115,7 +134,7 @@ public class NotificationService(
     }
 
     // Returns subscriptions for eligible members: in the group, not muted, pref enabled (or no pref row = default true).
-    private async Task<List<DevicePushSubscription>> GetEligibleMembersAsync(
+    private async Task<List<Recipient>> GetEligibleMembersAsync(
         AppDbContext context,
         int groupId,
         int? excludeUserId,
@@ -141,6 +160,7 @@ public class NotificationService(
 
         return await context.DevicePushSubscriptions
             .Where(s => eligibleUserIds.Contains(s.UserId))
+            .Select(s => new Recipient(s, s.User.PreferredLanguage))
             .ToListAsync();
     }
 
@@ -185,7 +205,7 @@ public class NotificationService(
         }
     }
 
-    private static string BuildPayload(string title, string body, int groupId, string groupName, string kind, string? actor = null)
+    private static string BuildPayload(string title, string body, int groupId, string groupName, string kind, string lang, string? actor = null)
     {
         var url = $"/groups/{groupId}";
         return JsonSerializer.Serialize(new
@@ -201,7 +221,7 @@ public class NotificationService(
                 // focus an existing window (or open a new one at `url`). `url` is kept at
                 // the top level too for the in-app SwPush.notificationClicks handler.
                 // `kind`/`groupId`/`groupName`/`actor` let the client's sw.js merge a
-                // group's notifications into one.
+                // group's notifications into one; `lang` picks the language of the merged text.
                 data = new
                 {
                     url,
@@ -209,6 +229,7 @@ public class NotificationService(
                     groupId,
                     groupName,
                     actor,
+                    lang,
                     onActionClick = new
                     {
                         @default = new { operation = "focusLastFocusedOrOpen", url }

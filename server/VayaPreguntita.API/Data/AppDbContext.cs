@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Data;
 
@@ -213,6 +214,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .HasForeignKey(t => t.UserId)
              .OnDelete(DeleteBehavior.Cascade);
         });
+
+        // ==========================================
+        // USER — UI / push language (rama 23); existing accounts get Spanish
+        // ==========================================
+        modelBuilder.Entity<User>()
+            .Property(u => u.PreferredLanguage)
+            .HasMaxLength(5)
+            .HasDefaultValue(AppLanguages.Default);
     }
 
     // A Dictionary<string, string> stored as a JSONB object ({"en": "...", "de": "..."}).

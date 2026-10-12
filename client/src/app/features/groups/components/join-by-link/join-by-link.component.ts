@@ -9,6 +9,7 @@ import { lucideUsers } from '@ng-icons/lucide';
 import { GroupsService } from '../../services/groups.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { InvitePreview } from '../../models/group.models';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 type PageState = 'loading' | 'preview' | 'joining' | 'already_member' | 'not_found' | 'error';
 
@@ -24,6 +25,7 @@ export class JoinByLinkComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly groupsService = inject(GroupsService);
   private readonly authService = inject(AuthService);
+  protected readonly t = inject(I18nService).t;
 
   readonly state = signal<PageState>('loading');
   readonly preview = signal<InvitePreview | null>(null);
@@ -84,7 +86,7 @@ export class JoinByLinkComponent implements OnInit {
         if (msg.toLowerCase().includes('already')) {
           this.state.set('already_member');
         } else {
-          this.errorMessage.set(msg || 'No se pudo unir al grupo. Inténtalo de nuevo.');
+          this.errorMessage.set(msg || this.t('groups.joinLink.failed'));
           this.state.set('error');
         }
       },

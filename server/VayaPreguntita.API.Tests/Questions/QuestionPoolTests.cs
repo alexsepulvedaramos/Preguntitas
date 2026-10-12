@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.DTOs.Questions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
+using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Services;
 using VayaPreguntita.API.Tests.Testing;
 
@@ -52,7 +53,8 @@ public class QuestionPoolTests(DatabaseFixture fixture) : DomainTestBase(fixture
 
         twentieth.Error.Should().BeNull();
         twentieth.Question!.Text.Should().Be("¿Quién se perdería en su propio barrio?");
-        twentyFirst.Error.Should().Contain("20 unused questions");
+        // Player-facing messages follow the UI culture (rama 23): compare with the catalog.
+        twentyFirst.Error.Should().Be(ServerText.UnusedQuestionsLimit(20));
         someoneElse.Error.Should().BeNull();
     }
 
@@ -77,7 +79,7 @@ public class QuestionPoolTests(DatabaseFixture fixture) : DomainTestBase(fixture
         var (question, error) = await CreateAsync(group.Id, group["ana"], Superlative());
 
         question.Should().BeNull();
-        error.Should().Be("This group's question pool is full.");
+        error.Should().Be(ServerText.GroupPoolFull);
         await using var db = NewContext();
         (await db.Questions.CountAsync()).Should().Be(500);
     }

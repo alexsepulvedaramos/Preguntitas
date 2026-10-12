@@ -5,7 +5,7 @@
 >
   <hlm-card-header class="space-y-1 text-center">
     <h3 hlmCardTitle class="text-2xl font-bold tracking-tight text-foreground">
-      Inicia sesión
+      {{ t('auth.login.title') }}
     </h3>
   </hlm-card-header>
 
@@ -17,19 +17,19 @@
             hlmFieldLabel
             for="identifier"
             class="text-sm font-medium text-foreground"
-            >Correo o nombre de usuario</label
+            >{{ t('auth.login.identifier') }}</label
           >
           <input
             hlmInput
             type="text"
             id="identifier"
-            placeholder="nombre@ejemplo.com o tu usuario"
+            [placeholder]="t('auth.login.identifierPlaceholder')"
             formControlName="identifier"
             autocomplete="username"
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >Introduce tu correo o nombre de usuario.</hlm-field-error
+            >{{ t('auth.login.identifierRequired') }}</hlm-field-error
           >
         </hlm-field>
 
@@ -39,7 +39,7 @@
               hlmFieldLabel
               for="password"
               class="text-sm font-medium text-foreground"
-              >Contraseña</label
+              >{{ t('auth.login.password') }}</label
             >
             <!-- TODO: recuperación de contraseña — implementar antes de descomentar
             <a
@@ -61,17 +61,17 @@
             class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <hlm-field-error validator="required"
-            >La contraseña es obligatoria.</hlm-field-error
+            >{{ t('auth.login.passwordRequired') }}</hlm-field-error
           >
           <hlm-field-error validator="minlength"
-            >La contraseña debe tener al menos 8 caracteres.</hlm-field-error
+            >{{ t('auth.login.passwordMin') }}</hlm-field-error
           >
         </hlm-field>
       </hlm-field-group>
 
-      @if (loginError()) {
+      @if (loginError(); as error) {
         <p class="text-sm text-destructive text-center rounded-lg bg-destructive/10 px-3 py-2">
-          {{ loginError() }}
+          {{ t(error) }}
         </p>
       }
 
@@ -82,7 +82,7 @@
           [disabled]="form.invalid || submitting()"
           class="w-full bg-primary text-primary-foreground hover:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none transition-colors"
         >
-          Iniciar sesión
+          {{ t('auth.login.submit') }}
         </button>
 
         <!-- TODO: Google OAuth — implementar antes de descomentar
@@ -101,14 +101,14 @@
         hlmFieldDescription
         class="text-center text-sm text-muted-foreground pt-2"
       >
-        ¿No tienes una cuenta?
+        {{ t('auth.login.noAccount') }}
         <a
           routerLink="/auth/register"
           queryParamsHandling="preserve"
           class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
           (mousedown)="$event.preventDefault()"
         >
-          Regístrate
+          {{ t('auth.login.register') }}
         </a>
       </p>
       <p class="text-center text-xs text-muted-foreground">
@@ -116,7 +116,7 @@
           routerLink="/demo"
           class="underline-offset-4 hover:underline hover:text-foreground transition-colors"
         >
-          ¿Aún no lo tienes claro? Pruébalo sin registrarte
+          {{ t('auth.tryDemo') }}
         </a>
       </p>
     </form>

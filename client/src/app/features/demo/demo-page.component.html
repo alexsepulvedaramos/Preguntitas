@@ -6,11 +6,12 @@
       <app-logo-wordmark />
     </a>
     <div class="flex items-center gap-1.5">
+      <app-language-picker />
       <app-theme />
       @if (signedIn()) {
-        <a hlmBtn variant="ghost" size="sm" routerLink="/groups">{{ copy.final.groups }}</a>
+        <a hlmBtn variant="ghost" size="sm" routerLink="/groups">{{ t('demo.final.groups') }}</a>
       } @else {
-        <a hlmBtn variant="ghost" size="sm" routerLink="/auth/login">Entrar</a>
+        <a hlmBtn variant="ghost" size="sm" routerLink="/auth/login">{{ t('landing.enter') }}</a>
       }
     </div>
   </header>
@@ -22,17 +23,17 @@
         <span class="flex min-w-0 items-center gap-2">
           <span
             class="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary"
-            >{{ copy.badge }}</span
+            >{{ t('demo.badge') }}</span
           >
-          <span class="truncate font-semibold text-foreground">{{ groupName }}</span>
+          <span class="truncate font-semibold text-foreground">{{ groupName() }}</span>
         </span>
         <a
           routerLink="/"
           class="shrink-0 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >{{ copy.exit }}</a
+          >{{ t('demo.exit') }}</a
         >
       </div>
-      <hlm-progress [value]="progress()" aria-label="Progreso de la demo">
+      <hlm-progress [value]="progress()" [attr.aria-label]="t('demo.progress')">
         <hlm-progress-indicator />
       </hlm-progress>
     </div>
@@ -43,12 +44,12 @@
         <section class="vp-demo-step flex flex-col gap-5" aria-labelledby="demo-intro-title">
           <div class="flex flex-col gap-2 text-center">
             <h1 id="demo-intro-title" class="font-display text-3xl italic tracking-tight text-foreground text-balance">
-              {{ copy.intro.title }}
+              {{ t('demo.intro.title', { group: groupName() }) }}
             </h1>
-            <p class="text-muted-foreground">{{ copy.intro.text }}</p>
+            <p class="text-muted-foreground">{{ t('demo.intro.text') }}</p>
           </div>
 
-          <ul class="flex justify-center gap-4 py-2" aria-label="Miembros del grupo">
+          <ul class="flex justify-center gap-4 py-2" [attr.aria-label]="t('demo.intro.members')">
             @for (friend of friends(); track friend.id) {
               <li class="flex flex-col items-center gap-1.5">
                 <app-user-avatar
@@ -67,7 +68,7 @@
           <form class="flex flex-col gap-4" (submit)="$event.preventDefault(); start()">
             <hlm-field class="grid gap-1.5">
               <label hlmFieldLabel for="demo-nickname" class="text-sm font-medium text-foreground">
-                {{ copy.intro.nicknameLabel }}
+                {{ t('demo.intro.nicknameLabel') }}
               </label>
               <input
                 hlmInput
@@ -75,15 +76,15 @@
                 name="nickname"
                 autocomplete="nickname"
                 [maxlength]="nicknameMaxLength"
-                [placeholder]="copy.intro.nicknamePlaceholder"
+                [placeholder]="t('demo.intro.nicknamePlaceholder')"
                 [ngModel]="nicknameDraft()"
                 (ngModelChange)="nicknameDraft.set($event)"
                 class="w-full bg-background border-input text-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
-              <p hlmFieldDescription class="text-xs text-muted-foreground">{{ copy.intro.nicknameHint }}</p>
+              <p hlmFieldDescription class="text-xs text-muted-foreground">{{ t('demo.intro.nicknameHint') }}</p>
             </hlm-field>
             <button hlmBtn type="submit" size="lg" class="w-full gap-2">
-              {{ copy.intro.start }}
+              {{ t('demo.intro.start') }}
               <ng-icon hlm name="lucideArrowRight" />
             </button>
           </form>
@@ -97,8 +98,8 @@
             <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
             <app-countdown class="min-w-0 flex-1" [target]="closesAt" [compact]="true" />
           </div>
-          <p class="text-sm text-muted-foreground">{{ copy.vote.hint }}</p>
-          <app-vote-form class="contents" [question]="question" [members]="membersBefore()" (vote)="onVote($event)" />
+          <p class="text-sm text-muted-foreground">{{ t('demo.vote.hint') }}</p>
+          <app-vote-form class="contents" [question]="question()" [members]="membersBefore()" (vote)="onVote($event)" />
         </section>
       }
 
@@ -107,23 +108,23 @@
         @if (result(); as res) {
           <section class="vp-demo-step flex flex-col gap-4">
             <div class="flex flex-col gap-3">
-              <p class="vp-question-text text-foreground" [innerHTML]="question.text | wordStagger"></p>
+              <p class="vp-question-text text-foreground" [innerHTML]="question().text | wordStagger"></p>
               <div class="text-center">
                 <span class="text-sm text-muted-foreground">{{ votedLabel() }}</span>
               </div>
             </div>
 
-            <app-results [question]="question" [result]="res" />
+            <app-results [question]="question()" [result]="res" />
 
             <div hlmCard size="sm" class="mt-2">
               <div hlmCardContent class="flex flex-col gap-1">
-                <p class="font-semibold text-foreground">{{ punchline }}</p>
-                <p class="text-sm text-muted-foreground">{{ copy.results.hint }}</p>
+                <p class="font-semibold text-foreground">{{ punchline() }}</p>
+                <p class="text-sm text-muted-foreground">{{ t('demo.results.hint') }}</p>
               </div>
             </div>
 
             <button hlmBtn size="lg" class="w-full gap-2" (click)="go('select')">
-              {{ copy.results.next }}
+              {{ t('demo.results.next') }}
               <ng-icon hlm name="lucideArrowRight" />
             </button>
           </section>
@@ -135,9 +136,9 @@
         <section class="vp-demo-step flex flex-col gap-4" aria-labelledby="demo-select-title">
           <div class="flex flex-col gap-2">
             <h1 id="demo-select-title" class="font-display text-3xl italic tracking-tight text-foreground">
-              {{ copy.select.title }}
+              {{ t('demo.select.title') }}
             </h1>
-            <p class="text-sm text-muted-foreground">{{ copy.select.text }}</p>
+            <p class="text-sm text-muted-foreground">{{ t('demo.select.text') }}</p>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -149,14 +150,14 @@
                 [attr.aria-pressed]="pickedId() === option.id"
                 (click)="pick(option.id)"
               >
-                <span class="font-medium">{{ option.text }}</span>
+                <span class="font-medium">{{ t(option.text) }}</span>
                 <span class="flex items-center gap-2">
                   <span
                     class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
                     [class]="typeBadge[option.type]"
-                    >{{ typeLabels[option.type] }}</span
+                    >{{ t(typeLabels[option.type]) }}</span
                   >
-                  <span class="text-xs text-muted-foreground">Pack {{ option.pack }}</span>
+                  <span class="text-xs text-muted-foreground">{{ t('demo.select.pack', { name: t('demo.select.basePack') }) }}</span>
                 </span>
               </button>
             }
@@ -165,12 +166,12 @@
           @if (pickedId() !== null) {
             <p class="vp-demo-step flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
               <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary" />
-              {{ copy.select.picked }}
+              {{ t('demo.select.picked', { time: dailyTime }) }}
             </p>
           }
 
           <button hlmBtn size="lg" class="w-full gap-2" [disabled]="pickedId() === null" (click)="go('jump')">
-            {{ copy.select.next }}
+            {{ t('demo.select.next') }}
             <ng-icon hlm name="lucideArrowRight" />
           </button>
         </section>
@@ -180,25 +181,25 @@
       @case ('jump') {
         <section class="vp-demo-step flex flex-col items-center gap-6 py-6 text-center" aria-labelledby="demo-jump-title">
           <h1 id="demo-jump-title" class="font-display text-4xl italic tracking-tight text-foreground">
-            {{ copy.jump.title }}
+            {{ t('demo.jump.title') }}
           </h1>
 
-          <ol class="flex gap-3" aria-label="Días seguidos votando">
-            @for (day of copy.jump.days; track day) {
+          <ol class="flex gap-3" [attr.aria-label]="t('demo.jump.daysLabel')">
+            @for (day of jumpDays; track day) {
               <li class="flex w-20 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3">
                 <span class="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <ng-icon hlm name="lucideCheck" class="size-4!" />
                 </span>
-                <span class="text-sm font-semibold text-foreground">{{ day }}</span>
-                <span class="text-xs text-muted-foreground">{{ copy.jump.voted }}</span>
+                <span class="text-sm font-semibold text-foreground">{{ t('demo.jump.day', { n: day }) }}</span>
+                <span class="text-xs text-muted-foreground">{{ t('demo.jump.voted') }}</span>
               </li>
             }
           </ol>
 
-          <p class="max-w-prose text-muted-foreground">{{ copy.jump.text }}</p>
+          <p class="max-w-prose text-muted-foreground">{{ t('demo.jump.text') }}</p>
 
           <button hlmBtn size="lg" class="w-full gap-2" (click)="showStreak()">
-            {{ copy.jump.cta }}
+            {{ t('demo.jump.cta') }}
             <ng-icon hlm name="lucideArrowRight" />
           </button>
         </section>
@@ -209,14 +210,14 @@
         <section class="vp-demo-step flex flex-col gap-6" aria-labelledby="demo-final-title">
           <div class="flex flex-col gap-2 text-center">
             <h1 id="demo-final-title" class="font-display text-3xl italic tracking-tight text-foreground">
-              👑 {{ copy.final.title }}
+              👑 {{ t('demo.final.title') }}
             </h1>
-            <p class="text-muted-foreground">{{ copy.final.text }}</p>
+            <p class="text-muted-foreground">{{ t('demo.final.text', { name: lostStreak.username, days: lostStreak.days }) }}</p>
           </div>
 
           <div hlmCard size="sm">
             <div hlmCardHeader>
-              <h2 hlmCardTitle>{{ copy.final.groupTitle }}</h2>
+              <h2 hlmCardTitle>{{ t('demo.final.groupTitle', { group: groupName() }) }}</h2>
             </div>
             <ul hlmCardContent class="flex flex-col gap-3">
               @for (m of membersAfter(); track m.id) {
@@ -232,7 +233,7 @@
                   <span class="min-w-0 flex-1 truncate font-medium text-foreground">
                     {{ m.username }}
                     @if (m.isCurrentUser && hasCustomNickname()) {
-                      <span class="text-sm font-normal text-muted-foreground">({{ copy.final.you }})</span>
+                      <span class="text-sm font-normal text-muted-foreground">({{ t('demo.final.you') }})</span>
                     }
                   </span>
                   @if (m.currentStreak > 0) {
@@ -245,11 +246,11 @@
 
           <div class="flex flex-col items-center gap-4 text-center">
             <div class="flex flex-col gap-1">
-              <h2 class="font-display text-2xl italic tracking-tight text-foreground">{{ copy.final.teaseTitle }}</h2>
-              <p class="text-sm text-muted-foreground">{{ copy.final.teaseText }}</p>
+              <h2 class="font-display text-2xl italic tracking-tight text-foreground">{{ t('demo.final.teaseTitle') }}</h2>
+              <p class="text-sm text-muted-foreground">{{ t('demo.final.teaseText') }}</p>
             </div>
-            <ul class="grid grid-cols-2 gap-x-4 gap-y-6" aria-label="Marcos de racha">
-              @for (frame of teasedFrames; track frame.key) {
+            <ul class="grid grid-cols-2 gap-x-4 gap-y-6" [attr.aria-label]="t('demo.final.framesLabel')">
+              @for (frame of teasedFrames(); track frame.key) {
                 <li class="flex flex-col items-center gap-2">
                   <span class="px-3 pt-6">
                     <app-user-avatar
@@ -262,7 +263,7 @@
                     />
                   </span>
                   <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.label }}</span>
-                  <span class="text-sm italic text-foreground">«{{ frame.title }}»</span>
+                  <span class="text-sm italic text-foreground">{{ t('common.quoted', { text: frame.title }) }}</span>
                 </li>
               }
             </ul>
@@ -270,25 +271,25 @@
 
           <div hlmCard>
             <div hlmCardHeader class="text-center">
-              <h2 hlmCardTitle class="font-display text-2xl italic">{{ copy.final.ctaTitle }}</h2>
-              <p hlmCardDescription>{{ signedIn() ? copy.final.ctaUserText : copy.final.ctaGuestText }}</p>
+              <h2 hlmCardTitle class="font-display text-2xl italic">{{ t('demo.final.ctaTitle') }}</h2>
+              <p hlmCardDescription>{{ signedIn() ? t('demo.final.ctaUserText') : t('demo.final.ctaGuestText') }}</p>
             </div>
             <div hlmCardContent class="flex flex-col gap-2">
               @if (signedIn()) {
                 <a hlmBtn size="lg" routerLink="/groups" class="w-full gap-2">
-                  {{ copy.final.groups }}
+                  {{ t('demo.final.groups') }}
                   <ng-icon hlm name="lucideArrowRight" />
                 </a>
               } @else {
                 <a hlmBtn size="lg" routerLink="/auth/register" class="w-full gap-2">
-                  {{ copy.final.register }}
+                  {{ t('landing.signUpFree') }}
                   <ng-icon hlm name="lucideArrowRight" />
                 </a>
-                <a hlmBtn variant="outline" size="lg" routerLink="/auth/login" class="w-full">{{ copy.final.login }}</a>
+                <a hlmBtn variant="outline" size="lg" routerLink="/auth/login" class="w-full">{{ t('landing.haveAccount') }}</a>
               }
               <button hlmBtn variant="ghost" class="w-full gap-2" (click)="restart()">
                 <ng-icon hlm name="lucideRotateCcw" />
-                {{ copy.final.replay }}
+                {{ t('demo.final.replay') }}
               </button>
             </div>
           </div>

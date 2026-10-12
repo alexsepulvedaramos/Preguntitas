@@ -6,7 +6,7 @@
       [checked]="allowNobody()"
       (change)="toggleAllowNobody()"
     />
-    <span class="text-sm text-foreground">Permitir responder "Nadie"</span>
+    <span class="text-sm text-foreground">{{ t('createQuestion.allowNobody') }}</span>
   </label>
 
   <div class="flex flex-col gap-1.5">
@@ -17,7 +17,7 @@
         [checked]="showExclude()"
         (change)="toggleShowExclude()"
       />
-      <span class="text-sm text-foreground">Excluir a alguien de las respuestas</span>
+      <span class="text-sm text-foreground">{{ t('createQuestion.exclude') }}</span>
     </label>
     @if (showExclude()) {
       <div class="flex flex-col gap-2 pt-1">

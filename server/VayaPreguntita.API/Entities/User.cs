@@ -25,6 +25,10 @@ public class User
     // Title shown on the profile: null = automatic (highest unlocked), "none" = hidden,
     // otherwise an unlocked tier key.
     public string? SelectedTitleKey { get; set; }
+
+    // UI and push-notification language: "es", "en" or "de" (rama 23). Set at registration
+    // from the device's language; existing accounts default to Spanish.
+    public string PreferredLanguage { get; set; } = Localization.AppLanguages.Default;
     public DateTime DateJoined { get; set; } = DateTime.UtcNow;
     public List<GroupMember> GroupMemberships { get; set; } = [];
 

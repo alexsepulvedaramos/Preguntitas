@@ -9,6 +9,7 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 import { isHexFrame } from '../../../../core/constants/streak-tiers';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
+import { I18nService } from '../../../../core/i18n/i18n.service';
 
 // Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
 // Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
@@ -57,6 +58,7 @@ export class ResultOptionBarComponent {
   // Members' streak rings inside the group (rama 19) and the member card on tap.
   protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly memberCard = inject(MemberCardService);
+  protected readonly t = inject(I18nService).t;
 
   // When leadUser has a fixed (hex) frame colour, use it as bar fill; otherwise fall back
   // to the chart class ("streak"/"none" frames aren't colours).

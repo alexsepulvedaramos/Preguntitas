@@ -1,10 +1,12 @@
 import { QuestionType } from '../enums/question-type.enum';
+import { TranslationKey } from '../i18n/translation.types';
 
-export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-    [QuestionType.CustomPoll]: 'Encuesta',
-    [QuestionType.Superlative]: 'Superlativo',
-    [QuestionType.Deathmatch]: 'Deathmatch',
-    [QuestionType.Scale]: 'Escala',
-    [QuestionType.SecretPairing]: 'Pareja secreta',
-    [QuestionType.OpenText]: 'Respuesta abierta',
+// Translation keys for each type's name — render with t(QUESTION_TYPE_LABELS[type]).
+export const QUESTION_TYPE_LABELS: Record<QuestionType, TranslationKey> = {
+    [QuestionType.CustomPoll]: 'questionTypes.customPoll.label',
+    [QuestionType.Superlative]: 'questionTypes.superlative.label',
+    [QuestionType.Deathmatch]: 'questionTypes.deathmatch.label',
+    [QuestionType.Scale]: 'questionTypes.scale.label',
+    [QuestionType.SecretPairing]: 'questionTypes.secretPairing.label',
+    [QuestionType.OpenText]: 'questionTypes.openText.label',
 };

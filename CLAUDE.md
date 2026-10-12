@@ -23,7 +23,7 @@ Before implementing anything in this repo:
 ## Releases & versioning (spec §14 "Releases")
 
 Every PR that changes something players notice ships a release note — **inside the same branch, before opening the PR**:
-1. Add a new entry at the top of `client/src/app/core/releases/releases.ts` (or extend the top entry if that version hasn't been merged/tagged yet). Spanish, written for players: what they'll notice, no internal names. The "Novedades" page and the app version read from this file.
+1. Add a new entry at the top of `client/src/app/core/releases/releases.ts` (or extend the top entry if that version hasn't been merged/tagged yet). Written for players: what they'll notice, no internal names — in Spanish, English and German (every text is an `{ es, en, de }` object; `translations.spec.ts` fails if one is missing). The "Novedades" page and the app version read from this file.
 2. Bump semver: new player-visible feature → MINOR, fixes only → PATCH. Set the same version in `client/package.json` and the two `version` fields at the top of `client/package-lock.json`.
 3. Set the entry's `date` to the day it's merged.
 
@@ -34,7 +34,7 @@ Internal-only changes (docs, tests, CI, refactors with no visible effect) get no
 
 ## Conventions (see spec §14 for full detail)
 
-- All identifiers, comments, and commit messages → **English**. UI-facing copy → **Spanish**.
+- All identifiers, comments, and commit messages → **English**. UI-facing copy → the i18n dictionaries (`client/src/app/core/i18n/translations/es.ts` + its `en.ts`/`de.ts` versions; player-facing API messages in `Localization/ServerText.cs`) — never hardcoded in templates.
 - DTOs at API boundaries, never return EF entities. No DB/business logic in controllers — services only.
 - Schema changes always go through an EF migration.
 - Frontend UI: use the **Spartan skill** at `.agents/skills/spartan` and Tailwind utility classes — don't hand-roll primitives Spartan already provides.

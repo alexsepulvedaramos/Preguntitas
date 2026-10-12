@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-4">
   @if (hasTarget()) {
     <p class="text-sm text-muted-foreground">
-      Sobre <span class="text-foreground font-medium">{{ targetUsername() }}</span>
+      {{ t('vote.about') }} <span class="text-foreground font-medium">{{ targetUsername() }}</span>
     </p>
   }
 
@@ -22,5 +22,5 @@
   class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
   (click)="submit()"
 >
-  Votar
+  {{ t('vote.submit') }}
 </button>

@@ -3,16 +3,15 @@ import { QuestionToVote } from '../../core/models/question.model';
 import { OptionResult, QuestionResult, Voter } from '../../core/models/result.model';
 import { StreakUpdate } from '../../core/models/streak.model';
 import { FRAME_STREAK, STREAK_TIERS, StreakTierKey, nextStreakTier, streakTierFor } from '../../core/constants/streak-tiers';
+import { TranslationKey } from '../../core/i18n/translation.types';
 import { GroupMember } from '../groups/models/group.models';
 
-// Everything the /demo walkthrough (rama 25) shows: the fictional group, its scripted
-// votes and every piece of copy, kept in one place so ramas 23–24 can translate it.
-// Nothing here touches the API.
+// Everything the /demo walkthrough (rama 25) shows: the fictional group and its scripted
+// votes. Its copy lives in the dictionaries under `demo.*` (rama 23); the demo page fills
+// in the translated texts. Nothing here touches the API.
 
 export const DEMO_GROUP_ID = 0;
-export const DEMO_GROUP_NAME = 'Los de siempre';
 export const DEMO_VISITOR_ID = 99;
-export const DEMO_DEFAULT_NICKNAME = 'Tú';
 export const DEMO_NICKNAME_MAX_LENGTH = 20;
 // The group's daily time, shown in the countdown and the selection step.
 export const DEMO_DAILY_HOUR = 21;
@@ -83,9 +82,10 @@ export function demoMembers(nickname: string, phase: 'before' | 'after'): GroupM
   return all;
 }
 
+// Text left empty: the page sets it from `demo.question` in the UI language.
 export const DEMO_QUESTION: QuestionToVote = {
   id: 1,
-  text: '¿Quién intentaría abrazar a un zombie en un apocalipsis?',
+  text: '',
   type: QuestionType.Superlative,
   allowNobody: false,
   blacklistedUserIds: [],
@@ -95,7 +95,7 @@ export const DEMO_QUESTION: QuestionToVote = {
 };
 
 // Today's results once the visitor has voted for `visitorVote` (a member id).
-export function demoResult(members: GroupMember[], visitorVote: number): QuestionResult {
+export function demoResult(question: QuestionToVote, members: GroupMember[], visitorVote: number): QuestionResult {
   const byId = new Map(members.map((m) => [m.id, m]));
   const ballots = [
     ...FRIENDS.map((f) => ({ voter: f.id, target: f.votesFor })),
@@ -131,9 +131,9 @@ export function demoResult(members: GroupMember[], visitorVote: number): Questio
     .sort((a, b) => b.voteCount - a.voteCount);
 
   return {
-    id: DEMO_QUESTION.id,
-    text: DEMO_QUESTION.text,
-    type: DEMO_QUESTION.type,
+    id: question.id,
+    text: question.text,
+    type: question.type,
     dateCreated: new Date(),
     totalVotes: ballots.length,
     results,
@@ -147,16 +147,15 @@ export const DEMO_FRIEND_COUNT = FRIENDS.length;
 
 export interface DemoPick {
   id: number;
-  text: string;
+  text: TranslationKey;
   type: QuestionType;
-  pack: string;
 }
 
 // Pack questions offered in the "Mañana eliges tú" step (real Base pack templates).
 export const DEMO_PICKS: readonly DemoPick[] = [
-  { id: 1, text: '¿Quién se perdería incluso con el GPS en la mano?', type: QuestionType.Superlative, pack: 'Base' },
-  { id: 2, text: 'Elige tu superpoder inútil:', type: QuestionType.CustomPoll, pack: 'Base' },
-  { id: 3, text: 'Del 1 al 10, ¿qué nota le das a la pizza con piña?', type: QuestionType.Scale, pack: 'Base' },
+  { id: 1, text: 'demo.select.pick1', type: QuestionType.Superlative },
+  { id: 2, text: 'demo.select.pick2', type: QuestionType.CustomPoll },
+  { id: 3, text: 'demo.select.pick3', type: QuestionType.Scale },
 ];
 
 // The vote that takes the visitor's streak from 2 to 3: first frame and first title.
@@ -170,79 +169,24 @@ export function demoStreakUpdate(): StreakUpdate {
     best: current,
     tierKey: tier.key,
     tierTitle: tier.title,
-    tierMaterial: tier.material,
     isTierUp: true,
     titleUnlocked: true,
     milestoneLabel: null,
     nextTierKey: next?.key ?? null,
     nextTierTitle: next?.title ?? null,
-    nextTierMaterial: next?.material ?? null,
     nextTierAt: next?.minDays ?? null,
     daysToNextTier: next ? next.minDays - current : null,
   };
 }
 
-// The higher frames teased on the last step.
+// The higher frames teased on the last step (the page labels them with the material).
 const TEASED_TIERS: readonly StreakTierKey[] = ['stone', 'silver', 'gold', 'amethyst'];
 export const DEMO_TEASED_FRAMES = STREAK_TIERS.filter((t) => TEASED_TIERS.includes(t.key)).map((t) => ({
   key: t.key,
-  username: t.material,
   avatarUrl: avatarFor(t.key),
   streak: t.minDays,
-  label: `${t.material} · ${t.minDays} días`,
   title: t.title,
 }));
 
 export type DemoStep = 'intro' | 'vote' | 'results' | 'select' | 'jump' | 'final';
 export const DEMO_STEPS: readonly DemoStep[] = ['intro', 'vote', 'results', 'select', 'jump', 'final'];
-
-export const DEMO_COPY = {
-  badge: 'Demo',
-  exit: 'Salir',
-  intro: {
-    title: `Este es «${DEMO_GROUP_NAME}»`,
-    text: 'Un grupo de prueba con cuatro amigos de mentira. En menos de un minuto vas a jugar un día entero: votar, ver quién ha votado a quién y elegir la pregunta de mañana.',
-    nicknameLabel: '¿Cómo te llamamos?',
-    nicknamePlaceholder: 'Tu nombre o apodo',
-    nicknameHint: 'Opcional. Solo se usa en esta demo y no se guarda.',
-    start: 'Empezar',
-  },
-  vote: {
-    hint: 'Ha salido la pregunta de hoy y el grupo tiene 24 horas para votar. Vota a quien quieras, también a ti.',
-  },
-  results: {
-    votedLabel: (voted: number, total: number) => `Han votado ${voted} de ${total} miembros`,
-    punchline: (count: number, of: number) =>
-      count === of ? `Tus ${of} amigos te han votado a ti. 👀` : `${count} de tus ${of} amigos te han votado a ti. 👀`,
-    hint: 'Los resultados no son secretos: toca una barra para ver quién ha votado a quién.',
-    next: 'Siguiente',
-  },
-  select: {
-    title: 'Mañana eliges tú',
-    text: 'Cada día le toca a una persona del grupo, por turnos, elegir la pregunta del día siguiente: de los packs o una que escribáis vosotros. Si nadie elige, sale una de los packs.',
-    picked: `¡Elegida! Sale mañana a las ${DEMO_DAILY_HOUR}:00 para todo el grupo. Hasta entonces la puedes cambiar.`,
-    next: 'Siguiente',
-  },
-  jump: {
-    title: 'Dos días después…',
-    days: ['Día 1', 'Día 2', 'Día 3'],
-    voted: 'Votaste',
-    text: 'Has votado tres días seguidos. Tu racha sube cada día que votas y, al tercero, tu avatar estrena marco.',
-    cta: 'Ver mi racha',
-  },
-  final: {
-    title: 'La corona es tuya',
-    text: `Llevas la racha más larga del grupo. ${DEMO_LOST_STREAK.username} se despistó ayer y perdió una racha de ${DEMO_LOST_STREAK.days} días.`,
-    groupTitle: `Miembros de «${DEMO_GROUP_NAME}»`,
-    you: 'tú',
-    teaseTitle: 'Y esto es solo el principio',
-    teaseText: 'Cuanto más dure tu racha, mejor es el marco. Cada uno desbloquea un título para siempre.',
-    ctaTitle: '¿Lo jugamos de verdad?',
-    ctaGuestText: 'Crea tu cuenta, monta tu grupo y comparte el enlace. En cuanto seáis dos, sale la primera pregunta.',
-    ctaUserText: 'Crea un grupo y comparte el enlace. En cuanto seáis dos, sale la primera pregunta.',
-    register: 'Crear cuenta gratis',
-    login: 'Ya tengo cuenta',
-    groups: 'Ir a mis grupos',
-    replay: 'Volver a empezar',
-  },
-};
