@@ -23,6 +23,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.11.1',
+    date: '2026-10-12',
+    title: {
+      es: 'El chat y los resultados se actualizan solos',
+      en: 'Chat and results update by themselves',
+      de: 'Chat und Ergebnisse aktualisieren sich von selbst',
+    },
+    items: [
+      {
+        emoji: '🔄',
+        title: {
+          es: 'Sin tocar el botón de refrescar',
+          en: 'No more tapping refresh',
+          de: 'Kein Aktualisieren-Knopf mehr nötig',
+        },
+        text: {
+          es: 'Mientras tienes el grupo abierto, los mensajes del chat y los votos de la pregunta del día aparecen solos, sin recargar. Si dejas la app en segundo plano se pausa y, al volver, se pone al día al instante.',
+          en: 'While you have the group open, chat messages and votes on the daily question show up on their own, no reload needed. If you leave the app in the background it pauses, and catches up the moment you come back.',
+          de: 'Solange die Gruppe geöffnet ist, erscheinen Chat-Nachrichten und Stimmen zur Tagesfrage von selbst, ganz ohne Neuladen. Läuft die App im Hintergrund, pausiert die Aktualisierung und holt beim Zurückkommen sofort alles nach.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.11.0',
     date: '2026-10-12',
     title: {
