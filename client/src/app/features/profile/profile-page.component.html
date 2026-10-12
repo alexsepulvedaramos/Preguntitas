@@ -374,6 +374,17 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
+            <p class="text-sm text-foreground">{{ t('profile.prefMonthlySummary') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefMonthlySummaryHint') }}</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().monthlySummary"
+            (checkedChange)="togglePref('monthlySummary')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
             <p class="text-sm text-foreground">{{ t('profile.prefUserVoted') }}</p>
           </div>
           <hlm-switch

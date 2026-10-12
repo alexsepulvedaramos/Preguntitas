@@ -13,6 +13,8 @@ public interface INotificationService
     Task SendRaceToSelectAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
     // "⚡ Pregunta flash" (§17.11): every member but the buyer.
     Task SendFlashQuestionAsync(int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText);
+    // "Resumen del mes" (§17.12): every member, when last month's summary is ready.
+    Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month);
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
     Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview);
     // Caller has already checked the user's StreakDanger preference, lead time and group mute.

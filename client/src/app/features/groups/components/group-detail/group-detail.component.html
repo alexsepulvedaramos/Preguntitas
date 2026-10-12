@@ -30,6 +30,22 @@
           (changed)="onMyStreakChanged($event)"
         />
       }
+      @if (summaryMonths()[0]; as latest) {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="relative shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="showSummary(latest.month)"
+          [attr.aria-label]="t('monthlySummary.open')"
+        >
+          <ng-icon hlm name="lucidePartyPopper" />
+          @if (unseenSummary()) {
+            <span class="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" aria-hidden="true"></span>
+          }
+          <span class="sr-only">{{ t('monthlySummary.open') }}</span>
+        </button>
+      }
       <a
         hlmBtn
         variant="ghost"
@@ -83,6 +99,22 @@
       <p class="font-display italic text-lg text-destructive">{{ t(error) }}</p>
     </div>
   } @else {
+
+    <!-- Last month's summary is ready (rama 41): until it's opened on this device -->
+    @if (unseenSummary(); as month) {
+      <button
+        type="button"
+        class="flex w-full items-center gap-3 rounded-default border border-primary/30 bg-primary/10 px-4 py-3 text-left transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        (click)="showSummary(month)"
+      >
+        <span class="text-2xl" aria-hidden="true">🎉</span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-sm font-semibold text-foreground">{{ t('monthlySummary.readyTitle') }}</span>
+          <span class="block text-xs text-muted-foreground">{{ t('monthlySummary.readyText') }}</span>
+        </span>
+        <span class="shrink-0 text-sm font-semibold text-primary">{{ t('monthlySummary.see') }}</span>
+      </button>
+    }
 
     <!-- Notices go above the question so they're always seen — one streak notice at a time -->
     @switch (notice()) {
@@ -416,4 +448,14 @@
 
 @if (celebration(); as update) {
   <app-streak-celebration [update]="update" (dismissed)="onCelebrationDismissed()" />
+}
+
+@if (openSummary(); as month) {
+  <app-monthly-summary-viewer
+    [groupId]="numericGroupId()"
+    [groupName]="group()?.name ?? ''"
+    [months]="summaryMonths()"
+    [initialMonth]="month"
+    (closed)="closeSummary()"
+  />
 }

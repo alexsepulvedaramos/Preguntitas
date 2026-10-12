@@ -9,7 +9,7 @@ namespace VayaPreguntita.API.BackgroundServices;
 
 // One tick of the daily cycle (§4.3): preselect tomorrow's question once T has passed,
 // activate today's at T, remind selectors who haven't chosen, open the race to select at
-// T − 10 min, and send the "streak in danger" pushes. DailyPreselectionService runs it every minute in its own DI scope;
+// T − 10 min, send the "streak in danger" pushes and build last month's summaries. DailyPreselectionService runs it every minute in its own DI scope;
 // tests run it directly at a fixed instant.
 public class DailyCycleRunner(
     AppDbContext context,
@@ -17,6 +17,7 @@ public class DailyCycleRunner(
     INotificationService notificationService,
     IStreakService streakService,
     ICoinService coinService,
+    IMonthlySummaryService monthlySummaryService,
     TimeProvider clock,
     ILogger<DailyCycleRunner> logger
 )
@@ -93,6 +94,10 @@ public class DailyCycleRunner(
             foreach (var entry in entriesToActivate)
                 _ = notificationService.SendNewQuestionAsync(
                     entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations);
+
+            // Last month's summary goes out with the activation, adding no new burst (§17.12).
+            foreach (var entry in entriesToActivate)
+                await NotifyMonthlySummaryAsync(entry);
         }
 
         // ── SELECTOR REMINDER (if no manual selection after SelectorReminderDelay) ──
@@ -126,6 +131,21 @@ public class DailyCycleRunner(
 
         // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
         await streakService.SendDangerRemindersAsync();
+
+        // ── MONTHLY SUMMARY (§17.12): a few groups per tick ────────────────────
+        await monthlySummaryService.BuildPendingAsync();
+    }
+
+    private async Task NotifyMonthlySummaryAsync(DailyEntry entry)
+    {
+        try
+        {
+            await monthlySummaryService.NotifyIfReadyAsync(entry.GroupId, entry.Group.Name);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Monthly summary push failed for group {GroupId}", entry.GroupId);
+        }
     }
 
     // A pending entry is due for the race when its activation (Date at T) is at most

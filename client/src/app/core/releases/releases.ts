@@ -23,6 +23,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.21.0',
+    date: '2026-10-13',
+    title: {
+      es: 'El resumen del mes',
+      en: 'Your month in review',
+      de: 'Der Monatsrückblick',
+    },
+    items: [
+      {
+        emoji: '🎉',
+        title: {
+          es: 'Cada mes, vuestro resumen',
+          en: 'A summary every month',
+          de: 'Jeden Monat ein Rückblick',
+        },
+        text: {
+          es: 'El día 1 llega el resumen del mes anterior de cada grupo, en historias a pantalla completa: cuántas preguntas jugasteis, la participación del grupo y las rachas más largas. Lo abres desde el grupo y puedes volver a los de los últimos 12 meses.',
+          en: "On the 1st, each group gets a summary of the month before as full-screen stories: how many questions you played, the group's participation and the longest runs. Open it from the group and look back at the last 12 months.",
+          de: 'Am 1. bekommt jede Gruppe einen Rückblick auf den Vormonat als Vollbild-Storys: wie viele Fragen ihr gespielt habt, die Beteiligung der Gruppe und die längsten Serien. Du öffnest ihn in der Gruppe und kannst die letzten 12 Monate nachschauen.',
+        },
+      },
+      {
+        emoji: '🏆',
+        title: {
+          es: 'Premios del mes',
+          en: 'Monthly awards',
+          de: 'Auszeichnungen des Monats',
+        },
+        text: {
+          es: 'El más votado en superlativos, el selector más activo, el mejor detective de autores, el más constante y el autor estrella, cuya pregunta tuvo más respuestas. Si hay empate, el premio se comparte.',
+          en: 'Most voted in superlatives, most active picker, best author detective, most consistent, and the star author whose question got the most answers. Ties share the award.',
+          de: 'Meistgewählt bei Superlativen, aktivste Auswahl, bester Autoren-Detektiv, am beständigsten und der Star-Autor, dessen Frage die meisten Antworten bekam. Bei Gleichstand wird die Auszeichnung geteilt.',
+        },
+      },
+      {
+        emoji: '💞',
+        title: {
+          es: 'Tu match',
+          en: 'Your match',
+          de: 'Dein Match',
+        },
+        text: {
+          es: 'La persona con la que más os habéis votado mutuamente en superlativos y parejas secretas. Solo lo ves tú.',
+          en: 'The person you and they picked each other most in superlatives and secret pairings. Only you see yours.',
+          de: 'Die Person, mit der ihr euch bei Superlativen und geheimen Paaren am häufigsten gegenseitig gewählt habt. Nur du siehst deins.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.20.0',
     date: '2026-10-13',
     title: {

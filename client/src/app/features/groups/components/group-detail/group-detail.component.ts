@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EMPTY, forkJoin } from 'rxjs';
 import { catchError, exhaustMap, filter } from 'rxjs/operators';
 
@@ -9,7 +9,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
@@ -42,6 +42,9 @@ import { MyStreakComponent } from '../my-streak/my-streak.component';
 import { TodayVotersComponent } from '../today-voters/today-voters.component';
 import { AuthorGuessComponent } from '../author-guess/author-guess.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { MonthlySummaryViewerComponent } from '../monthly-summary/monthly-summary-viewer.component';
+import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
+import { MonthlySummaryListItem } from '../../../../core/models/monthly-summary.model';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -72,6 +75,8 @@ const ADVANCE_DELAY_MS = 1500;
 // question when it was written by a member. Rama 40: the "¡Elige tú!" race banner.
 // Rama 44: flash questions — the open questions become a deck (today's + each flash), shown
 // one at a time with a pager; answering one moves on to the next unanswered.
+// Rama 41: monthly summaries — a top-bar button and a "ready" card open the story viewer;
+// the monthly_summary push lands here with ?summary=YYYY-MM.
 @Component({
   selector: 'app-group-detail',
   imports: [
@@ -95,9 +100,10 @@ const ADVANCE_DELAY_MS = 1500;
     TodayVotersComponent,
     AuthorGuessComponent,
     UserAvatarComponent,
+    MonthlySummaryViewerComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap }),
+    provideIcons({ lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
@@ -109,11 +115,26 @@ export class GroupDetailComponent implements OnInit {
   private readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  private readonly summaryService = inject(MonthlySummaryService);
+  private readonly router = inject(Router);
   protected readonly t = inject(I18nService).t;
   protected readonly raceReward = RACE_WON_REWARD;
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
+  // ?summary=YYYY-MM (the monthly_summary push) opens that month's story.
+  public readonly summary = input<string | undefined>();
+
+  // ── Monthly summaries (rama 41) ──
+  protected readonly summaryMonths = signal<MonthlySummaryListItem[]>([]);
+  protected readonly openSummary = signal<string | null>(null);
+  private readonly seenSummary = signal<string | null>(null);
+  // The newest summary, until this device has opened it.
+  protected readonly unseenSummary = computed(() => {
+    const latest = this.summaryMonths()[0];
+    const seen = this.seenSummary();
+    return latest && (!seen || latest.month > seen) ? latest.month : null;
+  });
 
   protected readonly chat = viewChild<GroupChatComponent>('chat');
   private readonly selectDialog = viewChild<SelectQuestionDialogComponent>('selectDialog');
@@ -177,6 +198,7 @@ export class GroupDetailComponent implements OnInit {
 
   ngOnInit() {
     this.loadAll();
+    this.loadSummaries();
     this.startDailyPolling();
     const tick = setInterval(() => this.now.set(Date.now()), 60_000);
     this.destroyRef.onDestroy(() => {
@@ -460,6 +482,30 @@ export class GroupDetailComponent implements OnInit {
     if (!local) return fresh;
     if (local.userHasVoted && !fresh.userHasVoted) return local;
     return !local.userHasVoted && !fresh.userHasVoted ? { ...fresh, question: local.question } : fresh;
+  }
+
+  private loadSummaries() {
+    const groupId = this.numericGroupId();
+    this.seenSummary.set(this.summaryService.lastSeen(groupId));
+    this.summaryService.list(groupId).subscribe({
+      next: (months) => {
+        this.summaryMonths.set(months);
+        const requested = this.summary();
+        if (requested && months.some((m) => m.month === requested)) this.openSummary.set(requested);
+      },
+      error: () => this.summaryMonths.set([]),
+    });
+  }
+
+  protected showSummary(month: string) {
+    this.openSummary.set(month);
+  }
+
+  protected closeSummary() {
+    this.openSummary.set(null);
+    this.seenSummary.set(this.summaryService.lastSeen(this.numericGroupId()));
+    if (this.summary())
+      this.router.navigate([], { queryParams: { summary: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   private loadAll() {

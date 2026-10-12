@@ -17,4 +17,7 @@ public class NotificationPreferences
 
     // "⚡ Pregunta flash" — a member launched a flash question (§17.11).
     public bool FlashQuestion { get; set; } = true;
+
+    // "Resumen del mes" — last month's summary is ready, on the 1st at T (§17.12).
+    public bool MonthlySummary { get; set; } = true;
 }

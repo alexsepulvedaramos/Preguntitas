@@ -1,0 +1,189 @@
+<div
+  class="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-primary/25 via-background to-background text-foreground backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="t('monthlySummary.title', { month: monthLabel() })"
+>
+  <!-- Progress segments + close -->
+  <div class="mx-auto flex w-full max-w-lg flex-col gap-3 px-4 pt-[max(env(safe-area-inset-top),1rem)]">
+    @if (!reducedMotion && slides().length > 1) {
+      <div class="flex gap-1" aria-hidden="true">
+        @for (slide of slides(); track $index) {
+          <div class="h-1 flex-1 overflow-hidden rounded-full bg-foreground/15">
+            <div
+              class="h-full rounded-full bg-primary transition-[width] duration-300"
+              [style.width]="$index <= index() ? '100%' : '0%'"
+            ></div>
+          </div>
+        }
+      </div>
+    }
+    <div class="flex items-center gap-2">
+      <p class="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+        {{ groupName() }} · <span class="capitalize">{{ monthLabel() }}</span>
+      </p>
+      <button
+        #closeButton
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        class="-mr-2 shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+        (click)="close()"
+        [attr.aria-label]="t('monthlySummary.close')"
+      >
+        <ng-icon hlm name="lucideX" />
+        <span class="sr-only">{{ t('monthlySummary.close') }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex flex-1 items-center justify-center"><hlm-spinner /></div>
+  } @else if (failed()) {
+    <div class="flex flex-1 items-center justify-center px-6 text-center">
+      <p class="font-display text-lg italic text-destructive">{{ t('monthlySummary.loadFailed') }}</p>
+    </div>
+  } @else if (reducedMotion) {
+    <!-- Static cards, stacked -->
+    <div class="mx-auto flex w-full max-w-lg flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+      @for (slide of slides(); track $index) {
+        <section class="rounded-default border border-border bg-card p-6 shadow-sm">
+          <ng-container *ngTemplateOutlet="slideBody; context: { $implicit: slide }" />
+        </section>
+      }
+    </div>
+  } @else {
+    <!-- Story: tap right to advance, left to go back -->
+    <div
+      class="relative mx-auto flex w-full max-w-lg flex-1 cursor-pointer select-none items-center px-6 pb-[max(env(safe-area-inset-bottom),1.5rem)]"
+      (click)="onTap($event)"
+    >
+      @if (current(); as slide) {
+        @for (s of [slide]; track index()) {
+          <div class="w-full animate-in fade-in slide-in-from-right-4 duration-300" aria-live="polite">
+            <ng-container *ngTemplateOutlet="slideBody; context: { $implicit: s }" />
+          </div>
+        }
+      }
+      <p class="pointer-events-none absolute inset-x-0 bottom-[max(env(safe-area-inset-bottom),0.75rem)] text-center text-xs text-muted-foreground">
+        @if (index() < slides().length - 1) {
+          {{ t('monthlySummary.tapHint') }}
+        }
+      </p>
+    </div>
+  }
+</div>
+
+<ng-template #slideBody let-slide>
+  @switch (slide.kind) {
+    @case ('intro') {
+      <div class="flex flex-col items-center gap-4 text-center">
+        <span class="text-6xl" aria-hidden="true">🎉</span>
+        <h2 class="font-display text-3xl italic text-foreground">
+          {{ t('monthlySummary.title', { month: monthLabel() }) }}
+        </h2>
+        <p class="text-muted-foreground">{{ t('monthlySummary.questions', { count: summary()!.questions }) }}</p>
+      </div>
+    }
+    @case ('participation') {
+      <div class="flex flex-col items-center gap-4 text-center">
+        <p class="text-sm uppercase tracking-wide text-muted-foreground">{{ t('monthlySummary.participationTitle') }}</p>
+        <p class="font-display text-7xl italic text-primary">{{ summary()!.participation }}%</p>
+        <p class="text-muted-foreground">{{ t('monthlySummary.participationText') }}</p>
+        @if (bestRuns(); as runs) {
+          <div class="mt-2 flex flex-col items-center gap-2">
+            <div class="flex -space-x-2">
+              @for (p of runs.people; track p.userId) {
+                <app-user-avatar [avatarUrl]="p.avatarUrl" [username]="p.username" frameColor="none" size="md" />
+              }
+            </div>
+            <p class="text-sm text-foreground">
+              🔥 {{ t('monthlySummary.bestRun', { names: names(runs.people), count: runs.days }) }}
+            </p>
+          </div>
+        }
+      </div>
+    }
+    @case ('award') {
+      <div class="flex flex-col items-center gap-4 text-center">
+        <span class="text-6xl" aria-hidden="true">{{ emoji(slide.award.key) }}</span>
+        <h2 class="font-display text-2xl italic text-foreground">{{ awardTitle(slide.award.key) }}</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+          @for (w of slide.award.winners; track w.person.userId) {
+            <div class="flex flex-col items-center gap-1">
+              <app-user-avatar [avatarUrl]="w.person.avatarUrl" [username]="w.person.username" frameColor="none" size="lg" />
+              <span class="text-sm font-semibold text-foreground">{{ w.person.username }}</span>
+            </div>
+          }
+        </div>
+        <p class="text-muted-foreground">{{ awardValue(slide.award) }}</p>
+        @if (slide.award.key === 'starAuthor') {
+          @for (w of slide.award.winners; track w.person.userId) {
+            @if (w.questionText) {
+              <blockquote class="rounded-default bg-muted/60 px-4 py-3 text-sm italic text-foreground">
+                “{{ w.questionText }}”
+              </blockquote>
+            }
+          }
+        }
+      </div>
+    }
+    @case ('match') {
+      <div class="flex flex-col items-center gap-4 text-center">
+        <span class="text-6xl" aria-hidden="true">💞</span>
+        <h2 class="font-display text-2xl italic text-foreground">{{ t('monthlySummary.matchTitle') }}</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+          @for (p of summary()!.myMatch!.people; track p.userId) {
+            <div class="flex flex-col items-center gap-1">
+              <app-user-avatar [avatarUrl]="p.avatarUrl" [username]="p.username" frameColor="none" size="lg" />
+              <span class="text-sm font-semibold text-foreground">{{ p.username }}</span>
+            </div>
+          }
+        </div>
+        <p class="text-muted-foreground">{{ t('monthlySummary.matchText', { count: summary()!.myMatch!.count }) }}</p>
+      </div>
+    }
+    @case ('members') {
+      <div class="flex flex-col gap-4">
+        <h2 class="text-center font-display text-2xl italic text-foreground">{{ t('monthlySummary.membersTitle') }}</h2>
+        <ul class="flex flex-col gap-2">
+          @for (m of summary()!.members; track m.person.userId) {
+            <li class="flex items-center gap-3">
+              <app-user-avatar [avatarUrl]="m.person.avatarUrl" [username]="m.person.username" frameColor="none" size="sm" />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-foreground">{{ m.person.username }}</p>
+                <p class="text-xs text-muted-foreground">
+                  {{ t('monthlySummary.memberLine', { answered: m.answered, eligible: m.eligible }) }}
+                  @if (m.bestRun >= 2) {
+                    · 🔥 {{ t('monthlySummary.memberRun', { count: m.bestRun }) }}
+                  }
+                </p>
+              </div>
+              <span class="text-sm font-semibold tabular-nums text-foreground">{{ m.percent }}%</span>
+            </li>
+          }
+        </ul>
+        @if (months().length > 1) {
+          <div class="flex flex-col gap-2 pt-2" (click)="$event.stopPropagation()">
+            <p class="text-xs text-muted-foreground">{{ t('monthlySummary.otherMonths') }}</p>
+            <div class="flex flex-wrap gap-2">
+              @for (item of months(); track item.month) {
+                @if (item.month !== month()) {
+                  <button
+                    hlmBtn
+                    variant="outline"
+                    size="sm"
+                    class="capitalize focus-visible:ring-2 focus-visible:ring-ring"
+                    (click)="open(item.month)"
+                  >
+                    {{ labelFor(item.month) }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</ng-template>

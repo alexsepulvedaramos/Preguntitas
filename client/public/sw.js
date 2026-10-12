@@ -71,6 +71,7 @@ const TEXT = {
     selectorTurn: '¡Te toca elegir la pregunta!',
     raceToSelect: '¡Elige tú la próxima pregunta!',
     flash: (name) => `Pregunta flash de ${name}`,
+    summary: 'Ya está el resumen del mes',
     voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
     messages: (count, names) => `${count} mensajes nuevos de ${names}`,
     and: 'y',
@@ -80,6 +81,7 @@ const TEXT = {
     selectorTurn: "It's your turn to pick the question!",
     raceToSelect: 'Your pick: the next question is up for grabs!',
     flash: (name) => `Flash question from ${name}`,
+    summary: 'Your monthly summary is here',
     voted: (names) => `${names} voted`,
     messages: (count, names) => `${count} new messages from ${names}`,
     and: 'and',
@@ -89,6 +91,7 @@ const TEXT = {
     selectorTurn: 'Du bist dran, die Frage auszuwählen!',
     raceToSelect: 'Du darfst die nächste Frage wählen!',
     flash: (name) => `Blitzfrage von ${name}`,
+    summary: 'Dein Monatsrückblick ist da',
     voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
     messages: (count, names) => `${count} neue Nachrichten von ${names}`,
     and: 'und',
@@ -105,6 +108,9 @@ function summarize(events, text) {
 
   if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
   if (latest('race_to_select')) lines.push(`⏱️ ${text.raceToSelect}`);
+
+  // Monthly summary (rama 41): sent with the 1st's question, so it usually merges with it.
+  if (latest('monthly_summary')) lines.push(`🎉 ${text.summary}`);
 
   const question = latest('new_question');
   if (question) lines.push(`❓ ${question.body}`);

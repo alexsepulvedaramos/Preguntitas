@@ -11,7 +11,9 @@ public record NotificationPreferencesDto(
     // "¡Elige tú!" — the race to select (§17.5).
     bool RaceToSelect = true,
     // "⚡ Pregunta flash" (§17.11).
-    bool FlashQuestion = true
+    bool FlashQuestion = true,
+    // "Resumen del mes" (§17.12).
+    bool MonthlySummary = true
 )
 {
     public static readonly int[] AllowedStreakDangerHours = [1, 2, 3, 4, 6, 8];

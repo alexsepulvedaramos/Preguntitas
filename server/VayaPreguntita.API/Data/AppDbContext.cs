@@ -28,6 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CoinTransaction> CoinTransactions { get; set; }
     public DbSet<AuthorGuess> AuthorGuesses { get; set; }
     public DbSet<FlashEntry> FlashEntries { get; set; }
+    public DbSet<MonthlySummary> MonthlySummaries { get; set; }
     public DbSet<UserInventoryItem> UserInventory { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -304,6 +305,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(i => i.User)
              .WithMany()
              .HasForeignKey(i => i.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
+        // MONTHLY SUMMARY (rama 41, §17.12) — one snapshot per group and month
+        // ==========================================
+        modelBuilder.Entity<MonthlySummary>(e =>
+        {
+            e.HasIndex(s => new { s.GroupId, s.Month }).IsUnique();
+            e.Property(s => s.Payload).HasColumnType("jsonb");
+            e.HasOne(s => s.Group)
+             .WithMany()
+             .HasForeignKey(s => s.GroupId)
              .OnDelete(DeleteBehavior.Cascade);
         });
     }
