@@ -252,7 +252,7 @@ export const de: Translation = {
     },
     select: {
       title: 'Morgen wählst du',
-      text: 'Jeden Tag ist reihum eine Person aus der Gruppe dran, die Frage für den nächsten Tag auszuwählen: aus den Packs oder eine, die ihr selbst schreibt. Wenn niemand wählt, kommt eine aus den Packs.',
+      text: 'Jeden Tag darf eine Person aus der Gruppe die Frage für den nächsten Tag auswählen: aus den Packs oder eine, die ihr selbst schreibt. Die Reihenfolge wird ausgelost: Alle sind gleich oft dran, aber niemand weiß, wer als Nächstes kommt. Wenn niemand wählt, kommt eine aus den Packs.',
       pick1: 'Wer würde sich sogar mit Navi in der Hand verlaufen?',
       pick2: 'Wähl deine nutzloseste Superkraft:',
       pick3: 'Von 1 bis 10: Wie findest du Pizza mit Ananas?',
@@ -485,6 +485,9 @@ export const de: Translation = {
     createText: 'Füll die Angaben passend zum Fragetyp aus.',
     loading: 'Verfügbare Fragen werden geladen…',
     alreadyPicked: 'Schon für morgen ausgewählt',
+    autoPicked: 'Automatischer Vorschlag für morgen',
+    keepIt: 'Passt so',
+    keepFailed: 'Die Frage konnte nicht bestätigt werden.',
     tapToEdit: 'Zum Bearbeiten tippen',
     create: 'Neue Frage erstellen',
     orExisting: 'oder wähl eine vorhandene',

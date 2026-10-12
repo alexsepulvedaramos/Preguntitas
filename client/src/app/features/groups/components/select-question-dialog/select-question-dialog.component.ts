@@ -6,7 +6,7 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
+import { lucideCheck, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DailyService } from '../../../../core/services/daily.service';
@@ -54,7 +54,7 @@ const PAGE_SIZE = 10;
     CreateQuestionComponent,
     DeathmatchCreateComponent,
   ],
-  providers: [provideIcons({ lucideSparkles, lucideTrash2 })],
+  providers: [provideIcons({ lucideCheck, lucideSparkles, lucideTrash2 })],
   templateUrl: './select-question-dialog.component.html',
 })
 export class SelectQuestionDialogComponent {
@@ -70,6 +70,8 @@ export class SelectQuestionDialogComponent {
 
   // The question already picked for tomorrow, if any — only ever set when isSelector().
   public readonly pendingQuestion = input<QuestionToVote | null>(null);
+  // Whether that question is still the automatic pick, which the selector can keep as is.
+  public readonly isAutoSelected = input(false);
   public readonly compact = input(false);
 
   public readonly selected = output<void>();
@@ -85,6 +87,7 @@ export class SelectQuestionDialogComponent {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly pickingKey = signal<string | null>(null);
+  protected readonly confirming = signal(false);
   protected readonly deletingId = signal<number | null>(null);
 
   // Filters. The two string computeds back the native-select [value] bindings.
@@ -145,6 +148,7 @@ export class SelectQuestionDialogComponent {
     this.step.set(this.isSelector() ? 'sources' : 'create');
     this.error.set(null);
     this.pickingKey.set(null);
+    this.confirming.set(false);
     this.deletingId.set(null);
     this.teamAssignmentItem.set(null);
     this.teamAssignmentTeams.set([[], []]);
@@ -199,6 +203,26 @@ export class SelectQuestionDialogComponent {
       error: (err) => {
         this.pickingKey.set(null);
         this.error.set(apiErrorMessage(err, this.t('picker.selectFailed')));
+      },
+    });
+  }
+
+  // "Me vale esta": keeping the automatic pick counts as the selector's choice (§17.4).
+  keepPending(ctx: { close: () => void }) {
+    if (this.confirming()) return;
+
+    this.error.set(null);
+    this.confirming.set(true);
+
+    this.dailyService.confirmSelection(this.groupId()).subscribe({
+      next: () => {
+        this.confirming.set(false);
+        this.selected.emit();
+        ctx.close();
+      },
+      error: (err) => {
+        this.confirming.set(false);
+        this.error.set(apiErrorMessage(err, this.t('picker.keepFailed')));
       },
     });
   }

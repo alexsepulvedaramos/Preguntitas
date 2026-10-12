@@ -12,7 +12,8 @@ public class DailyStatusDto
 {
     public TodayStateDto Today { get; set; } = new();
 
-    // null before the group has started a cycle (< 2 members).
+    // null before the group has started a cycle (< 2 members), and in the brief window
+    // after T before the tick draws the next selector (§17.4).
     public SelectionStateDto? Selection { get; set; }
 
     // The current user's streak in this group (rama 19).
@@ -54,5 +55,7 @@ public class SelectionStateDto
     // the surprise for everyone else until it activates at T. null otherwise.
     public QuestionToVoteDto? PendingQuestion { get; set; }
 
+    // True while the pending question is still the automatic pick (SelectionKind.Auto):
+    // the selector hasn't picked, created or confirmed one yet (§17.4).
     public bool IsAutoSelected { get; set; }
 }

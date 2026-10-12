@@ -57,14 +57,17 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         var entry = await db.DailyEntries.Include(d => d.Question).SingleAsync();
         entry.Date.Should().Be(Tomorrow);
         entry.QuestionId.Should().Be(questionId);
-        entry.IsAutoSelected.Should().BeTrue();
+        entry.SelectionKind.Should().Be(SelectionKind.Auto);
         entry.ActivatedAt.Should().BeNull();
         entry.Question.IsUsed.Should().BeTrue();
         entry.Question.DateActivated.Should().BeNull();
-        // 2026-10-06 is day 5 since the group was created: 5 mod 3 → third member to join.
-        entry.SelectorUserId.Should().Be(group["carlos"]);
+        // A random draw among the members still due in round 1 (§17.4); it spends their turn.
+        group.UserIds.Values.Should().Contain(entry.SelectorUserId);
+        (await db.GroupMembers.SingleAsync(m => m.UserId == entry.SelectorUserId))
+            .LastSelectorRound.Should()
+            .Be(1);
         Notifications.Verify(
-            n => n.SendSelectorTurnAsync(group.Id, group["carlos"], "Los de siempre", DailyTime),
+            n => n.SendSelectorTurnAsync(group.Id, entry.SelectorUserId, "Los de siempre", DailyTime),
             Times.Once
         );
     }
@@ -145,27 +148,66 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public async Task TheSelectorRotatesThroughTheMembersInJoinOrder()
+    public async Task EveryMemberChoosesOncePerRound_NeverTwiceInARow()
     {
         var group = await SeedGroupAsync("ana", "bea", "carlos");
-        for (var i = 0; i < 4; i++)
-            await AddQuestionAsync(group.Id, text: $"Pregunta {i}");
 
-        // Four T's in a row: each one activates that day's question and queues the next.
-        for (var day = 0; day < 4; day++)
+        // Nine T's in a row (three full rounds): each activates that day's question and
+        // queues the next one, drawing its selector. Pack clones keep the pool from running dry.
+        var pack = await AddPackAsync("Base");
+        for (var i = 0; i < 9; i++)
+            await AddTemplateAsync(pack, $"Plantilla {i}");
+        for (var day = 0; day < 9; day++)
         {
             Clock.SetLocal(Today.AddDays(day), DailyTime);
             await TickAsync();
         }
 
         await using var db = NewContext();
-        var entries = await db.DailyEntries.OrderBy(d => d.Date).ToListAsync();
-        entries.Select(e => e.Date).Should().Equal(Enumerable.Range(1, 4).Select(i => Today.AddDays(i)));
-        entries
-            .Select(e => e.SelectorUserId)
-            .Should()
-            .Equal(group["carlos"], group["ana"], group["bea"], group["carlos"]);
-        entries.Select(e => e.ActivatedAt != null).Should().Equal(true, true, true, false);
+        var selectors = await db
+            .DailyEntries.OrderBy(d => d.Date)
+            .Select(d => d.SelectorUserId)
+            .ToListAsync();
+        selectors.Should().HaveCount(9);
+        foreach (var round in selectors.Chunk(3))
+            round.Should().BeEquivalentTo(group.UserIds.Values, "each round is a shuffle of everyone");
+        selectors.Zip(selectors.Skip(1)).Should().OnlyContain(pair => pair.First != pair.Second);
+        (await db.Groups.SingleAsync()).SelectorRound.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task AMemberWhoJoinsMidRound_StillGetsATurnInIt()
+    {
+        var group = await SeedGroupAsync("ana", "bea", "carlos");
+        var pack = await AddPackAsync("Base");
+        for (var i = 0; i < 3; i++)
+            await AddTemplateAsync(pack, $"Plantilla {i}");
+
+        Clock.SetLocal(Today, DailyTime);
+        await TickAsync();
+        int danId;
+        await using (var setup = NewContext())
+        {
+            var dan = new User { Username = "dan", Email = "dan@test.dev" };
+            setup.Users.Add(dan);
+            await setup.SaveChangesAsync();
+            danId = dan.Id;
+            await NewGroupsService(setup)
+                .JoinGroupAsync(danId, (await setup.Groups.SingleAsync()).InvitationCode);
+        }
+        for (var day = 1; day < 4; day++)
+        {
+            Clock.SetLocal(Today.AddDays(day), DailyTime);
+            await TickAsync();
+        }
+
+        await using var db = NewContext();
+        var selectors = await db
+            .DailyEntries.OrderBy(d => d.Date)
+            .Select(d => d.SelectorUserId)
+            .ToListAsync();
+        selectors.Should().BeEquivalentTo(group.UserIds.Values.Append(danId), "round 1 now has four turns");
+        (await db.Groups.SingleAsync()).SelectorRound.Should().Be(1);
     }
 
     [Fact]
@@ -281,7 +323,7 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     {
         var group = await SeedGroupAsync("ana", "bea");
         var chosen = await AddQuestionAsync(group.Id);
-        await AddEntryAsync(group.Id, Tomorrow, chosen, group["bea"], activated: false, autoSelected: false);
+        await AddEntryAsync(group.Id, Tomorrow, chosen, group["bea"], activated: false, SelectionKind.Confirmed);
 
         Clock.SetLocal(Tomorrow, new TimeOnly(10, 0));
         await TickAsync();
@@ -322,6 +364,9 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         entries[0].ActivatedAt.Should().Be(Clock.UtcNow);
         entries[1].Date.Should().Be(Today);
         entries[1].ActivatedAt.Should().BeNull();
+        // The creator always opens the game; the next turn is drawn among who's left (§17.4).
+        entries[0].SelectorUserId.Should().Be(group["ana"]);
+        entries[1].SelectorUserId.Should().Be(beaId);
 
         var status = await NewDailyService(db).GetCurrentStatusAsync(group.Id, beaId);
         status.Today.Status.Should().Be("voting");

@@ -253,7 +253,7 @@ export const es = {
     },
     select: {
       title: 'Mañana eliges tú',
-      text: 'Cada día le toca a una persona del grupo, por turnos, elegir la pregunta del día siguiente: de los packs o una que escribáis vosotros. Si nadie elige, sale una de los packs.',
+      text: 'Cada día le toca a una persona del grupo elegir la pregunta del día siguiente: de los packs o una que escribáis vosotros. Los turnos se sortean: todos eligen las mismas veces, pero nadie sabe a quién le toca después. Si nadie elige, sale una de los packs.',
       pick1: '¿Quién se perdería incluso con el GPS en la mano?',
       pick2: 'Elige tu superpoder inútil:',
       pick3: 'Del 1 al 10, ¿qué nota le das a la pizza con piña?',
@@ -486,6 +486,9 @@ export const es = {
     createText: 'Rellena los datos según el tipo de pregunta.',
     loading: 'Cargando preguntas disponibles...',
     alreadyPicked: 'Ya elegida para mañana',
+    autoPicked: 'Propuesta automática para mañana',
+    keepIt: 'Me vale esta',
+    keepFailed: 'No se ha podido confirmar la pregunta.',
     tapToEdit: 'Pulsa para editar',
     create: 'Crear pregunta nueva',
     orExisting: 'o elige una ya existente',

@@ -26,12 +26,14 @@ export interface SelectionState {
     selectorUsername: string;
     isCurrentUserSelector: boolean;
     pendingQuestion: QuestionToVote | null; // only returned to the selector
-    isAutoSelected: boolean;
+    isAutoSelected: boolean; // still the automatic pick: not picked, created or confirmed yet
 }
 
 export interface DailyStatus {
     today: TodayState;
-    selection: SelectionState | null; // null before the group has started (< 2 members)
+    // null before the group has started (< 2 members), and briefly after T until the next
+    // selector is drawn (§17.4)
+    selection: SelectionState | null;
     myStreak: MyStreak; // the current user's streak in this group (rama 19)
 }
 

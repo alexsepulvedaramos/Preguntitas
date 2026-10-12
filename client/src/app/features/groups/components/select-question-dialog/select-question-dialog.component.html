@@ -72,7 +72,7 @@
               <p
                 class="text-xs uppercase tracking-wide text-accent-text font-semibold"
               >
-                {{ t('picker.alreadyPicked') }}
+                {{ isAutoSelected() ? t('picker.autoPicked') : t('picker.alreadyPicked') }}
               </p>
               @if (isEditableType(pending.type)) {
                 <button
@@ -117,6 +117,22 @@
                     >
                   </span>
                 </div>
+              }
+              @if (isAutoSelected()) {
+                <button
+                  type="button"
+                  hlmBtn
+                  class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
+                  [disabled]="confirming()"
+                  (click)="keepPending(ctx)"
+                >
+                  @if (confirming()) {
+                    <hlm-spinner class="size-4" />
+                  } @else {
+                    <ng-icon hlm name="lucideCheck" />
+                  }
+                  {{ t('picker.keepIt') }}
+                </button>
               }
             </div>
           }
