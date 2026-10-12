@@ -9,4 +9,6 @@ export interface User {
     highestStreak?: number;
     // Title shown on the profile (rama 19)
     title?: string | null;
+    // Coin wallet balance (rama 34)
+    coins?: number;
 }

@@ -110,6 +110,21 @@
           hlmBtn
           variant="outline"
           class="w-full justify-start gap-3"
+          (click)="navigate(ctx, '/shop')"
+        >
+          <ng-icon hlm name="lucideStore" class="size-4!" />
+          {{ t('userMenu.shop') }}
+          <span
+            hlmBadge
+            variant="secondary"
+            class="ml-auto tabular-nums"
+            [attr.aria-label]="t('coins.balanceAria', { count: authService.currentUser()?.coins ?? 0 })"
+          >🪙 {{ authService.currentUser()?.coins ?? 0 }}</span>
+        </button>
+        <button
+          hlmBtn
+          variant="outline"
+          class="w-full justify-start gap-3"
           (click)="navigate(ctx, '/about')"
         >
           <ng-icon hlm name="lucideBookOpen" class="size-4!" />

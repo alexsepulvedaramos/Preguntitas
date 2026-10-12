@@ -14,6 +14,7 @@ import {
   lucideMonitor,
   lucideMoon,
   lucideSettings,
+  lucideStore,
   lucideSun,
   lucideX,
 } from '@ng-icons/lucide';
@@ -48,6 +49,7 @@ import { TranslationKey } from '../../i18n/translation.types';
       lucideMonitor,
       lucideMoon,
       lucideSettings,
+      lucideStore,
       lucideSun,
       lucideX,
     })

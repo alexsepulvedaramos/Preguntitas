@@ -23,6 +23,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.14.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Llegan las monedas',
+      en: 'Coins are here',
+      de: 'Münzen sind da',
+    },
+    items: [
+      {
+        emoji: '🪙',
+        title: {
+          es: 'Gana monedas jugando',
+          en: 'Earn coins as you play',
+          de: 'Verdiene Münzen beim Spielen',
+        },
+        text: {
+          es: 'Cada voto te da monedas, y si eres el primero en votar, unas cuantas más. También ganas al elegir la pregunta cuando te toca (aunque sea quedándote la que salió sola) y aún más si la escribes tú.',
+          en: 'Every vote earns you coins, and a few more if you’re the first to vote. You also earn some by picking the question when it’s your turn (even if you keep the one picked for you), and more if you write it yourself.',
+          de: 'Jede Stimme bringt dir Münzen, und ein paar mehr, wenn du als Erstes abstimmst. Auch fürs Auswählen der Frage gibt’s welche, wenn du dran bist (selbst wenn du die automatisch gewählte behältst), und noch mehr, wenn du sie selbst schreibst.',
+        },
+      },
+      {
+        emoji: '🔥',
+        title: {
+          es: 'Tus rachas también pagan',
+          en: 'Your streaks pay too',
+          de: 'Auch deine Serien zahlen sich aus',
+        },
+        text: {
+          es: 'Cada nivel y cada hito de racha trae su premio, y cuanto más larga la racha, más gordo. Votar y elegir dan hasta 40 monedas al día; las rachas no tienen tope.',
+          en: 'Every streak level and milestone comes with a reward, and the longer the streak, the bigger it gets. Voting and picking earn up to 40 coins a day; streaks have no cap.',
+          de: 'Jede Serienstufe und jeder Meilenstein bringt eine Belohnung, und je länger die Serie, desto größer. Abstimmen und Auswählen bringen bis zu 40 Münzen am Tag; Serien haben kein Limit.',
+        },
+      },
+      {
+        emoji: '👛',
+        title: {
+          es: 'Tu cartera',
+          en: 'Your wallet',
+          de: 'Dein Geldbeutel',
+        },
+        text: {
+          es: 'En el menú de usuario, «Monedas y tienda» te enseña cuántas tienes y de dónde ha salido cada una. La tienda para gastarlas abre muy pronto.',
+          en: 'In the user menu, “Coins & shop” shows how many you have and where each one came from. The shop to spend them opens very soon.',
+          de: 'Im Benutzermenü zeigt dir „Münzen & Shop“, wie viele du hast und woher jede einzelne kommt. Der Shop zum Ausgeben öffnet sehr bald.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.13.0',
     date: '2026-10-12',
     title: {

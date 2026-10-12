@@ -7,4 +7,6 @@ public enum CoinReason
     FirstVoter = 1,
     StreakTier = 2,
     StreakMilestone = 3,
+    SelectorChoice = 4,
+    SelectorCreated = 5,
 }

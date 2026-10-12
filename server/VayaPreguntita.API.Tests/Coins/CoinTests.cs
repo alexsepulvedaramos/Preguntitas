@@ -140,6 +140,27 @@ public class CoinTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         (await BalanceAsync(group["ana"])).Should().Be(CoinRewards.DailyCap + 20);
     }
 
+    [Theory]
+    [InlineData(SelectionKind.Auto, 0)]
+    [InlineData(SelectionKind.Confirmed, CoinRewards.SelectorChoice)]
+    [InlineData(SelectionKind.Picked, CoinRewards.SelectorChoice)]
+    [InlineData(SelectionKind.Created, CoinRewards.SelectorChoice + CoinRewards.SelectorCreatedBonus)]
+    public async Task TheSelector_IsPaidAtActivation_OnlyForAnActiveChoice(SelectionKind kind, int expected)
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        var questionId = await AddQuestionAsync(group.Id);
+        await AddEntryAsync(group.Id, Today, questionId, group["bea"], activated: false, selectionKind: kind);
+
+        Clock.SetLocal(Today, DailyTime.AddMinutes(-1));
+        await TickAsync();
+        (await BalanceAsync(group["bea"])).Should().Be(0);
+
+        Clock.SetLocal(Today, DailyTime);
+        await TickAsync();
+        await TickAsync();
+        (await BalanceAsync(group["bea"])).Should().Be(expected);
+    }
+
     [Fact]
     public async Task ARewardIsPaidOncePerReference()
     {

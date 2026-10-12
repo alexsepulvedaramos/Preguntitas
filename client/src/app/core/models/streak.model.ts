@@ -1,4 +1,5 @@
 import { QuestionResult } from './result.model';
+import { CoinsEarned } from './coin.model';
 import { StreakTierKey } from '../constants/streak-tiers';
 
 // Mirrors backend StreakUpdateDto — returned with a successful vote. The DTO's material
@@ -22,6 +23,7 @@ export interface StreakUpdate {
 export interface VoteResponse {
   results: QuestionResult;
   streak: StreakUpdate;
+  coins: CoinsEarned; // rama 34
 }
 
 // The current user's streak in a group (GET daily/current → myStreak).

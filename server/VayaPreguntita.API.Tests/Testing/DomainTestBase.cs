@@ -59,6 +59,7 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
             NewDailyService(db),
             Notifications.Object,
             NewStreakService(db),
+            NewCoinService(db),
             Clock,
             NullLogger<DailyCycleRunner>.Instance
         );

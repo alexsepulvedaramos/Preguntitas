@@ -8,6 +8,11 @@ public static class CoinRewards
     public const int Vote = 5;
     public const int FirstVoter = 3;
 
+    // Paid at activation when the selector made an active choice (§17.4: confirming the
+    // auto-selected question counts), plus a bonus when they wrote it inline.
+    public const int SelectorChoice = 5;
+    public const int SelectorCreatedBonus = 5;
+
     // Max capped coins a user can earn per local day, across all groups (anti-farm).
     public const int DailyCap = 40;
 
@@ -34,5 +39,9 @@ public static class CoinRewards
 
     // Rewards for rare milestones skip the daily cap.
     public static bool IsCapped(CoinReason reason) =>
-        reason is CoinReason.Vote or CoinReason.FirstVoter;
+        reason
+            is CoinReason.Vote
+                or CoinReason.FirstVoter
+                or CoinReason.SelectorChoice
+                or CoinReason.SelectorCreated;
 }
