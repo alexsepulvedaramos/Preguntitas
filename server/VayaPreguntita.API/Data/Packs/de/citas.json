@@ -1,0 +1,26 @@
+{
+  "pack": "Citas, relaciones y red flags",
+  "name": "Dates & Red Flags",
+  "description": "Liebe, Flirts, Beziehungen und Red Flags.",
+  "templates": {
+    "citas-que-dos-personas-del-grupo-harian-la": { "text": "Welche zwei aus der Gruppe wären das perfekte Paar?" },
+    "citas-que-dos-personas-acabarian-liandose-en-una": { "text": "Welche zwei würden auf einer Hochzeit miteinander rummachen?" },
+    "citas-que-dos-personas-serian-la-pareja-mas": { "text": "Welche zwei wären das toxischste Paar?" },
+    "citas-que-dos-personas-ligan-fatal-por-separado": { "text": "Welche zwei sind allein beim Flirten hoffnungslos, wären zusammen aber perfekt?" },
+    "citas-que-dos-personas-seguro-que-se-han": { "text": "Welche zwei haben sich garantiert schon mal eine heiße Nachricht geschickt?" },
+    "citas-que-dos-personas-discutirian-a-diario-pero": { "text": "Welche zwei würden sich täglich streiten, könnten aber nicht ohneeinander?" },
+    "citas-que-dos-personas-tendrian-el-romance-de": { "text": "Welche zwei hätten die heftigste Sommerromanze?" },
+    "citas-quien-volveria-con-su-ex-por-enesima": { "text": "Wer würde zum x-ten Mal zur alten Flamme zurückkehren und schwören, dass es diesmal hält?" },
+    "citas-quien-tiene-el-peor-gusto-eligiendo-con": { "text": "Wer hat den schlechtesten Geschmack bei der Partnerwahl?" },
+    "citas-quien-stalkea-mas-a-su-crush-en": { "text": "Wer stalkt den eigenen Crush am meisten auf Social Media?" },
+    "citas-quien-ligaria-mas-en-una-noche-de": { "text": "Wer schleppt an einem Partyabend am meisten ab?" },
+    "citas-quien-se-pillaria-a-las-dos-semanas": { "text": "Wer verknallt sich schon zwei Wochen nach dem Kennenlernen bis über beide Ohren?" },
+    "citas-quien-seria-el-mas-celoso-en-una": { "text": "Wer wäre in einer Beziehung am eifersüchtigsten?" },
+    "citas-la-red-flag-mas-imperdonable-en-una": { "text": "Die unverzeihlichste Red Flag beim ersten Date:", "options": ["Kommt 40 Minuten zu spät, ohne Bescheid zu sagen", "Redet nur über die letzte Beziehung", "Ist unhöflich zur Bedienung", "Legt das Handy nie weg"] },
+    "citas-que-prefieres-vivir": { "text": "Was würdest du lieber erleben?", "options": ["Ein mieses Date, und dann ist Schluss", "Drei tolle Dates, und dann Ghosting"] },
+    "citas-quien-crea-tu-proximo-perfil-de-citas": { "text": "Wer erstellt dein nächstes Dating-Profil?", "options": ["Deine Mutter", "Dein Ex"] },
+    "citas-con-quien-sales": { "text": "Mit wem gehst du aus?", "options": ["Mit jemandem, der Tiere hasst", "Mit jemandem mit sieben Hunden, die immer an erster Stelle stehen"] },
+    "citas-el-green-flag-definitivo": { "text": "Die ultimative Green Flag:", "options": ["Ist freundlich zur Bedienung", "Versteht sich super mit den eigenen Freunden", "Antwortet schnell auf Nachrichten", "Ist auch allein glücklich"] },
+    "citas-en-una-ruptura-que-prefieres": { "text": "Bei einer Trennung – was ist dir lieber?", "options": ["Selbst Schluss machen", "Verlassen werden"] }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "pack": "Hipotéticos: ¿qué harías?",
+  "name": "What would you do?",
+  "description": "Superpowers, strokes of luck and life swaps.",
+  "templates": {
+    "hipoteticos-el-superpoder-definitivo": { "text": "The ultimate superpower:", "options": ["Flying", "Being invisible"] },
+    "hipoteticos-si-pudieras-elegir-un-poder": { "text": "If you could pick one power:", "options": ["Teleporting anywhere", "Time travel"] },
+    "hipoteticos-como-prefieres-el-dinero": { "text": "How would you rather get the money?", "options": ["1 million right now, all at once", "4,000 euros a month for the rest of your life"] },
+    "hipoteticos-tu-vida-laboral-ideal": { "text": "Your ideal working life:", "options": ["Loaded, doing something you hate", "Barely scraping by, loving what you do"] },
+    "hipoteticos-que-vida-prefieres-sano-y-en-forma": { "text": "Which would you rather have? (healthy and fit the whole time)", "options": ["One single life of 800 years", "8 lives of 100 years each"] },
+    "hipoteticos-te-dan-un-mando-para-tu-vida": { "text": "You get a remote control for your life. Which button?", "options": ["Pause", "Rewind"] },
+    "hipoteticos-te-toca-la-eternidad-en-uno-cual": { "text": "You have to spend eternity in one of these. Which do you pick?", "options": ["A perfect but mind-numbingly boring heaven", "A fun hell with constant pain"] },
+    "hipoteticos-te-reencarnas-en-lo-que-peor-te": { "text": "You're reincarnated as the creature you hate most. Which would you rather be?", "options": ["An indestructible cockroach", "A mosquito that lives one day annoying people", "A fish with a 3-second memory"] },
+    "hipoteticos-pacto-con-el-universo": { "text": "A deal with the universe:", "options": ["Wipe out all your debts today", "Double your salary forever"] },
+    "hipoteticos-una-llamada-imposible": { "text": "One impossible phone call:", "options": ["1 minute with your past self", "1 minute with your future self"] },
+    "hipoteticos-si-tu-cuerpo-no-necesitara-una-cosa": { "text": "If your body could stop needing one thing:", "options": ["Never sleeping again", "Never eating again"] },
+    "hipoteticos-quien-usaria-sus-superpoderes-para-el-mal": { "text": "Who would use their superpowers for evil without a second thought?" },
+    "hipoteticos-quien-se-gastaria-un-millon-de-euros": { "text": "Who would blow a million euros in less than a month?" },
+    "hipoteticos-quien-malgastaria-un-deseo-magico-en-una": { "text": "Who would waste a magic wish on something completely pointless?" }
+  }
+}

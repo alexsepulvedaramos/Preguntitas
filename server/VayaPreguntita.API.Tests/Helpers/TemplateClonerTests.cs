@@ -117,6 +117,25 @@ public class TemplateClonerTests
     }
 
     [Fact]
+    public void CloneToGroup_CopiesTheTranslationsOfTheTextAndEveryOption()
+    {
+        var template = CustomPollTemplate(allowOther: false);
+        template.TextTranslations = new() { ["en"] = "Dinner at what time?", ["de"] = "Abendessen um wie viel Uhr?" };
+        template.Options[0].TextTranslations = new() { ["en"] = "8 pm" };
+        template.Options[1].TextTranslations = new() { ["en"] = "9 pm" };
+
+        var clone = TemplateCloner.CloneToGroup(template, groupId: 7, Members);
+        template.TextTranslations["en"] = "changed later";
+
+        clone.TextTranslations.Should().Equal(new Dictionary<string, string>
+        {
+            ["en"] = "Dinner at what time?",
+            ["de"] = "Abendessen um wie viel Uhr?",
+        });
+        clone.Options.Select(o => o.TextTranslations["en"]).Should().Equal("8 pm", "9 pm");
+    }
+
+    [Fact]
     public void CloneToGroup_Poll_MarksTheQuestionAsFromThePack()
     {
         var template = CustomPollTemplate(allowOther: false);

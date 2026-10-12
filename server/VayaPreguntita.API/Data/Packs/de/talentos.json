@@ -1,0 +1,24 @@
+{
+  "pack": "Talentos del grupo",
+  "name": "Talente der Gruppe",
+  "description": "Wer kann was am besten: Fähigkeiten, Tricks und versteckte Talente.",
+  "templates": {
+    "talentos-quien-ganaria-un-concurso-de-comer-mas": { "text": "Wer würde einen Wettessen-Contest gewinnen?" },
+    "talentos-quien-montaria-un-mueble-de-ikea-sin": { "text": "Wer würde ein IKEA-Möbel ohne Anleitung aufbauen … und es würde trotzdem passen?" },
+    "talentos-quien-aguantaria-mas-tiempo-sin-reirse-en": { "text": "Wer würde beim Anstarr-Duell am längsten ernst bleiben?" },
+    "talentos-quien-seria-el-mejor-guia-turistico-improvisado": { "text": "Wer wäre der beste spontane Reiseführer?" },
+    "talentos-quien-sacaria-mejor-nota-en-un-examen": { "text": "Wer würde die beste Note in einer Prüfung über das Leben aller anderen schreiben?" },
+    "talentos-quien-ganaria-una-discusion-aunque-no-tuviera": { "text": "Wer würde eine Diskussion gewinnen, auch ohne recht zu haben?" },
+    "talentos-quien-es-el-mejor-para-sacar-la": { "text": "Wer schießt im richtigen Moment das perfekte Foto?" },
+    "talentos-quien-se-sabe-mas-canciones-de-memoria": { "text": "Wer kann die meisten Songs auswendig?" },
+    "talentos-quien-ganaria-un-concurso-de-imitaciones": { "text": "Wer würde einen Imitationswettbewerb gewinnen?" },
+    "talentos-quien-presentaria-mejor-un-programa-de-television": { "text": "Wer würde am besten eine Fernsehshow moderieren?" },
+    "talentos-quien-conseguiria-mesa-en-el-restaurante-mas": { "text": "Wer bekäme ohne Reservierung einen Tisch im vollsten Restaurant?" },
+    "talentos-quien-convenceria-al-grupo-de-hacer-cualquier": { "text": "Wer könnte die Gruppe zu jedem Plan überreden?" },
+    "talentos-que-dos-personas-ganarian-un-concurso-de": { "text": "Welche zwei würden ein Kochduell im Zweierteam gewinnen?" },
+    "talentos-que-dos-personas-serian-el-mejor-duo": { "text": "Welche zwei wären das beste Comedy-Duo?" },
+    "talentos-del-1-al-10-que-tal-das": { "text": "Von 1 bis 10: Wie gut bist du im Ratschläge geben?" },
+    "talentos-del-1-al-10-que-tal-anfitrion": { "text": "Von 1 bis 10: Wie gut wärst du als Gastgeber einer Party bei dir zu Hause?" },
+    "talentos-del-1-al-10-que-tal-cuentas": { "text": "Von 1 bis 10: Wie gut kannst du eine Anekdote erzählen?" }
+  }
+}

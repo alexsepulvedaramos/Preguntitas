@@ -1,0 +1,32 @@
+{
+  "pack": "Deportes y competencia",
+  "name": "Sports & rivalry",
+  "description": "Team challenges and competitive grudges.",
+  "templates": {
+    "deportes-partido-de-futbol-a-muerte-que-equipo": { "text": "Soccer match to the death: which team wins?" },
+    "deportes-gymkana-imposible-por-la-ciudad-que-equipo": { "text": "Impossible scavenger race across the city: which team reaches the finish first?" },
+    "deportes-concurso-de-cultura-general-que-equipo-sabe": { "text": "Pub quiz: which team knows more?" },
+    "deportes-busqueda-del-tesoro-que-equipo-lo-encuentra": { "text": "Treasure hunt: which team finds it first?" },
+    "deportes-quien-es-el-peor-perdedor-del-grupo": { "text": "Who's the sorest loser in the group?" },
+    "deportes-quien-hace-trampas-en-cuanto-te-despistas": { "text": "Who cheats the second you look away?" },
+    "deportes-quien-se-pone-competitivo-hasta-en-el": { "text": "Who gets competitive even over a game of Uno?" },
+    "deportes-quien-celebra-una-victoria-como-si-hubiera": { "text": "Who celebrates a win like they just won the World Cup?" },
+    "deportes-quien-es-el-mas-patoso-para-cualquier": { "text": "Who's the clumsiest at any sport?" },
+    "deportes-que-dos-personas-formarian-la-pareja-imbatible": { "text": "Which two people would be unbeatable in a doubles tournament (padel, tennis, ping-pong…)?" },
+    "deportes-que-dos-personas-acabarian-enfadadas-por-un": { "text": "Which two people would fall out over a simple friendly match?" },
+    "deportes-prefieres-ganar-haciendo-trampas-o-perder-limpiamente": { "text": "Would you rather win by cheating or lose fair and square?", "options": ["Win by cheating", "Lose fair and square"] },
+    "deportes-que-prefieres-ser": { "text": "What would you rather be?", "options": ["The best player on a terrible team", "The worst player on a champion team"] },
+    "deportes-en-un-juego-de-mesa-que-eres": { "text": "At a board game, what are you?", "options": ["The strategist", "The cheater", "The one who gets angry", "The one doing their own thing"] },
+    "deportes-del-1-al-10-como-de-competitivo": { "text": "On a scale of 1 to 10, how competitive are you really?" },
+    "deportes-cuentanos-tu-mayor-momento-de-gloria-deportiva": { "text": "Your greatest moment of sporting glory, in one sentence." },
+    "deportes-cuentanos-tu-momento-mas-patetico-haciendo-deporte": { "text": "Your most pathetic moment playing sports, in one sentence." },
+    "deportes-montaje-de-ikea-que-equipo-termina-primero": { "text": "IKEA assembly: which team finishes first with no leftover pieces?" },
+    "deportes-karaoke-que-equipo-se-lleva-la-ovacion": { "text": "Karaoke: which team gets the standing ovation?" },
+    "deportes-concurso-de-disfraces-con-lo-que-haya": { "text": "Costume contest with whatever's lying around the house: which team wins?" },
+    "deportes-perdidos-en-una-ciudad-desconocida-sin-movil": { "text": "Lost in a strange city, no phone, no map: which team gets back to the hotel first?" },
+    "deportes-torneo-de-mario-kart-que-equipo-se": { "text": "Mario Kart tournament: which team takes the cup?" },
+    "deportes-fiesta-sorpresa-en-24-horas-que-equipo": { "text": "Surprise party in 24 hours: which team pulls it off better?" },
+    "deportes-del-1-al-10-como-de-buen": { "text": "On a scale of 1 to 10, how good a teammate are you at board games?" },
+    "deportes-del-1-al-10-como-de-buen-2": { "text": "On a scale of 1 to 10, how good a loser are you?" }
+  }
+}

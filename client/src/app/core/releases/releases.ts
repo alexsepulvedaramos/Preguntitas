@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.11.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Las preguntas, también en tu idioma',
+      en: 'Questions in your language too',
+      de: 'Die Fragen jetzt auch in deiner Sprache',
+    },
+    items: [
+      {
+        emoji: '🃏',
+        title: {
+          es: 'Packs en inglés y en alemán',
+          en: 'Packs in English and German',
+          de: 'Packs auf Englisch und Deutsch',
+        },
+        text: {
+          es: 'Todas las preguntas de los packs están en inglés y alemán, adaptadas para que hagan la misma gracia, no traducidas palabra por palabra. Cada uno ve la pregunta del día en su idioma, aunque el grupo juegue mezclado; las preguntas que escribís vosotros salen tal cual las escribisteis.',
+          en: 'Every pack question is now in English and German, adapted to be just as funny rather than translated word for word. Everyone sees the daily question in their own language, even in a mixed group; questions you write yourselves show exactly as you wrote them.',
+          de: 'Alle Pack-Fragen gibt es jetzt auf Englisch und Deutsch – angepasst, damit sie genauso lustig sind, nicht Wort für Wort übersetzt. Alle sehen die Tagesfrage in ihrer eigenen Sprache, auch in gemischten Gruppen; eure eigenen Fragen erscheinen genau so, wie ihr sie geschrieben habt.',
+        },
+      },
+      {
+        emoji: '🏅',
+        title: {
+          es: 'Títulos de racha con su gracia',
+          en: 'Streak titles with a local twist',
+          de: 'Serien-Titel mit Lokalkolorit',
+        },
+        text: {
+          es: 'Los títulos de racha y los mensajes automáticos del chat también llegan en tu idioma. En inglés, la Vieja del Visillo es «The Curtain Twitcher»; en alemán, «Die Gardinenspionin».',
+          en: 'Streak titles and the automatic chat messages now come in your language too. At the top of the ladder, you become «The Curtain Twitcher».',
+          de: 'Serien-Titel und die automatischen Chat-Nachrichten kommen jetzt auch in deiner Sprache. Ganz oben wirst du zur «Gardinenspionin».',
+        },
+      },
+    ],
+  },
+  {
     version: '1.10.0',
     date: '2026-10-12',
     title: {

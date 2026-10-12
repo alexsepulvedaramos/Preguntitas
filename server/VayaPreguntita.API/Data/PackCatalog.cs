@@ -7,13 +7,18 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
+using VayaPreguntita.API.Localization;
 
-// The question-pack catalog: one JSON file per pack under Data/Packs/, embedded in the
+// The question-pack catalog: one JSON file per pack under Data/Packs/, plus one translation
+// file per pack and language under Data/Packs/{language}/ (rama 24), all embedded in the
 // assembly. PackSeeder syncs it into the database at startup. Format and editing rules:
 // Data/Packs/README.md.
 public static partial class PackCatalog
 {
     private const string ResourcePrefix = "Packs/";
+
+    // PackTranslations/{language}/{file}.json — see the EmbeddedResource items in the csproj.
+    private const string TranslationResourcePrefix = "PackTranslations/";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -26,48 +31,129 @@ public static partial class PackCatalog
 
     public static IReadOnlyList<PackFile> Load() => Load(typeof(PackCatalog).Assembly);
 
-    public static IReadOnlyList<PackFile> Load(Assembly assembly)
-    {
-        var files = assembly
+    public static IReadOnlyList<PackFile> Load(Assembly assembly) =>
+        Parse(
+            ReadResources(assembly, ResourcePrefix),
+            ReadResources(assembly, TranslationResourcePrefix)
+                .Select(r => (language: r.name.Split('/')[1], r.name, r.json))
+        );
+
+    private static List<(string name, string json)> ReadResources(Assembly assembly, string prefix) =>
+        assembly
             .GetManifestResourceNames()
-            .Where(n => n.StartsWith(ResourcePrefix, StringComparison.Ordinal))
+            .Where(n => n.StartsWith(prefix, StringComparison.Ordinal))
             .OrderBy(n => n, StringComparer.Ordinal)
             .Select(name =>
             {
                 using var stream = assembly.GetManifestResourceStream(name)!;
                 using var reader = new StreamReader(stream);
-                return (name, json: reader.ReadToEnd());
-            });
+                return (name, reader.ReadToEnd());
+            })
+            .ToList();
 
-        return Parse(files);
-    }
-
-    // Parses and validates catalog files; throws InvalidOperationException listing every problem.
-    public static IReadOnlyList<PackFile> Parse(IEnumerable<(string name, string json)> files)
+    // Parses and validates catalog files (and their translations, if any); throws
+    // InvalidOperationException listing every problem.
+    public static IReadOnlyList<PackFile> Parse(
+        IEnumerable<(string name, string json)> files,
+        IEnumerable<(string language, string name, string json)>? translationFiles = null
+    )
     {
-        var packs = new List<PackFile>();
-        foreach (var (name, json) in files)
-        {
-            try
-            {
-                packs.Add(
-                    JsonSerializer.Deserialize<PackFile>(json, JsonOptions)
-                        ?? throw new JsonException("empty document")
-                );
-            }
-            catch (JsonException ex)
-            {
-                throw new InvalidOperationException($"Pack catalog file '{name}' is invalid: {ex.Message}", ex);
-            }
-        }
+        var packs = files.Select(f => Deserialize<PackFile>(f.name, f.json)).ToList();
+        var translations = (translationFiles ?? [])
+            .Select(f => (f.language, f.name, file: Deserialize<PackTranslationFile>(f.name, f.json)))
+            .ToList();
 
-        var errors = Validate(packs);
+        var errors = new List<string>();
+        packs = AttachTranslations(packs, translations, errors);
+        errors.AddRange(Validate(packs));
         if (errors.Count > 0)
             throw new InvalidOperationException(
                 "Pack catalog is invalid:" + Environment.NewLine + string.Join(Environment.NewLine, errors)
             );
 
         return [.. packs.OrderBy(p => p.Order)];
+    }
+
+    private static T Deserialize<T>(string name, string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(json, JsonOptions) ?? throw new JsonException("empty document");
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"Pack catalog file '{name}' is invalid: {ex.Message}", ex);
+        }
+    }
+
+    // Hangs each translation file's texts on its pack and templates. Templates are matched by
+    // key, and a translation must sit in the file of the template's own pack, so the files of
+    // every language mirror the Spanish ones.
+    private static List<PackFile> AttachTranslations(
+        List<PackFile> packs,
+        List<(string language, string name, PackTranslationFile file)> translations,
+        List<string> errors
+    )
+    {
+        var packByName = packs.GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.First());
+        var packTranslations = packs.Distinct().ToDictionary(p => p, _ => new Dictionary<string, PackTranslation>());
+        var templateTranslations =
+            new Dictionary<(PackFile pack, string key), Dictionary<string, TemplateTranslation>>();
+
+        foreach (var (language, name, file) in translations)
+        {
+            if (!ContentTranslations.Languages.Contains(language))
+            {
+                errors.Add($"{name}: '{language}' is not a translation language.");
+                continue;
+            }
+            if (!packByName.TryGetValue(file.Pack ?? string.Empty, out var pack))
+            {
+                errors.Add($"{name}: pack '{file.Pack}' is not in the catalog.");
+                continue;
+            }
+            if (!packTranslations[pack].TryAdd(language, new PackTranslation(file.Name, file.Description)))
+            {
+                errors.Add($"{name}: pack '{pack.Name}' already has a '{language}' translation file.");
+                continue;
+            }
+
+            var keysInPack = pack.Templates.Select(t => t.Key).ToHashSet();
+            foreach (var (key, translation) in file.Templates ?? [])
+            {
+                if (!keysInPack.Contains(key))
+                {
+                    var owner = packs.FirstOrDefault(p => p.Templates.Any(t => t.Key == key));
+                    errors.Add(
+                        owner is null
+                            ? $"{name}: key '{key}' is not in the catalog."
+                            : $"{name}: key '{key}' belongs to pack '{owner.Name}'; translate it in that pack's file."
+                    );
+                    continue;
+                }
+
+                if (!templateTranslations.TryGetValue((pack, key), out var byLanguage))
+                    templateTranslations[(pack, key)] = byLanguage = [];
+                byLanguage[language] = translation;
+            }
+        }
+
+        return packs
+            .Select(pack =>
+                pack with
+                {
+                    Translations = packTranslations[pack],
+                    Templates =
+                    [
+                        .. pack.Templates.Select(t =>
+                            templateTranslations.TryGetValue((pack, t.Key), out var byLanguage)
+                                ? t with { Translations = byLanguage }
+                                : t
+                        ),
+                    ],
+                }
+            )
+            .ToList();
     }
 
     public static List<string> Validate(IReadOnlyList<PackFile> packs)
@@ -111,7 +197,12 @@ public static partial class PackCatalog
                     errors.Add($"{where}: two entries adopt the same legacy row {identity}.");
 
                 ValidateShape(t, where, errors);
+                ValidateTranslations(t, where, errors);
             }
+
+            foreach (var (language, translation) in pack.Translations)
+                if (string.IsNullOrWhiteSpace(translation.Name) || string.IsNullOrWhiteSpace(translation.Description))
+                    errors.Add($"Pack '{pack.Name}' ({language}): empty name or description.");
         }
 
         return errors;
@@ -144,6 +235,38 @@ public static partial class PackCatalog
             errors.Add($"{where}: a secret pairing must require exactly 2 selections.");
     }
 
+    // A translation is the same question in another language: every member of a group votes on
+    // the same question whatever their language, so a poll keeps its options in the same order.
+    private static void ValidateTranslations(TemplateEntry t, string where, List<string> errors)
+    {
+        var options = t.Options ?? [];
+        foreach (var (language, translation) in t.Translations)
+        {
+            var at = $"{where} ({language})";
+            var translatedOptions = translation.Options ?? [];
+
+            if (string.IsNullOrWhiteSpace(translation.Text))
+                errors.Add($"{at}: empty text.");
+
+            if (t.Type != QuestionType.CustomPoll)
+            {
+                if (translatedOptions.Count > 0)
+                    errors.Add($"{at}: only polls can define options.");
+            }
+            else if (translatedOptions.Count != options.Count)
+            {
+                errors.Add($"{at}: {translatedOptions.Count} options, but the Spanish poll has {options.Count}.");
+            }
+            else if (
+                translatedOptions.Any(string.IsNullOrWhiteSpace)
+                || translatedOptions.Distinct().Count() != translatedOptions.Count
+            )
+            {
+                errors.Add($"{at}: poll options must be non-empty and unique.");
+            }
+        }
+    }
+
     [GeneratedRegex("^[a-z0-9]+(-[a-z0-9]+)*$")]
     private static partial Regex KeyPattern();
 }
@@ -155,7 +278,27 @@ public sealed record PackFile(
     int Order,
     bool DisabledByDefault,
     List<TemplateEntry> Templates
+)
+{
+    // From the translation files, keyed by language code.
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, PackTranslation> Translations { get; init; } =
+        new Dictionary<string, PackTranslation>();
+}
+
+public sealed record PackTranslation(string Name, string Description);
+
+// One translation file (Data/Packs/{language}/{file}.json): the pack's display name and
+// description, and its translated templates keyed by catalog key.
+public sealed record PackTranslationFile(
+    string Pack,
+    string Name,
+    string Description,
+    Dictionary<string, TemplateTranslation> Templates
 );
+
+// Poll options in the same order as the Spanish ones.
+public sealed record TemplateTranslation(string Text, List<string>? Options = null);
 
 // One template of the catalog.
 //
@@ -178,6 +321,11 @@ public sealed record TemplateEntry(
     string? LegacyPack = null
 )
 {
+    // From the translation files, keyed by language code.
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, TemplateTranslation> Translations { get; init; } =
+        new Dictionary<string, TemplateTranslation>();
+
     // Per-type defaults mirror what the old C# builders produced.
     public QuestionMetadata ToMetadata()
     {

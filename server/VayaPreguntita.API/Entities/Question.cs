@@ -6,6 +6,12 @@ public class Question
 {
     public int Id { get; set; }
     public string Text { get; set; } = string.Empty;
+
+    // Pack clones carry their template's translations ("en", "de"; rama 24) so each member
+    // reads the question in their own language. User-created questions keep this empty:
+    // they stay in the author's language.
+    public Dictionary<string, string> TextTranslations { get; set; } = [];
+
     public QuestionType Type { get; set; }
     public QuestionSource Source { get; set; } = QuestionSource.UserCreated; // nuevo
     public bool IsUsed { get; set; } = false; // nuevo

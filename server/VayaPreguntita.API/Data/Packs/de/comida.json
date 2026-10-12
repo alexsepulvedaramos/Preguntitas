@@ -1,0 +1,26 @@
+{
+  "pack": "Comida",
+  "name": "Essen",
+  "description": "Essensdebatten und Macken am Tisch, die Freundschaften beenden.",
+  "templates": {
+    "comida-pina-en-la-pizza": { "text": "Ananas auf Pizza?", "options": ["Ja, und zwar richtig lecker", "Ein Verbrechen gegen die Menschheit"] },
+    "comida-un-hotdog-es-un-sandwich": { "text": "Ist ein Hotdog ein Sandwich?", "options": ["Ja, Brot + Belag = Sandwich", "Niemals"] },
+    "comida-desayunar-pizza-fria-del-dia-anterior": { "text": "Kalte Pizza vom Vortag zum Frühstück?", "options": ["Frühstück der Champions", "Eine Zumutung"] },
+    "comida-si-solo-pudieras-comer-un-sabor-el": { "text": "Wenn du für den Rest deines Lebens nur eine Geschmacksrichtung essen dürftest:", "options": ["Süß", "Herzhaft"] },
+    "comida-hay-que-terminar-siempre-todo-el-plato": { "text": "Muss man immer aufessen?", "options": ["Ja, Essen wirft man nicht weg", "Ich höre auf, wenn ich satt bin"] },
+    "comida-el-cereal-con-leche": { "text": "Müsli mit Milch:", "options": ["Erst die Milch, dann das Müsli", "Erst das Müsli, dann die Milch"] },
+    "comida-tu-condimento-de-cabecera-para-echarle-a": { "text": "Deine Soße, die auf alles kommt?", "options": ["Ketchup", "Senf", "Mayo"] },
+    "comida-ketchup-en-la-tortilla-de-patatas": { "text": "Ketchup auf spanischer Tortilla?", "options": ["Einfach köstlich", "Ein Anschlag"] },
+    "comida-como-pides-el-chuleton": { "text": "Wie bestellst du dein Steak?", "options": ["Muht noch fast", "Medium, schön saftig", "Durch, aber zart", "Wie eine Schuhsohle"] },
+    "comida-marca-los-crimenes-culinarios-que-has-cometido": { "text": "Kreuz an, welche Küchenverbrechen du begangen hast:", "options": ["Ketchup auf Paella", "Steak wie eine Schuhsohle bestellt", "Spaghetti vor dem Kochen zerbrochen", "Pizza mit Messer und Gabel gegessen"] },
+    "comida-quien-come-mas-rapido-casi-sin-masticar": { "text": "Wer isst am schnellsten, fast ohne zu kauen?" },
+    "comida-quien-es-el-mas-tiquismiquis-para-comer": { "text": "Wer ist beim Essen am mäkeligsten?" },
+    "comida-quien-te-robaria-comida-del-plato-sin": { "text": "Wer würde dir ungefragt Essen vom Teller klauen?" },
+    "comida-quien-mezcla-comidas-raras-que-dan-grima": { "text": "Wer kombiniert seltsame Sachen, bei denen allen gruselt?" },
+    "comida-que-dos-personas-se-pelearian-por-el": { "text": "Welche zwei würden sich um das letzte Stück Pizza prügeln?" },
+    "comida-top-3-snacks-para-una-tarde-de": { "text": "Top 3 Snacks für einen Filmabend." },
+    "comida-top-3-platos-que-pedirias-en-un": { "text": "Top 3 Gerichte, die du beim Chinesen bestellen würdest." },
+    "comida-tu-comida-para-consolarte-cuando-estas-mal": { "text": "Dein Seelenfutter, wenn es dir schlecht geht – in einem Satz." },
+    "comida-un-plato-especialmente-memorable-que-hayas-comido": { "text": "Ein Gericht, das du nie vergessen wirst (und wo hast du es gegessen?)." }
+  }
+}

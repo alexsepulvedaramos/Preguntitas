@@ -1,0 +1,33 @@
+{
+  "pack": "El reparto del grupo",
+  "name": "Die Besetzung",
+  "description": "Verteilt ikonische Figuren an die Leute in der Gruppe.",
+  "templates": {
+    "reparto-quien-del-grupo-seria-el-joker-puro": { "text": "Wer aus der Gruppe wäre der Joker (pures Chaos)?" },
+    "reparto-quien-seria-batman-oscuro-y-va-por": { "text": "Wer wäre Batman (düster und ein Einzelgänger)?" },
+    "reparto-quien-seria-homer-simpson-un-desastre-adorable": { "text": "Wer wäre Homer Simpson (eine liebenswerte Katastrophe)?" },
+    "reparto-quien-seria-gandalf-el-sabio-que-guia": { "text": "Wer wäre Gandalf (der Weise, der alle führt)?" },
+    "reparto-quien-seria-james-bond-elegante-y-ligon": { "text": "Wer wäre James Bond (elegant und ein Charmeur)?" },
+    "reparto-quien-seria-sherlock-holmes-lo-deduce-todo": { "text": "Wer wäre Sherlock Holmes (kombiniert einfach alles)?" },
+    "reparto-quien-seria-el-grinch-odia-la-diversion": { "text": "Wer wäre der Grinch (hasst jeden Spaß)?" },
+    "reparto-quien-seria-peter-pan-se-niega-a": { "text": "Wer wäre Peter Pan (weigert sich, erwachsen zu werden)?" },
+    "reparto-quien-seria-el-heroe-que-salva-el": { "text": "Wer wäre der Held, der den Tag rettet?" },
+    "reparto-quien-seria-el-villano-de-la-pelicula": { "text": "Wer wäre der Bösewicht im Film?" },
+    "reparto-quien-seria-el-alivio-comico-del-grupo": { "text": "Wer wäre der Comic Relief der Gruppe?" },
+    "reparto-quien-seria-el-que-muere-en-el": { "text": "Wer wäre die Figur, die in der ersten Folge stirbt?" },
+    "reparto-quien-seria-el-villano-secreto-que-nadie": { "text": "Wer wäre der heimliche Bösewicht, mit dem niemand rechnet?" },
+    "reparto-quien-seria-el-protagonista-absoluto-de-la": { "text": "Wer wäre die unangefochtene Hauptfigur der Serie?" },
+    "reparto-quien-seria-el-secundario-que-se-roba": { "text": "Wer wäre die Nebenfigur, die jede Szene klaut?" },
+    "reparto-quien-seria-wonder-woman-la-heroina-que": { "text": "Wer wäre Wonder Woman (die Heldin, die alles schafft)?" },
+    "reparto-quien-seria-cruella-de-vil-malvada-con": { "text": "Wer wäre Cruella de Vil (böse, aber mit enorm viel Stil)?" },
+    "reparto-quien-seria-mary-poppins-perfecta-y-lo": { "text": "Wer wäre Mary Poppins (perfekt und bringt alles in Ordnung)?" },
+    "reparto-quien-seria-lara-croft-la-aventurera-intrepida": { "text": "Wer wäre Lara Croft (die furchtlose Abenteurerin)?" },
+    "reparto-quien-seria-catwoman-felina-y-va-a": { "text": "Wer wäre Catwoman (katzenhaft und macht ihr eigenes Ding)?" },
+    "reparto-quien-seria-campanilla-pequena-pero-con-un": { "text": "Wer wäre Tinkerbell (klein, aber mit Temperament)?" },
+    "reparto-quien-seria-elsa-distante-pero-con-muchisimo": { "text": "Wer wäre Elsa (unnahbar, aber unglaublich mächtig)?" },
+    "reparto-quien-seria-la-princesa-leia-lider-y": { "text": "Wer wäre Prinzessin Leia (Anführerin und Rebellin)?" },
+    "reparto-quien-seria-marge-simpson-la-que-aguanta": { "text": "Wer wäre Marge Simpson (erträgt alle mit Engelsgeduld)?" },
+    "reparto-quien-seria-la-reina-del-drama-la": { "text": "Wer wäre die Dramaqueen (die absolute Diva der Gruppe)?" },
+    "reparto-quien-seria-matilda-lista-y-con-poderes": { "text": "Wer wäre Matilda (schlau und mit geheimen Kräften)?" }
+  }
+}

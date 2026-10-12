@@ -1,0 +1,21 @@
+{
+  "pack": "Hipotéticos: ¿qué harías?",
+  "name": "Was würdest du tun?",
+  "description": "Superkräfte, Glückstreffer und Lebenstausch.",
+  "templates": {
+    "hipoteticos-el-superpoder-definitivo": { "text": "Die ultimative Superkraft:", "options": ["Fliegen", "Unsichtbar sein"] },
+    "hipoteticos-si-pudieras-elegir-un-poder": { "text": "Wenn du dir eine Kraft aussuchen könntest:", "options": ["Dich überallhin teleportieren", "Durch die Zeit reisen"] },
+    "hipoteticos-como-prefieres-el-dinero": { "text": "Wie hättest du das Geld lieber?", "options": ["1 Million sofort auf einen Schlag", "4.000 € im Monat, ein Leben lang"] },
+    "hipoteticos-tu-vida-laboral-ideal": { "text": "Dein ideales Berufsleben:", "options": ["Steinreich mit einem Job, den du hasst", "Gerade so über die Runden, aber mit einem Job, den du liebst"] },
+    "hipoteticos-que-vida-prefieres-sano-y-en-forma": { "text": "Was hättest du lieber? (die ganze Zeit gesund und fit)", "options": ["Ein einziges Leben von 800 Jahren", "8 Leben von je 100 Jahren"] },
+    "hipoteticos-te-dan-un-mando-para-tu-vida": { "text": "Du bekommst eine Fernbedienung für dein Leben. Welche Taste?", "options": ["Pause", "Zurückspulen"] },
+    "hipoteticos-te-toca-la-eternidad-en-uno-cual": { "text": "Du musst die Ewigkeit an einem dieser Orte verbringen. Welchen nimmst du?", "options": ["Einen perfekten, aber todlangweiligen Himmel", "Eine unterhaltsame Hölle mit ständigen Schmerzen"] },
+    "hipoteticos-te-reencarnas-en-lo-que-peor-te": { "text": "Du wirst als das Tier wiedergeboren, das du am meisten hasst. Was wärst du lieber?", "options": ["Unzerstörbare Kakerlake", "Mücke, die einen Tag lang nervt", "Fisch mit 3-Sekunden-Gedächtnis"] },
+    "hipoteticos-pacto-con-el-universo": { "text": "Ein Deal mit dem Universum:", "options": ["Heute alle Schulden los sein", "Für immer das doppelte Gehalt"] },
+    "hipoteticos-una-llamada-imposible": { "text": "Ein unmöglicher Anruf:", "options": ["1 Minute mit deinem früheren Ich", "1 Minute mit deinem zukünftigen Ich"] },
+    "hipoteticos-si-tu-cuerpo-no-necesitara-una-cosa": { "text": "Wenn dein Körper auf eine Sache verzichten könnte:", "options": ["Nie wieder schlafen", "Nie wieder essen"] },
+    "hipoteticos-quien-usaria-sus-superpoderes-para-el-mal": { "text": "Wer würde Superkräfte ohne zu zögern für das Böse einsetzen?" },
+    "hipoteticos-quien-se-gastaria-un-millon-de-euros": { "text": "Wer würde eine Million Euro in weniger als einem Monat verprassen?" },
+    "hipoteticos-quien-malgastaria-un-deseo-magico-en-una": { "text": "Wer würde einen magischen Wunsch für völligen Quatsch verschwenden?" }
+  }
+}

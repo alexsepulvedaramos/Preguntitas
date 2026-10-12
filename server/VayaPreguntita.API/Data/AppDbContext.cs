@@ -66,6 +66,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<QuestionTemplate>().HasIndex(t => t.Key).IsUnique();
 
         // ==========================================
+        // CONTENT TRANSLATIONS (rama 24) — language → text maps as JSONB
+        // ==========================================
+        ConfigureTranslations(modelBuilder.Entity<Pack>().Property(p => p.NameTranslations));
+        ConfigureTranslations(modelBuilder.Entity<Pack>().Property(p => p.DescriptionTranslations));
+        ConfigureTranslations(modelBuilder.Entity<QuestionTemplate>().Property(t => t.TextTranslations));
+        ConfigureTranslations(modelBuilder.Entity<QuestionTemplateOption>().Property(o => o.TextTranslations));
+        ConfigureTranslations(modelBuilder.Entity<Question>().Property(q => q.TextTranslations));
+        ConfigureTranslations(modelBuilder.Entity<Option>().Property(o => o.TextTranslations));
+
+        // ==========================================
         // QUESTION → QUESTION TEMPLATE (optional back-link for pack clones)
         // ==========================================
         modelBuilder
@@ -212,6 +222,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(u => u.PreferredLanguage)
             .HasMaxLength(5)
             .HasDefaultValue(AppLanguages.Default);
+    }
+
+    // A Dictionary<string, string> stored as a JSONB object ({"en": "...", "de": "..."}).
+    // Npgsql would map the dictionary to hstore by default, hence the explicit converter.
+    private static void ConfigureTranslations(PropertyBuilder<Dictionary<string, string>> property)
+    {
+        property
+            .HasColumnType("jsonb")
+            .HasDefaultValueSql("'{}'::jsonb")
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v =>
+                    System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(
+                        v,
+                        (System.Text.Json.JsonSerializerOptions?)null
+                    ) ?? new Dictionary<string, string>(),
+                new ValueComparer<Dictionary<string, string>>(
+                    (a, b) => (a ?? new()).Count == (b ?? new()).Count && !(a ?? new()).Except(b ?? new()).Any(),
+                    v => v.OrderBy(kv => kv.Key).Aggregate(0, (hash, kv) => HashCode.Combine(hash, kv.Key, kv.Value)),
+                    v => new Dictionary<string, string>(v)
+                )
+            );
     }
 
     // Shared owned-type config for QuestionMetadata (JSONB), used by both

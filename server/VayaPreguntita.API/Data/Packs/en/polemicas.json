@@ -1,0 +1,24 @@
+{
+  "pack": "Polémicas y bandos",
+  "name": "Hot takes",
+  "description": "Trivial topics you'll defend to the death.",
+  "templates": {
+    "polemicas-el-papel-higienico-se-coloca": { "text": "Toilet paper goes…", "options": ["Over, sheet in front", "Under, sheet behind"] },
+    "polemicas-marca-todas-las-posturas-que-defenderias-a": { "text": "Tick EVERY stance you'd defend to the death:", "options": ["The weekend starts on Friday", "Summer beats winter", "Coffee is better without sugar", "Getting up early on weekends is insane"] },
+    "polemicas-la-peor-de-estas-costumbres-ajenas-es": { "text": "The worst of these habits in other people:", "options": ["Talking during the movie", "Chewing with their mouth open", "Using speakerphone in public", "Leaving their cart in the middle of the aisle"] },
+    "polemicas-para-vacacionar-de-verdad": { "text": "For a real vacation:", "options": ["Beach", "Mountains"] },
+    "polemicas-para-ver-una-serie-o-peli-extranjera": { "text": "To watch a foreign show or movie:", "options": ["Original version with subtitles", "Dubbed into your language"] },
+    "polemicas-en-una-casa-compartida-la-tapa-del": { "text": "In a shared house, the toilet seat:", "options": ["Always down", "Whatever, leave it as it is"] },
+    "polemicas-a-la-hora-de-dormir": { "text": "When you go to sleep:", "options": ["Socks on", "Never with socks"] },
+    "polemicas-nada-mas-levantarte": { "text": "As soon as you get up:", "options": ["I always make the bed", "Why bother, I'm getting back in tonight"] },
+    "polemicas-mandar-audios-de-3-minutos-por-whatsapp": { "text": "Sending 3-minute voice notes on WhatsApp:", "options": ["Handy and totally normal", "Downright disrespectful"] },
+    "polemicas-en-el-avion-reclinar-tu-asiento-hacia": { "text": "On a plane, reclining your seat:", "options": ["That's what it's for, it's your right", "Pure selfishness"] },
+    "polemicas-sandalias-con-calcetines": { "text": "Socks with sandals:", "options": ["Comfort above all", "An unforgivable fashion crime"] },
+    "polemicas-llegar-a-una-fiesta-en-casa-de": { "text": "Arriving at a house party:", "options": ["At exactly the time they said", "15–30 min late is the right thing to do"] },
+    "polemicas-el-doble-check-azul-de-whatsapp": { "text": "WhatsApp blue ticks (read receipts):", "options": ["On, I have nothing to hide", "Off, my life is my business"] },
+    "polemicas-cada-cuanto-lavas-la-toalla-de-bano": { "text": "How often do you wash your bath towel?", "options": ["It lasts for weeks, you dry off clean anyway", "Every few uses, for hygiene"] },
+    "polemicas-quien-es-mas-capaz-de-discutir-una": { "text": "Who's most likely to argue for an hour over nothing without ever backing down?" },
+    "polemicas-quien-defiende-las-opiniones-mas-impopulares-solo": { "text": "Who defends the most unpopular opinions just to be contrary?" },
+    "polemicas-el-turron": { "text": "Turrón (Spanish Christmas nougat):", "options": ["Hard", "Soft", "Neither, thanks"] }
+  }
+}

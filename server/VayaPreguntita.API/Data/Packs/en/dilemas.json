@@ -1,0 +1,17 @@
+{
+  "pack": "Dilemas",
+  "name": "Dilemmas",
+  "description": "Philosophical and ethical dilemmas with no right answer.",
+  "templates": {
+    "dilemas-te-dan-mal-el-cambio-a-tu": { "text": "You're given too much change (10 euros extra) and you notice. Do you say something?", "options": ["Yes, I always give it back", "Depends: a big chain, I keep quiet; a small shop, I say so", "I keep quiet and pocket it, whoever it is"] },
+    "dilemas-puedes-salvar-a-5-desconocidos-o-a": { "text": "You can save 5 strangers or 1 loved one. Who do you save?", "options": ["The 5 strangers", "Your loved one"] },
+    "dilemas-mentirias-a-un-amigo-para-no-hacerle": { "text": "Would you lie to a friend to avoid hurting them?", "options": ["Yes, a white lie", "No, the truth comes first"] },
+    "dilemas-el-fin-justifica-los-medios": { "text": "Does the end justify the means?", "options": ["Yes, if the result is good", "No, never"] },
+    "dilemas-que-vida-prefieres": { "text": "Which life would you rather have?", "options": ["Short but intense, leaving a mark", "Long and quiet, no highs or lows"] },
+    "dilemas-saber-que-hay-tras-la-muerte-pero": { "text": "Know what comes after death but never be able to tell anyone, or never know at all?", "options": ["Know it in silence", "Never know"] },
+    "dilemas-un-tren-va-a-atropellar-a-5": { "text": "A train is about to run over 5 people. You can switch it to another track where there's only 1. Do you pull the lever?", "options": ["Yes, I switch it (1 dies, 5 live)", "I don't intervene (5 die)"] },
+    "dilemas-solo-puedes-salvar-a-5-desconocidos-empujando": { "text": "The only way to save 5 strangers is to push another stranger onto the train tracks yourself. Do you push?", "options": ["Yes", "No"] },
+    "dilemas-te-ofrecen-enchufarte-para-siempre-a-una": { "text": "You're offered to be plugged forever into a machine that simulates a perfect life, and you'd never know it's fake. Do you go in?", "options": ["Yes, give me the perfect life", "No, I'd rather have reality, even if it hurts"] },
+    "dilemas-viajas-al-pasado-y-tienes-delante-a": { "text": "You travel back in time and baby Hitler is right in front of you. Do you kill him?", "options": ["Yes", "No"] }
+  }
+}

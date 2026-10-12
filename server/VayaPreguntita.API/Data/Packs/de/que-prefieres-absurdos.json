@@ -1,0 +1,22 @@
+{
+  "pack": "Qué prefieres: absurdos",
+  "name": "Was wäre dir lieber: absurd",
+  "description": "Absurde Alltags-Entscheidungen, ohne Ekel und ohne Drama.",
+  "templates": {
+    "que-prefieres-absurdos-desayunar-toda-la-vida": { "text": "Für den Rest deines Lebens zum Frühstück:", "options": ["Nur spanische Tortilla", "Nur Müsli"] },
+    "que-prefieres-absurdos-elige-tu-efecto-sonoro-de-por-vida": { "text": "Such dir deinen Soundeffekt fürs Leben aus:", "options": ["Eine Hupe, jedes Mal wenn du lachst", "Eine traurige Posaune, jedes Mal wenn du dich ärgerst"] },
+    "que-prefieres-absurdos-tu-rareza-corporal": { "text": "Deine körperliche Macke:", "options": ["Glitzer niesen", "Schluckauf, der wie eine Ente klingt"] },
+    "que-prefieres-absurdos-tu-voz-te-delata": { "text": "Deine Stimme verrät dich:", "options": ["Schlumpfstimme, wenn du lügst", "Darth-Vader-Stimme, wenn du die Wahrheit sagst"] },
+    "que-prefieres-absurdos-molestia-constante-elige-una": { "text": "Dauerhaftes Ärgernis, such dir eins aus:", "options": ["Ein Steinchen im Schuh", "Eine nasse Socke"] },
+    "que-prefieres-absurdos-clima-extremo-en-casa": { "text": "Extremes Wetter zu Hause:", "options": ["Ein ganzer Sommer bei 40 °C ohne Klimaanlage", "Ein ganzer Winter bei 5 °C ohne Heizung"] },
+    "que-prefieres-absurdos-tu-movil-tu-eleccion": { "text": "Dein Handy, deine Wahl:", "options": ["Unendlich Akku, aber quälend langsames Internet", "Perfektes Internet, aber nur 1 Stunde Akku"] },
+    "que-prefieres-absurdos-como-te-tratan-los-demas": { "text": "Wie andere mit dir reden:", "options": ["Alle siezen dich", "Alle nennen dich bei einem lächerlichen Spitznamen"] },
+    "que-prefieres-absurdos-tu-entrada-y-tu-salida": { "text": "Dein Auftritt und dein Abgang:", "options": ["Wenn du reinkommst, läuft deine Einlaufmusik", "Wenn du gehst, gibt's Applaus"] },
+    "que-prefieres-absurdos-comer-toda-la-vida": { "text": "Für den Rest deines Lebens essen:", "options": ["Nur Pizza", "Nur Burger"] },
+    "que-prefieres-absurdos-elige-tu-mini-maldicion": { "text": "Such dir deinen Mini-Fluch aus:", "options": ["Dein Handy fällt immer aufs Display", "Bei dir ist immer das Klopapier alle", "Du erwischst immer die langsamste Kasse"] },
+    "que-prefieres-absurdos-pequeno-lujo-cotidiano": { "text": "Kleiner Alltagsluxus:", "options": ["YouTube-Werbung immer überspringen", "Der Aufzug ist immer schon auf deinem Stockwerk"] },
+    "que-prefieres-absurdos-una-hora-al-dia-obligatoria": { "text": "Eine Pflichtstunde am Tag:", "options": ["In Reimen sprechen", "Nur flüstern"] },
+    "que-prefieres-absurdos-delegar-en-tu-mejor-amigo": { "text": "Abgeben an deinen Lieblingsmenschen:", "options": ["Er oder sie sucht immer deine Klamotten aus", "Er oder sie sucht immer dein Essen aus"] },
+    "que-prefieres-absurdos-con-que-mundo-te-quedas": { "text": "Welche Welt nimmst du?", "options": ["Eine Welt ohne Kartoffeln", "Eine Welt ganz ohne Soßen"] }
+  }
+}

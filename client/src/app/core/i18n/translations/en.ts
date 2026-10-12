@@ -664,6 +664,15 @@ export const en: Translation = {
     },
   },
   streaks: {
+    titles: {
+      wood: 'Gossip in Training',
+      stone: 'Anonymous Source',
+      bronze: 'Well-Informed Source',
+      silver: 'Talk-Show Regular',
+      gold: 'Oracle of the Tea',
+      sapphire: 'Tabloid Columnist',
+      amethyst: 'The Curtain Twitcher',
+    },
     frames: {
       wood: 'wood frame',
       stone: 'stone frame',

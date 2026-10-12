@@ -103,7 +103,12 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await using var db = NewContext();
         (await db.DailyEntries.SingleAsync()).ActivatedAt.Should().BeNull();
         Notifications.Verify(
-            n => n.SendNewQuestionAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()),
+            n => n.SendNewQuestionAsync(
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyDictionary<string, string>>()
+            ),
             Times.Never
         );
     }
@@ -132,7 +137,8 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             n => n.SendNewQuestionAsync(
                 group.Id,
                 "Los de siempre",
-                "¿Quién sobreviviría menos en una isla desierta?"
+                "¿Quién sobreviviría menos en una isla desierta?",
+                It.IsAny<IReadOnlyDictionary<string, string>>()
             ),
             Times.Once
         );

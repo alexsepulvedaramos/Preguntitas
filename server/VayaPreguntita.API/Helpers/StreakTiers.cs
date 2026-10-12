@@ -1,32 +1,55 @@
 namespace VayaPreguntita.API.Helpers;
 
-// Key = frame material (drives the avatar frame); Title = the unlockable title shown on
-// the profile; Material = the frame's display name.
-public record StreakTier(string Key, string Title, string Material, int MinDays);
+using VayaPreguntita.API.Localization;
+
+// A player-facing text in every language the app is played in (rama 24).
+public record LocalizedText(string Es, string En, string De)
+{
+    public string In(string language) =>
+        language switch
+        {
+            AppLanguages.English => En,
+            AppLanguages.German => De,
+            _ => Es,
+        };
+
+    // In the language of the current request (Accept-Language).
+    public override string ToString() => In(ContentTranslations.RequestLanguage);
+}
+
+// Key = frame material (drives the avatar frame); Titles = the unlockable title shown on
+// the profile; Materials = the frame's display name. Title and Material read in the language
+// of the current request.
+public record StreakTier(string Key, LocalizedText Titles, LocalizedText Materials, int MinDays)
+{
+    public string Title => Titles.ToString();
+    public string Material => Materials.ToString();
+}
 
 // Streak tiers and milestones (rama 19, §13). Mirrored on the client in
-// core/constants/streak-tiers.ts — keep both in sync.
+// core/constants/streak-tiers.ts — keep both in sync. Titles are adapted, not translated
+// (rama 24): each language ends on its own nosiest neighbour.
 public static class StreakTiers
 {
     // Below the first tier (days 1–2) there is no frame and no title.
     public static readonly StreakTier[] All =
     [
-        new("wood", "Cotilla en prácticas", "Madera", 3),
-        new("stone", "Fuente anónima", "Piedra", 7),
-        new("bronze", "Fuente bien informada", "Bronce", 15),
-        new("silver", "Carne de tertulia", "Plata", 30),
-        new("gold", "Oráculo del salseo", "Oro", 100),
-        new("sapphire", "Colaborador de Sálvame", "Zafiro", 182),
-        new("amethyst", "La Vieja del Visillo", "Amatista", 365),
+        new("wood", new("Cotilla en prácticas", "Gossip in Training", "Tratsch-Azubi"), new("Madera", "Wood", "Holz"), 3),
+        new("stone", new("Fuente anónima", "Anonymous Source", "Anonyme Quelle"), new("Piedra", "Stone", "Stein"), 7),
+        new("bronze", new("Fuente bien informada", "Well-Informed Source", "Gut informierte Quelle"), new("Bronce", "Bronze", "Bronze"), 15),
+        new("silver", new("Carne de tertulia", "Talk-Show Regular", "Talkshow-Dauergast"), new("Plata", "Silver", "Silber"), 30),
+        new("gold", new("Oráculo del salseo", "Oracle of the Tea", "Orakel des Klatschs"), new("Oro", "Gold", "Gold"), 100),
+        new("sapphire", new("Colaborador de Sálvame", "Tabloid Columnist", "Klatschpresse-Profi"), new("Zafiro", "Sapphire", "Saphir"), 182),
+        new("amethyst", new("La Vieja del Visillo", "The Curtain Twitcher", "Die Gardinenspionin"), new("Amatista", "Amethyst", "Amethyst"), 365),
     ];
 
     // Extra celebrations that don't change the frame.
-    public static readonly IReadOnlyDictionary<int, string> Milestones = new Dictionary<int, string>
+    public static readonly IReadOnlyDictionary<int, LocalizedText> Milestones = new Dictionary<int, LocalizedText>
     {
-        [21] = "¡3 semanas!",
-        [50] = "¡50 días!",
-        [200] = "¡200 días!",
-        [300] = "¡300 días!",
+        [21] = new("¡3 semanas!", "3 weeks!", "3 Wochen!"),
+        [50] = new("¡50 días!", "50 days!", "50 Tage!"),
+        [200] = new("¡200 días!", "200 days!", "200 Tage!"),
+        [300] = new("¡300 días!", "300 days!", "300 Tage!"),
     };
 
     public static StreakTier? TierFor(int streak) =>
@@ -55,5 +78,31 @@ public static class StreakTiers
         var unlocked = UnlockedBy(highestStreakEver).ToList();
         var chosen = unlocked.FirstOrDefault(t => t.Key == selectedTitleKey);
         return (chosen ?? unlocked.LastOrDefault())?.Title;
+    }
+
+    // The automatic chat message when a member reaches a tier or a milestone, in the reader's
+    // language; null when that streak is neither.
+    public static string? ChatMessage(string language, string username, int streak)
+    {
+        if (IsTierStart(streak))
+        {
+            var title = TierFor(streak)!.Titles.In(language);
+            return language switch
+            {
+                AppLanguages.English => $"🔥 {username} is on a {streak}-day streak · {title}!",
+                AppLanguages.German => $"🔥 {username} hat {streak} Tage in Folge abgestimmt · {title}!",
+                _ => $"🔥 {username} lleva {streak} días seguidos · ¡{title}!",
+            };
+        }
+
+        if (Milestones.TryGetValue(streak, out var label))
+            return language switch
+            {
+                AppLanguages.English => $"🎉 {username} is on a {streak}-day streak · {label.In(language)}",
+                AppLanguages.German => $"🎉 {username} hat {streak} Tage in Folge abgestimmt · {label.In(language)}",
+                _ => $"🎉 {username} lleva {streak} días seguidos · {label.In(language)}",
+            };
+
+        return null;
     }
 }

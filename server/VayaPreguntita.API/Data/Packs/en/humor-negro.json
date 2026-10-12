@@ -1,0 +1,22 @@
+{
+  "pack": "Humor negro",
+  "name": "Dark humor",
+  "description": "Dark, morbid and wicked humor. Strong stomachs only.",
+  "templates": {
+    "humor-negro-te-obligan-a-elegir-como-palmarla-que": { "text": "You're forced to choose how you kick the bucket. Which one?", "options": ["Burned alive", "Buried alive", "Slowly frozen", "Eaten by sharks"] },
+    "humor-negro-por-1-millon-de-euros-que-estarias": { "text": "For 1 million euros, what would you be willing to do?", "options": ["Spend a whole night in a morgue", "Never speak to your best friend again", "Give up your little finger", "Eat something disgusting every day for a year"] },
+    "humor-negro-apocalipsis-y-hay-hambre-cual-cruzas-antes": { "text": "Apocalypse, and you're starving. Which line do you cross first?", "options": ["Eating your pet", "Eating your neighbor"] },
+    "humor-negro-en-tu-funeral-que-prefieres-provocar": { "text": "At your funeral, what would you rather cause?", "options": ["Everyone crying their eyes out", "Everyone in stitches remembering you"] },
+    "humor-negro-te-toca-un-superpoder-maldito-cual-aguantas": { "text": "You get a cursed superpower. Which one can you live with?", "options": ["Always coming back to life, in agony every time", "Being immortal and watching everyone you love die"] },
+    "humor-negro-que-serias-capaz-de-hacer-con-tal": { "text": "What would you be capable of doing to avoid dying?", "options": ["Eating human flesh", "Cutting off your own arm", "Killing a stranger", "Spending the rest of your life in a cell"] },
+    "humor-negro-si-pudieras-presenciar-tu-propia-muerte-como": { "text": "If you could watch your own death as a mere spectator (no pain), would you?", "options": ["Yes", "No"] },
+    "humor-negro-quien-fingiria-su-propia-muerte-para-librarse": { "text": "Who would fake their own death to get out of a mess?" },
+    "humor-negro-a-quien-le-darias-un-punetazo-por": { "text": "Who would you punch in the face for a million euros?" },
+    "humor-negro-quien-se-reiria-sin-poder-parar-en": { "text": "Who would get an uncontrollable fit of giggles in the middle of a funeral?" },
+    "humor-negro-quien-sobreviviria-mas-tiempo-en-la-purga": { "text": "Who would survive the longest in The Purge?" },
+    "humor-negro-que-dos-personas-esconderian-un-cadaver-juntas": { "text": "Which two people could hide a body together without getting caught?" },
+    "humor-negro-del-1-al-10-que-probabilidad-hay": { "text": "On a scale of 1 to 10, how likely are you to end up in hell?" },
+    "humor-negro-os-toca-limpiar-la-escena-de-un": { "text": "You have to clean up a crime scene. Which team leaves no evidence behind?" },
+    "humor-negro-en-teoria-eh-cual-seria-la-mejor": { "text": "Purely hypothetically... what's the best way to get rid of a body? (one sentence)" }
+  }
+}

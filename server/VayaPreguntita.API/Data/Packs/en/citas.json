@@ -1,0 +1,26 @@
+{
+  "pack": "Citas, relaciones y red flags",
+  "name": "Dating & red flags",
+  "description": "Love, flings, couples and red flags.",
+  "templates": {
+    "citas-que-dos-personas-del-grupo-harian-la": { "text": "Which two people in the group would make the best couple?" },
+    "citas-que-dos-personas-acabarian-liandose-en-una": { "text": "Which two people would end up making out at a wedding?" },
+    "citas-que-dos-personas-serian-la-pareja-mas": { "text": "Which two people would be the most toxic couple?" },
+    "citas-que-dos-personas-ligan-fatal-por-separado": { "text": "Which two people are hopeless at flirting alone but would be perfect together?" },
+    "citas-que-dos-personas-seguro-que-se-han": { "text": "Which two people have definitely sent each other a spicy text at some point?" },
+    "citas-que-dos-personas-discutirian-a-diario-pero": { "text": "Which two people would argue every day but couldn't live without each other?" },
+    "citas-que-dos-personas-tendrian-el-romance-de": { "text": "Which two people would have the most intense summer fling?" },
+    "citas-quien-volveria-con-su-ex-por-enesima": { "text": "Who would get back with their ex for the hundredth time, swearing this time it's different?" },
+    "citas-quien-tiene-el-peor-gusto-eligiendo-con": { "text": "Who has the worst taste in who they date?" },
+    "citas-quien-stalkea-mas-a-su-crush-en": { "text": "Who stalks their crush on social media the most?" },
+    "citas-quien-ligaria-mas-en-una-noche-de": { "text": "Who would get the most numbers on a night out?" },
+    "citas-quien-se-pillaria-a-las-dos-semanas": { "text": "Who would fall head over heels two weeks after meeting someone?" },
+    "citas-quien-seria-el-mas-celoso-en-una": { "text": "Who would be the most jealous in a relationship?" },
+    "citas-la-red-flag-mas-imperdonable-en-una": { "text": "The most unforgivable red flag on a first date:", "options": ["Shows up 40 min late without a word", "Only talks about their ex", "Is rude to the waiter", "Never puts their phone down"] },
+    "citas-que-prefieres-vivir": { "text": "What would you rather go through?", "options": ["One bad date and that's the end of it", "Three amazing dates and then you get ghosted"] },
+    "citas-quien-crea-tu-proximo-perfil-de-citas": { "text": "Who writes your next dating profile?", "options": ["Your mom", "Your ex"] },
+    "citas-con-quien-sales": { "text": "Who would you date?", "options": ["Someone who hates animals", "Someone with seven dogs who always puts them first"] },
+    "citas-el-green-flag-definitivo": { "text": "The ultimate green flag:", "options": ["Is kind to the waiter", "Gets on great with their friends", "Texts back fast", "Is happy on their own"] },
+    "citas-en-una-ruptura-que-prefieres": { "text": "In a breakup, which would you rather be?", "options": ["The one who ends it", "The one who gets dumped"] }
+  }
+}

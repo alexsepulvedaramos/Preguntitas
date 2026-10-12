@@ -1,0 +1,22 @@
+{
+  "pack": "Humor negro",
+  "name": "Schwarzer Humor",
+  "description": "Düster, morbide und frech. Nur für starke Nerven.",
+  "templates": {
+    "humor-negro-te-obligan-a-elegir-como-palmarla-que": { "text": "Du musst dir aussuchen, wie du abkratzt. Was nimmst du?", "options": ["Lebendig verbrannt", "Lebendig begraben", "Langsam erfroren", "Von Haien gefressen"] },
+    "humor-negro-por-1-millon-de-euros-que-estarias": { "text": "Für 1 Million Euro – was würdest du tun?", "options": ["Eine ganze Nacht in der Leichenhalle verbringen", "Nie wieder mit deinem Lieblingsmenschen reden", "Deinen kleinen Finger hergeben", "Ein Jahr lang jeden Tag etwas Ekliges essen"] },
+    "humor-negro-apocalipsis-y-hay-hambre-cual-cruzas-antes": { "text": "Apokalypse, und du hast Hunger. Welche Grenze überschreitest du zuerst?", "options": ["Dein Haustier essen", "Deinen Nachbarn essen"] },
+    "humor-negro-en-tu-funeral-que-prefieres-provocar": { "text": "Was soll auf deiner Beerdigung passieren?", "options": ["Alle weinen bitterlich", "Alle lachen sich schlapp, wenn sie an dich denken"] },
+    "humor-negro-te-toca-un-superpoder-maldito-cual-aguantas": { "text": "Du bekommst eine verfluchte Superkraft. Welche hältst du aus?", "options": ["Immer wieder auferstehen, jedes Mal unter höllischen Schmerzen", "Unsterblich sein und alle sterben sehen, die du liebst"] },
+    "humor-negro-que-serias-capaz-de-hacer-con-tal": { "text": "Was würdest du tun, um nicht zu sterben?", "options": ["Menschenfleisch essen", "Dir einen Arm abschneiden", "Einen Fremden töten", "Den Rest deines Lebens in einer Zelle verbringen"] },
+    "humor-negro-si-pudieras-presenciar-tu-propia-muerte-como": { "text": "Wenn du deinen eigenen Tod als bloßer Zuschauer miterleben könntest (ohne Schmerzen) – würdest du?", "options": ["Ja", "Nein"] },
+    "humor-negro-quien-fingiria-su-propia-muerte-para-librarse": { "text": "Wer würde den eigenen Tod vortäuschen, nur um aus einer blöden Nummer rauszukommen?" },
+    "humor-negro-a-quien-le-darias-un-punetazo-por": { "text": "Wem würdest du für eine Million Euro eine reinhauen?" },
+    "humor-negro-quien-se-reiria-sin-poder-parar-en": { "text": "Wer bekäme mitten auf einer Beerdigung einen Lachanfall?" },
+    "humor-negro-quien-sobreviviria-mas-tiempo-en-la-purga": { "text": "Wer würde die Purge-Nacht am längsten überleben?" },
+    "humor-negro-que-dos-personas-esconderian-un-cadaver-juntas": { "text": "Welche zwei könnten zusammen eine Leiche verstecken, ohne erwischt zu werden?" },
+    "humor-negro-del-1-al-10-que-probabilidad-hay": { "text": "Von 1 bis 10: Wie wahrscheinlich landest du in der Hölle?" },
+    "humor-negro-os-toca-limpiar-la-escena-de-un": { "text": "Ihr müsst einen Tatort sauber machen. Welches Team hinterlässt keine einzige Spur?" },
+    "humor-negro-en-teoria-eh-cual-seria-la-mejor": { "text": "Rein theoretisch, ne … wie wird man am besten eine Leiche los? (in einem Satz)" }
+  }
+}

@@ -35,13 +35,22 @@ public class NotificationService(
     // Each dispatch runs fire-and-forget, so it must log its own failures — an exception
     // here (e.g. the recipients query) would otherwise vanish with the discarded task.
     // Text is written in each recipient's PreferredLanguage (rama 23): one payload per language.
-    public Task SendNewQuestionAsync(int groupId, string groupName, string questionText) =>
+    // A pack question goes out in each recipient's language too (rama 24).
+    public Task SendNewQuestionAsync(
+        int groupId,
+        string groupName,
+        string questionText,
+        IReadOnlyDictionary<string, string> textTranslations
+    ) =>
         RunLoggedAsync("new_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.NewQuestion);
-            var body = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
             await SendLocalizedAsync(context, recipients, QuestionTtl, lang =>
-                BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question", lang));
+            {
+                var text = ContentTranslations.Pick(questionText, textTranslations, lang);
+                var body = text.Length > 80 ? text[..77] + "…" : text;
+                return BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question", lang);
+            });
         });
 
     public Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime) =>

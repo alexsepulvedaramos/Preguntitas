@@ -1,0 +1,21 @@
+{
+  "pack": "Crimen y misterio",
+  "name": "Crime & mystery",
+  "description": "Perfect crimes, prime suspects and great mysteries.",
+  "templates": {
+    "crimen-quien-cometeria-el-crimen-perfecto-y-no": { "text": "Who would commit the perfect crime and never get caught?" },
+    "crimen-quien-confesaria-entre-lagrimas-al-primer-interrogatorio": { "text": "Who would confess in tears at the very first interrogation?" },
+    "crimen-quien-seria-el-cerebro-de-una-banda": { "text": "Who would be the mastermind of a criminal gang?" },
+    "crimen-quien-acabaria-detenido-por-la-tonteria-mas": { "text": "Who would end up arrested for the most ridiculous thing?" },
+    "crimen-quien-parece-el-mas-inocente-pero-esconde": { "text": "Who looks the most innocent but hides the darkest side?" },
+    "crimen-a-quien-acusarian-primero-si-apareciera-un": { "text": "Who would everyone blame first if a body turned up at a group dinner?" },
+    "crimen-quien-se-libraria-de-una-multa-hablandole": { "text": "Who would sweet-talk their way out of a ticket?" },
+    "crimen-que-dos-personas-formarian-el-duo-criminal": { "text": "Which two people would make the most feared criminal duo?" },
+    "crimen-que-dos-personas-se-delatarian-mutuamente-en": { "text": "Which two people would rat each other out the moment they felt a bit of pressure?" },
+    "crimen-que-clase-de-criminal-serias": { "text": "What kind of criminal would you be?", "options": ["The brains", "The muscle", "The one with the contacts", "The getaway driver, and that's it"] },
+    "crimen-si-tuvieras-que-cometer-un-crimen-y": { "text": "If you had to commit one crime and get away with it, which one?", "options": ["Armed bank robbery", "A million-dollar hack from your couch", "Stealing a painting from a museum", "A massive pyramid scheme"] },
+    "crimen-que-gran-misterio-te-gustaria-resolver-de": { "text": "Which great mystery would you love to actually solve?", "options": ["Who killed JFK", "What's going on in the Bermuda Triangle", "Whether we're alone in the universe", "What really happened to flight MH370"] },
+    "crimen-del-1-al-10-como-de-bien": { "text": "On a scale of 1 to 10, how well do you lie under pressure?" },
+    "crimen-confiesa-que-es-lo-mas-caro-que": { "text": "Confess: what's the most expensive thing you've ever swiped, and from where?" }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "pack": "Supervivencia y apocalipsis",
+  "name": "Survival & apocalypse",
+  "description": "Desert islands, shipwrecks and the end of the world. Would you survive?",
+  "templates": {
+    "supervivencia-naufragio-que-equipo-monta-una-balsa-que": { "text": "Shipwreck: which team builds a raft that actually floats?" },
+    "supervivencia-quien-seria-el-primero-en-palmarla-en": { "text": "Who would be the first to die in a zombie apocalypse?" },
+    "supervivencia-quien-se-autoproclamaria-lider-sin-tener-ni": { "text": "Who would declare themselves leader without having a clue?" },
+    "supervivencia-quien-entraria-en-panico-nada-mas-empezar": { "text": "Who would panic the second the chaos starts?" },
+    "supervivencia-quien-se-quedaria-dormido-en-su-turno": { "text": "Who would fall asleep during their watch?" },
+    "supervivencia-quien-haria-una-heroicidad-estupida-que-pondria": { "text": "Who would pull a stupid heroic stunt that puts the whole group in danger?" },
+    "supervivencia-que-dos-personas-montarian-la-alianza-mas": { "text": "Which two people would form the deadliest survival alliance?" },
+    "supervivencia-tras-el-fin-del-mundo-que-dos": { "text": "After the end of the world, which two people would be the last hope for rebuilding civilization?" },
+    "supervivencia-fin-del-mundo-en-24-horas-que": { "text": "The world ends in 24 hours. What do you do?", "options": ["Party nonstop", "Be with family", "Loot the shops", "Sleep peacefully"] },
+    "supervivencia-marca-lo-que-no-aguantarias-sin": { "text": "Tick what you could NOT survive without:", "options": ["Coffee", "Your phone", "Hot showers", "Your favorite show"] },
+    "supervivencia-solo-puedes-coger-un-arma-cuerpo-a": { "text": "You can only take one melee weapon into the zombie apocalypse. Which one?", "options": ["Baseball bat", "Katana", "Machete", "Cast-iron frying pan"] },
+    "supervivencia-montas-tu-kit-de-supervivencia-y-solo": { "text": "You're packing your survival kit and there's room for just one more thing. What goes in?", "options": ["A week's worth of food", "A good knife", "A first-aid kit", "A lighter"] },
+    "supervivencia-en-un-apocalipsis-que-tipo-de-superviviente": { "text": "In an apocalypse, what kind of survivor would you be?", "options": ["The hoarder", "The one who helps everyone", "The lone wolf", "The one who hides and prays"] },
+    "supervivencia-si-el-mundo-se-fuera-a-acabar": { "text": "If the world were about to end, which ending would you prefer?", "options": ["Instant meteorite", "Zombie invasion", "Slow pandemic", "Nuclear war"] }
+  }
+}

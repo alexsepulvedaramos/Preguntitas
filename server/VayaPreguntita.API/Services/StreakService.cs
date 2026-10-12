@@ -4,6 +4,7 @@ using VayaPreguntita.API.DTOs.Notifications;
 using VayaPreguntita.API.DTOs.Streaks;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Helpers;
+using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
 
@@ -50,12 +51,15 @@ public class StreakService(
         if (current >= StreakTiers.All[0].MinDays)
             ApplyStreakFrameOnce(member.User);
 
-        var chatBody = BuildMilestoneChatMessage(member.User.Username, current);
+        // Body keeps the Spanish text; readers get it in their own language (ChatService).
+        var chatBody = StreakTiers.ChatMessage(AppLanguages.Default, member.User.Username, current);
         if (chatBody != null)
             context.ChatMessages.Add(
                 new ChatMessage
                 {
                     Body = chatBody,
+                    StreakUsername = member.User.Username,
+                    StreakDays = current,
                     DailyEntryId = openEntry.Id,
                     UserId = null,
                     CreatedAt = DailyClock.UtcNow(clock),
@@ -485,15 +489,6 @@ public class StreakService(
         user.FrameColor = FrameColors.Streak;
     }
 
-    private static string? BuildMilestoneChatMessage(string username, int streak)
-    {
-        if (StreakTiers.IsTierStart(streak))
-            return $"🔥 {username} lleva {streak} días seguidos · ¡{StreakTiers.TierFor(streak)!.Title}!";
-        if (StreakTiers.Milestones.TryGetValue(streak, out var label))
-            return $"🎉 {username} lleva {streak} días seguidos · {label}";
-        return null;
-    }
-
     private static StreakUpdateDto BuildUpdate(int previous, int current, int best, bool titleUnlocked = false)
     {
         var tier = StreakTiers.TierFor(current);
@@ -508,7 +503,7 @@ public class StreakService(
             TierMaterial = tier?.Material,
             IsTierUp = current > previous && StreakTiers.IsTierStart(current),
             TitleUnlocked = titleUnlocked,
-            MilestoneLabel = current > previous ? StreakTiers.Milestones.GetValueOrDefault(current) : null,
+            MilestoneLabel = current > previous ? StreakTiers.Milestones.GetValueOrDefault(current)?.ToString() : null,
             NextTierKey = next?.Key,
             NextTierTitle = next?.Title,
             NextTierMaterial = next?.Material,

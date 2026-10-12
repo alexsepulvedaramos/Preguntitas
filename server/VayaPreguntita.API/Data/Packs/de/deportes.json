@@ -1,0 +1,32 @@
+{
+  "pack": "Deportes y competencia",
+  "name": "Sport & Ehrgeiz",
+  "description": "Team-Challenges und Rivalitäten unter Freunden.",
+  "templates": {
+    "deportes-partido-de-futbol-a-muerte-que-equipo": { "text": "Fußballspiel auf Leben und Tod: Welches Team gewinnt?" },
+    "deportes-gymkana-imposible-por-la-ciudad-que-equipo": { "text": "Unmögliche Schnitzeljagd durch die Stadt: Welches Team ist zuerst am Ziel?" },
+    "deportes-concurso-de-cultura-general-que-equipo-sabe": { "text": "Kneipenquiz: Welches Team weiß mehr?" },
+    "deportes-busqueda-del-tesoro-que-equipo-lo-encuentra": { "text": "Schatzsuche: Welches Team findet ihn zuerst?" },
+    "deportes-quien-es-el-peor-perdedor-del-grupo": { "text": "Wer ist der schlechteste Verlierer der Gruppe?" },
+    "deportes-quien-hace-trampas-en-cuanto-te-despistas": { "text": "Wer schummelt, sobald du kurz wegschaust?" },
+    "deportes-quien-se-pone-competitivo-hasta-en-el": { "text": "Wer wird sogar bei Mensch ärgere dich nicht verbissen?" },
+    "deportes-quien-celebra-una-victoria-como-si-hubiera": { "text": "Wer feiert einen Sieg, als hätte er gerade die WM gewonnen?" },
+    "deportes-quien-es-el-mas-patoso-para-cualquier": { "text": "Wer ist bei jeder Sportart am ungeschicktesten?" },
+    "deportes-que-dos-personas-formarian-la-pareja-imbatible": { "text": "Welche zwei wären im Doppel unschlagbar (Tennis, Tischtennis, Padel …)?" },
+    "deportes-que-dos-personas-acabarian-enfadadas-por-un": { "text": "Welche zwei würden sich bei einem harmlosen Freundschaftsspiel zerstreiten?" },
+    "deportes-prefieres-ganar-haciendo-trampas-o-perder-limpiamente": { "text": "Lieber mit Schummeln gewinnen oder fair verlieren?", "options": ["Mit Schummeln gewinnen", "Fair verlieren"] },
+    "deportes-que-prefieres-ser": { "text": "Was wärst du lieber?", "options": ["Der Beste in einem grottigen Team", "Der Schlechteste in einem Meisterteam"] },
+    "deportes-en-un-juego-de-mesa-que-eres": { "text": "Bei Brettspielen bist du …", "options": ["Der Stratege", "Der Schummler", "Wer sich aufregt", "Wer sein eigenes Ding macht"] },
+    "deportes-del-1-al-10-como-de-competitivo": { "text": "Von 1 bis 10: Wie ehrgeizig bist du wirklich?" },
+    "deportes-cuentanos-tu-mayor-momento-de-gloria-deportiva": { "text": "Dein größter sportlicher Triumph – in einem Satz." },
+    "deportes-cuentanos-tu-momento-mas-patetico-haciendo-deporte": { "text": "Dein peinlichster Moment beim Sport – in einem Satz." },
+    "deportes-montaje-de-ikea-que-equipo-termina-primero": { "text": "IKEA-Aufbau: Welches Team ist zuerst fertig – ohne übrige Schrauben?" },
+    "deportes-karaoke-que-equipo-se-lleva-la-ovacion": { "text": "Karaoke: Welches Team bekommt die Standing Ovations?" },
+    "deportes-concurso-de-disfraces-con-lo-que-haya": { "text": "Kostümwettbewerb mit allem, was zu Hause rumliegt: Welches Team gewinnt?" },
+    "deportes-perdidos-en-una-ciudad-desconocida-sin-movil": { "text": "Verloren in einer fremden Stadt, ohne Handy und Karte: Welches Team ist zuerst im Hotel?" },
+    "deportes-torneo-de-mario-kart-que-equipo-se": { "text": "Mario-Kart-Turnier: Welches Team holt den Pokal?" },
+    "deportes-fiesta-sorpresa-en-24-horas-que-equipo": { "text": "Überraschungsparty in 24 Stunden: Welches Team kriegt sie besser hin?" },
+    "deportes-del-1-al-10-como-de-buen": { "text": "Von 1 bis 10: Wie gut bist du als Teampartner bei Brettspielen?" },
+    "deportes-del-1-al-10-como-de-buen-2": { "text": "Von 1 bis 10: Wie gut kannst du verlieren?" }
+  }
+}

@@ -92,21 +92,31 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         if (openDate == null)
             return new HistoryPageDto { Items = [], HasMore = false };
 
-        var items = await context
+        var rows = await context
             .DailyEntries.Where(d =>
                 d.GroupId == groupId && d.ActivatedAt != null && d.Date < openDate
             )
             .Where(d => before == null || d.Date < before)
             .OrderByDescending(d => d.Date)
             .Take(pageSize + 1)
-            .Select(d => new HistoryEntryDto
+            .Select(d => new
             {
-                Date = d.Date,
-                QuestionText = d.Question.Text,
-                Type = d.Question.Type,
+                d.Date,
+                d.Question.Text,
+                d.Question.TextTranslations,
+                d.Question.Type,
                 TotalVotes = d.Question.Votes.Select(v => v.UserId).Distinct().Count(),
             })
             .ToListAsync();
+
+        var items = rows.Select(d => new HistoryEntryDto
+            {
+                Date = d.Date,
+                QuestionText = ContentTranslations.Pick(d.Text, d.TextTranslations),
+                Type = d.Type,
+                TotalVotes = d.TotalVotes,
+            })
+            .ToList();
 
         var hasMore = items.Count > pageSize;
         if (hasMore)

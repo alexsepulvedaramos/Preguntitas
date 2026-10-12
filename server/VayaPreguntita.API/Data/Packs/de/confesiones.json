@@ -1,0 +1,25 @@
+{
+  "pack": "Confesiones y vergüenzas",
+  "name": "Geständnisse & Fremdscham",
+  "description": "Guilty Pleasures, Macken und Cringe-Momente.",
+  "templates": {
+    "confesiones-quien-tarda-tres-dias-en-contestar-un": { "text": "Wer braucht drei Tage, um auf eine Nachricht zu antworten?" },
+    "confesiones-quien-ha-llorado-con-un-anuncio-de": { "text": "Wer hat schon mal bei einer Fernsehwerbung geweint?" },
+    "confesiones-quien-se-hace-el-ocupado-para-no": { "text": "Wer tut beschäftigt, um auf der Straße niemanden grüßen zu müssen?" },
+    "confesiones-quien-relee-sus-propios-mensajes-riendose-de": { "text": "Wer liest die eigenen Nachrichten nochmal und lacht über die eigenen Witze?" },
+    "confesiones-quien-finge-haber-leido-libros-o-visto": { "text": "Wer tut so, als hätte er Bücher gelesen oder Filme gesehen, die er nie angerührt hat?" },
+    "confesiones-quien-tiene-el-historial-de-spotify-mas": { "text": "Wer hat den peinlichsten Spotify-Verlauf?" },
+    "confesiones-yo-nunca-he-cantado-a-grito-pelado": { "text": "Ich hab noch nie lauthals gesungen, weil ich dachte, niemand hört mich", "options": ["Doch, schon", "Nein, nie"] },
+    "confesiones-yo-nunca-he-olido-la-ropa-para": { "text": "Ich hab noch nie an Klamotten gerochen, um zu entscheiden, ob ich sie nochmal anziehe", "options": ["Doch, schon", "Nein, nie"] },
+    "confesiones-yo-nunca-he-respondido-tu-tambien-a": { "text": "Ich hab noch nie „Du auch“ auf „Guten Appetit“ oder „Alles Gute zum Geburtstag“ geantwortet", "options": ["Doch, schon", "Nein, nie"] },
+    "confesiones-yo-nunca-he-fingido-estar-enfermo-para": { "text": "Ich hab noch nie eine Krankheit vorgetäuscht, um mich vor einem Treffen zu drücken", "options": ["Doch, schon", "Nein, nie"] },
+    "confesiones-marca-tus-placeres-culpables": { "text": "Kreuz deine Guilty Pleasures an:", "options": ["Grottige Reality-Shows", "Songs von Justin Bieber", "Um 3 Uhr nachts Profile stalken", "Im Stehen über der Spüle essen"] },
+    "confesiones-marca-lo-que-has-hecho-alguna-vez": { "text": "Kreuz an, was du schon mal gemacht hast:", "options": ["30 Minuten am Handy auf dem Klo", "Die 5-Sekunden-Regel angewendet", "Einen Anruf vorgetäuscht, um jemandem zu entkommen", "Laut Selbstgespräche geführt"] },
+    "confesiones-confesion-rapida-en-los-planes-eres": { "text": "Kurzes Geständnis: Bei Verabredungen bist du …", "options": ["Wer immer zu spät kommt", "Wer nie antwortet", "Wer einfach verschwindet", "Wer in letzter Minute absagt"] },
+    "confesiones-que-te-da-mas-verguenza-que-te": { "text": "Wobei wärst du am LIEBSTEN nicht erwischt worden?", "options": ["Selbstgespräche", "Vor dem Spiegel tanzen", "Bei einem Film weinen", "Unter der Dusche singen"] },
+    "confesiones-del-1-al-10-como-de-cotilla": { "text": "Von 1 bis 10: Wie neugierig bist du wirklich?" },
+    "confesiones-confiesa-tu-placer-culpable-mas-vergonzoso-sin": { "text": "Dein peinlichstes Guilty Pleasure – ungefiltert, in einem Satz." },
+    "confesiones-del-1-al-10-cuanto-aguantarias-sin": { "text": "Von 1 bis 10: Wie lange hältst du es ohne Blick aufs Handy aus?" },
+    "confesiones-del-1-al-10-cuanta-paciencia-tienes": { "text": "Von 1 bis 10: Wie viel Geduld hast du an der Supermarktkasse?" }
+  }
+}
