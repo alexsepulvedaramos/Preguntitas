@@ -7,7 +7,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLightbulb } from '@ng-icons/lucide';
 
 import { AuthorGuess } from '../../../../core/models/daily.model';
-import { AUTHOR_GUESS_REWARD, CoinsEarned } from '../../../../core/models/coin.model';
+import { AUTHOR_GUESS_REWARD, CoinsEarned, EMPTY_INVENTORY } from '../../../../core/models/coin.model';
 import { DailyService } from '../../../../core/services/daily.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -50,6 +50,10 @@ export class AuthorGuessComponent {
   });
   protected readonly balance = computed(() => this.authService.currentUser()?.coins ?? 0);
   protected readonly missingCoins = computed(() => Math.max(0, this.guess().hintPrice - this.balance()));
+  // Hints bought ahead in the shop (rama 45) are used here without charging.
+  protected readonly ownedHints = computed(
+    () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).authorHint,
+  );
   protected readonly guessedName = computed(() => {
     const id = this.guess().guessedUserId;
     return this.members().find((m) => m.id === id)?.username ?? '';
@@ -74,10 +78,10 @@ export class AuthorGuessComponent {
     if (this.busy()) return;
     this.busy.set('hint');
     this.hintError.set(null);
-    this.dailyService.buyAuthorHint(this.groupId()).subscribe({
+    this.dailyService.buyAuthorHint(this.groupId(), this.ownedHints() > 0).subscribe({
       next: (res) => {
         this.busy.set(null);
-        this.authService.patchCurrentUser({ coins: res.balance });
+        this.authService.patchCurrentUser({ coins: res.balance, inventory: res.inventory });
         // Drop a pick the hint just ruled out.
         if (!res.guess.candidateIds.includes(this.selectedId() ?? -1)) this.selectedId.set(null);
         this.changed.emit(res.guess);

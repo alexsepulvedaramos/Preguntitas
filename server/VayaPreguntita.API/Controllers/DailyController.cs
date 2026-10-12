@@ -127,15 +127,16 @@ public class DailyController(
 
     // POST api/groups/{groupId}/daily/guess/hint
     // Author hint (§17.10): 20 coins, hides half of the wrong candidates. 409 if coins are short.
+    // ?useOwned=true spends one from the inventory instead (rama 45); 409 when none is left.
     [HttpPost("guess/hint")]
-    public async Task<ActionResult<AuthorHintResponseDto>> BuyAuthorHint(int groupId)
+    public async Task<ActionResult<AuthorHintResponseDto>> BuyAuthorHint(int groupId, [FromQuery] bool useOwned = false)
     {
         if (!TryGetCurrentUserId(out var userId))
             return Unauthorized();
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var (result, response) = await authorGuessService.BuyHintAsync(groupId, userId);
+        var (result, response) = await authorGuessService.BuyHintAsync(groupId, userId, useOwned);
         return result == GuessResult.Success ? Ok(response) : GuessError(result);
     }
 
@@ -149,6 +150,7 @@ public class DailyController(
             GuessResult.InvalidCandidate => BadRequest(ServerText.GuessInvalidCandidate),
             GuessResult.NotEnoughCoins => Conflict(ServerText.NotEnoughCoins),
             GuessResult.HintNotAvailable => BadRequest(ServerText.HintNotAvailable),
+            GuessResult.NoneOwned => Conflict(ServerText.NoItemOwned),
             _ => StatusCode(500),
         };
 

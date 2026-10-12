@@ -23,6 +23,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.20.0',
+    date: '2026-10-13',
+    title: {
+      es: 'Tu inventario',
+      en: 'Your inventory',
+      de: 'Dein Inventar',
+    },
+    items: [
+      {
+        emoji: '🎒',
+        title: {
+          es: 'Compra ahora, úsalo cuando quieras',
+          en: 'Buy now, use it whenever',
+          de: 'Jetzt kaufen, später benutzen',
+        },
+        text: {
+          es: 'En la tienda ya puedes comprar por adelantado congelaciones, reparaciones de racha, pistas de autor y preguntas flash. Se guardan en tu inventario y sirven en cualquier grupo.',
+          en: 'In the shop you can now buy streak freezes, streak repairs, author hints and flash questions ahead of time. They go to your inventory and work in any group.',
+          de: 'Im Shop kannst du jetzt Serienschutz, Serienreparaturen, Tipps zur Autorschaft und Blitzfragen im Voraus kaufen. Sie landen in deinem Inventar und gelten in jeder Gruppe.',
+        },
+      },
+      {
+        emoji: '✨',
+        title: {
+          es: '«Usar · tienes N»',
+          en: '“Use · you have N”',
+          de: '„Benutzen · du hast N“',
+        },
+        text: {
+          es: 'Cuando tienes alguno, su botón de siempre cambia a «Usar» y no te cobra nada: en tu racha del grupo, al regalar una congelación, en «¿Quién la escribió?» y al enviar una pregunta flash. Si no te queda ninguno, pagas en el momento como antes.',
+          en: 'When you have one, its usual button turns into “Use” and costs you nothing: on your streak in the group, when gifting a freeze, in “Who wrote it?” and when sending a flash question. If you have none left, you pay on the spot as before.',
+          de: 'Wenn du einen hast, wird sein gewohnter Knopf zu „Benutzen“ und kostet nichts: bei deiner Serie in der Gruppe, beim Verschenken von Serienschutz, bei „Wer hat sie geschrieben?“ und beim Senden einer Blitzfrage. Hast du keinen mehr, zahlst du wie bisher direkt.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.19.0',
     date: '2026-10-13',
     title: {

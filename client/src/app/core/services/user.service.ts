@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MemberStats, TitleOption } from '../models/streak.model';
-import { CoinHistoryPage } from '../models/coin.model';
+import { CoinHistoryPage, Inventory } from '../models/coin.model';
 
 export interface UserProfileDto {
   id: number;
@@ -17,6 +17,7 @@ export interface UserProfileDto {
   title: string | null;
   unlockedTitles: TitleOption[];
   coins: number;
+  inventory: Inventory; // rama 45
 }
 
 export interface UpdateProfileRequest {

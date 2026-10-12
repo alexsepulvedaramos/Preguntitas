@@ -10,14 +10,15 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ShopService } from '../../../../core/services/shop.service';
 import { MyStreak } from '../../../../core/models/streak.model';
-import { ShopItem } from '../../../../core/models/coin.model';
+import { EMPTY_INVENTORY, ShopItem } from '../../../../core/models/coin.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 // "Your streak in this group" (rama 35, §17.9): a small 🔥 chip in the group's top bar
 // (rama 36) that turns orange when the streak is at risk today. Tapping it opens the details —
 // best streak, the freezes held and the button to buy more, and the repair when a lost streak
-// can still be bought back. Drawer on mobile, dialog on desktop.
+// can still be bought back. Freezes and repairs bought ahead in the shop (rama 45) are used from
+// here without charging. Drawer on mobile, dialog on desktop.
 @Component({
   selector: 'app-my-streak',
   imports: [NgTemplateOutlet, HlmButtonImports, HlmDialogImports, HlmDrawerImports, HlmSpinnerImports],
@@ -48,9 +49,16 @@ export class MyStreakComponent {
   );
   protected readonly atLimit = computed(() => this.streak().freezes >= this.streak().maxFreezes);
   protected readonly missingCoins = computed(() => Math.max(0, this.streak().freezePrice - this.balance()));
+  protected readonly inventory = computed(() => this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY);
 
   buyFreeze(): void {
-    this.purchase('streakFreeze', () => toast.success(this.t('streakFreeze.bought')), 'streakFreeze.buyFailed');
+    const owned = this.inventory().streakFreeze > 0;
+    this.purchase(
+      'streakFreeze',
+      () => toast.success(this.t(owned ? 'streakFreeze.activated' : 'streakFreeze.bought')),
+      'streakFreeze.buyFailed',
+      owned,
+    );
   }
 
   // Also reached from the "lost streak" notice in the group view.
@@ -60,13 +68,19 @@ export class MyStreakComponent {
       'streakRepair',
       (fresh) => toast.success(this.t('streakFreeze.repaired', { count: fresh.current || lost || 0 })),
       'streakFreeze.repairFailed',
+      this.inventory().streakRepair > 0,
     );
   }
 
-  private purchase(item: ShopItem, onSuccess: (fresh: MyStreak) => void, failKey: 'streakFreeze.buyFailed' | 'streakFreeze.repairFailed'): void {
+  private purchase(
+    item: ShopItem,
+    onSuccess: (fresh: MyStreak) => void,
+    failKey: 'streakFreeze.buyFailed' | 'streakFreeze.repairFailed',
+    useOwned: boolean,
+  ): void {
     if (this.busy()) return;
     this.busy.set(item);
-    this.shopService.purchase({ item, groupId: this.groupId() }).subscribe({
+    this.shopService.purchase({ item, groupId: this.groupId(), useOwned }).subscribe({
       next: (res) => {
         this.busy.set(null);
         this.changed.emit(res.myStreak);

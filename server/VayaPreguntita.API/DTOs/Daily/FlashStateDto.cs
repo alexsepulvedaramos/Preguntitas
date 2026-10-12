@@ -29,4 +29,5 @@ public class LaunchFlashResponseDto
 {
     public FlashStateDto Flash { get; set; } = null!;
     public int Balance { get; set; }
+    public Coins.InventoryDto Inventory { get; set; } = new();
 }

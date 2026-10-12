@@ -9,4 +9,7 @@ public enum StreakPurchaseResult
     NotRepairable,
     RepairLimitReached,
     InvalidTarget,
+
+    // Using one from the inventory (rama 45), but none is left.
+    NoneOwned,
 }

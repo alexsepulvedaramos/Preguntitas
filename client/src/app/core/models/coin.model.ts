@@ -54,14 +54,45 @@ export interface PurchaseRequest {
   item: ShopItem;
   groupId: number;
   targetUserId?: number;
+  useOwned?: boolean; // take one from the inventory instead of paying (rama 45)
 }
 
 export interface PurchaseResponse {
   balance: number;
   myStreak: MyStreak; // the buyer's streak in that group, after the purchase
+  inventory: Inventory;
+}
+
+// Item inventory (rama 45, §17.10): game items bought ahead in the shop and used later in
+// any group. Mirrors the backend InventoryItem — never renumber.
+export enum InventoryItem {
+  FlashQuestion = 0,
+  StreakFreeze = 1,
+  AuthorHint = 2,
+  StreakRepair = 3,
+}
+
+// How many of each item the user holds (GET users/me → inventory, and every purchase/use).
+export interface Inventory {
+  flashQuestion: number;
+  streakFreeze: number;
+  authorHint: number;
+  streakRepair: number;
+}
+
+export const EMPTY_INVENTORY: Inventory = { flashQuestion: 0, streakFreeze: 0, authorHint: 0, streakRepair: 0 };
+
+// POST shop/inventory
+export interface BuyItemResponse {
+  balance: number;
+  inventory: Inventory;
 }
 
 export const STREAK_FREEZE_PRICE = 100;
+export const STREAK_REPAIR_PRICE = 300;
+
+// The author hint in "guess the author" (rama 36, §17.10).
+export const AUTHOR_HINT_PRICE = 20;
 
 // A flash question (rama 44, §17.11): launched at once, open 24 h.
 export const FLASH_QUESTION_PRICE = 500;

@@ -12,6 +12,9 @@ public class PurchaseRequestDto
     public string Item { get; set; } = string.Empty;
     public int GroupId { get; set; }
     public int? TargetUserId { get; set; }
+
+    // Uses one from the buyer's inventory instead of paying (rama 45).
+    public bool UseOwned { get; set; }
 }
 
 public class PurchaseResponseDto
@@ -20,4 +23,6 @@ public class PurchaseResponseDto
 
     // The buyer's streak in that group after the purchase.
     public MyStreakDto MyStreak { get; set; } = new();
+
+    public InventoryDto Inventory { get; set; } = new();
 }

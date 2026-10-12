@@ -53,4 +53,5 @@ public class AuthorHintResponseDto
 {
     public AuthorGuessDto Guess { get; set; } = new();
     public int Balance { get; set; }
+    public Coins.InventoryDto Inventory { get; set; } = new();
 }

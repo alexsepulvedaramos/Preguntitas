@@ -11,4 +11,6 @@ export interface User {
     title?: string | null;
     // Coin wallet balance (rama 34)
     coins?: number;
+    // Game items held (rama 45)
+    inventory?: import('./coin.model').Inventory;
 }

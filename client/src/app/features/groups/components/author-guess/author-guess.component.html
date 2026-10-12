@@ -56,7 +56,7 @@
           <button
             hlmBtn
             size="sm"
-            variant="outline"
+            [variant]="ownedHints() > 0 ? 'default' : 'outline'"
             class="gap-1 focus-visible:ring-2 focus-visible:ring-ring"
             [disabled]="!!busy()"
             (click)="buyHint()"
@@ -66,7 +66,11 @@
             } @else {
               <ng-icon hlm name="lucideLightbulb" class="size-4!" />
             }
-            {{ t('guess.hint', { price: guess().hintPrice }) }}
+            @if (ownedHints() > 0) {
+              {{ t('inventory.use', { count: ownedHints() }) }}
+            } @else {
+              {{ t('guess.hint', { price: guess().hintPrice }) }}
+            }
           </button>
         } @else if (guess().hintUsed) {
           <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>

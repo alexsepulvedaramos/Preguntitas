@@ -13,7 +13,8 @@ public class UserService(
     AppDbContext context,
     IPasswordHasher<User> passwordHasher,
     SupabaseStorageService storageService,
-    IStreakService streakService) : IUserService
+    IStreakService streakService,
+    IInventoryService inventoryService) : IUserService
 {
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
@@ -37,6 +38,7 @@ public class UserService(
             PreferredLanguage = user.PreferredLanguage,
             Title = StreakTiers.DisplayedTitle(user.HighestStreakEver, user.SelectedTitleKey),
             Coins = user.Coins,
+            Inventory = await inventoryService.GetAsync(userId),
             UnlockedTitles = StreakTiers
                 .UnlockedBy(user.HighestStreakEver)
                 .Select(t => new DTOs.Streaks.TitleOptionDto(t.Key, t.Title, t.Material, t.MinDays))

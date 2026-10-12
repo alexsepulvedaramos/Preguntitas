@@ -12,7 +12,12 @@ namespace VayaPreguntita.API.Services;
 // "Guess the author" (§17.6): after voting, a member may guess who wrote a member-written
 // question, once, while it is open. The answer is revealed at once; a correct guess pays
 // 5 🪙 (capped). The hint (20 🪙, §17.10) hides half of the wrong candidates.
-public class AuthorGuessService(AppDbContext context, ICoinService coinService, TimeProvider clock)
+public class AuthorGuessService(
+    AppDbContext context,
+    ICoinService coinService,
+    IInventoryService inventoryService,
+    TimeProvider clock
+)
     : IAuthorGuessService
 {
     public async Task<AuthorGuessDto?> GetStateAsync(DailyEntry entry, int userId)
@@ -134,7 +139,11 @@ public class AuthorGuessService(AppDbContext context, ICoinService coinService, 
         );
     }
 
-    public async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(int groupId, int userId)
+    public async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(
+        int groupId,
+        int userId,
+        bool useOwned = false
+    )
     {
         var (check, entry, members) = await LoadGuessableAsync(groupId, userId);
         if (check != GuessResult.Success)
@@ -156,30 +165,56 @@ public class AuthorGuessService(AppDbContext context, ICoinService coinService, 
             try
             {
                 await using var transaction = await context.Database.BeginTransactionAsync();
-                var paid = await coinService.SpendAsync(
-                    userId,
-                    CoinReason.AuthorHint,
-                    CoinRewards.AuthorHintPrice,
-                    groupId,
-                    entry.Id
-                );
-                if (!paid)
-                    return (GuessResult.NotEnoughCoins, null);
-
-                if (row == null)
+                if (useOwned)
                 {
-                    row = new AuthorGuess { DailyEntryId = entry.Id, UserId = userId, HintUsed = true };
-                    context.AuthorGuesses.Add(row);
+                    // An owned hint (rama 45) writes no ledger row, so the row itself guards a
+                    // double tap: only the request that flips HintUsed spends the item.
+                    if (row == null)
+                    {
+                        row = new AuthorGuess { DailyEntryId = entry.Id, UserId = userId, HintUsed = true };
+                        context.AuthorGuesses.Add(row);
+                        await context.SaveChangesAsync();
+                    }
+                    else if (
+                        await context
+                            .AuthorGuesses.Where(g =>
+                                g.DailyEntryId == entry.Id && g.UserId == userId && !g.HintUsed
+                            )
+                            .ExecuteUpdateAsync(s => s.SetProperty(g => g.HintUsed, true)) == 0
+                    )
+                        throw new DbUpdateException("Hint already used.");
+
+                    if (!await inventoryService.TryConsumeAsync(userId, InventoryItem.AuthorHint))
+                        return (GuessResult.NoneOwned, null);
                 }
                 else
-                    row.HintUsed = true;
-                await context.SaveChangesAsync();
+                {
+                    var paid = await coinService.SpendAsync(
+                        userId,
+                        CoinReason.AuthorHint,
+                        CoinRewards.AuthorHintPrice,
+                        groupId,
+                        entry.Id
+                    );
+                    if (!paid)
+                        return (GuessResult.NotEnoughCoins, null);
+
+                    if (row == null)
+                    {
+                        row = new AuthorGuess { DailyEntryId = entry.Id, UserId = userId, HintUsed = true };
+                        context.AuthorGuesses.Add(row);
+                    }
+                    else
+                        row.HintUsed = true;
+                    await context.SaveChangesAsync();
+                }
                 await transaction.CommitAsync();
             }
             catch (DbUpdateException)
             {
-                // A concurrent purchase won (the ledger's unique (user, reason, ref) index):
-                // nothing was charged twice, so just show the hint it bought.
+                // A concurrent purchase won (the ledger's unique (user, reason, ref) index, or
+                // the guess row for an owned hint): nothing was charged twice, so just show the
+                // hint it bought.
                 context.ChangeTracker.Clear();
                 row = await context.AuthorGuesses.FirstOrDefaultAsync(g =>
                     g.DailyEntryId == entry.Id && g.UserId == userId
@@ -193,6 +228,7 @@ public class AuthorGuessService(AppDbContext context, ICoinService coinService, 
             {
                 Guess = BuildState(entry, userId, authorId, members![authorId], members.Keys, row),
                 Balance = await coinService.GetBalanceAsync(userId),
+                Inventory = await inventoryService.GetAsync(userId),
             }
         );
     }

@@ -8,11 +8,13 @@ namespace VayaPreguntita.API.Services;
 // question. They never count for streaks, coins or monthly awards.
 public interface IFlashService
 {
-    // Charges the price and launches it in one transaction: any failure refunds.
+    // Charges the price (or, with useOwned, takes one from the inventory, rama 45) and launches
+    // it in one transaction: any failure refunds.
     Task<(FlashResult Result, LaunchFlashResponseDto? Response)> LaunchAsync(
         int groupId,
         int userId,
-        CreateQuestionDto dto
+        CreateQuestionDto dto,
+        bool useOwned = false
     );
 
     // Open flash → on-time vote, returns the fresh state. Closed flash → late vote from the

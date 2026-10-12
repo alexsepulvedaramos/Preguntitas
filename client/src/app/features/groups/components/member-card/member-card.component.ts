@@ -13,7 +13,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { UserService } from '../../../../core/services/user.service';
 import { ShopService } from '../../../../core/services/shop.service';
-import { STREAK_FREEZE_PRICE } from '../../../../core/models/coin.model';
+import { EMPTY_INVENTORY, STREAK_FREEZE_PRICE } from '../../../../core/models/coin.model';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { MemberStats } from '../../../../core/models/streak.model';
 import { FIRST_RING_DAYS, STREAK_FRAME_KEYS, streakTierFor } from '../../../../core/constants/streak-tiers';
@@ -74,6 +74,10 @@ export class MemberCardComponent {
   protected readonly freezePrice = STREAK_FREEZE_PRICE;
   protected readonly canGift = computed(() => !!this.target() && !this.allGroups() && !this.isOwnCard());
   protected readonly gifting = signal(false);
+  // Freezes bought ahead in the shop (rama 45) are gifted from here without charging.
+  protected readonly ownedFreezes = computed(
+    () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).streakFreeze,
+  );
   protected readonly giftError = signal<string | null>(null);
 
   constructor() {
@@ -100,7 +104,12 @@ export class MemberCardComponent {
     this.gifting.set(true);
     this.giftError.set(null);
     this.shopService
-      .purchase({ item: 'streakFreeze', groupId: target.groupId, targetUserId: target.userId })
+      .purchase({
+        item: 'streakFreeze',
+        groupId: target.groupId,
+        targetUserId: target.userId,
+        useOwned: this.ownedFreezes() > 0,
+      })
       .subscribe({
         next: () => {
           this.gifting.set(false);

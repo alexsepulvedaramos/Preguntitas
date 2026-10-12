@@ -56,8 +56,11 @@ export class DailyService {
     }
 
     // Author hint (§17.10): hides half of the wrong candidates; 409 when coins are short
-    buyAuthorHint(groupId: number): Observable<AuthorHintResponse> {
-        return this.http.post<AuthorHintResponse>(`${this.baseUrl}/${groupId}/daily/guess/hint`, {});
+    // useOwned: spend a hint from the inventory instead of paying (rama 45).
+    buyAuthorHint(groupId: number, useOwned = false): Observable<AuthorHintResponse> {
+        return this.http.post<AuthorHintResponse>(`${this.baseUrl}/${groupId}/daily/guess/hint`, {}, {
+            params: useOwned ? { useOwned: true } : {},
+        });
     }
 
     // Acknowledge the "Has perdido tu racha…" notice so it isn't shown again
@@ -77,8 +80,11 @@ export class DailyService {
 
     // Buy and launch a flash question at once (rama 44, §17.11); 409 when coins are short or
     // you already launched one today in this group
-    launchFlash(groupId: number, dto: CreateQuestion): Observable<LaunchFlashResponse> {
-        return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto);
+    // useOwned: launch it with one from the inventory instead of paying (rama 45).
+    launchFlash(groupId: number, dto: CreateQuestion, useOwned = false): Observable<LaunchFlashResponse> {
+        return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto, {
+            params: useOwned ? { useOwned: true } : {},
+        });
     }
 
     // Vote a flash question: the fresh state while it's open, nothing (204) when it's a late
