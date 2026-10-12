@@ -74,15 +74,68 @@
       <div hlmAlert class="relative pr-10">
         <ng-icon hlm name="lucideFlame" />
         <h4 hlmAlertTitle>{{ t('groupDetail.lostStreakTitle', { count: lost }) }}</h4>
-        <p hlmAlertDescription>
-          {{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}
-        </p>
+        <div hlmAlertDescription>
+          <p>{{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}</p>
+          @if (daily()!.myStreak.repairableStreak) {
+            <p>{{ t('streakFreeze.repairHint', { price: daily()!.myStreak.repairPrice }) }}</p>
+            <button
+              hlmBtn
+              size="sm"
+              class="mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+              (click)="repairStreak()"
+            >
+              {{ t('streakFreeze.repair', { price: daily()!.myStreak.repairPrice }) }}
+            </button>
+          }
+        </div>
         <button
           hlmBtn
           variant="ghost"
           size="icon"
           class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
           (click)="dismissLostStreak()"
+          [attr.aria-label]="t('groupDetail.dismissAlert')"
+        >
+          <ng-icon hlm name="lucideX" class="size-4!" />
+          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
+        </button>
+      </div>
+    }
+
+    @if (daily()?.myStreak?.freezeSavedStreak; as saved) {
+      <div hlmAlert class="relative pr-10">
+        <ng-icon hlm name="lucideSnowflake" />
+        <h4 hlmAlertTitle>{{ t('streakFreeze.savedTitle', { count: saved }) }}</h4>
+        <p hlmAlertDescription>
+          {{ t('streakFreeze.savedText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
+        </p>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="dismissFreezeNotice()"
+          [attr.aria-label]="t('groupDetail.dismissAlert')"
+        >
+          <ng-icon hlm name="lucideX" class="size-4!" />
+          <span class="sr-only">{{ t('groupDetail.dismissAlert') }}</span>
+        </button>
+      </div>
+    }
+
+    @if (daily()?.myStreak?.freezeGiftFrom; as giver) {
+      <div hlmAlert class="relative pr-10">
+        <ng-icon hlm name="lucideGift" />
+        <h4 hlmAlertTitle>{{ t('streakFreeze.giftTitle', { name: giver }) }}</h4>
+        <p hlmAlertDescription>
+          {{ t('streakFreeze.giftText', { count: daily()!.myStreak.freezes, max: daily()!.myStreak.maxFreezes }) }}
+        </p>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          class="absolute right-2 top-2 size-7 focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="dismissGiftNotice()"
           [attr.aria-label]="t('groupDetail.dismissAlert')"
         >
           <ng-icon hlm name="lucideX" class="size-4!" />
@@ -117,6 +170,16 @@
           />
         }
       </div>
+    }
+
+    <!-- Your streak and freezes in this group (rama 35) -->
+    @if (daily()?.today?.status !== 'no_question' && daily()?.myStreak; as myStreak) {
+      <app-my-streak
+        #myStreak
+        [groupId]="numericGroupId()"
+        [streak]="myStreak"
+        (changed)="onMyStreakChanged($event)"
+      />
     }
 
     @switch (daily()?.today?.status) {

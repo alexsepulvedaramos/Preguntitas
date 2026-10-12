@@ -252,6 +252,37 @@ public static class ServerText
         $"The message can't be longer than {max} characters.",
         $"Die Nachricht darf höchstens {max} Zeichen lang sein.");
 
+    // ── Shop: streak freeze & repair (rama 35) ──────────────────────────────────────────
+    public static string NotEnoughCoins => Pick(
+        "No tienes monedas suficientes.",
+        "You don't have enough coins.",
+        "Du hast nicht genug Münzen.");
+
+    public static string FreezeLimitReached => Pick(
+        "Ya tienes el máximo de congelaciones en este grupo.",
+        "You already hold the maximum number of freezes in this group.",
+        "Du hast in dieser Gruppe schon die maximale Anzahl an Serienschutz.");
+
+    public static string GiftFreezeLimitReached => Pick(
+        "Ya tiene el máximo de congelaciones en este grupo.",
+        "They already hold the maximum number of freezes in this group.",
+        "Diese Person hat in dieser Gruppe schon die maximale Anzahl an Serienschutz.");
+
+    public static string StreakNotRepairable => Pick(
+        "Esta racha ya no se puede reparar.",
+        "This streak can no longer be repaired.",
+        "Diese Serie kann nicht mehr repariert werden.");
+
+    public static string StreakRepairLimitReached => Pick(
+        "Ya has reparado una racha este mes en este grupo.",
+        "You've already repaired a streak in this group this month.",
+        "Du hast in dieser Gruppe diesen Monat schon eine Serie repariert.");
+
+    public static string GiftTargetNotMember => Pick(
+        "Esa persona no es miembro del grupo.",
+        "That person isn't a member of the group.",
+        "Diese Person ist kein Mitglied der Gruppe.");
+
     // ── Push notifications (recipient's language) ───────────────────────────────────────
     public static class Push
     {
@@ -279,5 +310,11 @@ public static class ServerText
             $"Tu racha de {streak} días en {groupName} termina a las {time}. ¡Vota antes!",
             $"Your {streak}-day streak in {groupName} ends at {time}. Vote before then!",
             $"Deine {streak}-Tage-Serie in {groupName} endet um {time} Uhr. Stimm vorher ab!");
+
+        // Same reminder when a held freeze (§17.9) would cover the miss.
+        public static string StreakDangerFrozenBody(string lang, int streak, string groupName, string time) => Pick(lang,
+            $"Vota antes de las {time} en {groupName}. Si no, gastarás una congelación 🧊 para salvar tu racha de {streak} días.",
+            $"Vote in {groupName} before {time}, or you'll spend a freeze 🧊 to save your {streak}-day streak.",
+            $"Stimm in {groupName} vor {time} Uhr ab, sonst verbrauchst du einen Serienschutz 🧊, um deine {streak}-Tage-Serie zu retten.");
     }
 }

@@ -1,5 +1,6 @@
 using VayaPreguntita.API.DTOs.Streaks;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Enums;
 
 namespace VayaPreguntita.API.Services;
 
@@ -26,6 +27,20 @@ public interface IStreakService
 
     // Acknowledges the "lost streak" notice so it isn't shown again.
     Task DismissLostStreakAsync(int groupId, int userId);
+
+    // Acknowledge the "your freeze saved your streak" and "X gave you a freeze" notices (§17.9).
+    Task DismissFreezeNoticeAsync(int groupId, int userId);
+    Task DismissGiftNoticeAsync(int groupId, int userId);
+
+    // Close-of-cycle tick, right after the entry dated `openedDate` activates: members who
+    // missed the cycle that just closed spend a freeze, or their loss is recorded for repair.
+    Task CloseCycleAsync(int groupId, DateOnly openedDate);
+
+    // Buys a freeze for the receiver (the buyer themself, or a gift to another member).
+    Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId);
+
+    // Buys back a streak lost in the last closed cycle.
+    Task<StreakPurchaseResult> RepairAsync(int groupId, int userId);
 
     Task<MemberStatsDto?> GetMemberStatsAsync(int groupId, int userId);
 

@@ -11,6 +11,10 @@ public interface ICoinService
     // Pays a reward once per (user, reason, refId), applying the daily cap to capped reasons.
     Task<CoinGrant> GrantAsync(int userId, CoinReason reason, int amount, int? groupId, int? refId);
 
+    // Charges `price` and writes the ledger row (negative amount). Returns false, changing
+    // nothing, when the balance is short. Joins the caller's transaction when there is one.
+    Task<bool> SpendAsync(int userId, CoinReason reason, int price, int? groupId, int? refId);
+
     Task<int> GetBalanceAsync(int userId);
 
     // Newest first, PageSize rows per page; `before` is the NextBefore of the previous page.

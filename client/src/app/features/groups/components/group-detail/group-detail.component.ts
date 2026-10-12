@@ -9,7 +9,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideClock, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned } from '../../../../core/models/coin.model';
 
@@ -17,7 +17,7 @@ import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
 import { DailyStatus } from '../../../../core/models/daily.model';
-import { StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
+import { MyStreak, StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
@@ -38,6 +38,7 @@ import { visiblePolling } from '../../../../shared/utils/visible-polling';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
 import { InviteQrComponent } from '../invite-qr/invite-qr.component';
+import { MyStreakComponent } from '../my-streak/my-streak.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -64,9 +65,10 @@ export const DAILY_POLL_INTERVAL_MS = 30_000;
     HlmAlertImports,
     StreakCelebrationComponent,
     InviteQrComponent,
+    MyStreakComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideUserPlus, lucideX }),
+    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
@@ -85,6 +87,7 @@ export class GroupDetailComponent implements OnInit {
 
   protected readonly chat = viewChild<GroupChatComponent>('chat');
   private readonly selectDialog = viewChild<SelectQuestionDialogComponent>('selectDialog');
+  private readonly myStreakPanel = viewChild<MyStreakComponent>('myStreak');
 
   public readonly group = signal<GroupResponse | null>(null);
   public readonly daily = signal<DailyStatus | null>(null);
@@ -144,7 +147,7 @@ export class GroupDetailComponent implements OnInit {
         userHasVoted: true,
         results,
       },
-      myStreak: { current: streak.current, best: streak.best, lostStreak: null },
+      myStreak: { ...daily.myStreak, current: streak.current, best: streak.best, lostStreak: null },
     });
     this.applyOwnStreak(streak.current);
     this.announceCoins(coins);
@@ -189,6 +192,34 @@ export class GroupDetailComponent implements OnInit {
     if (!daily) return;
     this.daily.set({ ...daily, myStreak: { ...daily.myStreak, lostStreak: null } });
     this.dailyService.dismissLostStreak(this.numericGroupId()).subscribe();
+  }
+
+  dismissFreezeNotice() {
+    this.patchMyStreak({ freezeSavedStreak: null });
+    this.dailyService.dismissFreezeNotice(this.numericGroupId()).subscribe();
+  }
+
+  dismissGiftNotice() {
+    this.patchMyStreak({ freezeGiftFrom: null });
+    this.dailyService.dismissGiftNotice(this.numericGroupId()).subscribe();
+  }
+
+  // Repair from the "lost streak" notice: same purchase as the streak section's button.
+  repairStreak() {
+    this.myStreakPanel()?.repair();
+  }
+
+  // A freeze bought or a streak repaired (rama 35).
+  onMyStreakChanged(fresh: MyStreak) {
+    const previous = this.daily()?.myStreak.current ?? 0;
+    this.patchMyStreak(fresh);
+    if (fresh.current !== previous) this.applyOwnStreak(fresh.current);
+  }
+
+  private patchMyStreak(patch: Partial<MyStreak>) {
+    const daily = this.daily();
+    if (!daily) return;
+    this.daily.set({ ...daily, myStreak: { ...daily.myStreak, ...patch } });
   }
 
   // Pre-start prompt (rama 21): share the invite so the group reaches its 2nd member.

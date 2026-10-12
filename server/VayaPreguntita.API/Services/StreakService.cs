@@ -3,6 +3,7 @@ using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Notifications;
 using VayaPreguntita.API.DTOs.Streaks;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Localization;
 
@@ -11,12 +12,13 @@ namespace VayaPreguntita.API.Services;
 public class StreakService(
     AppDbContext context,
     INotificationService notificationService,
+    ICoinService coinService,
     TimeProvider clock,
     ILogger<StreakService> logger
 ) : IStreakService
 {
     // Losing a 1-day streak isn't worth a notice.
-    private const int MinLostStreakToNotify = 2;
+    private const int MinLostStreakToNotify = StreakFreezeRules.MinLostStreak;
 
     // Only members at or above the first ring get the "streak in danger" push.
     private const int MinStreakForDangerPush = 3;
@@ -32,11 +34,26 @@ public class StreakService(
             .GroupMembers.Include(m => m.User)
             .FirstAsync(m => m.GroupId == groupId && m.UserId == userId);
 
-        // Defensive: the vote endpoint already rejects a second vote on the same question.
-        if (member.LastStreakEntryId == openEntry.Id)
-            return BuildUpdate(member.CurrentStreak, member.CurrentStreak, member.BestStreak);
-
         var previousEntryId = await GetPreviousActivatedEntryIdAsync(groupId, openEntry.Date);
+
+        if (member.LastStreakEntryId == openEntry.Id)
+        {
+            // Defensive: the vote endpoint already rejects a second vote on the same question.
+            if (member.FreezeUsedEntryId != openEntry.Id)
+                return BuildUpdate(member.CurrentStreak, member.CurrentStreak, member.BestStreak);
+
+            // The close-of-cycle tick froze this cycle while the vote was on its way: give
+            // the freeze back and count the vote instead.
+            member.StreakFreezes = Math.Min(StreakFreezeRules.MaxHeld, member.StreakFreezes + 1);
+            member.FreezeUsedEntryId = null;
+            member.LastStreakEntryId = previousEntryId;
+        }
+        if (member.LostStreakEntryId == openEntry.Id)
+        {
+            // Same race when the tick recorded the cycle as lost.
+            member.LostStreakValue = null;
+            member.LostStreakEntryId = null;
+        }
         var previous = Effective(member, openEntry.Id, previousEntryId);
         var current = previous + 1;
 
@@ -156,21 +173,173 @@ public class StreakService(
             m.GroupId == groupId && m.UserId == userId
         );
         if (member == null)
-            return new MyStreakDto();
+            return WithPrices(new MyStreakDto());
+
+        var month = CurrentMonthKey();
+        if (StreakFreezeRules.GrantMonthlyFreeze(member, month))
+            await context.SaveChangesAsync();
 
         var (openId, previousId) = await GetLastTwoActivatedEntryIdsAsync(groupId);
         var current = Effective(member, openId, previousId);
 
-        return new MyStreakDto
+        var giftFrom = member.FreezeGiftFromUserId is int giverId
+            ? await context.Users.Where(u => u.Id == giverId).Select(u => u.Username).FirstOrDefaultAsync()
+            : null;
+
+        return WithPrices(
+            new MyStreakDto
+            {
+                Current = current,
+                Best = member.BestStreak,
+                // The stored counter keeps the lost value until the notice is dismissed.
+                LostStreak =
+                    current == 0 && member.CurrentStreak >= MinLostStreakToNotify
+                        ? member.CurrentStreak
+                        : null,
+                Freezes = member.StreakFreezes,
+                FreezeSavedStreak = member.FreezeUsedEntryId != null && current > 0 ? current : null,
+                FreezeGiftFrom = giftFrom,
+                RepairableStreak = RepairableStreak(member, previousId, month),
+            }
+        );
+    }
+
+    public async Task DismissFreezeNoticeAsync(int groupId, int userId) =>
+        await context
+            .GroupMembers.Where(m => m.GroupId == groupId && m.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(m => m.FreezeUsedEntryId, (int?)null));
+
+    public async Task DismissGiftNoticeAsync(int groupId, int userId) =>
+        await context
+            .GroupMembers.Where(m => m.GroupId == groupId && m.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(m => m.FreezeGiftFromUserId, (int?)null));
+
+    // ==========================================
+    // CLOSE OF CYCLE (rama 35, §17.9)
+    // ==========================================
+    public async Task CloseCycleAsync(int groupId, DateOnly openedDate)
+    {
+        var closedIds = await context
+            .DailyEntries.Where(d => d.GroupId == groupId && d.ActivatedAt != null && d.Date < openedDate)
+            .OrderByDescending(d => d.Date)
+            .Select(d => d.Id)
+            .Take(2)
+            .ToListAsync();
+        if (closedIds.Count < 2)
+            return; // no streak can span the closed cycle yet
+
+        var (closedId, beforeClosedId) = (closedIds[0], closedIds[1]);
+
+        // Alive until now and not extended by the closed cycle = missed it.
+        var missed = await context
+            .GroupMembers.Where(m =>
+                m.GroupId == groupId && m.LastStreakEntryId == beforeClosedId && m.CurrentStreak > 0
+            )
+            .ToListAsync();
+        if (missed.Count == 0)
+            return;
+
+        var month = CurrentMonthKey();
+        foreach (var member in missed)
         {
-            Current = current,
-            Best = member.BestStreak,
-            // The stored counter keeps the lost value until the notice is dismissed.
-            LostStreak =
-                current == 0 && member.CurrentStreak >= MinLostStreakToNotify
-                    ? member.CurrentStreak
-                    : null,
-        };
+            StreakFreezeRules.GrantMonthlyFreeze(member, month);
+            if (member.StreakFreezes > 0)
+            {
+                // Kept, but the frozen cycle doesn't add to it.
+                member.StreakFreezes--;
+                member.LastStreakEntryId = closedId;
+                member.FreezeUsedEntryId = closedId;
+            }
+            else
+            {
+                member.LostStreakValue = member.CurrentStreak;
+                member.LostStreakEntryId = closedId;
+            }
+        }
+        await context.SaveChangesAsync();
+    }
+
+    // ==========================================
+    // PURCHASES (rama 35, §17.9)
+    // ==========================================
+    public async Task<StreakPurchaseResult> BuyFreezeAsync(int groupId, int buyerId, int receiverId)
+    {
+        if (buyerId != receiverId && !await IsMemberAsync(groupId, buyerId))
+            return StreakPurchaseResult.InvalidTarget;
+
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        var receiver = await LockMemberAsync(groupId, receiverId);
+        if (receiver == null)
+            return StreakPurchaseResult.InvalidTarget;
+
+        StreakFreezeRules.GrantMonthlyFreeze(receiver, CurrentMonthKey());
+        if (receiver.StreakFreezes >= StreakFreezeRules.MaxHeld)
+        {
+            // Keep the free freeze just granted.
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return StreakPurchaseResult.FreezeLimitReached;
+        }
+
+        var isGift = buyerId != receiverId;
+        var paid = await coinService.SpendAsync(
+            buyerId,
+            isGift ? CoinReason.StreakFreezeGift : CoinReason.StreakFreeze,
+            StreakFreezeRules.FreezePrice,
+            groupId,
+            null
+        );
+        if (!paid)
+            return StreakPurchaseResult.NotEnoughCoins;
+
+        receiver.StreakFreezes++;
+        if (isGift)
+            receiver.FreezeGiftFromUserId = buyerId;
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return StreakPurchaseResult.Success;
+    }
+
+    public async Task<StreakPurchaseResult> RepairAsync(int groupId, int userId)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        var member = await LockMemberAsync(groupId, userId);
+        if (member == null)
+            return StreakPurchaseResult.InvalidTarget;
+
+        var month = CurrentMonthKey();
+        var (openId, previousId) = await GetLastTwoActivatedEntryIdsAsync(groupId);
+        if (RepairableStreak(member, previousId, month) is not int lost)
+            return member.LostStreakEntryId == previousId && member.LastRepairMonth >= month
+                ? StreakPurchaseResult.RepairLimitReached
+                : StreakPurchaseResult.NotRepairable;
+
+        var paid = await coinService.SpendAsync(
+            userId,
+            CoinReason.StreakRepair,
+            StreakFreezeRules.RepairPrice,
+            groupId,
+            member.LostStreakEntryId
+        );
+        if (!paid)
+            return StreakPurchaseResult.NotEnoughCoins;
+
+        // Back to the lost value, plus today's vote if it already started a new streak.
+        // The missed cycle itself isn't added.
+        var current = Effective(member, openId, previousId);
+        member.CurrentStreak = lost + current;
+        member.LastStreakEntryId = current > 0 ? openId : previousId;
+        member.BestStreak = Math.Max(member.BestStreak, member.CurrentStreak);
+        member.LostStreakValue = null;
+        member.LostStreakEntryId = null;
+        member.LastRepairMonth = month;
+
+        var user = await context.Users.FirstAsync(u => u.Id == userId);
+        user.HighestStreakEver = Math.Max(user.HighestStreakEver, member.CurrentStreak);
+
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return StreakPurchaseResult.Success;
     }
 
     public async Task DismissLostStreakAsync(int groupId, int userId)
@@ -376,6 +545,7 @@ public class StreakService(
     public async Task SendDangerRemindersAsync()
     {
         var nowUtc = DailyClock.UtcNow(clock);
+        var month = CurrentMonthKey();
         var maxLead = TimeSpan.FromHours(NotificationPreferencesDto.AllowedStreakDangerHours.Max());
 
         // Open entry per group = latest activated one. Only groups whose cycle closes
@@ -435,7 +605,8 @@ public class StreakService(
                     member.UserId,
                     group.Name,
                     member.CurrentStreak,
-                    group.DailyQuestionTime
+                    group.DailyQuestionTime,
+                    freezeCovers: StreakFreezeRules.FreezesIncludingMonthly(member, month) > 0
                 );
             }
         }
@@ -479,6 +650,39 @@ public class StreakService(
         member.CurrentStreak = current;
         member.BestStreak = Math.Max(member.BestStreak, best);
         member.LastStreakEntryId = last;
+    }
+
+    // The lost streak can be bought back while the missed entry is the last closed one
+    // (i.e. until the next cycle closes), once per month per group.
+    private static int? RepairableStreak(GroupMember member, int? previousId, int monthKey) =>
+        member.LostStreakEntryId is int lostAt
+        && lostAt == previousId
+        && member.LostStreakValue >= StreakFreezeRules.MinLostStreak
+        && member.LastRepairMonth < monthKey
+            ? member.LostStreakValue
+            : null;
+
+    private int CurrentMonthKey() => StreakFreezeRules.MonthKey(DailyClock.Today(clock));
+
+    private static MyStreakDto WithPrices(MyStreakDto dto)
+    {
+        dto.MaxFreezes = StreakFreezeRules.MaxHeld;
+        dto.FreezePrice = StreakFreezeRules.FreezePrice;
+        dto.RepairPrice = StreakFreezeRules.RepairPrice;
+        return dto;
+    }
+
+    private async Task<bool> IsMemberAsync(int groupId, int userId) =>
+        await context.GroupMembers.AnyAsync(m => m.GroupId == groupId && m.UserId == userId);
+
+    // Loads the member row locked for the rest of the transaction, so two purchases for the
+    // same member can't both pass the freeze limit.
+    private async Task<GroupMember?> LockMemberAsync(int groupId, int userId)
+    {
+        await context.Database.ExecuteSqlInterpolatedAsync(
+            $"SELECT 1 FROM \"GroupMembers\" WHERE \"GroupId\" = {groupId} AND \"UserId\" = {userId} FOR UPDATE"
+        );
+        return await context.GroupMembers.FirstOrDefaultAsync(m => m.GroupId == groupId && m.UserId == userId);
     }
 
     private static void ApplyStreakFrameOnce(User user)

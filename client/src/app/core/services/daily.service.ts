@@ -43,6 +43,16 @@ export class DailyService {
         return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/streak/dismiss-lost`, {});
     }
 
+    // Acknowledge "Tu congelación salvó tu racha…" (rama 35)
+    dismissFreezeNotice(groupId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/streak/dismiss-freeze`, {});
+    }
+
+    // Acknowledge "X te ha regalado una congelación" (rama 35)
+    dismissGiftNotice(groupId: number): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/${groupId}/daily/streak/dismiss-gift`, {});
+    }
+
     // Chat messages for the currently-open daily question
     getChat(groupId: number): Observable<ChatMessage[]> {
         return this.http.get<ChatMessage[]>(`${this.baseUrl}/${groupId}/daily/chat`);

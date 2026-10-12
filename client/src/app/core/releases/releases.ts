@@ -23,6 +23,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.15.0',
+    date: '2026-10-12',
+    title: {
+      es: 'Congela tu racha',
+      en: 'Freeze your streak',
+      de: 'Schütze deine Serie',
+    },
+    items: [
+      {
+        emoji: '🧊',
+        title: {
+          es: 'Congelaciones de racha',
+          en: 'Streak freezes',
+          de: 'Serienschutz',
+        },
+        text: {
+          es: 'Si un día no votas, una congelación se gasta sola y tu racha sigue viva. Cada mes te regalamos una en cada grupo, y puedes comprar más por 100 🪙 (hasta tener 2). Las ves junto a tu racha, en la pantalla del grupo.',
+          en: 'If you miss a day, a freeze is used automatically and your streak lives on. You get a free one every month in each group, and you can buy more for 100 🪙 (up to 2 at a time). You’ll find them next to your streak on the group screen.',
+          de: 'Verpasst du einen Tag, wird automatisch ein Serienschutz verbraucht und deine Serie bleibt am Leben. Jeden Monat bekommst du in jeder Gruppe einen geschenkt, und für 100 🪙 kannst du mehr kaufen (bis zu 2 gleichzeitig). Du findest sie neben deiner Serie auf dem Gruppenbildschirm.',
+        },
+      },
+      {
+        emoji: '🎁',
+        title: {
+          es: 'Regala una congelación',
+          en: 'Gift a freeze',
+          de: 'Verschenke Serienschutz',
+        },
+        text: {
+          es: 'Toca el avatar de alguien del grupo y regálale una congelación para salvarle la racha.',
+          en: 'Tap someone’s avatar in the group and gift them a freeze to save their streak.',
+          de: 'Tippe in der Gruppe auf den Avatar einer Person und schenk ihr einen Serienschutz, um ihre Serie zu retten.',
+        },
+      },
+      {
+        emoji: '🔧',
+        title: {
+          es: 'Repara una racha perdida',
+          en: 'Repair a lost streak',
+          de: 'Repariere eine verlorene Serie',
+        },
+        text: {
+          es: '¿Se te escapó la racha sin congelación? Recupérala por 300 🪙 antes de que cierre la siguiente pregunta (una vez al mes por grupo).',
+          en: 'Lost your streak without a freeze? Win it back for 300 🪙 before the next question closes (once a month per group).',
+          de: 'Serie ohne Schutz verloren? Hol sie dir für 300 🪙 zurück, bevor die nächste Frage schließt (einmal im Monat pro Gruppe).',
+        },
+      },
+    ],
+  },
+  {
     version: '1.14.0',
     date: '2026-10-12',
     title: {

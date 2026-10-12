@@ -2,13 +2,19 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Observable, map } from 'rxjs';
 
+import { toast } from '@spartan-ng/brain/sonner';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { UserService } from '../../../../core/services/user.service';
+import { ShopService } from '../../../../core/services/shop.service';
+import { STREAK_FREEZE_PRICE } from '../../../../core/models/coin.model';
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { MemberStats } from '../../../../core/models/streak.model';
 import { FIRST_RING_DAYS, STREAK_FRAME_KEYS, streakTierFor } from '../../../../core/constants/streak-tiers';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -20,7 +26,15 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 // desktop. Rendered once in the main layout and driven by MemberCardService.
 @Component({
   selector: 'app-member-card',
-  imports: [NgTemplateOutlet, HlmDialogImports, HlmDrawerImports, HlmSkeletonImports, UserAvatarComponent],
+  imports: [
+    NgTemplateOutlet,
+    HlmButtonImports,
+    HlmDialogImports,
+    HlmDrawerImports,
+    HlmSkeletonImports,
+    HlmSpinnerImports,
+    UserAvatarComponent,
+  ],
   templateUrl: './member-card.component.html',
 })
 export class MemberCardComponent {
@@ -28,6 +42,7 @@ export class MemberCardComponent {
   private readonly groupsService = inject(GroupsService);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
+  private readonly shopService = inject(ShopService);
   protected readonly t = inject(I18nService).t;
 
   protected readonly isDesktop = signal(
@@ -55,6 +70,11 @@ export class MemberCardComponent {
 
   protected readonly firstRingDays = FIRST_RING_DAYS;
 
+  // Gift a streak freeze (rama 35): on someone else's card inside a group.
+  protected readonly freezePrice = STREAK_FREEZE_PRICE;
+  protected readonly canGift = computed(() => !!this.target() && !this.allGroups() && !this.isOwnCard());
+  protected readonly gifting = signal(false);
+
   constructor() {
     if (typeof window !== 'undefined') {
       const mq = window.matchMedia('(min-width: 640px)');
@@ -70,6 +90,25 @@ export class MemberCardComponent {
 
   close(): void {
     this.cardService.close();
+  }
+
+  giftFreeze(): void {
+    const target = this.target();
+    const name = this.headline()?.username ?? '';
+    if (!target?.groupId || this.gifting()) return;
+    this.gifting.set(true);
+    this.shopService
+      .purchase({ item: 'streakFreeze', groupId: target.groupId, targetUserId: target.userId })
+      .subscribe({
+        next: () => {
+          this.gifting.set(false);
+          toast.success(this.t('streakFreeze.gifted', { name }));
+        },
+        error: (err) => {
+          this.gifting.set(false);
+          toast.error(apiErrorMessage(err, this.t('streakFreeze.giftFailed')));
+        },
+      });
   }
 
   frameLabel(streak: number): string {

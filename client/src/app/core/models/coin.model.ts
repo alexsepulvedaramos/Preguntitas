@@ -1,3 +1,5 @@
+import type { MyStreak } from './streak.model';
+
 // Coin economy (rama 34, §17.2). Mirrors the backend CoinReason — never renumber.
 export enum CoinReason {
   Vote = 0,
@@ -6,6 +8,10 @@ export enum CoinReason {
   StreakMilestone = 3,
   SelectorChoice = 4,
   SelectorCreated = 5,
+  // Spending (rama 35)
+  StreakFreeze = 6,
+  StreakFreezeGift = 7,
+  StreakRepair = 8,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -32,3 +38,20 @@ export interface CoinHistoryPage {
 
 // Capped coins (voting, choosing) per local day, across all groups.
 export const COIN_DAILY_CAP = 40;
+
+// POST shop/purchase (rama 35): a streak freeze (a gift when targetUserId is someone
+// else) or a streak repair, always in one group.
+export type ShopItem = 'streakFreeze' | 'streakRepair';
+
+export interface PurchaseRequest {
+  item: ShopItem;
+  groupId: number;
+  targetUserId?: number;
+}
+
+export interface PurchaseResponse {
+  balance: number;
+  myStreak: MyStreak; // the buyer's streak in that group, after the purchase
+}
+
+export const STREAK_FREEZE_PRICE = 100;

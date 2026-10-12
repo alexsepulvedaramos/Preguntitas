@@ -27,4 +27,27 @@ public class GroupMember
 
     // The open entry a "streak in danger" push was already sent for (dedupe).
     public int? StreakDangerNotifiedEntryId { get; set; }
+
+    // ==========================================
+    // STREAK FREEZE & REPAIR (rama 35, §17.9)
+    // ==========================================
+    // Freezes held in this group (0–StreakFreezeRules.MaxHeld). The close-of-cycle tick
+    // spends one when the member misses an active cycle.
+    public int StreakFreezes { get; set; } = 0;
+
+    // Local month (yyyyMM) the free monthly freeze was last granted for. Granted lazily.
+    public int LastFreeFreezeMonth { get; set; } = 0;
+
+    // The closed entry a freeze covered, until the "your freeze saved your streak" notice
+    // is dismissed.
+    public int? FreezeUsedEntryId { get; set; }
+
+    // Who last gave this member a freeze, until the gift notice is dismissed.
+    public int? FreezeGiftFromUserId { get; set; }
+
+    // A streak lost without a freeze: its length and the missed entry. It can be repaired
+    // while that entry is the last closed one, at most once per month (LastRepairMonth, yyyyMM).
+    public int? LostStreakValue { get; set; }
+    public int? LostStreakEntryId { get; set; }
+    public int LastRepairMonth { get; set; } = 0;
 }
