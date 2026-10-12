@@ -742,7 +742,7 @@ Start a disposable Postgres (`docker run -p 55432:5432 postgres:15-alpine`), run
 
 ### Pending (MVP)
 
-MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and the gameplay ramas 33–36 done; rama 37 (points/ranking) dropped 2026-10-12, folded into the rama 41 awards; next the gameplay ramas 38 → 44, then 31 → 32. Phase 2 backlog in §16.
+MVP feature-complete (ramas 0–12 merged; rama 13, SignalR, dropped 2026-10-12 and replaced by polling, rama 27). Post-MVP pass (§13): ramas 14–27 done, plus the pack catalog refactor (23 was built in parallel with 22). Phase 2 (§13 "Phase 2 plan"): ramas 28 (invite QR), 29 (capacity study), 30 (gameplay design, §17) and the gameplay ramas 33–36 done; rama 37 (points/ranking) dropped 2026-10-12, folded into the rama 41 awards; rama 38 (group streak) postponed to the backlog the same day; next the gameplay ramas 39 → 44, then 31 → 32. Phase 2 backlog in §16.
 
 ---
 
@@ -802,7 +802,7 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 | 35 ✅ | `feat/streak-freeze` | §17.9 — buy/hold (max 2 per group), lazy monthly free freeze, consumption in the close-of-cycle tick, "tu congelación salvó tu racha" notice, **gift a freeze**, **streak repair**. **Release 1.15.0.** |
 | 36 ✅ | `feat/guess-the-author` | §17.6 — guess stored in an `AuthorGuess` table (not `Vote.GuessedCreatorId`, see §17.6), `POST daily/guess`, guess step after voting, reveal, coins, **author hint** (pay per use); **remove `creatorId` from pool/selection DTOs** (`isMine`) and hide the selector from everyone else. Also: the calmer group screen and the toast-behind-dialogs fix. **Release 1.16.0.** |
 | 37 ❌ | ~~`feat/points-ranking`~~ | **Dropped (developer, 2026-10-12).** Points mostly duplicated the streak (1 point per on-time vote) and the coins (which already reward voting, guessing and choosing), and a ranking among friends would mainly sort people by how many questions they write. What was genuinely new — recognising authors whose questions get played and good author-guessers — moves to the rama 41 monthly awards (§17.12). No `ranking` endpoint, no `GroupMember.TotalPoints`, no `pointsEarned`. See §17.3. |
-| 38 | `feat/group-streak` | §17.8 — 75 % rule at close, group-streak columns, header badge, today's progress line, milestone coins + chat message. |
+| 38 ⏸️ | ~~`feat/group-streak`~~ | **Postponed to the backlog (developer, 2026-10-12):** not worth it right now on top of the personal streak; kept as a possible future feature. The design in §17.8 stays valid — if it comes back, it is this same scope: 75 % rule at close, group-streak columns, header badge, today's progress line, milestone coins + chat message. |
 | 39 | `feat/history-gating-late-vote` | §17.7 — gated history results, `Vote.IsLate`, `POST history/{date}/vote`, exclusion of late votes from streak/coins/monthly awards. |
 | 40 | `feat/race-and-priority` | §17.5 — T−10 race (`RaceOpenedAt`, `race_to_select` push + preference, conditional-update win), `TurnPriority` FIFO purchase + refund on leave. |
 | 41 | `feat/monthly-summary` | §17.12 — `MonthlySummary` snapshot (batched), awards (incl. star author and best author-guesser, which replace the dropped points), participation, "tu match", `monthly_summary` push, story-style viewer. |
@@ -812,7 +812,7 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 | 31 | `perf/free-tier-optimization` | **Load speed and resource usage**, tuned to the free-tier limits measured in rama 29. Frontend: initial bundle back under the 500 kB budget (currently ~569 kB, warning), lazy-loading (never by dropping Spartan — design over bundle size), fonts/images, service-worker caching, Lighthouse pass. Backend/DB: query counts and indexes on hot paths, caching layer (absorbs the "Deferred: caching/perf hardening" item), history depth cap, polling/SignalR intervals, background-service work per tick, Render cold start, Supabase egress. Runs after the gameplay ramas so it optimizes the final shape. |
 | 32 | `feat/play-store` | Publish on Google Play (25 $ one-time fee accepted). **Starts with an analysis: Capacitor vs TWA (Bubblewrap)** — Capacitor's WebView doesn't support Web Push (backend would move Android to FCM, free) but opens native plugins (e.g. screen brightness for the QR) and iOS later; a TWA keeps the PWA and its Web Push nearly untouched but needs a real domain with Digital Asset Links (ties to the §16 free-domain item). Then: build/signing, store listing (ES/EN/DE), privacy policy, Play policies, release track. |
 
-**Phase 2 priority order (confirmed 2026-10-12):** ~~27~~ ✅ ∥ ~~28~~ ✅ → ~~29~~ ✅ → ~~30~~ ✅ → ~~33~~ ✅ → ~~34~~ ✅ → ~~35~~ ✅ → ~~36~~ ✅ → ~~37~~ ❌ *(dropped, folded into 41)* → 38 → 39 → 40 → 41 → 42 → 43 → 44 → 31 → 32.
+**Phase 2 priority order (confirmed 2026-10-12):** ~~27~~ ✅ ∥ ~~28~~ ✅ → ~~29~~ ✅ → ~~30~~ ✅ → ~~33~~ ✅ → ~~34~~ ✅ → ~~35~~ ✅ → ~~36~~ ✅ → ~~37~~ ❌ *(dropped, folded into 41)* → ~~38~~ ⏸️ *(postponed to backlog)* → 39 → 40 → 41 → 42 → 43 → 44 → 31 → 32.
 
 **Next step — portfolio milestone (confirmed 2026-10-06):** everything needed for Vaya Preguntita to stand as a viable portfolio project: (1) a good explanations section and versioned release notes (**rama 26**); (2) an interactive demo when creating an account (**rama 25**, promoted); (3) English and German translation with the cultural adaptations needed to keep it funny (**ramas 23–24**); (4) the public landing for context-free visitors (**rama 21**, added to the milestone 2026-10-06), so a recruiter landing on the site understands the product before signing up. ~~Rama 16 (Scale 1–10) still lands before rama 24 so the content isn't translated twice.~~ No longer a constraint (2026-10-11): the pack Scale content was already rewritten as self-assessments in #53.
 
@@ -970,6 +970,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 ### Daily, rotation & gamification
 - 🟢 **Per-group time zone column** — `Group.TimeZoneId` added now (rama 0); logic stays UTC+2 until Phase 2.
+- ⚪ **Group streak** *(postponed by the developer 2026-10-12, was rama 38; no priority or rama now)* — consecutive cycles where ≥ 75 % of the members voted on time, with milestone coins for everyone and a chat message. Fully designed in §17.8 (+ milestone rewards in §17.2); pick it up from there if it comes back.
 - 🔵 **History gating + late voting** — scheduled as **rama 39** (§17.7). Decided 2026-10-12: late votes count in the tally, but not for streak, coins or monthly awards.
 - 🔵 **Activity-aware selector rotation** — *(the fairness/predictability part is solved by shuffled rounds, rama 33 §17.4; weighting by activity is still open)* weight rotation by recent participation; a member inactive for weeks shouldn't keep being picked and defaulting to an auto-question. Replaces the MVP modulo rotation (§4.4).
 - 🔵 **"Race to select"** — scheduled as **rama 40** (§17.5), together with turn priority.
@@ -1003,7 +1004,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 **Coins** 🪙 are **one global wallet per user**, earned in any group, spent in the shop, and shown in the wallet chip (user menu, shop) plus a "+5 🪙" toast after earning.
 
-*(The original design had a second, per-group currency — **points** ⭐ with a monthly ranking. It was dropped on 2026-10-12, see §17.3. Recognition between members comes from the streak, the group streak and the monthly awards (§17.12); there is no ranking or leaderboard of any kind.)*
+*(The original design had a second, per-group currency — **points** ⭐ with a monthly ranking. It was dropped on 2026-10-12, see §17.3. Recognition between members comes from the streak and the monthly awards (§17.12); there is no ranking or leaderboard of any kind.)*
 
 ### 17.2 Coin economy
 
@@ -1019,7 +1020,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 | Won the race to select (§17.5) | 10 | yes |
 | Own streak reaches a tier (the ring tiers of `StreakTiers`): 3 / 7 / 15 / 30 / 100 / 182 / 365 days | 5 / 20 / 35 / 50 / 100 / 150 / 300 | no |
 | Own streak milestone (the `StreakTiers` milestones): 21 / 50 / 200 / 300 days | 25 / 50 / 100 / 150 | no |
-| Group streak milestone (§17.8): 7 / 30 / 100 / 365 — **every member** | 20 / 50 / 100 / 250 | no |
+| Group streak milestone (§17.8, *postponed to backlog*): 7 / 30 / 100 / 365 — **every member** | 20 / 50 / 100 / 250 | no |
 
 - **Streak rewards pay every time** a streak reaches the tier, even after losing and rebuilding it (developer, rama 34, 2026-10-12). The amounts grow fast enough that holding one long streak always beats rebuilding short ones: one 7-day streak pays 5 + 20 = 25 against 10 for two 3-day streaks, and one 15-day streak pays 60 against 50 for two 7-day streaks. (The design draft listed tiers 3/7/30/… and milestones 14/…; rama 34 aligned them with the tiers and milestones the app already celebrates.)
 - **Daily cap: 40 capped coins per user per local day across all groups.** It closes off the "fake groups with a second account" farm: each group gives at most one question a day, and the cap bounds the total. Rewards for rare milestones are uncapped.
@@ -1130,6 +1131,8 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 ### 17.8 Group streak
 
+*Postponed to the backlog (developer, 2026-10-12): rama 38 is not scheduled. The design below is kept for when it comes back.*
+
 - A cycle **counts** if voters **on time** ≥ **75 %** of the members at close, rounded up (confirmed). A member who used a freeze didn't vote, so they don't count. **Frozen cycles** (no active question, §13 rama 19 rule) neither add nor break.
 - Evaluated **when a cycle closes** (tick at T, batched per due group, O(members)). Model: `Group.CurrentGroupStreak`, `BestGroupStreak`, `LastGroupStreakEntryId`.
 - Milestones **7 / 30 / 100 / 365**: coins to every member (§17.2) + a chat system message ("🔥 ¡30 días seguidos como grupo!").
@@ -1194,7 +1197,7 @@ Confirmed by the developer as **an extra question that lives alongside the daily
 - **Snapshot, not on the fly:** on the 1st of each month the tick builds `MonthlySummary { GroupId, Month, Payload (JSONB), CreatedAt }` for every group with ≥ 1 activated entry last month, **batched** (a few groups per tick) so the 00:00 burst never competes with requests.
 - **Contents (all three confirmed; the fourth, "the month's ranking", was dropped with points on 2026-10-12, §17.3):**
   - **Monthly awards:** most voted in superlatives, most active selector (active choices), 🕵️ **best author-guesser** (most correct guesses), 📅 **most consistent** (participation %), 🖋️ **star author** (the member-written question played that month that got the most on-time answers; ties → most member-written questions played). Awards are titles, not positions: no ordered list of members is shown. These absorb the recognition the dropped points were meant to give.
-  - **Participation:** group and per member, best streaks, group streak.
+  - **Participation:** group and per member, best streaks (plus the group streak, only if §17.8 is ever built).
   - **"Tu match"** (developer, 2026-10-12): the member you voted for most **mutually**, counting Superlative picks and Secret Pairing picks in both directions (A→B + B→A). Both must have picked the other at least once. It is personal: each member sees their own match. Computed per pair while building the snapshot (≤ 30 members → ≤ 435 pairs, trivial).
 - **Push on the 1st** (`monthly_summary` type, toggleable, respects mute): "Ya está el resumen de octubre en *Grupo*", sent at the group's T together with that day's activation so no new burst is added.
 - **UI:** a story-style full-screen sequence (tap to advance, `prefers-reduced-motion` → static cards), reachable from the group page for the last 12 months. **API:** `GET /api/groups/{id}/monthly-summaries` (list of months) and `…/monthly-summaries/{YYYY-MM}`. The personal part (your match) is cut out for the caller server-side.
