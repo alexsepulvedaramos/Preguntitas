@@ -56,9 +56,11 @@ async function showGrouped(notification) {
 }
 
 function mergeEvents(previous, event) {
-  // A new question starts a new cycle: votes on the previous one no longer matter.
+  // A new question starts a new cycle: votes on the previous one and the race to pick it
+  // (rama 40) no longer matter.
+  const stale = ['user_voted', 'new_question', 'race_to_select'];
   const kept = event.kind === 'new_question'
-    ? previous.filter((e) => e.kind !== 'user_voted' && e.kind !== 'new_question')
+    ? previous.filter((e) => !stale.includes(e.kind))
     : previous;
   return [...kept, event].slice(-MAX_EVENTS);
 }
@@ -67,6 +69,7 @@ function mergeEvents(previous, event) {
 const TEXT = {
   es: {
     selectorTurn: '¡Te toca elegir la pregunta!',
+    raceToSelect: '¡Elige tú la próxima pregunta!',
     voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
     messages: (count, names) => `${count} mensajes nuevos de ${names}`,
     and: 'y',
@@ -74,6 +77,7 @@ const TEXT = {
   },
   en: {
     selectorTurn: "It's your turn to pick the question!",
+    raceToSelect: 'Your pick: the next question is up for grabs!',
     voted: (names) => `${names} voted`,
     messages: (count, names) => `${count} new messages from ${names}`,
     and: 'and',
@@ -81,6 +85,7 @@ const TEXT = {
   },
   de: {
     selectorTurn: 'Du bist dran, die Frage auszuwählen!',
+    raceToSelect: 'Du darfst die nächste Frage wählen!',
     voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
     messages: (count, names) => `${count} neue Nachrichten von ${names}`,
     and: 'und',
@@ -96,6 +101,7 @@ function summarize(events, text) {
   if (danger) lines.push(`🔥 ${danger.body}`);
 
   if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
+  if (latest('race_to_select')) lines.push(`⏱️ ${text.raceToSelect}`);
 
   const question = latest('new_question');
   if (question) lines.push(`❓ ${question.body}`);

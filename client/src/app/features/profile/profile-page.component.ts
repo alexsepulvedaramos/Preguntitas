@@ -95,7 +95,7 @@ export class ProfilePageComponent implements OnInit {
 
   protected readonly notifPrefs = signal<NotificationPreferences>({
     newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
-    streakDanger: true, streakDangerHoursBefore: 3,
+    streakDanger: true, streakDangerHoursBefore: 3, raceToSelect: true,
   });
 
   protected readonly user = computed(() => this.authService.currentUser());
@@ -165,7 +165,9 @@ export class ProfilePageComponent implements OnInit {
     if (id != null) this.memberCard.openOwn(id);
   }
 
-  togglePref(key: 'newQuestion' | 'selectorTurn' | 'userVoted' | 'newMessage' | 'streakDanger'): void {
+  togglePref(
+    key: 'newQuestion' | 'selectorTurn' | 'raceToSelect' | 'userVoted' | 'newMessage' | 'streakDanger',
+  ): void {
     const updated = { ...this.notifPrefs(), [key]: !this.notifPrefs()[key] };
     this.notifPrefs.set(updated);
     this.prefsService.update(updated).subscribe();

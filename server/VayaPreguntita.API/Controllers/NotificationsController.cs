@@ -101,6 +101,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
         prefs.NewMessage = dto.NewMessage;
         prefs.StreakDanger = dto.StreakDanger;
         prefs.StreakDangerHoursBefore = dto.StreakDangerHoursBefore;
+        prefs.RaceToSelect = dto.RaceToSelect;
 
         await context.SaveChangesAsync();
         return Ok(ToDto(prefs));
@@ -113,6 +114,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
             prefs.UserVoted,
             prefs.NewMessage,
             prefs.StreakDanger,
-            prefs.StreakDangerHoursBefore
+            prefs.StreakDangerHoursBefore,
+            prefs.RaceToSelect
         );
 }

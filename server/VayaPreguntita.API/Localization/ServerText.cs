@@ -319,6 +319,12 @@ public static class ServerText
         "The hint isn't available for this question.",
         "Der Tipp ist bei dieser Frage nicht verfügbar.");
 
+    // ── Race to select (rama 40) ────────────────────────────────────────────────────────
+    public static string RaceLost => Pick(
+        "Alguien se te ha adelantado: la pregunta ya está elegida.",
+        "Someone beat you to it: the question has already been chosen.",
+        "Da war jemand schneller: Die Frage ist schon ausgewählt.");
+
     // ── Push notifications (recipient's language) ───────────────────────────────────────
     public static class Push
     {
@@ -352,5 +358,16 @@ public static class ServerText
             $"Vota antes de las {time} en {groupName}. Si no, gastarás una congelación 🧊 para salvar tu racha de {streak} días.",
             $"Vote in {groupName} before {time}, or you'll spend a freeze 🧊 to save your {streak}-day streak.",
             $"Stimm in {groupName} vor {time} Uhr ab, sonst verbrauchst du einen Serienschutz 🧊, um deine {streak}-Tage-Serie zu retten.");
+
+        // Race to select (§17.5): to everyone but the selector, 10 minutes before T.
+        public static string RaceToSelectTitle(string lang, string groupName) => Pick(lang,
+            $"⏱️ ¡Elige tú en {groupName}!",
+            $"⏱️ Your pick in {groupName}!",
+            $"⏱️ Du darfst wählen in {groupName}!");
+
+        public static string RaceToSelectBody(string lang, int coins) => Pick(lang,
+            $"Nadie ha elegido la próxima pregunta y sale en 10 minutos. Quien la elija primero gana {coins} 🪙.",
+            $"Nobody has chosen the next question and it goes out in 10 minutes. First to choose wins {coins} 🪙.",
+            $"Niemand hat die nächste Frage gewählt, und in 10 Minuten geht sie raus. Wer zuerst wählt, bekommt {coins} 🪙.");
     }
 }

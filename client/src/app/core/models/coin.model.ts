@@ -15,6 +15,8 @@ export enum CoinReason {
   // Guess the author (rama 36)
   GuessCorrect = 9,
   AuthorHint = 10,
+  // Race to select (rama 40)
+  RaceWon = 11,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -58,6 +60,9 @@ export interface PurchaseResponse {
 }
 
 export const STREAK_FREEZE_PRICE = 100;
+
+// Winning the race to select (rama 40, §17.5).
+export const RACE_WON_REWARD = 10;
 
 // A right "guess the author" (rama 36, §17.6).
 export const AUTHOR_GUESS_REWARD = 5;

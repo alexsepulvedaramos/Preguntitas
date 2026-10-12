@@ -13,7 +13,8 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
 import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
-import { SelectionSourceItem } from '../../../../core/models/daily.model';
+import { SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
+import { CoinsEarned } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -75,6 +76,8 @@ export class SelectQuestionDialogComponent {
   public readonly compact = input(false);
 
   public readonly selected = output<void>();
+  // Coins for winning the race to select (§17.5), for the "+10 🪙" toast.
+  public readonly coinsEarned = output<CoinsEarned>();
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
@@ -192,10 +195,9 @@ export class SelectQuestionDialogComponent {
         : { templateId: item.id };
 
     this.dailyService.select(this.groupId(), dto).subscribe({
-      next: () => {
+      next: (res) => {
         this.pickingKey.set(null);
-        this.selected.emit();
-        ctx.close();
+        this.finish(ctx, res);
       },
       error: (err) => {
         this.pickingKey.set(null);
@@ -212,10 +214,9 @@ export class SelectQuestionDialogComponent {
     this.confirming.set(true);
 
     this.dailyService.confirmSelection(this.groupId()).subscribe({
-      next: () => {
+      next: (res) => {
         this.confirming.set(false);
-        this.selected.emit();
-        ctx.close();
+        this.finish(ctx, res);
       },
       error: (err) => {
         this.confirming.set(false);
@@ -252,10 +253,9 @@ export class SelectQuestionDialogComponent {
           };
 
     this.dailyService.select(this.groupId(), dto).subscribe({
-      next: () => {
+      next: (res) => {
         this.assigningTeams.set(false);
-        this.selected.emit();
-        ctx.close();
+        this.finish(ctx, res);
       },
       error: (err) => {
         this.assigningTeams.set(false);
@@ -332,7 +332,12 @@ export class SelectQuestionDialogComponent {
     );
   }
 
-  onSelectedForTomorrow(ctx: { close: () => void }) {
+  onSelectedForTomorrow(ctx: { close: () => void }, res: SelectResponse) {
+    this.finish(ctx, res);
+  }
+
+  private finish(ctx: { close: () => void }, res: SelectResponse | null) {
+    if (res?.coins) this.coinsEarned.emit(res.coins);
     this.selected.emit();
     ctx.close();
   }

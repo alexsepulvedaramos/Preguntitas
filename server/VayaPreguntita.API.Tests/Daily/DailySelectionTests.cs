@@ -33,7 +33,7 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
     private async Task<SelectResult> SelectAsync(int groupId, int userId, SelectQuestionDto dto)
     {
         await using var db = NewContext();
-        return await NewDailyService(db).SelectQuestionAsync(groupId, userId, dto);
+        return (await NewDailyService(db).SelectQuestionAsync(groupId, userId, dto)).Result;
     }
 
     [Fact]
@@ -167,8 +167,8 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
 
         await using var db = NewContext();
         var service = NewDailyService(db);
-        var notSelector = await service.ConfirmSelectionAsync(group.Id, group["ana"]);
-        var selector = await service.ConfirmSelectionAsync(group.Id, group["carlos"]);
+        var notSelector = (await service.ConfirmSelectionAsync(group.Id, group["ana"])).Result;
+        var selector = (await service.ConfirmSelectionAsync(group.Id, group["carlos"])).Result;
         var view = await service.GetCurrentStatusAsync(group.Id, group["carlos"]);
 
         notSelector.Should().Be(SelectResult.NotYourTurn);
@@ -188,7 +188,7 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
         await SelectAsync(group.Id, group["carlos"], new() { ExistingQuestionId = poolQuestion });
 
         await using var db = NewContext();
-        var result = await NewDailyService(db).ConfirmSelectionAsync(group.Id, group["carlos"]);
+        var result = (await NewDailyService(db).ConfirmSelectionAsync(group.Id, group["carlos"])).Result;
 
         result.Should().Be(SelectResult.Success);
         (await db.DailyEntries.SingleAsync(d => d.Date == Tomorrow))

@@ -67,4 +67,8 @@ public class SelectionStateDto
     // True while the pending question is still the automatic pick (SelectionKind.Auto):
     // the selector hasn't picked, created or confirmed one yet (§17.4).
     public bool IsAutoSelected { get; set; }
+
+    // From T − 10 min while still auto-selected (§17.5): any member may choose ("¡Elige tú!"),
+    // so PendingQuestion is sent to everyone.
+    public bool RaceOpen { get; set; }
 }

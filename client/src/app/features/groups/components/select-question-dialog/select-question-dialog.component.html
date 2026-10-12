@@ -305,7 +305,7 @@
           [showSelectButton]="isSelector()"
           [initialValue]="pendingEditValue()"
           [overwriteQuestionId]="pendingEditValue()?.id ?? null"
-          (selected)="onSelectedForTomorrow(ctx)"
+          (selected)="onSelectedForTomorrow(ctx, $event)"
           (savedToPool)="onSavedToPool(ctx)"
         />
       </div>

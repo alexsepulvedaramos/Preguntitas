@@ -47,19 +47,20 @@ public class DailyController(
     // POST api/groups/{groupId}/daily/select
     // El selector del día elige (o cambia) la pregunta activa
     [HttpPost("select")]
-    public async Task<ActionResult> SelectQuestion(int groupId, SelectQuestionDto dto)
+    public async Task<ActionResult<SelectResponseDto>> SelectQuestion(int groupId, SelectQuestionDto dto)
     {
         if (!TryGetCurrentUserId(out var userId))
             return Unauthorized();
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var result = await dailyService.SelectQuestionAsync(groupId, userId, dto);
+        var (result, coins) = await dailyService.SelectQuestionAsync(groupId, userId, dto);
 
         return result switch
         {
-            SelectResult.Success => Ok(),
+            SelectResult.Success => Ok(new SelectResponseDto { Coins = coins }),
             SelectResult.NotYourTurn => Forbid(),
+            SelectResult.RaceLost => Conflict(ServerText.RaceLost),
             SelectResult.QuestionNotFound => NotFound(ServerText.QuestionNotInPool),
             SelectResult.InvalidQuestion => BadRequest(ServerText.QuestionNotValidForGroup),
             SelectResult.AlreadyActivated => BadRequest(ServerText.QuestionAlreadyActive),
@@ -69,17 +70,23 @@ public class DailyController(
     }
 
     // POST api/groups/{groupId}/daily/select/confirm
-    // The selector keeps the auto-selected question as their choice (§17.4)
+    // The selector keeps the auto-selected question as their choice (§17.4); during the
+    // race (§17.5) any member may, and the first one wins
     [HttpPost("select/confirm")]
-    public async Task<ActionResult> ConfirmSelection(int groupId)
+    public async Task<ActionResult<SelectResponseDto>> ConfirmSelection(int groupId)
     {
         if (!TryGetCurrentUserId(out var userId))
             return Unauthorized();
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var result = await dailyService.ConfirmSelectionAsync(groupId, userId);
-        return result == SelectResult.Success ? Ok() : Forbid();
+        var (result, coins) = await dailyService.ConfirmSelectionAsync(groupId, userId);
+        return result switch
+        {
+            SelectResult.Success => Ok(new SelectResponseDto { Coins = coins }),
+            SelectResult.RaceLost => Conflict(ServerText.RaceLost),
+            _ => Forbid(),
+        };
     }
 
     // POST api/groups/{groupId}/daily/vote

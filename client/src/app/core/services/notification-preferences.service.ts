@@ -9,6 +9,7 @@ export interface NotificationPreferences {
   newMessage: boolean;
   streakDanger: boolean;
   streakDangerHoursBefore: number; // one of STREAK_DANGER_HOURS
+  raceToSelect: boolean; // "¡Elige tú!" — nobody chose 10 minutes before T (§17.5)
 }
 
 export const STREAK_DANGER_HOURS = [1, 2, 3, 4, 6, 8] as const;
