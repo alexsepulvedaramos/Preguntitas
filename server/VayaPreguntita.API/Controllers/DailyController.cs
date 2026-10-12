@@ -116,4 +116,32 @@ public class DailyController(
         await streakService.DismissLostStreakAsync(groupId, userId);
         return NoContent();
     }
+
+    // POST api/groups/{groupId}/daily/streak/dismiss-freeze
+    // Acknowledges "Tu congelación salvó tu racha…" (rama 35).
+    [HttpPost("streak/dismiss-freeze")]
+    public async Task<ActionResult> DismissFreezeNotice(int groupId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        await streakService.DismissFreezeNoticeAsync(groupId, userId);
+        return NoContent();
+    }
+
+    // POST api/groups/{groupId}/daily/streak/dismiss-gift
+    // Acknowledges "X te ha regalado una congelación" (rama 35).
+    [HttpPost("streak/dismiss-gift")]
+    public async Task<ActionResult> DismissGiftNotice(int groupId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        await streakService.DismissGiftNoticeAsync(groupId, userId);
+        return NoContent();
+    }
 }

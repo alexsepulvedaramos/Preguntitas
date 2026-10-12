@@ -85,6 +85,9 @@ public class DailyCycleRunner(
                 await PaySelectorRewardAsync(entry);
 
             foreach (var entry in entriesToActivate)
+                await CloseCycleAsync(entry);
+
+            foreach (var entry in entriesToActivate)
                 _ = notificationService.SendNewQuestionAsync(
                     entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations);
         }
@@ -117,6 +120,20 @@ public class DailyCycleRunner(
 
         // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
         await streakService.SendDangerRemindersAsync();
+    }
+
+    // Activating an entry closes the previous cycle: streak freezes are spent and lost
+    // streaks recorded for repair (§17.9).
+    private async Task CloseCycleAsync(DailyEntry entry)
+    {
+        try
+        {
+            await streakService.CloseCycleAsync(entry.GroupId, entry.Date);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Close of cycle failed for group {GroupId}", entry.GroupId);
+        }
     }
 
     // Selector coins (§17.2) are paid at activation: until T the selector can still change

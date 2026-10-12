@@ -1,0 +1,92 @@
+<section
+  class="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2"
+  [attr.aria-label]="t('streakFreeze.sectionLabel')"
+>
+  <span class="text-xl" aria-hidden="true">🔥</span>
+  <div class="min-w-0 flex-1">
+    <p class="text-sm font-semibold text-foreground tabular-nums">
+      {{ streak().current > 0 ? t('common.days', { count: streak().current }) : t('streakFreeze.noStreak') }}
+    </p>
+    @if (streak().best > 0) {
+      <p class="text-xs text-muted-foreground tabular-nums">{{ t('streakFreeze.best', { count: streak().best }) }}</p>
+    }
+  </div>
+
+  @if (streak().repairableStreak) {
+    <button
+      hlmBtn
+      size="sm"
+      variant="outline"
+      class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+      [disabled]="!!busy()"
+      (click)="repair()"
+    >
+      @if (busy() === 'streakRepair') {
+        <hlm-spinner class="size-4" />
+      }
+      {{ t('streakFreeze.repair', { price: streak().repairPrice }) }}
+    </button>
+  }
+
+  <hlm-dialog>
+    <button
+      hlmDialogTrigger
+      hlmBtn
+      size="sm"
+      variant="secondary"
+      class="shrink-0 gap-1 tabular-nums focus-visible:ring-2 focus-visible:ring-ring"
+      [attr.aria-label]="t('streakFreeze.freezesAria', { count: streak().freezes, max: streak().maxFreezes })"
+    >
+      <span aria-hidden="true">🧊 {{ streak().freezes }}/{{ streak().maxFreezes }}</span>
+    </button>
+
+    <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-sm max-w-[95vw]">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle>{{ t('streakFreeze.dialogTitle') }}</h3>
+        <p hlmDialogDescription>{{ t('streakFreeze.dialogText') }}</p>
+      </hlm-dialog-header>
+
+      <div class="flex flex-col items-center gap-2 py-2">
+        <div class="flex gap-3" aria-hidden="true">
+          @for (held of slots(); track $index) {
+            <span
+              class="flex size-14 items-center justify-center rounded-xl text-3xl"
+              [class]="held ? 'bg-primary/10 ring-1 ring-primary/30' : 'border-2 border-dashed border-border opacity-60'"
+            >
+              {{ held ? '🧊' : '' }}
+            </span>
+          }
+        </div>
+        <p class="text-sm font-semibold text-foreground">
+          {{ t('streakFreeze.holding', { count: streak().freezes, max: streak().maxFreezes }) }}
+        </p>
+        <p class="text-xs text-muted-foreground text-center text-balance">
+          {{ t('streakFreeze.monthlyFree', { max: streak().maxFreezes }) }}
+        </p>
+      </div>
+
+      <hlm-dialog-footer class="flex-col gap-2 sm:flex-col">
+        <button
+          hlmBtn
+          class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="atLimit() || missingCoins() > 0 || !!busy()"
+          (click)="buyFreeze()"
+        >
+          @if (busy() === 'streakFreeze') {
+            <hlm-spinner class="size-4" />
+          }
+          {{ t('streakFreeze.buy', { price: streak().freezePrice }) }}
+        </button>
+        <p class="text-center text-xs text-muted-foreground" aria-live="polite">
+          @if (atLimit()) {
+            {{ t('streakFreeze.atLimit') }}
+          } @else if (missingCoins() > 0) {
+            {{ t('streakFreeze.notEnough', { count: missingCoins() }) }}
+          } @else {
+            {{ t('streakFreeze.balance', { count: balance() }) }}
+          }
+        </p>
+      </hlm-dialog-footer>
+    </hlm-dialog-content>
+  </hlm-dialog>
+</section>

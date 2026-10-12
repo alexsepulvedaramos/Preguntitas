@@ -9,4 +9,9 @@ public enum CoinReason
     StreakMilestone = 3,
     SelectorChoice = 4,
     SelectorCreated = 5,
+
+    // Spending (rama 35)
+    StreakFreeze = 6,
+    StreakFreezeGift = 7,
+    StreakRepair = 8,
 }

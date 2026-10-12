@@ -253,11 +253,23 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("CurrentStreak")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("FreezeGiftFromUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("FreezeUsedEntryId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LastFreeFreezeMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LastRepairMonth")
+                        .HasColumnType("integer");
 
                     b.Property<int>("LastSelectorRound")
                         .HasColumnType("integer");
@@ -265,10 +277,19 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int?>("LastStreakEntryId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("LostStreakEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("LostStreakValue")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("NotificationsMuted")
                         .HasColumnType("boolean");
 
                     b.Property<int?>("StreakDangerNotifiedEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StreakFreezes")
                         .HasColumnType("integer");
 
                     b.HasKey("GroupId", "UserId");

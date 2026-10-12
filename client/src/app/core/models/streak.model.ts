@@ -31,6 +31,14 @@ export interface MyStreak {
   current: number;
   best: number;
   lostStreak: number | null;
+  // Streak freeze & repair (rama 35, §17.9)
+  freezes: number;
+  maxFreezes: number;
+  freezeSavedStreak: number | null; // "your freeze saved your streak" notice
+  freezeGiftFrom: string | null; // who last gave you a freeze, until dismissed
+  repairableStreak: number | null; // what a repair would restore; null = no repair now
+  freezePrice: number;
+  repairPrice: number;
 }
 
 // Member detail card (GET groups/{id}/members/{userId}/stats, GET users/me/group-stats).

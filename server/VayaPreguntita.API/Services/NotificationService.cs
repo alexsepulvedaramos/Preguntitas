@@ -88,7 +88,8 @@ public class NotificationService(
                 BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", groupId, groupName, "new_message", lang, actor: senderUsername));
         });
 
-    public Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime) =>
+    public Task SendStreakDangerAsync(
+        int groupId, int userId, string groupName, int streak, TimeOnly dailyTime, bool freezeCovers = false) =>
         RunLoggedAsync("streak_danger", groupId, async context =>
         {
             var recipients = await context.DevicePushSubscriptions
@@ -99,7 +100,9 @@ public class NotificationService(
             await SendLocalizedAsync(context, recipients, UntilNextDailyTime(dailyTime), lang =>
                 BuildPayload(
                     ServerText.Push.StreakDangerTitle(lang),
-                    ServerText.Push.StreakDangerBody(lang, streak, groupName, time),
+                    freezeCovers
+                        ? ServerText.Push.StreakDangerFrozenBody(lang, streak, groupName, time)
+                        : ServerText.Push.StreakDangerBody(lang, streak, groupName, time),
                     groupId, groupName, "streak_danger", lang
                 ));
         });

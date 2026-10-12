@@ -81,6 +81,38 @@ public class CoinService(AppDbContext context, TimeProvider clock) : ICoinServic
         return new CoinGrant(granted, capReached);
     }
 
+    public async Task<bool> SpendAsync(int userId, CoinReason reason, int price, int? groupId, int? refId)
+    {
+        var ownsTransaction = context.Database.CurrentTransaction == null;
+        await using var transaction = ownsTransaction
+            ? await context.Database.BeginTransactionAsync()
+            : null;
+
+        // Conditional update: concurrent purchases can never take the balance below zero.
+        var charged = await context
+            .Users.Where(u => u.Id == userId && u.Coins >= price)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.Coins, u => u.Coins - price));
+        if (charged == 0)
+            return false;
+
+        context.CoinTransactions.Add(
+            new CoinTransaction
+            {
+                UserId = userId,
+                Amount = -price,
+                Reason = reason,
+                GroupId = groupId,
+                RefId = refId,
+                CreatedAt = DailyClock.UtcNow(clock),
+            }
+        );
+        await context.SaveChangesAsync();
+
+        if (transaction != null)
+            await transaction.CommitAsync();
+        return true;
+    }
+
     public async Task<int> GetBalanceAsync(int userId) =>
         await context.Users.Where(u => u.Id == userId).Select(u => u.Coins).FirstOrDefaultAsync();
 

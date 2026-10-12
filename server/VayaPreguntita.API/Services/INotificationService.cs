@@ -12,5 +12,7 @@ public interface INotificationService
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
     Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview);
     // Caller has already checked the user's StreakDanger preference, lead time and group mute.
-    Task SendStreakDangerAsync(int groupId, int userId, string groupName, int streak, TimeOnly dailyTime);
+    // freezeCovers: a held freeze (§17.9) will save the streak if the member misses the cycle.
+    Task SendStreakDangerAsync(
+        int groupId, int userId, string groupName, int streak, TimeOnly dailyTime, bool freezeCovers = false);
 }

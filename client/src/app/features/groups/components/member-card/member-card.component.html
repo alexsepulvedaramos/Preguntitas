@@ -50,6 +50,20 @@
       </div>
     } @else {
       <ng-container *ngTemplateOutlet="grid; context: { $implicit: head }" />
+      @if (canGift()) {
+        <button
+          hlmBtn
+          variant="outline"
+          class="w-full gap-2 focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="gifting()"
+          (click)="giftFreeze()"
+        >
+          @if (gifting()) {
+            <hlm-spinner class="size-4" />
+          }
+          🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
+        </button>
+      }
     }
   }
 </ng-template>

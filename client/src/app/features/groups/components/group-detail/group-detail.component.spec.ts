@@ -40,7 +40,18 @@ describe('GroupDetailComponent live refresh', () => {
       closesAt: null,
     },
     selection: null,
-    myStreak: { current: 0, highest: 0, lostStreak: null },
+    myStreak: {
+      current: 0,
+      best: 0,
+      lostStreak: null,
+      freezes: 1,
+      maxFreezes: 2,
+      freezeSavedStreak: null,
+      freezeGiftFrom: null,
+      repairableStreak: null,
+      freezePrice: 100,
+      repairPrice: 300,
+    },
   });
 
   const flushInitial = (status: 'voting' | 'results' | 'no_question') => {
