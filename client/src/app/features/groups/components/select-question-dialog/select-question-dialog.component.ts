@@ -166,10 +166,7 @@ export class SelectQuestionDialogComponent {
 
   canDelete(item: SelectionSourceItem): boolean {
     if (item.sourceType !== 'pool') return false;
-    if (this.isAdmin()) return true;
-
-    const currentUserId = Number(this.authService.currentUser()?.id);
-    return item.creatorId === currentUserId;
+    return this.isAdmin() || !!item.isMine;
   }
 
   pick(item: SelectionSourceItem, ctx: { close: () => void }) {
@@ -517,7 +514,7 @@ export class SelectQuestionDialogComponent {
       type: q.type,
       options: q.options.map((o) => o.text),
       teams: q.teams ?? [],
-      creatorId: q.creatorId,
+      isMine: q.isMine,
     };
   }
 

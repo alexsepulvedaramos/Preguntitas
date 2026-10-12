@@ -38,6 +38,9 @@ describe('GroupDetailComponent live refresh', () => {
       userHasVoted: status === 'results',
       results: status === 'results' ? { id: 5, text: 'q', type: 0, totalVotes, results: [], freeTextResponses: [] } : null,
       closesAt: null,
+      voterIds: [],
+      memberCount: 2,
+      guess: null,
     },
     selection: null,
     myStreak: {

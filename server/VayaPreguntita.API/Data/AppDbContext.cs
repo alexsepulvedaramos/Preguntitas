@@ -26,6 +26,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<NotificationPreferences> NotificationPreferences { get; set; }
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
     public DbSet<CoinTransaction> CoinTransactions { get; set; }
+    public DbSet<AuthorGuess> AuthorGuesses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -243,6 +244,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(t => t.Group)
              .WithMany()
              .HasForeignKey(t => t.GroupId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ==========================================
+        // AUTHOR GUESS (rama 36, §17.6) — one per member and daily entry
+        // ==========================================
+        modelBuilder.Entity<AuthorGuess>(e =>
+        {
+            e.HasKey(g => new { g.DailyEntryId, g.UserId });
+            // Member-card stats: a member's guesses in a group.
+            e.HasIndex(g => g.UserId);
+            e.HasOne(g => g.DailyEntry)
+             .WithMany()
+             .HasForeignKey(g => g.DailyEntryId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(g => g.User)
+             .WithMany()
+             .HasForeignKey(g => g.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(g => g.GuessedCreator)
+             .WithMany()
+             .HasForeignKey(g => g.GuessedCreatorId)
              .OnDelete(DeleteBehavior.SetNull);
         });
     }

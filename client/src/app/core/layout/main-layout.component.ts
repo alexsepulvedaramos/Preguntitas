@@ -4,6 +4,7 @@ import { toast } from '@spartan-ng/brain/sonner';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { HlmToasterImports } from '../../shared/ui/sonner/src';
+import { TopLayerDirective } from '../../shared/directives/top-layer.directive';
 import { MemberCardComponent } from '../../features/groups/components/member-card/member-card.component';
 import { AuthService } from '../auth/auth.service';
 import { ReleaseNotesService } from '../services/release-notes.service';
@@ -12,7 +13,7 @@ import { I18nService } from '../i18n/i18n.service';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, HlmToasterImports, MemberCardComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, HlmToasterImports, TopLayerDirective, MemberCardComponent],
   template: `
 <div class="flex flex-col min-h-screen">
       <app-header></app-header>
@@ -23,7 +24,8 @@ import { I18nService } from '../i18n/i18n.service';
 
       <app-footer></app-footer>
     </div>
-    <hlm-toaster richColors />
+    <!-- appTopLayer: toasts must show above dialogs and drawers (CDK top-layer popovers) -->
+    <hlm-toaster richColors appTopLayer />
     <app-member-card />
   `
 })

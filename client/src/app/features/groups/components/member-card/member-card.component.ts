@@ -74,6 +74,7 @@ export class MemberCardComponent {
   protected readonly freezePrice = STREAK_FREEZE_PRICE;
   protected readonly canGift = computed(() => !!this.target() && !this.allGroups() && !this.isOwnCard());
   protected readonly gifting = signal(false);
+  protected readonly giftError = signal<string | null>(null);
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -97,6 +98,7 @@ export class MemberCardComponent {
     const name = this.headline()?.username ?? '';
     if (!target?.groupId || this.gifting()) return;
     this.gifting.set(true);
+    this.giftError.set(null);
     this.shopService
       .purchase({ item: 'streakFreeze', groupId: target.groupId, targetUserId: target.userId })
       .subscribe({
@@ -106,7 +108,9 @@ export class MemberCardComponent {
         },
         error: (err) => {
           this.gifting.set(false);
-          toast.error(apiErrorMessage(err, this.t('streakFreeze.giftFailed')));
+          const message = apiErrorMessage(err, this.t('streakFreeze.giftFailed'));
+          this.giftError.set(message);
+          toast.error(message);
         },
       });
   }
@@ -125,6 +129,7 @@ export class MemberCardComponent {
   private load(groupId: number | undefined, userId: number): void {
     this.loading.set(true);
     this.error.set(false);
+    this.giftError.set(null);
     this.stats.set([]);
 
     const request: Observable<MemberStats[]> =

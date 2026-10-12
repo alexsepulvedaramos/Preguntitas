@@ -25,6 +25,8 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.StreakFreeze]: 'coins.reasons.streakFreeze',
   [CoinReason.StreakFreezeGift]: 'coins.reasons.streakFreezeGift',
   [CoinReason.StreakRepair]: 'coins.reasons.streakRepair',
+  [CoinReason.GuessCorrect]: 'coins.reasons.guessCorrect',
+  [CoinReason.AuthorHint]: 'coins.reasons.authorHint',
 };
 
 const REASON_EMOJI: Record<CoinReason, string> = {
@@ -37,6 +39,8 @@ const REASON_EMOJI: Record<CoinReason, string> = {
   [CoinReason.StreakFreeze]: '🧊',
   [CoinReason.StreakFreezeGift]: '🎁',
   [CoinReason.StreakRepair]: '🔧',
+  [CoinReason.GuessCorrect]: '🕵️',
+  [CoinReason.AuthorHint]: '💡',
 };
 
 // Coins & shop (rama 34, §17.2): the wallet, how coins are earned and the ledger. The

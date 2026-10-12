@@ -22,6 +22,35 @@ namespace VayaPreguntita.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.AuthorGuess", b =>
+                {
+                    b.Property<int>("DailyEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("GuessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("GuessedCreatorId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("HintUsed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("DailyEntryId", "UserId");
+
+                    b.HasIndex("GuessedCreatorId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuthorGuesses");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.ChatMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -642,6 +671,32 @@ namespace VayaPreguntita.API.Migrations
                     b.HasIndex("QuestionId", "UserId");
 
                     b.ToTable("Votes");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.AuthorGuess", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.DailyEntry", "DailyEntry")
+                        .WithMany()
+                        .HasForeignKey("DailyEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "GuessedCreator")
+                        .WithMany()
+                        .HasForeignKey("GuessedCreatorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyEntry");
+
+                    b.Navigation("GuessedCreator");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.ChatMessage", b =>

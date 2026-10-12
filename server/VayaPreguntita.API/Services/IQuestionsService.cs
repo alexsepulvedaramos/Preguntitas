@@ -12,6 +12,7 @@ public interface IQuestionsService
     // all at once. `type` optionally narrows to one QuestionType.
     Task<QuestionPageDto> GetPoolAsync(
         int groupId,
+        int userId,
         QuestionType? type = null,
         int? before = null,
         int pageSize = 12
@@ -32,5 +33,5 @@ public interface IQuestionsService
     // Paginated past entries for the group's history view. Cursor-based: pass the last
     // seen date as `before` to get the next page. Returns at most `pageSize` items,
     // plus a `HasMore` flag.
-    Task<HistoryPageDto> GetHistoryAsync(int groupId, DateOnly? before, int pageSize = 20);
+    Task<HistoryPageDto> GetHistoryAsync(int groupId, int userId, DateOnly? before, int pageSize = 20);
 }

@@ -23,12 +23,13 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     // ==========================================
     public async Task<QuestionPageDto> GetPoolAsync(
         int groupId,
+        int userId,
         QuestionType? type = null,
         int? before = null,
         int pageSize = 12
     )
     {
-        var query = context.Questions.Where(q => q.GroupId == groupId && !q.IsUsed);
+        var query = context.Questions.Include(q => q.Options).Where(q => q.GroupId == groupId && !q.IsUsed);
 
         if (type != null)
             query = query.Where(q => q.Type == type);
@@ -36,11 +37,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         if (before != null)
             query = query.Where(q => q.Id < before);
 
-        var items = await query
-            .OrderByDescending(q => q.Id)
-            .Take(pageSize + 1)
-            .Select(q => mapper.Map<QuestionDto>(q))
-            .ToListAsync();
+        var questions = await query.OrderByDescending(q => q.Id).Take(pageSize + 1).ToListAsync();
+        var items = questions.Select(q => ToDto(q, userId)).ToList();
 
         var hasMore = items.Count > pageSize;
         if (hasMore)
@@ -70,8 +68,26 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
             return null;
 
         var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, entry.Question);
+        var result = ResultsBuilder.Build(entry.Question, entry.Question.Votes, mapper, usersById);
 
-        return ResultsBuilder.Build(entry.Question, entry.Question.Votes, mapper, usersById);
+        // The author shows only once the question has closed (a newer one activated): while
+        // it's open, members are still guessing (§17.6).
+        var isClosed = await context.DailyEntries.AnyAsync(d =>
+            d.GroupId == groupId && d.ActivatedAt != null && d.Date > date
+        );
+        if (isClosed && AuthorGuessRules.AuthorOf(entry.Question) is int authorId)
+            result.Author = await context
+                .Users.Where(u => u.Id == authorId)
+                .Select(u => new VoterDto
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    AvatarUrl = u.AvatarUrl,
+                    FrameColor = u.FrameColor,
+                })
+                .FirstOrDefaultAsync();
+
+        return result;
     }
 
     // ==========================================
@@ -79,7 +95,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
     // Lista paginada de preguntas ya cerradas (cursor-based, más recientes primero).
     // Excluye la pregunta activa de hoy y las preseleccionadas futuras.
     // ==========================================
-    public async Task<HistoryPageDto> GetHistoryAsync(int groupId, DateOnly? before, int pageSize = 20)
+    public async Task<HistoryPageDto> GetHistoryAsync(int groupId, int userId, DateOnly? before, int pageSize = 20)
     {
         // The "open" entry is the most-recently-activated one. The lifecycle is driven by
         // ActivatedAt, not the calendar date, so the open entry's Date may be before today.
@@ -106,6 +122,15 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
                 d.Question.TextTranslations,
                 d.Question.Type,
                 TotalVotes = d.Question.Votes.Select(v => v.UserId).Distinct().Count(),
+                AuthorUsername = d.Question.Source == QuestionSource.UserCreated && d.Question.Creator != null
+                    ? d.Question.Creator.Username
+                    : null,
+                MyGuessCorrect = context
+                    .AuthorGuesses.Where(g =>
+                        g.DailyEntryId == d.Id && g.UserId == userId && g.GuessedCreatorId != null
+                    )
+                    .Select(g => (bool?)g.IsCorrect)
+                    .FirstOrDefault(),
             })
             .ToListAsync();
 
@@ -115,6 +140,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
                 QuestionText = ContentTranslations.Pick(d.Text, d.TextTranslations),
                 Type = d.Type,
                 TotalVotes = d.TotalVotes,
+                AuthorUsername = d.AuthorUsername,
+                MyGuessCorrect = d.MyGuessCorrect,
             })
             .ToList();
 
@@ -177,7 +204,14 @@ public class QuestionsService(AppDbContext context, IMapper mapper) : IQuestions
         context.Questions.Add(question);
         await context.SaveChangesAsync();
 
-        return (mapper.Map<QuestionDto>(question), null);
+        return (ToDto(question, creatorId), null);
+    }
+
+    private QuestionDto ToDto(Question question, int userId)
+    {
+        var dto = mapper.Map<QuestionDto>(question);
+        dto.IsMine = question.CreatorId == userId;
+        return dto;
     }
 
     // ==========================================

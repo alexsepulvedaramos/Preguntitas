@@ -9,14 +9,14 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideClock, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
-import { DailyStatus } from '../../../../core/models/daily.model';
+import { AuthorGuess, DailyStatus } from '../../../../core/models/daily.model';
 import { MyStreak, StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -39,13 +39,26 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
 import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { MyStreakComponent } from '../my-streak/my-streak.component';
+import { TodayVotersComponent } from '../today-voters/today-voters.component';
+import { AuthorGuessComponent } from '../author-guess/author-guess.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
+
+// The streak chip turns orange when you haven't voted and the question closes within this
+// window (the default of the "racha en peligro" push, rama 19).
+const STREAK_DANGER_MS = 3 * 60 * 60 * 1000;
+
+// One dismissible streak notice at a time, in this order of importance.
+type StreakNotice = 'lost' | 'freeze' | 'gift' | null;
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
 // is `app-vote` (rama 6); full results visualization lands in rama 7. The selection
-// panel's picker is `app-select-question-dialog` (rama 8).
+// panel's picker is `app-select-question-dialog` (rama 8). Rama 36 made it calmer so the
+// question stands out: the streak became a chip in the top bar, the time left a thin line
+// sharing a row with who has voted, notices sit above the question one at a time, and
+// "suggest a question" moved below it. After voting, "¿Quién la escribió?" sits under the
+// question when it was written by a member.
 @Component({
   selector: 'app-group-detail',
   imports: [
@@ -66,9 +79,11 @@ export const DAILY_POLL_INTERVAL_MS = 30_000;
     StreakCelebrationComponent,
     InviteQrComponent,
     MyStreakComponent,
+    TodayVotersComponent,
+    AuthorGuessComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideClock, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX }),
+    provideIcons({ lucideArrowLeft, lucideFlame, lucideGift, lucideHistory, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',
@@ -96,6 +111,24 @@ export class GroupDetailComponent implements OnInit {
   public readonly refreshing = signal(false);
   public readonly error = signal<TranslationKey | null>(null);
 
+  // Ticks once a minute so the streak chip notices when the question is about to close.
+  private readonly now = signal(Date.now());
+
+  protected readonly notice = computed<StreakNotice>(() => {
+    const streak = this.daily()?.myStreak;
+    if (streak?.lostStreak) return 'lost';
+    if (streak?.freezeSavedStreak) return 'freeze';
+    if (streak?.freezeGiftFrom) return 'gift';
+    return null;
+  });
+
+  protected readonly streakInDanger = computed(() => {
+    const today = this.daily()?.today;
+    const current = this.daily()?.myStreak.current ?? 0;
+    if (!today || today.status !== 'voting' || current < 1 || !today.closesAt) return false;
+    return new Date(today.closesAt).getTime() - this.now() <= STREAK_DANGER_MS;
+  });
+
   // Streak celebration after a vote that extends the streak (rama 19).
   public readonly celebration = signal<StreakUpdate | null>(null);
   private openSelectorAfterCelebration = false;
@@ -103,6 +136,8 @@ export class GroupDetailComponent implements OnInit {
   ngOnInit() {
     this.loadAll();
     this.startDailyPolling();
+    const tick = setInterval(() => this.now.set(Date.now()), 60_000);
+    this.destroyRef.onDestroy(() => clearInterval(tick));
   }
 
   refresh() {
@@ -128,17 +163,15 @@ export class GroupDetailComponent implements OnInit {
     return QUESTION_TYPE_BADGE_CLASS[type];
   }
 
-  responseCountLabel(totalVotes: number): string {
-    return this.t('groupDetail.votedCount', { count: totalVotes, total: this.members().length });
-  }
-
   // The backend already returns the fresh QuestionResultDto (plus the streak change) from
   // POST vote, so update the local state in place instead of re-fetching daily/current.
   onVoted(response: VoteResponse) {
     const daily = this.daily();
     if (!daily) return;
 
-    const { results, streak, coins } = response;
+    const { results, streak, coins, guess } = response;
+    const me = Number(this.authService.currentUser()?.id);
+    const voterIds = daily.today.voterIds ?? [];
     this.daily.set({
       ...daily,
       today: {
@@ -146,6 +179,8 @@ export class GroupDetailComponent implements OnInit {
         status: 'results',
         userHasVoted: true,
         results,
+        guess: guess ?? null,
+        voterIds: voterIds.includes(me) ? voterIds : [...voterIds, me],
       },
       myStreak: { ...daily.myStreak, current: streak.current, best: streak.best, lostStreak: null },
     });
@@ -168,8 +203,16 @@ export class GroupDetailComponent implements OnInit {
     }
   }
 
-  // "+8 🪙" after voting (rama 34), or why nothing was earned when the daily cap is full.
-  private announceCoins(coins: CoinsEarned | undefined) {
+  // "¿Quién la escribió?" answered, skipped or narrowed down by the hint (rama 36).
+  onGuessChanged(guess: AuthorGuess) {
+    const daily = this.daily();
+    if (!daily) return;
+    this.daily.set({ ...daily, today: { ...daily.today, guess } });
+  }
+
+  // "+8 🪙" after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
+  // the daily cap is full.
+  announceCoins(coins: CoinsEarned | undefined) {
     if (!coins) return;
     this.authService.patchCurrentUser({ coins: coins.balance });
     const capNote = coins.capReached

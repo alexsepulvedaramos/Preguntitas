@@ -2,7 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { DailyStatus, SelectQuestion } from '../models/daily.model';
+import {
+    AuthorHintResponse,
+    DailyStatus,
+    GuessAuthorRequest,
+    GuessAuthorResponse,
+    SelectQuestion,
+} from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { VoteResponse } from '../models/streak.model';
 import { ChatMessage } from '../models/chat-message.model';
@@ -36,6 +42,16 @@ export class DailyService {
     // voter's streak change (rama 19)
     vote(groupId: number, dto: CreateVote): Observable<VoteResponse> {
         return this.http.post<VoteResponse>(`${this.baseUrl}/${groupId}/daily/vote`, dto);
+    }
+
+    // "¿Quién la escribió?" (§17.6): guess the author of the open question, or skip
+    guessAuthor(groupId: number, dto: GuessAuthorRequest): Observable<GuessAuthorResponse> {
+        return this.http.post<GuessAuthorResponse>(`${this.baseUrl}/${groupId}/daily/guess`, dto);
+    }
+
+    // Author hint (§17.10): hides half of the wrong candidates; 409 when coins are short
+    buyAuthorHint(groupId: number): Observable<AuthorHintResponse> {
+        return this.http.post<AuthorHintResponse>(`${this.baseUrl}/${groupId}/daily/guess/hint`, {});
     }
 
     // Acknowledge the "Has perdido tu racha…" notice so it isn't shown again

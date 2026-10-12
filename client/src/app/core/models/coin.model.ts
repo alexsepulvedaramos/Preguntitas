@@ -12,6 +12,9 @@ export enum CoinReason {
   StreakFreeze = 6,
   StreakFreezeGift = 7,
   StreakRepair = 8,
+  // Guess the author (rama 36)
+  GuessCorrect = 9,
+  AuthorHint = 10,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -55,3 +58,6 @@ export interface PurchaseResponse {
 }
 
 export const STREAK_FREEZE_PRICE = 100;
+
+// A right "guess the author" (rama 36, §17.6).
+export const AUTHOR_GUESS_REWARD = 5;

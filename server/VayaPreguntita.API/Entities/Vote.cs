@@ -16,14 +16,10 @@ public class Vote
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
-    // ==========================================
-    // 2. GAMIFICATION (Guess the Creator mini-game)
-    // ==========================================
-    // public int? GuessedCreatorId { get; set; }
-    // public User? GuessedCreator { get; set; }
+    // ("Guess the author" lives in AuthorGuess, one row per member and entry.)
 
     // ==========================================
-    // 3. THE FLEXIBLE ANSWER FIELDS (Polymorphic data)
+    // 2. THE FLEXIBLE ANSWER FIELDS (Polymorphic data)
     // IMPORTANT: Only ONE of these should have a value per row!
     // ==========================================
 

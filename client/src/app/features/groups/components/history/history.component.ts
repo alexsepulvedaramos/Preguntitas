@@ -174,6 +174,8 @@ export class HistoryComponent implements OnInit {
           questionText: result.text,
           type: result.type,
           totalVotes: result.totalVotes,
+          authorUsername: result.author?.username ?? null,
+          myGuessCorrect: null, // the detail doesn't carry your guess; the list row does
         };
         this.entries.update(prev => {
           const insertAt = prev.findIndex(e => e.date < dateStr);

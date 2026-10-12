@@ -35,6 +35,14 @@ public class TodayStateDto
 
     // Next T (UTC) — when the open question closes. null when no_question.
     public DateTime? ClosesAt { get; set; }
+
+    // Members who have voted the open question (no answers), and the group's size, for
+    // the "3/6 han votado" row.
+    public List<int> VoterIds { get; set; } = [];
+    public int MemberCount { get; set; }
+
+    // "Guess the author" (§17.6), once you have voted; null when the question isn't guessable.
+    public AuthorGuessDto? Guess { get; set; }
 }
 
 public class SelectionStateDto
@@ -45,8 +53,9 @@ public class SelectionStateDto
     // When the pending question will activate (next T, UTC).
     public DateTime ActivatesAt { get; set; }
 
-    public int SelectorUserId { get; set; }
-    public string SelectorUsername { get; set; } = string.Empty;
+    // Only sent to the selector themself (null for everyone else, §17.6).
+    public int? SelectorUserId { get; set; }
+    public string? SelectorUsername { get; set; }
 
     // Drives the "te toca elegir" indicator.
     public bool IsCurrentUserSelector { get; set; }
