@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { MemberStats, TitleOption } from '../models/streak.model';
 import { CoinHistoryPage, Inventory } from '../models/coin.model';
+import { Look } from '../constants/shop-catalog';
 
 export interface UserProfileDto {
   id: number;
@@ -18,6 +19,12 @@ export interface UserProfileDto {
   unlockedTitles: TitleOption[];
   coins: number;
   inventory: Inventory; // rama 45
+  // Shop cosmetics (rama 42)
+  look: Look | null;
+  themeKey: string | null;
+  ownedCosmetics: string[];
+  shopTitles: { key: string; title: string }[];
+  firstJoinedAt: string | null;
 }
 
 export interface UpdateProfileRequest {
@@ -25,8 +32,14 @@ export interface UpdateProfileRequest {
   email?: string;
   avatarUrl?: string | null;
   frameColor?: string | null;
-  titleKey?: string; // 'auto', 'none' or an unlocked tier key
+  titleKey?: string; // 'auto', 'none', an unlocked tier key or an owned shop title
   preferredLanguage?: string;
+  // Equipped cosmetics (rama 42): an owned key, '' to take it off, omitted = unchanged.
+  ringSkinKey?: string;
+  accessoryKey?: string;
+  nameColorKey?: string;
+  badgeKey?: string;
+  themeKey?: string;
 }
 
 export interface ChangePasswordRequest {

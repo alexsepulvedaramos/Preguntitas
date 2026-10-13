@@ -68,13 +68,16 @@ public static class StreakTiers
     public static IEnumerable<StreakTier> UnlockedBy(int highestStreakEver) =>
         All.Where(t => highestStreakEver >= t.MinDays);
 
-    // SelectedTitleKey: null = automatic (highest unlocked), "none" = hidden, else a tier key.
+    // SelectedTitleKey: null = automatic (highest unlocked), "none" = hidden, else a tier key
+    // or an owned shop title (rama 42, checked when it is chosen).
     public const string NoTitle = "none";
 
     public static string? DisplayedTitle(int highestStreakEver, string? selectedTitleKey)
     {
         if (selectedTitleKey == NoTitle)
             return null;
+        if (ShopCatalog.ByKey(selectedTitleKey) is { Kind: Enums.CosmeticKind.Title, Name: { } shopTitle })
+            return shopTitle.ToString();
         var unlocked = UnlockedBy(highestStreakEver).ToList();
         var chosen = unlocked.FirstOrDefault(t => t.Key == selectedTitleKey);
         return (chosen ?? unlocked.LastOrDefault())?.Title;

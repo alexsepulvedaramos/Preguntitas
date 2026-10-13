@@ -34,6 +34,14 @@ public class User
     // Coin wallet balance, one per user across all groups (§17.2). Never negative; every
     // change is mirrored by a CoinTransaction row.
     public int Coins { get; set; } = 0;
+
+    // Equipped shop cosmetics (rama 42, §17.10): ShopCatalog keys the user owns (UserItem),
+    // null = none. A shop title goes in SelectedTitleKey instead.
+    public string? RingSkinKey { get; set; }
+    public string? AccessoryKey { get; set; }
+    public string? NameColorKey { get; set; }
+    public string? BadgeKey { get; set; }
+    public string? ThemeKey { get; set; }
     public List<GroupMember> GroupMemberships { get; set; } = [];
 
     [InverseProperty("Creator")]

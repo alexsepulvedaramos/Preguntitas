@@ -67,6 +67,8 @@ export function nextStreakTier(streak: number): StreakTier | null {
 // Special User.frameColor values besides a plain hex colour.
 export const FRAME_STREAK = 'streak';
 export const FRAME_NONE = 'none';
+// Free seniority frame by time in the group (rama 42, §17.10).
+export const FRAME_SENIORITY = 'seniority';
 
 // Special title selections besides a tier key.
 export const TITLE_AUTO = 'auto';
@@ -109,6 +111,10 @@ export interface FrameLook {
   sideGems?: string;
   twinkles?: number;
   motes?: number;
+  // Ring skins (rama 42): a blurred glowing tube over the rim, and an 8-bit rim of square
+  // blocks in these colours instead of a gradient band.
+  glow?: string;
+  pixel?: string[];
 }
 
 export const FRAME_LOOKS: Record<StreakTierKey, FrameLook> = {

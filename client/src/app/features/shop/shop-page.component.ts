@@ -1,13 +1,13 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideStore } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCheck } from '@ng-icons/lucide';
 
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmItemImports } from '@spartan-ng/helm/item';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
@@ -15,6 +15,22 @@ import { AuthService } from '../../core/auth/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ShopService } from '../../core/services/shop.service';
 import { apiErrorMessage } from '../../shared/utils/api-error';
+import { ThemeService } from '../../core/services/theme.service';
+import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
+import { UserNameComponent } from '../../shared/components/user-name/user-name.component';
+import {
+  BADGE_EMOJI,
+  COSMETICS,
+  CosmeticEntry,
+  CosmeticKind,
+  CosmeticRarity,
+  Look,
+  THEME_SWATCHES,
+  cosmeticByKey,
+  nameColorClass,
+  themeAttr,
+} from '../../core/constants/shop-catalog';
+import { FIRST_RING_DAYS, FRAME_STREAK, STREAK_TIERS } from '../../core/constants/streak-tiers';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslationKey } from '../../core/i18n/translation.types';
 import {
@@ -44,6 +60,7 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.AuthorHint]: 'coins.reasons.authorHint',
   [CoinReason.RaceWon]: 'coins.reasons.raceWon',
   [CoinReason.FlashQuestion]: 'coins.reasons.flashQuestion',
+  [CoinReason.Cosmetic]: 'coins.reasons.cosmetic',
 };
 
 const REASON_EMOJI: Record<CoinReason, string> = {
@@ -60,7 +77,36 @@ const REASON_EMOJI: Record<CoinReason, string> = {
   [CoinReason.AuthorHint]: '💡',
   [CoinReason.RaceWon]: '⏱️',
   [CoinReason.FlashQuestion]: '⚡',
+  [CoinReason.Cosmetic]: '🛍️',
 };
+
+type Slot = keyof Look | 'theme';
+
+// Cosmetics sections in the shop (rama 42), each with the profile field that equips it.
+// Titles are equipped from the profile's title picker instead.
+const KIND_SECTIONS: readonly {
+  kind: CosmeticKind;
+  id: string;
+  field: 'ringSkinKey' | 'accessoryKey' | 'nameColorKey' | 'badgeKey' | 'themeKey' | null;
+  slot: Slot | null;
+}[] = [
+  { kind: CosmeticKind.RingSkin, id: 'ringSkin', field: 'ringSkinKey', slot: 'ringSkin' },
+  { kind: CosmeticKind.Accessory, id: 'accessory', field: 'accessoryKey', slot: 'accessory' },
+  { kind: CosmeticKind.NameColor, id: 'nameColor', field: 'nameColorKey', slot: 'nameColor' },
+  { kind: CosmeticKind.Badge, id: 'badge', field: 'badgeKey', slot: 'badge' },
+  { kind: CosmeticKind.Title, id: 'title', field: null, slot: null },
+  { kind: CosmeticKind.Theme, id: 'theme', field: 'themeKey', slot: 'theme' },
+];
+
+const RARITY_KEYS: Record<CosmeticRarity, TranslationKey> = {
+  [CosmeticRarity.Common]: 'shop.rarity.common',
+  [CosmeticRarity.Rare]: 'shop.rarity.rare',
+  [CosmeticRarity.Epic]: 'shop.rarity.epic',
+  [CosmeticRarity.Legendary]: 'shop.rarity.legendary',
+};
+
+// Streak shown on the try-on avatar while trying a ring skin without a ring yet (silver).
+const PREVIEW_STREAK = STREAK_TIERS[3].minDays;
 
 // The game items sold ahead (rama 45, §17.10), cheapest first. Each is used later from its own
 // spot in a group: the streak panel, a member's card, the guess step or the create form.
@@ -106,19 +152,31 @@ const SHOP_ITEMS: readonly {
   },
 ];
 
-// Coins & shop (rama 34, §17.2): the wallet, the game items you can buy ahead (rama 45) and
-// the ledger. Cosmetics arrive with rama 42 (§17.10).
+// Coins & shop (rama 34, §17.2): the wallet, the game items you can buy ahead (rama 45),
+// the cosmetics with a try-on preview on your own avatar (rama 42, §17.10) and the ledger.
 @Component({
   selector: 'app-shop-page',
-  imports: [NgIcon, HlmAlertDialogImports, HlmButtonImports, HlmCardImports, HlmEmptyImports, HlmItemImports, HlmSpinnerImports],
-  providers: [provideIcons({ lucideArrowLeft, lucideStore })],
+  imports: [
+    NgIcon,
+    RouterLink,
+    UserAvatarComponent,
+    UserNameComponent,
+    HlmAlertDialogImports,
+    HlmBadgeImports,
+    HlmButtonImports,
+    HlmCardImports,
+    HlmItemImports,
+    HlmSpinnerImports,
+  ],
+  providers: [provideIcons({ lucideArrowLeft, lucideCheck })],
   templateUrl: './shop-page.component.html',
 })
-export class ShopPageComponent implements OnInit {
+export class ShopPageComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly shopService = inject(ShopService);
   private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
   private readonly i18n = inject(I18nService);
   protected readonly t = this.i18n.t;
   protected readonly dailyCap = COIN_DAILY_CAP;
@@ -130,6 +188,86 @@ export class ShopPageComponent implements OnInit {
   protected readonly error = signal(false);
   protected readonly busy = signal<InventoryItem | null>(null);
 
+  // ── Cosmetics (rama 42) ──
+  protected readonly user = this.authService.currentUser;
+  protected readonly frameStreak = FRAME_STREAK;
+  protected readonly cosmeticBusy = signal<string | null>(null);
+  // What is being tried on, per slot (null = trying "nothing", e.g. the default theme).
+  protected readonly trying = signal<Partial<Record<Slot, string | null>>>({});
+  protected readonly isTrying = computed(() => Object.keys(this.trying()).length > 0);
+
+  private readonly owned = computed(() => new Set(this.user()?.ownedCosmetics ?? []));
+
+  private readonly equipped = computed<Record<Slot, string | null>>(() => {
+    const look = this.user()?.look;
+    return {
+      ringSkin: look?.ringSkin ?? null,
+      accessory: look?.accessory ?? null,
+      nameColor: look?.nameColor ?? null,
+      badge: look?.badge ?? null,
+      theme: this.user()?.themeKey ?? null,
+    };
+  });
+
+  // What the try-on avatar wears: the equipped items with the tried-on ones over them.
+  protected readonly previewLook = computed<Look>(() => {
+    const merged = { ...this.equipped(), ...this.trying() };
+    return {
+      ringSkin: merged.ringSkin ?? null,
+      accessory: merged.accessory ?? null,
+      nameColor: merged.nameColor ?? null,
+      badge: merged.badge ?? null,
+    };
+  });
+
+  protected readonly previewStreak = computed(() => {
+    const streak = this.user()?.highestStreak ?? 0;
+    return streak >= FIRST_RING_DAYS || !this.trying().ringSkin ? streak : PREVIEW_STREAK;
+  });
+
+  // Frame on the try-on avatar: a ring skin being tried shows on the streak ring.
+  protected readonly previewFrame = computed(() =>
+    'ringSkin' in this.trying() && this.trying().ringSkin ? FRAME_STREAK : this.user()?.frameColor
+  );
+
+  // Streak for the ring-skin tiles: yours, or silver when you have no ring yet.
+  protected readonly ringStreak = computed(() => {
+    const streak = this.user()?.highestStreak ?? 0;
+    return streak >= FIRST_RING_DAYS ? streak : PREVIEW_STREAK;
+  });
+
+  protected readonly sections = computed(() => {
+    const owned = this.owned();
+    const equipped = this.equipped();
+    const trying = this.trying();
+    const balance = this.balance();
+    return KIND_SECTIONS.map((section) => ({
+      ...section,
+      title: this.t(`shop.kinds.${section.id}` as TranslationKey),
+      hint: this.t(`shop.kindHints.${section.id}` as TranslationKey),
+      items: COSMETICS.filter((c) => c.kind === section.kind).map((c) => ({
+        ...c,
+        label: this.t(c.name),
+        rarityLabel: this.t(RARITY_KEYS[c.rarity]),
+        owned: owned.has(c.key),
+        equipped: !!section.slot && equipped[section.slot] === c.key,
+        tried: !!section.slot && trying[section.slot] === c.key,
+        missing: Math.max(0, c.price - balance),
+        emoji: BADGE_EMOJI[c.key] ?? null,
+        colorClass: nameColorClass(c.key),
+        swatch: THEME_SWATCHES[c.key] ?? null,
+        look: {
+          ringSkin: c.kind === CosmeticKind.RingSkin ? c.key : null,
+          accessory: c.kind === CosmeticKind.Accessory ? c.key : null,
+          nameColor: null,
+          badge: null,
+        } as Look,
+      })),
+    }));
+  });
+
+  protected readonly defaultThemeEquipped = computed(() => !this.equipped().theme);
+  protected readonly defaultThemeTried = computed(() => this.trying().theme === null);
   protected readonly shopItems = computed(() => {
     const inventory = this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY;
     const balance = this.balance();
@@ -148,15 +286,93 @@ export class ShopPageComponent implements OnInit {
     return this.items().map(item => ({
       ...item,
       emoji: REASON_EMOJI[item.reason] ?? '🪙',
-      label: this.t(REASON_LABELS[item.reason] ?? 'coins.reasons.vote'),
+      label: this.t(REASON_LABELS[item.reason] ?? 'coins.reasons.vote', {
+        name: this.t(cosmeticByKey(item.itemKey)?.name ?? 'shop.cosmeticsTitle'),
+      }),
       date: format.format(new Date(item.createdAt)),
     }));
   });
 
+  ngOnDestroy(): void {
+    this.themeService.previewPalette.set(undefined);
+  }
+
+  // Tap an item to try it on, again to stop. A theme is tried on the whole app.
+  tryOn(slot: Slot | null, key: string | null): void {
+    if (!slot) return;
+    const trying = this.trying();
+    const stop = slot in trying && trying[slot] === key;
+    this.trying.update((t) => {
+      const copy = { ...t };
+      if (stop) delete copy[slot];
+      else copy[slot] = key;
+      return copy;
+    });
+    if (slot === 'theme') this.themeService.previewPalette.set(stop ? undefined : themeAttr(key));
+  }
+
+  stopTrying(): void {
+    this.trying.set({});
+    this.themeService.previewPalette.set(undefined);
+  }
+
+  buyCosmetic(entry: CosmeticEntry): void {
+    if (this.cosmeticBusy()) return;
+    this.cosmeticBusy.set(entry.key);
+    this.shopService.buyCosmetic(entry.key).subscribe({
+      next: () => {
+        this.cosmeticBusy.set(null);
+        toast.success(this.t('shop.bought', { name: this.t(entry.name) }));
+        // The purchase is a new ledger row: reload from the first page.
+        this.items.set([]);
+        this.loadPage(null);
+      },
+      error: (err) => {
+        this.cosmeticBusy.set(null);
+        toast.error(apiErrorMessage(err, this.t('shop.buyFailed')));
+      },
+    });
+  }
+
+  // Wears an owned item in its slot, or with null takes the slot's item off.
+  equip(section: { field: string | null; slot: Slot | null }, key: string | null): void {
+    const { field, slot } = section;
+    if (!field || !slot || this.cosmeticBusy()) return;
+    this.cosmeticBusy.set(key ?? field);
+    this.userService.updateProfile({ [field]: key ?? '' }).subscribe({
+      next: (profile) => {
+        this.cosmeticBusy.set(null);
+        this.authService.patchCurrentUser({ look: profile.look, themeKey: profile.themeKey });
+        // Worn now, so no longer a try-on.
+        if (slot in this.trying()) {
+          this.trying.update((t) => {
+            const copy = { ...t };
+            delete copy[slot];
+            return copy;
+          });
+          if (slot === 'theme') this.themeService.previewPalette.set(undefined);
+        }
+      },
+      error: (err) => {
+        this.cosmeticBusy.set(null);
+        toast.error(apiErrorMessage(err, this.t('shop.equipFailed')));
+      },
+    });
+  }
+
   ngOnInit(): void {
     // Selector rewards are paid by the daily tick, so refresh the balance on entry.
     this.userService.getProfile().subscribe({
-      next: profile => this.authService.patchCurrentUser({ coins: profile.coins, inventory: profile.inventory }),
+      next: profile =>
+        this.authService.patchCurrentUser({
+          coins: profile.coins,
+          inventory: profile.inventory,
+          look: profile.look,
+          themeKey: profile.themeKey,
+          ownedCosmetics: profile.ownedCosmetics,
+          highestStreak: profile.highestStreak,
+          title: profile.title,
+        }),
     });
     this.loadPage(null);
   }

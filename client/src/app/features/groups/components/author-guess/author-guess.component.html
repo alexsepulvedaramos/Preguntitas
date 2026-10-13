@@ -19,7 +19,7 @@
             [attr.aria-checked]="selectedId() === m.id"
             (click)="select(m.id)"
           >
-            <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" size="sm" />
+            <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" size="sm" />
             <span class="w-full truncate text-center">{{ m.username }}</span>
           </button>
         }
@@ -112,7 +112,7 @@
         [class]="guess().correct ? 'border-primary/40 bg-primary/10' : 'border-border bg-card'"
         aria-live="polite"
       >
-        <app-user-avatar [avatarUrl]="author.avatarUrl" [username]="author.username" [frameColor]="author.frameColor" size="sm" />
+        <app-user-avatar [avatarUrl]="author.avatarUrl" [username]="author.username" [frameColor]="author.frameColor" [look]="groupStreaks.lookFor(author.id)" [memberSince]="groupStreaks.joinedAtFor(author.id)" size="sm" />
         <p class="min-w-0 flex-1 text-foreground">
           @if (guess().state === 'skipped') {
             {{ t('guess.wroteIt', { name: author.username }) }}

@@ -19,6 +19,8 @@ export enum CoinReason {
   RaceWon = 11,
   // Flash question (rama 44)
   FlashQuestion = 12,
+  // Shop cosmetics (rama 42)
+  Cosmetic = 13,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -34,6 +36,7 @@ export interface CoinTransaction {
   reason: CoinReason;
   groupId: number | null;
   groupName: string | null;
+  itemKey?: string | null; // the cosmetic bought, for CoinReason.Cosmetic (rama 42)
   createdAt: string;
 }
 
@@ -81,6 +84,17 @@ export interface Inventory {
 }
 
 export const EMPTY_INVENTORY: Inventory = { flashQuestion: 0, streakFreeze: 0, authorHint: 0, streakRepair: 0 };
+
+// GET shop (rama 42): the cosmetics catalog, with what you own.
+export interface ShopCatalog {
+  cosmetics: { key: string; kind: number; price: number; rarity: number; owned: boolean }[];
+}
+
+// POST shop/cosmetics
+export interface BuyCosmeticResponse {
+  balance: number;
+  ownedCosmetics: string[];
+}
 
 // POST shop/inventory
 export interface BuyItemResponse {

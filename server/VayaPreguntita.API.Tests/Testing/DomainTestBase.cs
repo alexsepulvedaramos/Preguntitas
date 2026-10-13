@@ -59,6 +59,21 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
 
     protected InventoryService NewInventoryService(AppDbContext db) => new(db, NewCoinService(db));
 
+    protected CosmeticsService NewCosmeticsService(AppDbContext db) => new(db, NewCoinService(db), Clock);
+
+    protected UserService NewUserService(AppDbContext db) =>
+        new(
+            db,
+            new Microsoft.AspNetCore.Identity.PasswordHasher<Entities.User>(),
+            new SupabaseStorageService(
+                new HttpClient(),
+                Microsoft.Extensions.Options.Options.Create(new Options.SupabaseStorageOptions())
+            ),
+            NewStreakService(db),
+            NewInventoryService(db),
+            NewCosmeticsService(db)
+        );
+
     protected AuthorGuessService NewAuthorGuessService(AppDbContext db) => new(db, NewCoinService(db), NewInventoryService(db), Clock);
 
     protected FlashService NewFlashService(AppDbContext db) =>

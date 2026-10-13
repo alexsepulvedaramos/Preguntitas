@@ -1,4 +1,4 @@
-import { CROWN_LOOK, FRAME_LOOKS, StreakTierKey } from '../../../core/constants/streak-tiers';
+import { CROWN_LOOK, FRAME_LOOKS, FrameLook, StreakTierKey } from '../../../core/constants/streak-tiers';
 
 // Builds the markup of a streak frame (rama 19). Coordinates: viewBox -100..100 over a box
 // twice the avatar's size, so the avatar's radius is 50 and the rim spans 49–59. Every value
@@ -7,6 +7,8 @@ import { CROWN_LOOK, FRAME_LOOKS, StreakTierKey } from '../../../core/constants/
 
 export interface FrameOptions {
   tier: StreakTierKey | null;
+  // Replaces the tier's own material: a ring skin or a seniority frame (rama 42).
+  look?: FrameLook | null;
   crown: boolean;
   // Light version for list sizes: rim, shine and gems only — no particles or ornaments.
   lite: boolean;
@@ -16,6 +18,12 @@ export interface FrameOptions {
 }
 
 const f = (n: number) => n.toFixed(2);
+
+// Whether a #rrggbb colour is light enough to need dark text on it.
+function isLight(hex: string): boolean {
+  const n = parseInt(hex.slice(1), 16);
+  return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) > 150;
+}
 
 function polar(deg: number, r: number): [number, number] {
   const rad = (deg * Math.PI) / 180;
@@ -48,7 +56,7 @@ function crownMarkup(id: string, lite: boolean): string {
 
 export function renderStreakFrame(o: FrameOptions): string {
   const { tier, crown, lite, uid: id } = o;
-  const look = tier ? FRAME_LOOKS[tier] : null;
+  const look = o.look ?? (tier ? FRAME_LOOKS[tier] : null);
   const rnd = seeded((tier?.length ?? 1) * 131 + (lite ? 7 : 3));
   let html = '';
 
@@ -66,7 +74,16 @@ export function renderStreakFrame(o: FrameOptions): string {
     ${crown ? gradient(`${id}cr`, CROWN_LOOK.stops) : ''}
   </defs>`;
 
-  if (look?.facets && look.facet) {
+  if (look?.pixel) {
+    // 8-bit rim: square blocks round the ring, colours cycling, with a dark outline.
+    const n = lite ? 16 : 24;
+    svg += `<circle r="54" fill="none" stroke="#111" stroke-width="12" opacity=".55"/>`;
+    for (let k = 0; k < n; k++) {
+      const ang = (k / n) * 360;
+      const [x, y] = polar(ang, 54);
+      svg += `<rect x="${f(x - 4.6)}" y="${f(y - 4.6)}" width="9.2" height="9.2" fill="${look.pixel[k % look.pixel.length]}" stroke="#111" stroke-width=".8" transform="rotate(${ang.toFixed(0)} ${f(x)} ${f(y)})"/>`;
+    }
+  } else if (look?.facets && look.facet) {
     // Cut stone: four triangles per facet, see-through so the nebula glows beneath.
     const n = lite ? Math.round(look.facets / 2) : look.facets;
     const sh = look.facet;
@@ -90,6 +107,8 @@ export function renderStreakFrame(o: FrameOptions): string {
         <circle r="51.4" fill="none" stroke="${look.stops[0]}" stroke-width=".6" opacity=".6"/><circle r="56.6" fill="none" stroke="${look.stops[0]}" stroke-width=".6" opacity=".6"/>`;
     if (look.hot && !lite)
       svg += `<circle class="vp-frame__pulse" r="54" fill="none" stroke="#ff7a1a" stroke-width="10" filter="url(#${id}blur)"/>`;
+    if (look.glow)
+      svg += `<circle class="vp-frame__pulse" r="54" fill="none" stroke="${look.glow}" stroke-width="${lite ? 6 : 9}" filter="url(#${id}blur)"/>`;
     if (look.grain) {
       for (const r of [51.2, 53, 55.2, 57])
         svg += `<circle r="${r}" fill="none" stroke="${look.grain}" stroke-width=".7" stroke-dasharray="${f(6 + rnd() * 10)} ${f(2 + rnd() * 4)} ${f(14 + rnd() * 12)} ${f(3 + rnd() * 3)}" opacity=".6" transform="rotate(${(rnd() * 360).toFixed(0)})"/>`;
@@ -159,10 +178,11 @@ export function renderStreakFrame(o: FrameOptions): string {
   // Ribbon with the day count.
   if (look && o.ribbon) {
     const fill = look.stops ? `url(#${id}rb)` : look.facet ? look.facet[1] : look.a;
+    // Light materials need dark digits; skins pick by their main colour's lightness.
     const grad = look.stops
       ? `<defs><linearGradient id="${id}rb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${look.stops[2]}"/><stop offset=".5" stop-color="${look.stops[1]}"/><stop offset="1" stop-color="${look.stops[0]}"/></linearGradient></defs>`
       : '';
-    const darkText = tier === 'silver' || tier === 'gold' || tier === 'stone';
+    const darkText = o.look ? isLight(look.a) : tier === 'silver' || tier === 'gold' || tier === 'stone';
     html += `<svg class="vp-frame__front" viewBox="-100 -100 200 200" aria-hidden="true">${grad}
       <path d="M-34 44 L-26 52 L-34 60 L-18 60 L-18 44 Z M34 44 L26 52 L34 60 L18 60 L18 44 Z" fill="${fill}" opacity=".75" stroke="#000" stroke-opacity=".35" stroke-width=".8"/>
       <path d="M-24 40 L24 40 L24 58 L-24 58 Z" fill="${fill}" stroke="#000" stroke-opacity=".4" stroke-width="1"/>

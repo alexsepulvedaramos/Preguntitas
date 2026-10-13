@@ -15,6 +15,8 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { ChatMessage } from '../../../../core/models/chat-message.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { visiblePolling } from '../../../../shared/utils/visible-polling';
+import { GroupStreaksService } from '../../services/group-streaks.service';
+import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
 export const CHAT_POLL_INTERVAL_MS = 15_000;
 
@@ -23,13 +25,14 @@ const AT_BOTTOM_THRESHOLD_PX = 80;
 
 @Component({
   selector: 'app-group-chat',
-  imports: [DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
+  imports: [UserNameComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
   providers: [provideIcons({ lucideSend })],
   templateUrl: './group-chat.component.html',
 })
 export class GroupChatComponent implements OnInit {
   private readonly dailyService = inject(DailyService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly injector = inject(Injector);
   protected readonly t = inject(I18nService).t;
 

@@ -20,13 +20,14 @@ import { FIRST_RING_DAYS, STREAK_FRAME_KEYS, streakTierFor } from '../../../../c
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { GroupsService } from '../../services/groups.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
 // Member detail card (rama 19): opened by tapping a member avatar inside a group, or from
 // the profile page for your own stats in every group. Spartan drawer on mobile, dialog on
 // desktop. Rendered once in the main layout and driven by MemberCardService.
 @Component({
   selector: 'app-member-card',
-  imports: [
+  imports: [UserNameComponent, 
     NgTemplateOutlet,
     HlmButtonImports,
     HlmDialogImports,
@@ -66,6 +67,12 @@ export class MemberCardComponent {
     const list = this.stats();
     if (list.length === 0) return null;
     return list.reduce((best, s) => (s.currentStreak > best.currentStreak ? s : best), list[0]);
+  });
+
+  // Seniority frame: time in this group, or in the oldest group on the all-groups card.
+  protected readonly memberSince = computed(() => {
+    const dates = this.stats().map((s) => s.joinedAt).filter(Boolean).sort();
+    return this.allGroups() ? (dates[0] ?? null) : (this.headline()?.joinedAt ?? null);
   });
 
   protected readonly firstRingDays = FIRST_RING_DAYS;

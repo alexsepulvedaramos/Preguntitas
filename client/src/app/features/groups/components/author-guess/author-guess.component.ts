@@ -14,6 +14,7 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { GroupMember } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 
 // "¿Quién la escribió?" (rama 36, §17.6): shown under today's question once you have voted on
 // a member-written one. Pick a member and confirm, or skip to see the author; the answer is
@@ -28,6 +29,7 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
 export class AuthorGuessComponent {
   private readonly dailyService = inject(DailyService);
   private readonly authService = inject(AuthService);
+  protected readonly groupStreaks = inject(GroupStreaksService);
   protected readonly t = inject(I18nService).t;
 
   readonly groupId = input.required<number>();

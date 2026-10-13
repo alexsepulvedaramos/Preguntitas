@@ -63,6 +63,7 @@ function member(
     currentStreak: streak,
     hasCrown,
     title: null,
+    look: null,
   };
 }
 

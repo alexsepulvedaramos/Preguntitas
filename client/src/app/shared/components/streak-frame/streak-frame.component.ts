@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-import { StreakTierKey } from '../../../core/constants/streak-tiers';
+import { FrameLook, StreakTierKey } from '../../../core/constants/streak-tiers';
 import { renderStreakFrame } from './streak-frame-renderer';
 
 let nextId = 0;
@@ -24,6 +24,8 @@ export class StreakFrameComponent {
   private readonly uid = `vpf${nextId++}`;
 
   readonly tier = input<StreakTierKey | null>(null);
+  // A ring skin's or seniority frame's look in place of the tier's material (rama 42).
+  readonly look = input<FrameLook | null>(null);
   readonly crown = input(false);
   readonly lite = input(true);
   readonly ribbon = input<number | null>(null);
@@ -34,6 +36,7 @@ export class StreakFrameComponent {
     this.sanitizer.bypassSecurityTrustHtml(
       renderStreakFrame({
         tier: this.tier(),
+        look: this.look(),
         crown: this.crown(),
         lite: this.lite(),
         ribbon: this.ribbon(),

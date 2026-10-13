@@ -24,6 +24,10 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                             title: profile.title,
                             coins: profile.coins,
                             inventory: profile.inventory,
+                            look: profile.look,
+                            themeKey: profile.themeKey,
+                            ownedCosmetics: profile.ownedCosmetics,
+                            firstJoinedAt: profile.firstJoinedAt,
                         });
                         // Another device may have changed the account's language
                         language.applyAccount(profile.preferredLanguage);

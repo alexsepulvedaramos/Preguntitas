@@ -51,6 +51,7 @@ public class UsersController(
                 "USER_NOT_FOUND" => NotFound(ServerText.UserNotFound),
                 "INVALID_FRAME_COLOR" => BadRequest(ServerText.InvalidFrameColor),
                 "TITLE_NOT_UNLOCKED" => BadRequest(ServerText.TitleNotUnlocked),
+                "COSMETIC_NOT_OWNED" => BadRequest(ServerText.CosmeticNotOwned),
                 "INVALID_LANGUAGE" => BadRequest(ServerText.InvalidLanguage),
                 _ => BadRequest(error),
             };

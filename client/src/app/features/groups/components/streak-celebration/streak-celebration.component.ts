@@ -49,6 +49,10 @@ export class StreakCelebrationComponent implements OnInit, AfterViewInit, OnDest
   protected readonly shownUsername = computed(
     () => this.username() ?? this.authService.currentUser()?.username ?? ''
   );
+  // Your own shop look (rama 42) on your own celebration.
+  protected readonly shownLook = computed(() =>
+    this.username() != null ? null : (this.authService.currentUser()?.look ?? null)
+  );
   protected readonly shownAvatarUrl = computed(() =>
     this.username() != null ? this.avatarUrl() : (this.authService.currentUser()?.avatarUrl ?? null)
   );

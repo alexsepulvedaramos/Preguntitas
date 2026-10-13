@@ -10,6 +10,7 @@ import { isHexFrame } from '../../../../core/constants/streak-tiers';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
 // Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
 // Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
@@ -30,7 +31,7 @@ const CHART_COLORS = [
 // with no voters (e.g. an empty Scale bin) render as a static, non-interactive bar.
 @Component({
   selector: 'app-result-option-bar',
-  imports: [HlmDialogImports, UserAvatarComponent, NgTemplateOutlet],
+  imports: [UserNameComponent, HlmDialogImports, UserAvatarComponent, NgTemplateOutlet],
   templateUrl: './result-option-bar.component.html',
 })
 export class ResultOptionBarComponent {

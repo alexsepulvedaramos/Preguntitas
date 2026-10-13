@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame
+  lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideCalendarHeart
 } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -29,8 +29,8 @@ import {
 } from '../../core/services/notification-preferences.service';
 import { MemberCardService } from '../../core/services/member-card.service';
 import {
-  FRAME_NONE, FRAME_STREAK, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor,
-} from '../../core/constants/streak-tiers';
+  FRAME_NONE, FRAME_STREAK, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor, FRAME_SENIORITY } from '../../core/constants/streak-tiers';
+import { seniorityStage } from '../../core/constants/shop-catalog';
 import { UserProfileDto } from '../../core/services/user.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslationKey } from '../../core/i18n/translation.types';
@@ -39,6 +39,7 @@ import { apiErrorMessage } from '../../shared/utils/api-error';
 
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
   { label: 'profile.frameColors.streak', value: FRAME_STREAK },
+  { label: 'profile.frameColors.seniority', value: FRAME_SENIORITY },
   { label: 'profile.frameColors.purple', value: '#8b5cf6' },
   { label: 'profile.frameColors.blue', value: '#3b82f6' },
   { label: 'profile.frameColors.green', value: '#22c55e' },
@@ -66,7 +67,7 @@ const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
     AvatarPickerComponent,
     LanguagePickerComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame })],
+  providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideCalendarHeart })],
   templateUrl: './profile-page.component.html',
 })
 export class ProfilePageComponent implements OnInit {
@@ -82,6 +83,13 @@ export class ProfilePageComponent implements OnInit {
   protected readonly frameColors = FRAME_COLORS;
   protected readonly frameNone = FRAME_NONE;
   protected readonly frameStreak = FRAME_STREAK;
+  protected readonly frameSeniority = FRAME_SENIORITY;
+
+  // Seniority frame (rama 42): the stage reached in the oldest group, if any.
+  protected readonly seniorityName = computed(() => {
+    const stage = seniorityStage(this.user()?.firstJoinedAt);
+    return stage ? this.t(stage.name) : null;
+  });
   protected readonly streakDangerHours = STREAK_DANGER_HOURS;
   protected readonly isSavingProfile = signal(false);
   protected readonly isSavingPassword = signal(false);

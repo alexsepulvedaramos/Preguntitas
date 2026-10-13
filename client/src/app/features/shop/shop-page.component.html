@@ -89,16 +89,209 @@
       </div>
     </section>
 
-    <!-- Cosmetics arrive with rama 42 -->
-    <div hlmEmpty class="border border-dashed border-border rounded-xl p-6">
-      <div hlmEmptyHeader>
-        <div hlmEmptyMedia variant="icon">
-          <ng-icon hlm name="lucideStore" />
-        </div>
-        <div hlmEmptyTitle>{{ t('coins.shopSoonTitle') }}</div>
-        <p hlmEmptyDescription>{{ t('coins.shopSoonText') }}</p>
+    <!-- Cosmetics (rama 42): bought once, tried on here first, worn from here (titles: profile) -->
+    <section class="flex flex-col gap-4" aria-labelledby="shop-style-title">
+      <div class="flex flex-col gap-1">
+        <h2 id="shop-style-title" class="font-display text-xl italic tracking-tight text-foreground">
+          {{ t('shop.cosmeticsTitle') }}
+        </h2>
+        <p class="text-sm text-muted-foreground text-balance">{{ t('shop.cosmeticsIntro') }}</p>
       </div>
-    </div>
+
+      <!-- Try-on preview on your own avatar -->
+      <div
+        hlmCard
+        class="sticky top-[4.25rem] z-10 flex-row items-center gap-5 overflow-hidden px-6 py-5 shadow-md"
+        aria-live="polite"
+      >
+        <div class="p-3">
+          <app-user-avatar
+            [avatarUrl]="user()?.avatarUrl"
+            [username]="user()?.username ?? ''"
+            [frameColor]="previewFrame()"
+            [streak]="previewStreak()"
+            [look]="previewLook()"
+            [memberSince]="user()?.firstJoinedAt"
+            [showRibbon]="false"
+            size="lg"
+          />
+        </div>
+        <div class="flex min-w-0 flex-1 flex-col gap-1">
+          <p class="font-display text-xl italic text-foreground">
+            <app-user-name [name]="user()?.username" [look]="previewLook()" />
+          </p>
+          @if (user()?.title) {
+            <p class="truncate text-sm font-semibold text-primary">{{ user()?.title }}</p>
+          }
+          @if (isTrying()) {
+            <button hlmBtn variant="outline" size="sm" class="mt-1 self-start" (click)="stopTrying()">
+              {{ t('shop.previewReset') }}
+            </button>
+          } @else {
+            <p class="text-xs text-muted-foreground">{{ t('shop.previewHint') }}</p>
+          }
+        </div>
+      </div>
+
+      @for (section of sections(); track section.id) {
+        <div class="flex flex-col gap-3" role="group" [attr.aria-labelledby]="'shop-kind-' + section.id">
+          <div class="flex flex-col gap-0.5">
+            <h3 [id]="'shop-kind-' + section.id" class="text-base font-semibold text-foreground">{{ section.title }}</h3>
+            <p class="text-xs text-muted-foreground text-balance">{{ section.hint }}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            @if (section.slot === 'theme') {
+              <!-- The free default theme -->
+              <div
+                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                [class]="defaultThemeTried() ? 'border-primary ring-2 ring-primary' : 'border-border'"
+              >
+                <button
+                  type="button"
+                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  [attr.aria-pressed]="defaultThemeTried()"
+                  [attr.aria-label]="t('shop.defaultTheme')"
+                  (click)="tryOn('theme', null)"
+                >
+                  <span class="size-10 rounded-full border border-border" style="background: oklch(0.83 0.22 128)"></span>
+                </button>
+                <span class="text-sm font-medium text-foreground">{{ t('shop.defaultTheme') }}</span>
+                @if (defaultThemeEquipped()) {
+                  <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary">
+                    <ng-icon hlm name="lucideCheck" size="sm" /> {{ t('shop.equipped') }}
+                  </span>
+                } @else {
+                  <button hlmBtn size="sm" class="w-full" [disabled]="cosmeticBusy() !== null" (click)="equip(section, null)">
+                    {{ t('shop.equip') }}
+                  </button>
+                }
+              </div>
+            }
+
+            @for (item of section.items; track item.key) {
+              <div
+                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                [class]="item.tried ? 'border-primary ring-2 ring-primary' : 'border-border'"
+              >
+                <button
+                  type="button"
+                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  [attr.aria-pressed]="item.tried"
+                  [attr.aria-label]="item.label"
+                  [disabled]="section.slot === null"
+                  (click)="tryOn(section.slot, item.key)"
+                >
+                  @switch (section.id) {
+                    @case ('ringSkin') {
+                      <app-user-avatar
+                        [avatarUrl]="user()?.avatarUrl"
+                        [username]="user()?.username ?? ''"
+                        [frameColor]="frameStreak"
+                        [streak]="ringStreak()"
+                        [look]="item.look"
+                        size="md"
+                      />
+                    }
+                    @case ('accessory') {
+                      <app-user-avatar
+                        [avatarUrl]="user()?.avatarUrl"
+                        [username]="user()?.username ?? ''"
+                        frameColor="none"
+                        [look]="item.look"
+                        size="lg"
+                      />
+                    }
+                    @case ('nameColor') {
+                      <span class="max-w-full truncate font-display text-xl italic" [class]="item.colorClass">
+                        {{ user()?.username }}
+                      </span>
+                    }
+                    @case ('badge') {
+                      <span class="text-4xl" aria-hidden="true">{{ item.emoji }}</span>
+                    }
+                    @case ('title') {
+                      <span class="font-display text-lg italic leading-tight text-primary text-balance">{{ item.label }}</span>
+                    }
+                    @case ('theme') {
+                      <span class="size-10 rounded-full border border-border" [style.background]="item.swatch"></span>
+                    }
+                  }
+                </button>
+
+                <div class="flex flex-col items-center gap-1">
+                  @if (section.id !== 'title') {
+                    <span class="text-sm font-medium text-foreground">{{ item.label }}</span>
+                  }
+                  @if (item.rarity !== 0) {
+                    <span hlmBadge variant="secondary" class="text-[10px]">{{ item.rarityLabel }}</span>
+                  }
+                </div>
+
+                @if (item.owned) {
+                  @if (section.field === null) {
+                    <a hlmBtn variant="outline" size="sm" class="w-full" routerLink="/profile">{{ t('shop.chooseInProfile') }}</a>
+                  } @else if (item.equipped) {
+                    <button
+                      hlmBtn
+                      variant="outline"
+                      size="sm"
+                      class="w-full gap-1"
+                      [disabled]="cosmeticBusy() !== null"
+                      (click)="equip(section, null)"
+                    >
+                      <ng-icon hlm name="lucideCheck" size="sm" class="text-primary" />
+                      {{ t('shop.equipped') }} · {{ t('shop.unequip') }}
+                    </button>
+                  } @else {
+                    <button hlmBtn size="sm" class="w-full" [disabled]="cosmeticBusy() !== null" (click)="equip(section, item.key)">
+                      @if (cosmeticBusy() === item.key) {
+                        <hlm-spinner class="size-4" />
+                      }
+                      {{ t('shop.equip') }}
+                    </button>
+                  }
+                } @else {
+                  <hlm-alert-dialog #buyCosmeticDlg="hlmAlertDialog" class="w-full">
+                    <button
+                      type="button"
+                      hlmBtn
+                      size="sm"
+                      variant="outline"
+                      class="w-full"
+                      [disabled]="cosmeticBusy() !== null || item.missing > 0"
+                      (click)="buyCosmeticDlg.open()"
+                    >
+                      @if (cosmeticBusy() === item.key) {
+                        <hlm-spinner class="size-4" />
+                      }
+                      {{ t('shop.buy', { price: item.price }) }}
+                    </button>
+                    <ng-template hlmAlertDialogPortal>
+                      <hlm-alert-dialog-content>
+                        <hlm-alert-dialog-header>
+                          <h3 hlmAlertDialogTitle>{{ t('shop.confirmTitle', { name: item.label, price: item.price }) }}</h3>
+                          <p hlmAlertDialogDescription>{{ t('shop.confirmText') }}</p>
+                        </hlm-alert-dialog-header>
+                        <hlm-alert-dialog-footer>
+                          <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
+                          <button hlmAlertDialogAction (click)="buyCosmeticDlg.close(); buyCosmetic(item)">
+                            {{ t('shop.confirm') }}
+                          </button>
+                        </hlm-alert-dialog-footer>
+                      </hlm-alert-dialog-content>
+                    </ng-template>
+                  </hlm-alert-dialog>
+                  @if (item.missing > 0) {
+                    <span class="text-xs tabular-nums text-muted-foreground">{{ t('shop.notEnough', { count: item.missing }) }}</span>
+                  }
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </section>
 
     <!-- Ledger -->
     <section class="flex flex-col gap-3" aria-labelledby="coin-history-title">

@@ -132,9 +132,14 @@ public class CoinService(AppDbContext context, TimeProvider clock) : ICoinServic
                 Reason = t.Reason,
                 GroupId = t.GroupId,
                 GroupName = t.Group != null ? t.Group.Name : null,
+                ItemKey = t.Reason == CoinReason.Cosmetic ? t.RefId.ToString() : null,
                 CreatedAt = t.CreatedAt,
             })
             .ToListAsync();
+
+        // The query carries the item id; swap it for the catalog key.
+        foreach (var row in rows.Where(r => r.ItemKey is not null))
+            row.ItemKey = ShopCatalog.ById(int.Parse(row.ItemKey!))?.Key;
 
         var hasMore = rows.Count > PageSize;
         if (hasMore)

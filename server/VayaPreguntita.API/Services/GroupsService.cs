@@ -1,3 +1,4 @@
+using VayaPreguntita.API.DTOs.Shop;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -256,7 +257,16 @@ public class GroupsService(
         var memberIds = members.Select(m => m.Id).ToList();
         var titles = await context
             .Users.Where(u => memberIds.Contains(u.Id))
-            .Select(u => new { u.Id, u.HighestStreakEver, u.SelectedTitleKey })
+            .Select(u => new
+            {
+                u.Id,
+                u.HighestStreakEver,
+                u.SelectedTitleKey,
+                u.RingSkinKey,
+                u.AccessoryKey,
+                u.NameColorKey,
+                u.BadgeKey,
+            })
             .ToDictionaryAsync(u => u.Id);
         foreach (var m in members)
         {
@@ -264,7 +274,10 @@ public class GroupsService(
             m.CurrentStreak = streaks.GetValueOrDefault(m.Id);
             m.HasCrown = m.Id == crownHolder;
             if (titles.TryGetValue(m.Id, out var t))
+            {
                 m.Title = StreakTiers.DisplayedTitle(t.HighestStreakEver, t.SelectedTitleKey);
+                m.Look = LookDto.From(t.RingSkinKey, t.AccessoryKey, t.NameColorKey, t.BadgeKey);
+            }
         }
 
         return members;

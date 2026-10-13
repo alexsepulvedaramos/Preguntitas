@@ -14,7 +14,8 @@ public class UserService(
     IPasswordHasher<User> passwordHasher,
     SupabaseStorageService storageService,
     IStreakService streakService,
-    IInventoryService inventoryService) : IUserService
+    IInventoryService inventoryService,
+    ICosmeticsService cosmeticsService) : IUserService
 {
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
@@ -25,6 +26,7 @@ public class UserService(
         var user = await context.Users.FindAsync(userId);
         if (user is null) return null;
 
+        var owned = await cosmeticsService.GetOwnedKeysAsync(userId);
         return new UserProfileDto
         {
             Id = user.Id,
@@ -43,6 +45,17 @@ public class UserService(
                 .UnlockedBy(user.HighestStreakEver)
                 .Select(t => new DTOs.Streaks.TitleOptionDto(t.Key, t.Title, t.Material, t.MinDays))
                 .ToList(),
+            Look = DTOs.Shop.LookDto.From(user),
+            ThemeKey = user.ThemeKey,
+            OwnedCosmetics = owned,
+            ShopTitles = owned
+                .Select(ShopCatalog.ByKey)
+                .Where(i => i is { Kind: Enums.CosmeticKind.Title, Name: not null })
+                .Select(i => new ShopTitleDto(i!.Key, i.Name!.ToString()))
+                .ToList(),
+            FirstJoinedAt = await context
+                .GroupMembers.Where(m => m.UserId == userId)
+                .MinAsync(m => (DateTime?)m.JoinedAt),
         };
     }
 
@@ -79,13 +92,15 @@ public class UserService(
         if (request.AvatarUrl is not null)
             user.AvatarUrl = string.IsNullOrWhiteSpace(request.AvatarUrl) ? null : request.AvatarUrl;
 
-        // FrameColor: a hex colour, "streak" or "none"; an empty string also means no frame.
+        // FrameColor: a hex colour, "streak", "seniority" or "none"; an empty string also means
+        // no frame.
         if (request.FrameColor is not null)
         {
             var frame = request.FrameColor.Trim();
             if (frame.Length == 0)
                 frame = FrameColors.None;
-            if (frame != FrameColors.Streak && frame != FrameColors.None && !HexColor.IsMatch(frame))
+            if (frame != FrameColors.Streak && frame != FrameColors.None && frame != FrameColors.Seniority
+                && !HexColor.IsMatch(frame))
                 return (false, "INVALID_FRAME_COLOR");
             user.FrameColor = frame;
         }
@@ -99,8 +114,31 @@ public class UserService(
                 user.SelectedTitleKey = StreakTiers.NoTitle;
             else if (StreakTiers.UnlockedBy(user.HighestStreakEver).Any(t => t.Key == key))
                 user.SelectedTitleKey = key;
+            else if (await cosmeticsService.OwnsAsync(userId, key, Enums.CosmeticKind.Title))
+                user.SelectedTitleKey = key;
             else
                 return (false, "TITLE_NOT_UNLOCKED");
+        }
+
+        // Cosmetic slots: "" takes the item off; anything else must be owned and of that kind.
+        foreach (var (requested, kind, apply) in new (string?, Enums.CosmeticKind, Action<string?>)[]
+        {
+            (request.RingSkinKey, Enums.CosmeticKind.RingSkin, k => user.RingSkinKey = k),
+            (request.AccessoryKey, Enums.CosmeticKind.Accessory, k => user.AccessoryKey = k),
+            (request.NameColorKey, Enums.CosmeticKind.NameColor, k => user.NameColorKey = k),
+            (request.BadgeKey, Enums.CosmeticKind.Badge, k => user.BadgeKey = k),
+            (request.ThemeKey, Enums.CosmeticKind.Theme, k => user.ThemeKey = k),
+        })
+        {
+            if (requested is null)
+                continue;
+            var key = requested.Trim();
+            if (key.Length == 0)
+                apply(null);
+            else if (await cosmeticsService.OwnsAsync(userId, key, kind))
+                apply(key);
+            else
+                return (false, "COSMETIC_NOT_OWNED");
         }
 
         if (request.PreferredLanguage is not null)

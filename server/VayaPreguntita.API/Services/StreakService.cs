@@ -422,6 +422,8 @@ public class StreakService(
             BestStreak = member.BestStreak,
             HasCrown = await GetCrownHolderAsync(groupId) == userId,
             Title = StreakTiers.DisplayedTitle(member.User.HighestStreakEver, member.User.SelectedTitleKey),
+            Look = DTOs.Shop.LookDto.From(member.User),
+            JoinedAt = member.JoinedAt,
             TotalVotes = voted.Count,
             ActiveQuestions = active,
             ParticipationPercent = active == 0 ? 0 : (int)Math.Round(100.0 * votedActive / active),
