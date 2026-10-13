@@ -16,6 +16,10 @@ public class MemberStatsDto
     public bool HasCrown { get; set; }
     public string? Title { get; set; }
 
+    // Shop cosmetics (rama 42) and the join date behind the seniority frame.
+    public Shop.LookDto? Look { get; set; }
+    public DateTime JoinedAt { get; set; }
+
     // Distinct questions the member voted on in this group.
     public int TotalVotes { get; set; }
 

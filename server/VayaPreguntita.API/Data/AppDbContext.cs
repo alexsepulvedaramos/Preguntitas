@@ -30,6 +30,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FlashEntry> FlashEntries { get; set; }
     public DbSet<MonthlySummary> MonthlySummaries { get; set; }
     public DbSet<UserInventoryItem> UserInventory { get; set; }
+    public DbSet<UserItem> UserItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -306,6 +307,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(i => i.UserId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
+        // SHOP COSMETICS (rama 42, §17.10) — owned once, equipped through User's slots
+        // ==========================================
+        modelBuilder.Entity<UserItem>(e =>
+        {
+            e.HasKey(i => new { i.UserId, i.ItemKey });
+            e.Property(i => i.ItemKey).HasMaxLength(40);
+            e.HasOne(i => i.User)
+             .WithMany()
+             .HasForeignKey(i => i.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<User>(e =>
+        {
+            e.Property(u => u.RingSkinKey).HasMaxLength(40);
+            e.Property(u => u.AccessoryKey).HasMaxLength(40);
+            e.Property(u => u.NameColorKey).HasMaxLength(40);
+            e.Property(u => u.BadgeKey).HasMaxLength(40);
+            e.Property(u => u.ThemeKey).HasMaxLength(40);
         });
 
         // ==========================================

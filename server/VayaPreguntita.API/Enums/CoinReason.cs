@@ -24,4 +24,7 @@ public enum CoinReason
 
     // Flash question (rama 44)
     FlashQuestion = 12,
+
+    // Shop cosmetics (rama 42); RefId = the ShopCatalog item id
+    Cosmetic = 13,
 }

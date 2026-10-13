@@ -2,7 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { BuyItemResponse, InventoryItem, PurchaseRequest, PurchaseResponse } from '../models/coin.model';
+import {
+  BuyCosmeticResponse,
+  BuyItemResponse,
+  InventoryItem,
+  PurchaseRequest,
+  PurchaseResponse,
+  ShopCatalog,
+} from '../models/coin.model';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -18,6 +25,17 @@ export class ShopService {
     return this.http
       .post<PurchaseResponse>(`${environment.apiUrl}/shop/purchase`, request)
       .pipe(tap((res) => this.authService.patchCurrentUser({ coins: res.balance, inventory: res.inventory })));
+  }
+
+  // Cosmetics (rama 42): bought once, equipped through PUT users/me.
+  getCatalog(): Observable<ShopCatalog> {
+    return this.http.get<ShopCatalog>(`${environment.apiUrl}/shop`);
+  }
+
+  buyCosmetic(key: string): Observable<BuyCosmeticResponse> {
+    return this.http
+      .post<BuyCosmeticResponse>(`${environment.apiUrl}/shop/cosmetics`, { key })
+      .pipe(tap((res) => this.authService.patchCurrentUser({ coins: res.balance, ownedCosmetics: res.ownedCosmetics })));
   }
 
   buyItem(item: InventoryItem): Observable<BuyItemResponse> {

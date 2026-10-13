@@ -10,6 +10,9 @@ public class CoinTransactionDto
     public CoinReason Reason { get; set; }
     public int? GroupId { get; set; }
     public string? GroupName { get; set; }
+
+    // The cosmetic bought, for Reason = Cosmetic (rama 42): a ShopCatalog key.
+    public string? ItemKey { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 

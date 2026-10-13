@@ -13,4 +13,10 @@ export interface User {
     coins?: number;
     // Game items held (rama 45)
     inventory?: import('./coin.model').Inventory;
+    // Shop cosmetics (rama 42): what's equipped, the personal app theme, every owned key, and
+    // the join date of the oldest group (seniority frame outside a group)
+    look?: import('../constants/shop-catalog').Look | null;
+    themeKey?: string | null;
+    ownedCosmetics?: string[];
+    firstJoinedAt?: string | null;
 }

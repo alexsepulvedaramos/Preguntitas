@@ -112,7 +112,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly dailyService = inject(DailyService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly groupStreaks = inject(GroupStreaksService);
+  protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly summaryService = inject(MonthlySummaryService);

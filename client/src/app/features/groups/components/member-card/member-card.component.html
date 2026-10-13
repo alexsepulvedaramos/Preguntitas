@@ -15,9 +15,13 @@
         [frameColor]="head.frameColor"
         [streak]="head.currentStreak"
         [crown]="!allGroups() && head.hasCrown"
+        [look]="head.look"
+        [memberSince]="memberSince()"
         size="xl"
       />
-      <p class="mt-2 font-display text-2xl italic text-foreground">{{ head.username }}</p>
+      <p class="mt-2 max-w-full font-display text-2xl italic text-foreground">
+        <app-user-name [name]="head.username" [look]="head.look" />
+      </p>
       @if (head.title) {
         <p class="text-sm font-semibold text-primary">{{ head.title }}</p>
       }

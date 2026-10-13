@@ -23,6 +23,8 @@
             [username]="user()?.username ?? ''"
             [frameColor]="user()?.frameColor"
             [streak]="user()?.highestStreak"
+            [look]="user()?.look"
+            [memberSince]="user()?.firstJoinedAt"
             size="xl"
           />
           <div
@@ -66,7 +68,7 @@
           <button
             class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none"
             [class]="selectedFrame() === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
-            [class.bg-muted]="color.value === frameStreak"
+            [class.bg-muted]="color.value === frameStreak || color.value === frameSeniority"
             [style.background-color]="color.value.startsWith('#') ? color.value : null"
             [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
             [attr.aria-label]="t(color.label)"
@@ -76,6 +78,8 @@
           >
             @if (color.value === frameStreak) {
               <ng-icon hlm name="lucideFlame" class="size-4! text-primary" />
+            } @else if (color.value === frameSeniority) {
+              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary" />
             } @else if (color.value === frameNone) {
               <span class="text-xs text-muted-foreground leading-none">✕</span>
             } @else if (selectedFrame() === color.value) {
@@ -92,6 +96,11 @@
           } @else {
             · {{ t('profile.frameFrom3') }}
           }
+        } @else if (selectedFrame() === frameSeniority) {
+          {{ t('profile.seniorityHint') }}
+          @if (seniorityName(); as stage) {
+            · {{ stage }}
+          }
         } @else {
           {{ t('profile.frameHint') }}
         }
@@ -104,7 +113,7 @@
     <section class="flex flex-col gap-3">
       <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.titleHeading') }}</h2>
       @if (profile(); as p) {
-        @if (p.unlockedTitles.length === 0) {
+        @if (p.unlockedTitles.length === 0 && p.shopTitles.length === 0) {
           <p class="text-sm text-muted-foreground">
             {{ t('profile.titleLocked') }}
           </p>
@@ -130,6 +139,19 @@
                 (click)="selectTitle(option.key)"
               >
                 {{ option.title }}
+              </button>
+            }
+            @for (option of p.shopTitles; track option.key) {
+              <button
+                hlmBtn
+                size="sm"
+                [variant]="selectedTitle() === option.key ? 'default' : 'outline'"
+                [attr.aria-pressed]="selectedTitle() === option.key"
+                [attr.aria-label]="option.title + ' · ' + t('profile.titleFromShop')"
+                [disabled]="isSavingTitle()"
+                (click)="selectTitle(option.key)"
+              >
+                🛍️ {{ option.title }}
               </button>
             }
             <button

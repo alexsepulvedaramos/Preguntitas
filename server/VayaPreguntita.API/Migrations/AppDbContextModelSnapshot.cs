@@ -636,8 +636,16 @@ namespace VayaPreguntita.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AccessoryKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
+
+                    b.Property<string>("BadgeKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<int>("Coins")
                         .HasColumnType("integer");
@@ -655,6 +663,10 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("HighestStreakEver")
                         .HasColumnType("integer");
 
+                    b.Property<string>("NameColorKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
@@ -666,11 +678,19 @@ namespace VayaPreguntita.API.Migrations
                         .HasColumnType("character varying(5)")
                         .HasDefaultValue("es");
 
+                    b.Property<string>("RingSkinKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<string>("SelectedTitleKey")
                         .HasColumnType("text");
 
                     b.Property<bool>("StreakFrameAutoApplied")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("ThemeKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -701,6 +721,23 @@ namespace VayaPreguntita.API.Migrations
                         {
                             t.HasCheckConstraint("CK_UserInventory_Quantity_NonNegative", "\"Quantity\" >= 0");
                         });
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserItem", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ItemKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTime>("PurchasedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "ItemKey");
+
+                    b.ToTable("UserItems");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserRefreshToken", b =>
@@ -1113,6 +1150,17 @@ namespace VayaPreguntita.API.Migrations
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserInventoryItem", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserItem", b =>
                 {
                     b.HasOne("VayaPreguntita.API.Entities.User", "User")
                         .WithMany()

@@ -316,6 +316,8 @@
             [avatarUrl]="flash.launchedBy.avatarUrl"
             [username]="flash.launchedBy.username"
             [frameColor]="flash.launchedBy.frameColor"
+            [look]="groupStreaks.lookFor(flash.launchedBy.id)"
+            [memberSince]="groupStreaks.joinedAtFor(flash.launchedBy.id)"
             size="xs"
           />
           <span class="min-w-0 truncate text-xs text-muted-foreground">

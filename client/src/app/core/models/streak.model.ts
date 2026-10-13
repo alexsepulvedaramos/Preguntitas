@@ -1,3 +1,4 @@
+import type { Look } from '../constants/shop-catalog';
 import { QuestionResult } from './result.model';
 import { CoinsEarned } from './coin.model';
 import type { AuthorGuess } from './daily.model';
@@ -55,6 +56,8 @@ export interface MemberStats {
   bestStreak: number;
   hasCrown: boolean;
   title: string | null;
+  look: Look | null; // shop cosmetics (rama 42)
+  joinedAt: string; // behind the seniority frame
   totalVotes: number;
   activeQuestions: number;
   participationPercent: number;

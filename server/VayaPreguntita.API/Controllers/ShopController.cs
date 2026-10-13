@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VayaPreguntita.API.DTOs.Coins;
+using VayaPreguntita.API.DTOs.Shop;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Localization;
 using VayaPreguntita.API.Services;
@@ -9,8 +10,8 @@ using VayaPreguntita.API.Services;
 namespace VayaPreguntita.API.Controllers;
 
 // Spending coins (§17.2). Rama 35: streak freeze (own or gift) and streak repair; rama 45:
-// the item inventory (buy ahead, use later in any group); the cosmetics catalog arrives with
-// rama 42.
+// the item inventory (buy ahead, use later in any group); rama 42: the cosmetics catalog
+// (bought once, equipped through PUT users/me).
 [ApiController]
 [Route("api/shop")]
 [Authorize]
@@ -18,10 +19,37 @@ public class ShopController(
     IStreakService streakService,
     ICoinService coinService,
     IInventoryService inventoryService,
-    IGroupsService groupsService
+    IGroupsService groupsService,
+    ICosmeticsService cosmeticsService
 ) : ControllerBase
 {
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    // GET api/shop — the cosmetics catalog and what you own (rama 42, §17.10).
+    [HttpGet]
+    public async Task<ActionResult<ShopCatalogDto>> GetCatalog() =>
+        Ok(await cosmeticsService.GetCatalogAsync(CurrentUserId));
+
+    // POST api/shop/cosmetics — buys a cosmetic once; 409 when owned or coins are short.
+    [HttpPost("cosmetics")]
+    public async Task<ActionResult<BuyCosmeticResponseDto>> BuyCosmetic(BuyCosmeticRequestDto dto)
+    {
+        var userId = CurrentUserId;
+        return await cosmeticsService.BuyAsync(userId, dto.Key) switch
+        {
+            CosmeticPurchaseResult.Success => Ok(
+                new BuyCosmeticResponseDto
+                {
+                    Balance = await coinService.GetBalanceAsync(userId),
+                    OwnedCosmetics = await cosmeticsService.GetOwnedKeysAsync(userId),
+                }
+            ),
+            CosmeticPurchaseResult.UnknownItem => BadRequest("Unknown item."),
+            CosmeticPurchaseResult.AlreadyOwned => Conflict(ServerText.CosmeticAlreadyOwned),
+            CosmeticPurchaseResult.NotEnoughCoins => Conflict(ServerText.NotEnoughCoins),
+            _ => StatusCode(500),
+        };
+    }
 
     // POST api/shop/purchase — 409 when coins are short or a limit is reached.
     [HttpPost("purchase")]

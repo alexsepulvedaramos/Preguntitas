@@ -7,9 +7,18 @@ public class UpdateProfileRequestDto
     public string? AvatarUrl { get; set; }
     public string? FrameColor { get; set; }
 
-    // Title to show: "auto" (highest unlocked), "none", or an unlocked tier key. null = unchanged.
+    // Title to show: "auto" (highest unlocked), "none", an unlocked tier key or an owned shop
+    // title. null = unchanged.
     public string? TitleKey { get; set; }
 
     // "es", "en" or "de". null = unchanged.
     public string? PreferredLanguage { get; set; }
+
+    // Equipped shop cosmetics (rama 42): an owned ShopCatalog key of that kind, "" to take it
+    // off, null = unchanged.
+    public string? RingSkinKey { get; set; }
+    public string? AccessoryKey { get; set; }
+    public string? NameColorKey { get; set; }
+    public string? BadgeKey { get; set; }
+    public string? ThemeKey { get; set; }
 }

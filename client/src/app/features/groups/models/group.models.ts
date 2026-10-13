@@ -1,3 +1,5 @@
+import { Look } from '../../../core/constants/shop-catalog';
+
 export interface CreateGroupRequest {
     name: string;
     description: string;
@@ -31,6 +33,7 @@ export interface GroupMember {
     currentStreak: number; // effective voting streak in this group (rama 19)
     hasCrown: boolean; // holds the group's best current streak
     title: string | null; // the title the member chose to show
+    look: Look | null; // equipped shop cosmetics (rama 42)
 }
 
 export interface JoinGroupRequest {

@@ -23,6 +23,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.22.0',
+    date: '2026-10-13',
+    title: {
+      es: 'La tienda de estilo',
+      en: 'The style shop',
+      de: 'Der Style-Shop',
+    },
+    items: [
+      {
+        emoji: '🛍️',
+        title: {
+          es: 'Gasta tus monedas en tu estilo',
+          en: 'Spend your coins on your style',
+          de: 'Gib deine Münzen für deinen Style aus',
+        },
+        text: {
+          es: 'La tienda estrena «Tu estilo»: skins para tu anillo de racha (neón, píxel, hielo y llamas, que siguen marcando tu nivel), accesorios para tu avatar, color para tu nombre, una insignia emoji y títulos de broma. Se compran una vez, son tuyos para siempre y te los pruebas antes de comprarlos.',
+          en: 'The shop opens "Your style": skins for your streak ring (neon, pixel, ice and flames, still showing your level), accessories for your avatar, a colour for your name, an emoji badge and joke titles. Buy them once, keep them forever, and try them on before you buy.',
+          de: 'Im Shop gibt es jetzt „Dein Style“: Skins für deinen Serienring (Neon, Pixel, Eis und Flammen, die weiter deine Stufe zeigen), Accessoires für deinen Avatar, eine Farbe für deinen Namen, ein Emoji-Abzeichen und Spaßtitel. Einmal kaufen, für immer behalten – und vorher anprobieren.',
+        },
+      },
+      {
+        emoji: '🎨',
+        title: {
+          es: 'Temas para toda la app',
+          en: 'Themes for the whole app',
+          de: 'Themes für die ganze App',
+        },
+        text: {
+          es: 'Océano, Fresa, Uva o Mandarina: cambia la paleta de colores de toda la app, en modo claro y oscuro. Solo la ves tú.',
+          en: 'Ocean, Strawberry, Grape or Tangerine: change the colour palette of the whole app, light and dark. Only you see it.',
+          de: 'Ozean, Erdbeere, Traube oder Mandarine: Ändere die Farbpalette der ganzen App, hell und dunkel. Nur du siehst sie.',
+        },
+      },
+      {
+        emoji: '📅',
+        title: {
+          es: 'Marco de antigüedad, gratis',
+          en: 'A free seniority frame',
+          de: 'Ein kostenloser Dabeisein-Rahmen',
+        },
+        text: {
+          es: 'Un nuevo marco que crece con tu tiempo en el grupo: al mes, a los 6 meses, al año y a los 2 años. Elígelo en tu perfil en lugar del de racha.',
+          en: 'A new frame that grows with your time in the group: at 1 month, 6 months, 1 year and 2 years. Pick it in your profile instead of the streak one.',
+          de: 'Ein neuer Rahmen, der mit deiner Zeit in der Gruppe wächst: nach 1 Monat, 6 Monaten, 1 Jahr und 2 Jahren. Wähl ihn im Profil statt des Serienrahmens.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.21.0',
     date: '2026-10-13',
     title: {

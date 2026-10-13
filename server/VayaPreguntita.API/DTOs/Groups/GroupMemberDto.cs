@@ -20,4 +20,8 @@ public class GroupMemberDto
 
     // The title the member chose to show (null when none is unlocked or it's hidden).
     public string? Title { get; set; }
+
+    // Equipped shop cosmetics (rama 42). Avatars and names inside the group look members up
+    // here by id, so results, voters and chat don't carry them.
+    public Shop.LookDto? Look { get; set; }
 }

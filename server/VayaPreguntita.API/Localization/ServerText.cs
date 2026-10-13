@@ -268,6 +268,16 @@ public static class ServerText
         "You don't have enough coins.",
         "Du hast nicht genug Münzen.");
 
+    public static string CosmeticAlreadyOwned => Pick(
+        "Ya tienes eso.",
+        "You already own that.",
+        "Das hast du schon.");
+
+    public static string CosmeticNotOwned => Pick(
+        "Antes tienes que comprarlo en la tienda.",
+        "You need to buy that in the shop first.",
+        "Das musst du erst im Shop kaufen.");
+
     public static string NoItemOwned => Pick(
         "No te queda ninguno en tu inventario.",
         "You don't have any left in your inventory.",

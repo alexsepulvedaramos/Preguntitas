@@ -12,6 +12,8 @@
       [username]="authService.currentUser()?.username ?? ''"
       [frameColor]="authService.currentUser()?.frameColor"
       [streak]="authService.currentUser()?.highestStreak"
+      [look]="authService.currentUser()?.look"
+      [memberSince]="authService.currentUser()?.firstJoinedAt"
       size="sm"
     />
     @if (releaseNotes.hasUnseen()) {
@@ -53,6 +55,8 @@
           [username]="authService.currentUser()?.username ?? ''"
           [frameColor]="authService.currentUser()?.frameColor"
           [streak]="authService.currentUser()?.highestStreak"
+          [look]="authService.currentUser()?.look"
+          [memberSince]="authService.currentUser()?.firstJoinedAt"
           size="lg"
         />
         <div class="flex flex-col min-w-0">
