@@ -313,6 +313,75 @@ public class AuthIntegrationTests : IClassFixture<DatabaseFixture>
     }
 
     [Fact]
+    public async Task Refresh_WithPreviousTokenAfterLostResponse_ReturnsOk()
+    {
+        // Arrange: the client refreshes but never receives the rotated token
+        SeedUser("lostresponse", "lostresponse@example.com");
+        var login = await LoginAsync("lostresponse");
+        var lost = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+        Assert.Equal(System.Net.HttpStatusCode.OK, lost.StatusCode);
+
+        // Act: it retries with the token it still holds
+        var retry = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+
+        // Assert: the session survives and the new token keeps working
+        Assert.Equal(System.Net.HttpStatusCode.OK, retry.StatusCode);
+        var retried = await retry.Content.ReadFromJsonAsync<AuthResponseDto>();
+        var next = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = retried!.RefreshToken });
+        Assert.Equal(System.Net.HttpStatusCode.OK, next.StatusCode);
+    }
+
+    [Fact]
+    public async Task Refresh_WithTokenTwoRotationsOld_ReturnsUnauthorized()
+    {
+        // Arrange: the client received and used each rotated token
+        SeedUser("tworotations", "tworotations@example.com");
+        var login = await LoginAsync("tworotations");
+        var first = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+        var firstContent = await first.Content.ReadFromJsonAsync<AuthResponseDto>();
+        await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = firstContent!.RefreshToken });
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Logout_WithPreviousToken_RevokesSession()
+    {
+        // Arrange: a rotation the client never received
+        SeedUser("logoutprevious", "logoutprevious@example.com");
+        var login = await LoginAsync("logoutprevious");
+        var lost = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+        var lostContent = await lost.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        // Act
+        await _client.PostAsJsonAsync("/api/auth/logout",
+            new RefreshTokenRequestDto { RefreshToken = login.RefreshToken });
+
+        // Assert: neither token refreshes any more
+        var withCurrent = await _client.PostAsJsonAsync("/api/auth/refresh",
+            new RefreshTokenRequestDto { RefreshToken = lostContent!.RefreshToken });
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, withCurrent.StatusCode);
+    }
+
+    private async Task<AuthResponseDto> LoginAsync(string username)
+    {
+        var response = await _client.PostAsJsonAsync("/api/auth/login",
+            new LoginRequestDto { Identifier = username, Password = "12345678" });
+        return (await response.Content.ReadFromJsonAsync<AuthResponseDto>())!;
+    }
+
+    [Fact]
     public async Task Refresh_WithExpiredToken_ReturnsUnauthorized()
     {
         // Arrange

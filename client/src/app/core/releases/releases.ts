@@ -23,6 +23,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.22.1',
+    date: '2026-10-16',
+    title: {
+      es: 'Sin cierres de sesión inesperados',
+      en: 'No more surprise logouts',
+      de: 'Keine überraschenden Abmeldungen mehr',
+    },
+    items: [
+      {
+        emoji: '🔐',
+        title: {
+          es: 'Tu sesión aguanta los cortes',
+          en: 'Your session survives hiccups',
+          de: 'Deine Sitzung übersteht Aussetzer',
+        },
+        text: {
+          es: 'Si cerrabas la app o se cortaba la conexión justo mientras renovaba tu sesión, a veces te echaba y tenías que volver a entrar. Ya no: aunque la abras días después, sigues dentro.',
+          en: 'If you closed the app or lost connection right while it was renewing your session, it could log you out and make you sign in again. Not any more: even if you open it days later, you stay signed in.',
+          de: 'Wenn du die App geschlossen hast oder die Verbindung genau beim Erneuern deiner Sitzung abbrach, wurdest du manchmal abgemeldet. Jetzt nicht mehr: Selbst wenn du sie erst Tage später öffnest, bleibst du angemeldet.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.22.0',
     date: '2026-10-13',
     title: {

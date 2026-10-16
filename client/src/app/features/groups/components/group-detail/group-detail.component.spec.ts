@@ -145,8 +145,9 @@ describe('GroupDetailComponent live refresh', () => {
     id,
     question: { id: 100 + id, text: `flash ${id}`, type: 0 },
     launchedBy: { id: 9, username: 'ana', avatarUrl: null, frameColor: null },
-    activatedAt: '2026-10-12T08:00:00Z',
-    closesAt: '2026-10-13T08:00:00Z',
+    // Relative to now: a closesAt in the past makes the card's countdown reach zero and reload.
+    activatedAt: new Date(Date.now() - 60 * 60_000).toISOString(),
+    closesAt: new Date(Date.now() + 23 * 60 * 60_000).toISOString(),
     userHasVoted,
     results: userHasVoted ? { id: 100 + id, text: `flash ${id}`, type: 0, totalVotes: 1, results: [], freeTextResponses: [] } : null,
     voterIds: [],
