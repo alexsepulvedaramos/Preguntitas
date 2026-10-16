@@ -214,6 +214,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<UserRefreshToken>(e =>
         {
             e.HasIndex(t => t.TokenHash).IsUnique();
+            e.HasIndex(t => t.PreviousTokenHash);
             e.HasIndex(t => new { t.UserId, t.ExpiresAt });
             e.HasOne(t => t.User)
              .WithMany()

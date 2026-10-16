@@ -114,10 +114,12 @@ public class AuthController(
 
         var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
+        // Also accept the token this session held before its last rotation: if the client
+        // never received that rotation's response it still holds the previous one.
         var existingToken = await _context.UserRefreshTokens
             .Include(t => t.User)
-            .SingleOrDefaultAsync(t =>
-                t.TokenHash == hashedToken
+            .FirstOrDefaultAsync(t =>
+                (t.TokenHash == hashedToken || t.PreviousTokenHash == hashedToken)
                 && t.ExpiresAt > DateTime.UtcNow);
 
         if (existingToken == null)
@@ -125,7 +127,12 @@ public class AuthController(
 
         var user = existingToken.User;
 
-        // Rotate the token in-place: update hash and expiry on the same row
+        // Rotate the token in-place on the same row. Presenting the current token proves the
+        // client got the last rotation, so it becomes the one kept as a fallback; replaying the
+        // previous token keeps that fallback and just replaces the token that never arrived.
+        if (existingToken.TokenHash == hashedToken)
+            existingToken.PreviousTokenHash = hashedToken;
+
         var newRefreshToken = _tokenService.GenerateRefreshToken();
         existingToken.TokenHash = JwtTokenService.HashRefreshToken(newRefreshToken);
         existingToken.ExpiresAt = _tokenService.GetRefreshTokenExpiry();
@@ -147,7 +154,7 @@ public class AuthController(
         var hashedToken = JwtTokenService.HashRefreshToken(request.RefreshToken.Trim());
 
         var token = await _context.UserRefreshTokens
-            .SingleOrDefaultAsync(t => t.TokenHash == hashedToken);
+            .FirstOrDefaultAsync(t => t.TokenHash == hashedToken || t.PreviousTokenHash == hashedToken);
 
         if (token != null)
         {
