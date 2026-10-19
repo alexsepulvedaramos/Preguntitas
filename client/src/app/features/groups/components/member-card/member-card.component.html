@@ -55,22 +55,42 @@
     } @else {
       <ng-container *ngTemplateOutlet="grid; context: { $implicit: head }" />
       @if (canGift()) {
-        <button
-          hlmBtn
-          [variant]="ownedFreezes() > 0 ? 'default' : 'outline'"
-          class="w-full gap-2 focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="gifting()"
-          (click)="giftFreeze()"
-        >
-          @if (gifting()) {
-            <hlm-spinner class="size-4" />
-          }
-          @if (ownedFreezes() > 0) {
-            🎁 {{ t('inventory.giftOwned', { count: ownedFreezes() }) }}
-          } @else {
-            🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
-          }
-        </button>
+        @if (confirmingGift()) {
+          <div class="flex flex-col gap-3 rounded-xl bg-muted/50 p-3" role="group" aria-live="polite">
+            <p class="text-center text-sm text-foreground">
+              @if (ownedFreezes() > 0) {
+                {{ t('streakFreeze.giftConfirmOwned', { name: head.username, count: ownedFreezes() }) }}
+              } @else {
+                {{ t('streakFreeze.giftConfirm', { name: head.username, price: freezePrice }) }}
+              }
+            </p>
+            <div class="flex gap-2">
+              <button hlmBtn variant="outline" class="flex-1" (click)="cancelGiftFreeze()">
+                {{ t('common.cancel') }}
+              </button>
+              <button hlmBtn class="flex-1 gap-2" (click)="giftFreeze()">
+                🎁 {{ t('streakFreeze.giftConfirmAction') }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <button
+            hlmBtn
+            [variant]="ownedFreezes() > 0 ? 'default' : 'outline'"
+            class="w-full gap-2 focus-visible:ring-2 focus-visible:ring-ring"
+            [disabled]="gifting()"
+            (click)="askGiftFreeze()"
+          >
+            @if (gifting()) {
+              <hlm-spinner class="size-4" />
+            }
+            @if (ownedFreezes() > 0) {
+              🎁 {{ t('inventory.giftOwned', { count: ownedFreezes() }) }}
+            } @else {
+              🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
+            }
+          </button>
+        }
         <!-- Shown here too: a toast from inside the card is easy to miss -->
         @if (giftError(); as message) {
           <p class="-mt-2 text-center text-xs text-destructive" aria-live="polite">{{ message }}</p>

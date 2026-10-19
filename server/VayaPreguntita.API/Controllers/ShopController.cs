@@ -59,7 +59,11 @@ public class ShopController(
         if (!await groupsService.IsUserInGroupAsync(userId, dto.GroupId))
             return Forbid();
 
-        var isGift = dto.TargetUserId is int target && target != userId;
+        // Your own freeze is bought without a target; naming yourself is a mistaken gift.
+        if (dto.TargetUserId == userId)
+            return BadRequest(ServerText.CannotGiftYourself);
+
+        var isGift = dto.TargetUserId != null;
         var result = dto.Item switch
         {
             PurchaseRequestDto.StreakFreeze => await streakService.BuyFreezeAsync(

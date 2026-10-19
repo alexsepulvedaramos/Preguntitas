@@ -57,7 +57,8 @@ export class MemberCardComponent {
   protected readonly error = signal(false);
 
   protected readonly isOwnCard = computed(
-    () => this.target()?.userId === this.authService.currentUser()?.id
+    // The token-decoded id is a string, so compare as numbers.
+    () => this.target()?.userId === Number(this.authService.currentUser()?.id)
   );
   protected readonly allGroups = computed(() => !!this.target()?.allGroups);
 
@@ -81,6 +82,8 @@ export class MemberCardComponent {
   protected readonly freezePrice = STREAK_FREEZE_PRICE;
   protected readonly canGift = computed(() => !!this.target() && !this.allGroups() && !this.isOwnCard());
   protected readonly gifting = signal(false);
+  // The gift button first asks for confirmation; only the second tap spends.
+  protected readonly confirmingGift = signal(false);
   // Freezes bought ahead in the shop (rama 45) are gifted from here without charging.
   protected readonly ownedFreezes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).streakFreeze,
@@ -104,10 +107,20 @@ export class MemberCardComponent {
     this.cardService.close();
   }
 
+  askGiftFreeze(): void {
+    this.giftError.set(null);
+    this.confirmingGift.set(true);
+  }
+
+  cancelGiftFreeze(): void {
+    this.confirmingGift.set(false);
+  }
+
   giftFreeze(): void {
     const target = this.target();
     const name = this.headline()?.username ?? '';
-    if (!target?.groupId || this.gifting()) return;
+    if (!target?.groupId || this.gifting() || this.isOwnCard()) return;
+    this.confirmingGift.set(false);
     this.gifting.set(true);
     this.giftError.set(null);
     this.shopService
@@ -146,6 +159,7 @@ export class MemberCardComponent {
     this.loading.set(true);
     this.error.set(false);
     this.giftError.set(null);
+    this.confirmingGift.set(false);
     this.stats.set([]);
 
     const request: Observable<MemberStats[]> =
