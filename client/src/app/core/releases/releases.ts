@@ -53,9 +53,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Klarere Ergebnisse',
         },
         text: {
-          es: 'Las barras usan el color de tu tema y destacan la opción ganadora; quién votó qué aparece debajo, sin tapar nada.',
-          en: 'Bars use your theme’s colour and highlight the winning option; who voted for what shows underneath, covering nothing.',
-          de: 'Die Balken nutzen die Farbe deines Themes und heben die Siegeroption hervor; wer was gewählt hat, steht darunter und verdeckt nichts.',
+          es: 'Las barras usan el color de tu tema y destacan la opción ganadora; quién votó qué aparece al final de cada barra.',
+          en: 'Bars use your theme’s colour and highlight the winning option; who voted for what shows at the end of each bar.',
+          de: 'Die Balken nutzen die Farbe deines Themes und heben die Siegeroption hervor; wer was gewählt hat, steht am Ende jedes Balkens.',
         },
       },
       {

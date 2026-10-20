@@ -11,6 +11,9 @@ import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
+// Most voter faces shown inside a bar before collapsing into "+n".
+const MAX_FACES = 4;
+
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
 // its percentage, used by every per-type results component. Tapping a row with at least one
 // voter opens a dialog listing who voted for it ("who voted for what" — spec §4.6). Rows
@@ -38,6 +41,17 @@ export class ResultOptionBarComponent {
   protected readonly isLeader = computed(() => {
     const max = Math.max(0, ...this.allResults().map(r => r.voteCount));
     return max > 0 && this.voteCount() === max;
+  });
+  // Voter faces inside the bar: all of them up to 4; from 5 on, three and a "+n" chip.
+  protected readonly shownVoters = computed(() => {
+    const voters = this.voters();
+    return voters.length <= MAX_FACES ? voters : voters.slice(0, MAX_FACES - 1);
+  });
+  protected readonly extraVoters = computed(() => this.voters().length - this.shownVoters().length);
+  // Keeps the label clear of the faces: 24 px each, overlapping by 4, plus the 8 px inset.
+  protected readonly labelPaddingRight = computed(() => {
+    const chips = this.shownVoters().length + (this.extraVoters() > 0 ? 1 : 0);
+    return chips === 0 ? 16 : 8 + 24 + (chips - 1) * 20 + 8;
   });
   protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
 
