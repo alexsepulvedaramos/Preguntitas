@@ -1,9 +1,15 @@
 <div
-  class="fixed inset-0 z-50 flex flex-col bg-gradient-to-b from-primary/25 via-background to-background text-foreground backdrop-blur-sm"
+  #root
+  tabindex="-1"
+  class="fixed inset-0 z-50 flex flex-col outline-none text-foreground backdrop-blur-sm transition-colors duration-500"
+  [class]="onCover() ? 'bg-gradient-to-br from-primary/70 via-accent/35 to-background' : 'bg-gradient-to-b from-primary/25 via-background to-background'"
   role="dialog"
   aria-modal="true"
-  [attr.aria-label]="t('monthlySummary.title', { month: monthLabel() })"
+  [attr.aria-label]="t('monthlySummary.title', { month: monthInSentence() })"
 >
+  <!-- Cover confetti: a soft burst the first time the cover shows -->
+  <canvas #confetti class="pointer-events-none absolute inset-0 size-full" aria-hidden="true"></canvas>
+
   <!-- Progress segments + close -->
   <div class="mx-auto flex w-full max-w-lg flex-col gap-3 px-4 pt-[max(env(safe-area-inset-top),1rem)]">
     @if (!reducedMotion && slides().length > 1) {
@@ -20,10 +26,9 @@
     }
     <div class="flex items-center gap-2">
       <p class="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-        {{ groupName() }} · <span class="capitalize">{{ monthLabel() }}</span>
+        {{ groupName() }} · <span>{{ monthLabel() }}</span>
       </p>
       <button
-        #closeButton
         hlmBtn
         variant="ghost"
         size="icon"
@@ -77,12 +82,14 @@
 <ng-template #slideBody let-slide>
   @switch (slide.kind) {
     @case ('intro') {
-      <div class="flex flex-col items-center gap-4 text-center">
+      <!-- The cover: the month's "wrapped" moment, so the most expressive slide -->
+      <div class="flex flex-col items-center gap-3 text-center">
         <app-glyph name="celebrate" size="xl" />
-        <h2 class="font-display text-3xl italic text-foreground">
-          {{ t('monthlySummary.title', { month: monthLabel() }) }}
+        <h2 class="font-display text-4xl italic text-foreground text-balance">
+          {{ t('monthlySummary.title', { month: monthInSentence() }) }}
         </h2>
-        <p class="text-muted-foreground">{{ t('monthlySummary.questions', { count: summary()!.questions }) }}</p>
+        <p class="font-display text-8xl italic leading-none text-foreground tabular-nums">{{ summary()!.questions }}</p>
+        <p class="text-foreground/80">{{ t('monthlySummary.questions', { count: summary()!.questions }) }}</p>
       </div>
     }
     @case ('participation') {
@@ -175,7 +182,7 @@
                     hlmBtn
                     variant="outline"
                     size="sm"
-                    class="capitalize focus-visible:ring-2 focus-visible:ring-ring"
+                    class="focus-visible:ring-2 focus-visible:ring-ring"
                     (click)="open(item.month)"
                   >
                     {{ labelFor(item.month) }}

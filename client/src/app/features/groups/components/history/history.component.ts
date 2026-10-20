@@ -6,7 +6,7 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCalendar, lucideLock, lucideZap } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCalendar, lucideCircleCheck, lucideCircleX, lucideLock, lucideZap } from '@ng-icons/lucide';
 
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { DailyService } from '../../../../core/services/daily.service';
@@ -50,7 +50,7 @@ export function historyKey(entry: HistoryEntry): string {
   ],
   // The date picker is the app's only calendar: its i18n is provided here so the calendar
   // code stays in this lazy chunk.
-  providers: [provideIcons({ lucideArrowLeft, lucideCalendar, lucideLock, lucideZap }), provideCalendarI18n()],
+  providers: [provideIcons({ lucideArrowLeft, lucideCalendar, lucideCircleCheck, lucideCircleX, lucideLock, lucideZap }), provideCalendarI18n()],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {

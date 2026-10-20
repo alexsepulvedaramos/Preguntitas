@@ -90,9 +90,11 @@
                 <span class="text-xs text-muted-foreground">
                   {{ t('history.writtenBy', { name: entry.authorUsername }) }}
                   @if (entry.myGuessCorrect === true) {
-                    <span class="text-primary-text" [attr.aria-label]="t('history.guessRight')">✓</span>
+                    <ng-icon hlm name="lucideCircleCheck" size="xs" class="align-[-2px] text-primary-text" aria-hidden="true" />
+                    <span class="sr-only">{{ t('history.guessRight') }}</span>
                   } @else if (entry.myGuessCorrect === false) {
-                    <span class="text-destructive" [attr.aria-label]="t('history.guessWrong')">✗</span>
+                    <ng-icon hlm name="lucideCircleX" size="xs" class="align-[-2px] text-muted-foreground" aria-hidden="true" />
+                    <span class="sr-only">{{ t('history.guessWrong') }}</span>
                   }
                 </span>
               }
@@ -122,7 +124,7 @@
               <div class="flex flex-col gap-3">
                 <!-- The late-vote form brings its own question heading -->
                 @if (!showLateVote()) {
-                  <p class="vp-question-text text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
+                  <p class="vp-question-text text-2xl! text-foreground" [innerHTML]="selectedResult()!.text | wordStagger"></p>
                 }
                 <div class="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
                   <span>{{ t('history.voters', { count: selectedResult()!.totalVotes }) }}</span>
