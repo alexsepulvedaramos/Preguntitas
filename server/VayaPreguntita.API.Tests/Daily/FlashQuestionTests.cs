@@ -10,7 +10,7 @@ using VayaPreguntita.API.Tests.Testing;
 
 namespace VayaPreguntita.API.Tests.Daily;
 
-// Flash question (§17.11): bought for 500 coins, launched at once, open 24 h next to the
+// Flash question (§17.11): bought for CoinRewards.FlashQuestionPrice coins, launched at once, open 24 h next to the
 // daily question, one per member and group per local day, and worth nothing for streak or
 // coins. Closed flashes show up in the history, gated like any other question.
 [Collection(PostgresCollection.Name)]
@@ -70,7 +70,7 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         var (result, response) = await LaunchAsync(group, "ana");
 
         result.Should().Be(FlashResult.Success);
-        response!.Balance.Should().Be(100);
+        response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice);
         response.Flash.LaunchedBy.Username.Should().Be("ana");
         (response.Flash.ClosesAt - response.Flash.ActivatedAt).Should().Be(TimeSpan.FromHours(24));
 
@@ -91,7 +91,7 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     [Fact]
     public async Task WithoutEnoughCoins_NothingIsLaunchedOrCharged()
     {
-        var group = await SeedAsync(coins: 499);
+        var group = await SeedAsync(coins: CoinRewards.FlashQuestionPrice - 1);
 
         var (result, _) = await LaunchAsync(group, "ana");
 
@@ -100,7 +100,7 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         (await db.FlashEntries.AnyAsync()).Should().BeFalse();
         (await db.Questions.AnyAsync(q => q.CreatorId == group["ana"])).Should().BeFalse();
         (await db.CoinTransactions.AnyAsync()).Should().BeFalse();
-        (await db.Users.SingleAsync(u => u.Id == group["ana"])).Coins.Should().Be(499);
+        (await db.Users.SingleAsync(u => u.Id == group["ana"])).Coins.Should().Be(CoinRewards.FlashQuestionPrice - 1);
     }
 
     [Fact]
