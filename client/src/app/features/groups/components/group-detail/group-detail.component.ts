@@ -23,7 +23,6 @@ import { UserService } from '../../../../core/services/user.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { VoteComponent } from '../vote/vote.component';
 import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
@@ -51,7 +50,7 @@ import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
-// The streak chip turns orange when you haven't voted and the question closes within this
+// The streak chip turns to the warning colour when you haven't voted and the question closes within this
 // window (the default of the "racha en peligro" push, rama 19).
 const STREAK_DANGER_MS = 3 * 60 * 60 * 1000;
 
@@ -239,9 +238,9 @@ export class GroupDetailComponent implements OnInit {
 
   deckTabClass(card: DeckCard, active: boolean): string {
     if (active)
-      return card.flash ? 'bg-amber-400 text-neutral-950' : 'bg-primary text-primary-foreground';
+      return card.flash ? 'bg-flash text-flash-foreground' : 'bg-primary text-primary-foreground';
     return card.flash
-      ? 'bg-amber-400/15 text-foreground hover:bg-amber-400/25'
+      ? 'bg-flash/15 text-foreground hover:bg-flash/25'
       : 'bg-muted text-muted-foreground hover:bg-muted/70';
   }
 
@@ -301,9 +300,6 @@ export class GroupDetailComponent implements OnInit {
     return this.t(QUESTION_TYPE_LABELS[type]);
   }
 
-  questionTypeBadgeClass(type: QuestionType): string {
-    return QUESTION_TYPE_BADGE_CLASS[type];
-  }
 
   // The backend already returns the fresh QuestionResultDto (plus the streak change) from
   // POST vote, so update the local state in place instead of re-fetching daily/current.

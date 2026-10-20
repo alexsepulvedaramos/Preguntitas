@@ -50,7 +50,7 @@
       </hlm-drawer>
 
       @if (user()?.title; as title) {
-        <p class="-mt-1 text-sm font-semibold text-primary">{{ title }}</p>
+        <p class="-mt-1 text-sm font-semibold text-primary-text">{{ title }}</p>
       }
       <p class="text-sm text-muted-foreground">{{ t('profile.tapToChange') }}</p>
 
@@ -77,9 +77,9 @@
             (click)="selectFrame(color.value)"
           >
             @if (color.value === frameStreak) {
-              <ng-icon hlm name="lucideFlame" class="size-4! text-primary" />
+              <ng-icon hlm name="lucideFlame" class="size-4! text-primary-text" />
             } @else if (color.value === frameSeniority) {
-              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary" />
+              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary-text" />
             } @else if (color.value === frameNone) {
               <span class="text-xs text-muted-foreground leading-none">✕</span>
             } @else if (selectedFrame() === color.value) {
@@ -208,7 +208,7 @@
           <p class="text-sm text-destructive">{{ profileError() }}</p>
         }
         @if (profileSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.saved') }}</p>
+          <p class="text-sm text-success">{{ t('profile.saved') }}</p>
         }
 
         <button
@@ -302,7 +302,7 @@
           <p class="text-sm text-destructive">{{ passwordError() }}</p>
         }
         @if (passwordSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.passwordChanged') }}</p>
+          <p class="text-sm text-success">{{ t('profile.passwordChanged') }}</p>
         }
 
         <button

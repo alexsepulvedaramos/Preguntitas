@@ -1,7 +1,7 @@
 @if (average() !== null) {
   <div class="flex flex-col items-center gap-0.5 pb-2">
     <span class="text-xs uppercase tracking-wide text-muted-foreground">{{ t('results.average') }}</span>
-    <span class="font-display text-4xl text-primary">{{ average() }}</span>
+    <span class="font-display text-4xl text-primary-text">{{ average() }}</span>
   </div>
 }
 
@@ -13,7 +13,6 @@
       [percentage]="bin.percentage"
       [voters]="bin.voters"
       [allResults]="bins()"
-      [index]="i"
       [class.animate-result-enter-left]="i % 2 === 0"
       [class.animate-result-enter-right]="i % 2 === 1"
       [style.animation-delay.ms]="i * 70"

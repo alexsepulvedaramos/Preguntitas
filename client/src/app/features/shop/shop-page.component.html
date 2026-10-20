@@ -42,7 +42,7 @@
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span
                   class="text-xs font-medium tabular-nums"
-                  [class]="entry.owned > 0 ? 'text-primary' : 'text-muted-foreground'"
+                  [class]="entry.owned > 0 ? 'text-primary-text' : 'text-muted-foreground'"
                   aria-live="polite"
                 >
                   @if (entry.missing > 0) {
@@ -122,7 +122,7 @@
             <app-user-name [name]="user()?.username" [look]="previewLook()" />
           </p>
           @if (user()?.title) {
-            <p class="truncate text-sm font-semibold text-primary">{{ user()?.title }}</p>
+            <p class="truncate text-sm font-semibold text-primary-text">{{ user()?.title }}</p>
           }
           @if (isTrying()) {
             <button hlmBtn variant="outline" size="sm" class="mt-1 self-start" (click)="stopTrying()">
@@ -159,7 +159,7 @@
                 </button>
                 <span class="text-sm font-medium text-foreground">{{ t('shop.defaultTheme') }}</span>
                 @if (defaultThemeEquipped()) {
-                  <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary">
+                  <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary-text">
                     <ng-icon hlm name="lucideCheck" size="sm" /> {{ t('shop.equipped') }}
                   </span>
                 } @else {
@@ -212,7 +212,7 @@
                       <span class="text-4xl" aria-hidden="true">{{ item.emoji }}</span>
                     }
                     @case ('title') {
-                      <span class="font-display text-lg italic leading-tight text-primary text-balance">{{ item.label }}</span>
+                      <span class="font-display text-lg italic leading-tight text-primary-text text-balance">{{ item.label }}</span>
                     }
                     @case ('theme') {
                       <span class="size-10 rounded-full border border-border" [style.background]="item.swatch"></span>
@@ -241,7 +241,7 @@
                       [disabled]="cosmeticBusy() !== null"
                       (click)="equip(section, null)"
                     >
-                      <ng-icon hlm name="lucideCheck" size="sm" class="text-primary" />
+                      <ng-icon hlm name="lucideCheck" size="sm" class="text-primary-text" />
                       {{ t('shop.equipped') }} · {{ t('shop.unequip') }}
                     </button>
                   } @else {
@@ -317,7 +317,7 @@
               </div>
               <div hlmItemActions
                 class="font-semibold tabular-nums"
-                [class.text-primary]="row.amount > 0"
+                [class.text-primary-text]="row.amount > 0"
                 [class.text-destructive]="row.amount < 0"
               >
                 <span class="inline-flex items-center gap-1">{{ row.amount > 0 ? '+' : '' }}{{ row.amount }}<app-coin /></span>

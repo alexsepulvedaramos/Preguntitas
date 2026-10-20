@@ -44,7 +44,7 @@
             <!-- TODO: recuperación de contraseña — implementar antes de descomentar
             <a
               hlmFieldDescription
-              class="text-xs text-muted-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
+              class="text-xs text-muted-foreground underline-offset-4 hover:underline hover:text-primary-text transition-colors cursor-pointer"
               routerLink="."
               (mousedown)="$event.preventDefault()"
             >
@@ -105,7 +105,7 @@
         <a
           routerLink="/auth/register"
           queryParamsHandling="preserve"
-          class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary transition-colors cursor-pointer"
+          class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary-text transition-colors cursor-pointer"
           (mousedown)="$event.preventDefault()"
         >
           {{ t('auth.login.register') }}

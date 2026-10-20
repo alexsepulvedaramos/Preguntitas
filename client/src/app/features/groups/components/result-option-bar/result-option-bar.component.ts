@@ -6,24 +6,10 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { OptionResult, Voter } from '../../../../core/models/result.model';
 import { User } from '../../../../core/models/user.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
-import { isHexFrame } from '../../../../core/constants/streak-tiers';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
-
-// Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
-// Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
-// it's a single ordered distribution, not separate options, so varying the hue per bin
-// would be misleading.
-const CHART_COLORS = [
-  'bg-chart-1',
-  'bg-chart-2',
-  'bg-chart-3',
-  'bg-chart-4',
-  'bg-chart-5',
-  'bg-chart-6',
-];
 
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
 // its percentage, used by every per-type results component. Tapping a row with at least one
@@ -42,31 +28,23 @@ export class ResultOptionBarComponent {
   public readonly barWidth = input<number | null>(null);
   public readonly voters = input.required<Voter[]>();
   public readonly allResults = input<OptionResult[]>([]);
-  public readonly index = input<number>(0);
   public readonly leadUser = input<User | null>(null);
 
   protected readonly hasAnyVoters = computed(() =>
     this.allResults().some(r => r.voters.length > 0)
   );
-  protected readonly colorClass = computed(
-    () => CHART_COLORS[this.index() % CHART_COLORS.length],
-  );
+  // One brand colour for every result (§14 visual rules): the leading option(s) get the
+  // strong tint and the rest a soft one, so no option reads as "wrong" and themes recolour it.
+  protected readonly isLeader = computed(() => {
+    const max = Math.max(0, ...this.allResults().map(r => r.voteCount));
+    return max > 0 && this.voteCount() === max;
+  });
   protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
-  protected readonly chartColor = computed(
-    () => `var(--color-chart-${(this.index() % CHART_COLORS.length) + 1})`
-  );
 
   // Members' streak rings inside the group (rama 19) and the member card on tap.
   protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly memberCard = inject(MemberCardService);
   protected readonly t = inject(I18nService).t;
-
-  // When leadUser has a fixed (hex) frame colour, use it as bar fill; otherwise fall back
-  // to the chart class ("streak"/"none" frames aren't colours).
-  protected readonly fillColor = computed(() => {
-    const frame = this.leadUser()?.frameColor;
-    return isHexFrame(frame) ? frame : null;
-  });
 
   openMemberCard(userId: number) {
     const groupId = this.groupStreaks.currentGroupId();

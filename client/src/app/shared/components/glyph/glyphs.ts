@@ -26,6 +26,7 @@ import {
   lucideLayers,
   lucideLightbulb,
   lucideLink,
+  lucideListChecks,
   lucideListOrdered,
   lucideLock,
   lucideMedal,
@@ -48,6 +49,7 @@ import {
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,
+  lucideSwords,
   lucideTarget,
   lucideThumbsUp,
   lucideTimer,
@@ -60,10 +62,10 @@ import {
   lucideZap,
 } from '@ng-icons/lucide';
 
-// The four tones, all built from palette tokens (styles-lime.css `.vp-glyph--*`):
+// The five tones, all built from palette tokens (styles-lime.css `.vp-glyph--*`):
 // sage for the everyday, lime for what's quick or bright, sand for warm moments, frost for
-// freezes and gifts.
-export type GlyphTone = 'sage' | 'lime' | 'sand' | 'frost';
+// freezes and gifts, honey for flash questions.
+export type GlyphTone = 'sage' | 'lime' | 'sand' | 'frost' | 'honey';
 
 // The app's glyph set: every icon that used to be an emoji, with its tone fixed so the same
 // concept always looks the same. Add a name here rather than picking a tone per call site.
@@ -80,7 +82,7 @@ export const GLYPHS = {
   guess: { icon: 'lucideVenetianMask', tone: 'sage' },
   hint: { icon: 'lucideLightbulb', tone: 'lime' },
   race: { icon: 'lucideTimer', tone: 'lime' },
-  flash: { icon: 'lucideZap', tone: 'lime' },
+  flash: { icon: 'lucideZap', tone: 'honey' },
   shop: { icon: 'lucideShoppingBag', tone: 'sage' },
   crown: { icon: 'lucideCrown', tone: 'sand' },
   target: { icon: 'lucideTarget', tone: 'sage' },
@@ -96,6 +98,8 @@ export const GLYPHS = {
   chat: { icon: 'lucideMessageCircle', tone: 'sage' },
   bell: { icon: 'lucideBell', tone: 'sage' },
   eye: { icon: 'lucideEye', tone: 'sage' },
+  poll: { icon: 'lucideListChecks', tone: 'sage' },
+  versus: { icon: 'lucideSwords', tone: 'sand' },
   // Release notes
   sparkles: { icon: 'lucideSparkles', tone: 'lime' },
   lock: { icon: 'lucideLock', tone: 'sage' },
@@ -161,6 +165,7 @@ export const GLYPH_ICONS = {
   lucideLayers,
   lucideLightbulb,
   lucideLink,
+  lucideListChecks,
   lucideListOrdered,
   lucideLock,
   lucideMedal,
@@ -183,6 +188,7 @@ export const GLYPH_ICONS = {
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,
+  lucideSwords,
   lucideTarget,
   lucideThumbsUp,
   lucideTimer,

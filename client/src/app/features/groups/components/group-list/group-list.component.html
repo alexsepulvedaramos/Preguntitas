@@ -1,6 +1,6 @@
 <div class="p-4 flex flex-col gap-6 max-w-lg mx-auto">
   <section>
-    <h2 class="text-xs font-bold uppercase tracking-widest text-primary mb-3">
+    <h2 class="text-xs font-bold uppercase tracking-widest text-primary-text mb-3">
       {{ t('groups.list.title') }}
     </h2>
 
@@ -32,7 +32,7 @@
               @for (step of startSteps; track step.title; let i = $index) {
                 <li class="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
                   <span
-                    class="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary"
+                    class="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary-text"
                     aria-hidden="true"
                   >
                     {{ i + 1 }}
@@ -46,7 +46,7 @@
             </ol>
             <p class="text-center text-sm text-muted-foreground">
               {{ t('groups.list.demoPrompt') }}
-              <a routerLink="/demo" class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary">
+              <a routerLink="/demo" class="font-medium text-foreground underline-offset-4 hover:underline hover:text-primary-text">
                 {{ t('groups.list.demoLink') }}
               </a>
             </p>

@@ -46,9 +46,7 @@
         @for (item of types; track item.type) {
           <article hlmCard size="sm">
             <div hlmCardHeader>
-              <span class="w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold" [class]="typeBadge[item.type]">
-                {{ t(typeLabels[item.type]) }}
-              </span>
+              <app-question-type-chip [type]="item.type" />
             </div>
             <div hlmCardContent class="flex flex-col gap-2">
               <p class="text-foreground">{{ t(item.how) }}</p>

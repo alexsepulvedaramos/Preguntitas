@@ -18,12 +18,12 @@ import { CoinsEarned } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { GroupMember } from '../../models/group.models';
 import { CreateQuestionComponent } from '../create-question/create-question.component';
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
+import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
 
 type Step = 'sources' | 'create' | 'assign-teams';
 
@@ -46,7 +46,7 @@ const PAGE_SIZE = 10;
 // logic below doesn't care which source an item came from.
 @Component({
   selector: 'app-select-question-dialog',
-  imports: [
+  imports: [QuestionTypeChipComponent, 
     HlmButtonImports,
     HlmDialogImports,
     HlmSpinnerImports,
@@ -83,7 +83,6 @@ export class SelectQuestionDialogComponent {
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
-  protected readonly QUESTION_TYPE_BADGE_CLASS = QUESTION_TYPE_BADGE_CLASS;
   protected readonly questionTypes = Object.values(QuestionType).filter(
     (v): v is QuestionType => typeof v === 'number',
   );

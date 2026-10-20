@@ -17,7 +17,7 @@ import { GlyphComponent } from '../../../../shared/components/glyph/glyph.compon
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 // "Your streak in this group" (rama 35, §17.9): a small streak chip in the group's top bar
-// (rama 36) that turns orange when the streak is at risk today. Tapping it opens the details —
+// (rama 36) that turns to the warning colour when the streak is at risk today. Tapping it opens the details —
 // best streak, the freezes held and the button to buy more, and the repair when a lost streak
 // can still be bought back. Freezes and repairs bought ahead in the shop (rama 45) are used from
 // here without charging. Drawer on mobile, dialog on desktop.

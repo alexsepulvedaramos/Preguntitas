@@ -19,7 +19,7 @@
       aria-labelledby="landing-title"
     >
       <div class="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
-        <p class="text-xs font-medium uppercase tracking-widest text-primary">
+        <p class="text-xs font-medium uppercase tracking-widest text-primary-text">
           {{ t('landing.eyebrow') }}
         </p>
         <h1
@@ -60,7 +60,7 @@
             <li class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5">
               <div class="flex items-center gap-3">
                 <app-glyph [name]="step.glyph" size="md" />
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">{{ t('landing.step', { n: i + 1 }) }}</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary-text">{{ t('landing.step', { n: i + 1 }) }}</span>
               </div>
               <h3 class="font-semibold text-foreground">{{ t(step.title) }}</h3>
               <p class="text-sm text-muted-foreground">{{ t(step.text) }}</p>

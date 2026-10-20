@@ -16,7 +16,6 @@ import { QuestionResult } from '../../../../core/models/result.model';
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { ResultsComponent } from '../results/results.component';
 import { VoteFormComponent } from '../vote-form/vote-form.component';
 import { CreateVote } from '../../../../core/models/vote.model';
@@ -30,6 +29,7 @@ import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { provideCalendarI18n } from '../../../../core/i18n/calendar-i18n';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
 
 // A day's question is keyed by its date; a flash question (rama 44) by its id, since it can
 // share the day with the daily one.
@@ -39,7 +39,7 @@ export function historyKey(entry: HistoryEntry): string {
 
 @Component({
   selector: 'app-history',
-  imports: [
+  imports: [QuestionTypeChipComponent, 
     RouterLink,
     MobileTopBarDirective,
     HlmButtonImports,
@@ -326,7 +326,4 @@ export class HistoryComponent implements OnInit {
     return this.t(QUESTION_TYPE_LABELS[type]);
   }
 
-  questionTypeBadgeClass(type: QuestionType): string {
-    return QUESTION_TYPE_BADGE_CLASS[type];
-  }
 }

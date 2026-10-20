@@ -24,23 +24,26 @@
         @switch (group().dailyStatus) {
           @case ('voting') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary border border-primary/40"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary-text border border-primary/40"
             >
               {{ t('groups.card.voteNow') }}
             </span>
             @if (group().myStreak; as streak) {
-              <!-- What's at stake if today's question closes without your vote -->
+              <!-- What's at stake if today's question closes without your vote: a fixed-size
+                   chip (flame + days) so the card never grows a second line -->
               <span
-                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-500/40"
+                class="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums bg-warning/15 text-warning border border-warning/40"
+                [attr.title]="t('groups.card.streakAtStake', { count: streak })"
+                [attr.aria-label]="t('groups.card.streakAtStake', { count: streak })"
               >
-                <ng-icon hlm name="lucideFlame" size="xs" />
-                {{ t('groups.card.streakAtStake', { count: streak }) }}
+                <ng-icon hlm name="lucideFlame" size="xs" aria-hidden="true" />
+                <span aria-hidden="true">{{ streak }}</span>
               </span>
             }
           }
           @case ('selector') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/25 text-lime-700 dark:text-lime-400 border border-lime-500/40"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-accent text-accent-foreground border border-accent"
             >
               {{ t('groups.card.yourTurn') }}
             </span>

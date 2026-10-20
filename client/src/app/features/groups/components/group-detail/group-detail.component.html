@@ -112,7 +112,7 @@
           <span class="block text-sm font-semibold text-foreground">{{ t('monthlySummary.readyTitle') }}</span>
           <span class="block text-xs text-muted-foreground">{{ t('monthlySummary.readyText') }}</span>
         </span>
-        <span class="shrink-0 text-sm font-semibold text-primary">{{ t('monthlySummary.see') }}</span>
+        <span class="shrink-0 text-sm font-semibold text-primary-text">{{ t('monthlySummary.see') }}</span>
       </button>
     }
 
@@ -295,7 +295,7 @@
       @if (!activeCard()?.pending && nextPending(); as next) {
         <button
           type="button"
-          class="flex items-center gap-2 rounded-xl border border-amber-500/60 bg-amber-400/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-amber-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="flex items-center gap-2 rounded-xl border border-flash-border bg-flash/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-flash/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           (click)="goTo(next.key)"
         >
           <app-glyph name="flash" size="sm" />
@@ -307,10 +307,10 @@
 
     @for (flash of activeFlashList(); track flash.id) {
       <section
-        class="flex flex-col gap-4 rounded-2xl border-2 border-amber-400/70 bg-amber-400/5 p-4 shadow-lg shadow-amber-400/10 animate-in fade-in slide-in-from-right-4 duration-300"
+        class="flex flex-col gap-4 rounded-2xl border-2 border-flash-border bg-flash/5 p-4 animate-in fade-in slide-in-from-right-4 duration-300"
       >
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-neutral-950">
+          <span class="inline-flex items-center gap-1 rounded-full bg-flash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-flash-foreground">
             <ng-icon hlm name="lucideZap" class="size-3.5!" />
             {{ t('flash.badge') }}
           </span>
@@ -396,7 +396,7 @@
       @case ('no_question') {
         <!-- Pre-start state: the group has fewer than 2 members (§4.3, §4.5) -->
         <div class="flex flex-col items-center gap-4 py-8 text-center">
-          <div class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div class="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary-text">
             <ng-icon hlm name="lucideUserPlus" class="size-6!" />
           </div>
           <div class="flex flex-col gap-1">

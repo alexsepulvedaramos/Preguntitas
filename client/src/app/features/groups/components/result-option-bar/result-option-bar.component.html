@@ -16,8 +16,7 @@
       @if (displayWidth() > 0) {
         <div
           class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500"
-          [class]="!fillColor() ? colorClass() : ''"
-          [style.background-color]="fillColor() ?? null"
+          [class]="isLeader() ? 'bg-primary/60' : 'bg-primary/25'"
           [style.width.%]="displayWidth()"
         ></div>
       }
@@ -44,10 +43,7 @@
         class="absolute inset-0 z-20 flex items-center overflow-hidden"
         [class]="leadUser() ? 'pl-14 pr-4' : 'pl-4 pr-4'"
       >
-        <span
-          class="text-sm font-semibold text-white truncate"
-          style="text-shadow: 0 1px 2px rgb(0 0 0 / 0.7), 0 0 4px rgb(0 0 0 / 0.5);"
-        >{{ label() }}</span>
+        <span class="text-sm font-semibold text-foreground truncate">{{ label() }}</span>
       </div>
 
       <!-- Voter badges: centered on bottom edge, outside overflow -->

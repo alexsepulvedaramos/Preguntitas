@@ -87,11 +87,7 @@
                       class="flex-1 font-display italic text-lg text-foreground leading-tight"
                       >{{ pending.text }}</span
                     >
-                    <span
-                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
-                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
-                      >{{ t(QUESTION_TYPE_LABELS[pending.type]) }}</span
-                    >
+                    <app-question-type-chip [type]="pending.type" class="mt-0.5" />
                   </span>
                   @if (
                     pending.type === QuestionType.CustomPoll &&
@@ -112,11 +108,7 @@
                       class="flex-1 font-display italic text-lg text-foreground leading-tight"
                       >{{ pending.text }}</span
                     >
-                    <span
-                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
-                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
-                      >{{ t(QUESTION_TYPE_LABELS[pending.type]) }}</span
-                    >
+                    <app-question-type-chip [type]="pending.type" class="mt-0.5" />
                   </span>
                 </div>
               }
@@ -206,11 +198,7 @@
                         <hlm-spinner class="size-4" />
                       }
                       <span class="flex-1">{{ item.text }}</span>
-                      <span
-                        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
-                        [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
-                        >{{ t(QUESTION_TYPE_LABELS[item.type]) }}</span
-                      >
+                      <app-question-type-chip [type]="item.type" />
                     </span>
                     @if (
                       item.type === QuestionType.CustomPoll &&

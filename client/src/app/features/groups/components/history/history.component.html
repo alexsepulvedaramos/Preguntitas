@@ -46,7 +46,7 @@
   <!-- Empty state -->
   } @else if (entries().length === 0) {
     <div class="text-center py-12">
-      <p class="font-display italic text-lg text-primary/70">{{ t('history.emptyTitle') }}</p>
+      <p class="font-display italic text-lg text-primary-text/70">{{ t('history.emptyTitle') }}</p>
       <p class="text-sm text-muted-foreground mt-1">
         {{ t('history.emptyText') }}
       </p>
@@ -62,7 +62,7 @@
           class="flex items-start gap-3 p-3 text-left rounded-default border transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           [class.bg-muted]="selectedKey() === historyKey(entry)"
           [class.border-primary]="selectedKey() === historyKey(entry)"
-          [class.border-amber-400/60]="entry.flashId != null && selectedKey() !== historyKey(entry)"
+          [class.border-flash-border]="entry.flashId != null && selectedKey() !== historyKey(entry)"
           (click)="selectEntry(entry)"
         >
           <!-- Date column -->
@@ -84,17 +84,12 @@
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
               <!-- Flash question (rama 44) -->
               @if (entry.flashId != null) {
-                <span class="inline-flex items-center gap-0.5 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-bold text-neutral-950">
+                <span class="inline-flex items-center gap-0.5 rounded-full bg-flash px-2 py-0.5 text-xs font-bold text-flash-foreground">
                   <ng-icon hlm name="lucideZap" class="size-3!" />
                   {{ t('flash.badge') }}
                 </span>
               }
-              <span
-                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
-                [class]="questionTypeBadgeClass(entry.type)"
-              >
-                {{ questionTypeLabel(entry.type) }}
-              </span>
+              <app-question-type-chip [type]="entry.type" />
               <!-- Who wrote it, and how your guess went (rama 36); who launched a flash -->
               @if (entry.flashId != null && entry.authorUsername) {
                 <span class="text-xs text-muted-foreground">
@@ -104,7 +99,7 @@
                 <span class="text-xs text-muted-foreground">
                   {{ t('history.writtenBy', { name: entry.authorUsername }) }}
                   @if (entry.myGuessCorrect === true) {
-                    <span class="text-primary" [attr.aria-label]="t('history.guessRight')">✓</span>
+                    <span class="text-primary-text" [attr.aria-label]="t('history.guessRight')">✓</span>
                   } @else if (entry.myGuessCorrect === false) {
                     <span class="text-destructive" [attr.aria-label]="t('history.guessWrong')">✗</span>
                   }

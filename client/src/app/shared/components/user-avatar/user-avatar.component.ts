@@ -34,7 +34,7 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
           @if (avatarUrl()) {
             <img hlmAvatarImage [src]="avatarUrl()!" [alt]="username() + ' avatar'" class="object-cover w-full h-full" />
           }
-          <span hlmAvatarFallback class="font-semibold bg-primary/15 text-primary" [class]="fallbackSizeClass()">
+          <span hlmAvatarFallback class="font-semibold bg-primary/15 text-primary-text" [class]="fallbackSizeClass()">
             @if (initials()) {
               {{ initials() }}
             } @else {

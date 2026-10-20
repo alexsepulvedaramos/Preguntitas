@@ -22,7 +22,7 @@
       <div class="flex items-center justify-between gap-3 text-sm">
         <span class="flex min-w-0 items-center gap-2">
           <span
-            class="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary"
+            class="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary-text"
             >{{ t('demo.badge') }}</span
           >
           <span class="truncate font-semibold text-foreground">{{ groupName() }}</span>
@@ -95,7 +95,7 @@
       @case ('vote') {
         <section class="vp-demo-step flex flex-col gap-4">
           <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
-            <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
+            <ng-icon hlm name="lucideClock" class="shrink-0 text-primary-text" />
             <app-countdown class="min-w-0 flex-1" [target]="closesAt" [compact]="true" />
           </div>
           <p class="text-sm text-muted-foreground">{{ t('demo.vote.hint') }}</p>
@@ -152,11 +152,7 @@
               >
                 <span class="font-medium">{{ t(option.text) }}</span>
                 <span class="flex items-center gap-2">
-                  <span
-                    class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                    [class]="typeBadge[option.type]"
-                    >{{ t(typeLabels[option.type]) }}</span
-                  >
+                  <app-question-type-chip [type]="option.type" />
                   <span class="text-xs text-muted-foreground">{{ t('demo.select.pack', { name: t('demo.select.basePack') }) }}</span>
                 </span>
               </button>
@@ -165,7 +161,7 @@
 
           @if (pickedId() !== null) {
             <p class="vp-demo-step flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
-              <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary" />
+              <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary-text" />
               {{ t('demo.select.picked', { time: dailyTime }) }}
             </p>
           }

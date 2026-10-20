@@ -5,7 +5,7 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 interface ShowcaseRow {
   name: string;
   pct: number;
-  color: string;
+  lead: boolean;
   voters: string[];
 }
 
@@ -23,20 +23,18 @@ interface ShowcaseRow {
         @for (row of rows; track row.name) {
           <div class="flex items-center gap-2">
             <div
-              class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-black/80"
-              [style.background]="row.color"
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-foreground"
             >
               {{ row.name[0] }}
             </div>
             <div class="relative h-8 flex-1 overflow-hidden rounded-lg bg-muted">
               <div
                 class="vp-demo-fill absolute inset-y-0 left-0 rounded-lg"
-                [style.background]="row.color"
+                [class]="row.lead ? 'bg-primary/60' : 'bg-primary/25'"
                 [style.max-width.%]="row.pct"
               ></div>
               <span
                 class="absolute inset-y-0 left-2 flex items-center text-xs font-medium text-foreground"
-                style="text-shadow: 0 1px 2px rgb(0 0 0 / 0.35)"
               >
                 {{ row.name }}
               </span>
@@ -96,8 +94,8 @@ interface ShowcaseRow {
 export class ResultsShowcaseComponent {
   protected readonly t = inject(I18nService).t;
   protected readonly rows: ShowcaseRow[] = [
-    { name: 'Marta', pct: 54, color: 'var(--chart-1)', voters: ['D', 'L'] },
-    { name: 'Dani', pct: 31, color: 'var(--chart-2)', voters: ['M'] },
-    { name: 'Lucía', pct: 15, color: 'var(--chart-6)', voters: ['J'] },
+    { name: 'Marta', pct: 54, lead: true, voters: ['D', 'L'] },
+    { name: 'Dani', pct: 31, lead: false, voters: ['M'] },
+    { name: 'Lucía', pct: 15, lead: false, voters: ['J'] },
   ];
 }
