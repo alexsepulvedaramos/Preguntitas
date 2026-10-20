@@ -540,6 +540,13 @@
     background: transparent;
   }
 
+  /* Dialogs, drawers and sheets focus their own panel on open (autoFocus: 'dialog'); the
+     panel itself never shows a ring. */
+  .cdk-dialog-container:focus,
+  .cdk-dialog-container:focus-visible {
+    outline: none;
+  }
+
   *::-webkit-scrollbar-thumb {
     background-color: var(--border);
     border-radius: 9999px;

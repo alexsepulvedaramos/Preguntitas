@@ -49,6 +49,7 @@ import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../shared/components/glyph/glyphs';
 import { CoinComponent } from '../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -160,7 +161,7 @@ const SHOP_ITEMS: readonly {
 // the cosmetics with a try-on preview on your own avatar (rama 42, §17.10) and the ledger.
 @Component({
   selector: 'app-shop-page',
-  imports: [
+  imports: [PageHeaderComponent, 
     CoinTextComponent,
     CoinComponent,
     GlyphComponent,

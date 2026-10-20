@@ -4,14 +4,18 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { PushNotificationService } from '../../../core/services/push-notification.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { GlyphComponent } from '../glyph/glyph.component';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideX } from '@ng-icons/lucide';
+import { injectHideBottomPrompts } from '../../utils/bottom-prompt-route';
 
 @Component({
   selector: 'app-push-notification-prompt',
-  imports: [GlyphComponent],
-  standalone: true,
+  imports: [GlyphComponent, HlmButtonImports, NgIcon],
+  providers: [provideIcons({ lucideX })],
   template: `
-    @if (visible()) {
-      <div class="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
+    @if (visible() && !hidden()) {
+      <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
         <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl">
           <div class="flex items-start gap-3">
             <app-glyph name="bell" size="md" />
@@ -22,29 +26,29 @@ import { GlyphComponent } from '../glyph/glyph.component';
               </p>
             </div>
             <button
-              (click)="dismiss()"
-              class="shrink-0 text-muted-foreground hover:text-foreground transition-colors p-1"
+              hlmBtn
+              variant="ghost"
+              size="icon-sm"
+              type="button"
+              class="shrink-0 text-muted-foreground"
               [attr.aria-label]="t('common.close')"
+              (click)="dismiss()"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <ng-icon name="lucideX" />
             </button>
           </div>
           <div class="flex gap-2 mt-3">
             <button
-              (click)="activate()"
+              hlmBtn
+              size="sm"
+              type="button"
+              class="flex-1 bg-accent text-accent-foreground hover:bg-accent-hover"
               [disabled]="loading()"
-              class="flex-1 text-xs font-semibold bg-accent text-accent-foreground px-3 py-2 rounded-lg
-                     hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none"
+              (click)="activate()"
             >
               {{ loading() ? t('pushPrompt.activating') : t('pushPrompt.activate') }}
             </button>
-            <button
-              (click)="dismiss()"
-              class="text-xs text-muted-foreground px-3 py-2 rounded-lg hover:bg-muted transition-colors"
-            >
+            <button hlmBtn variant="ghost" size="sm" type="button" class="text-muted-foreground" (click)="dismiss()">
               {{ t('common.notNow') }}
             </button>
           </div>
@@ -65,6 +69,7 @@ export class PushNotificationPromptComponent implements OnInit {
   // Reactive rather than a one-off check: on a cold start the session may still be
   // restoring (token refresh against a sleeping API) when the delay elapses.
   // Only for logged-in users: registering the subscription needs an authenticated call.
+  protected readonly hidden = injectHideBottomPrompts();
   protected visible = computed(() =>
     this.delayElapsed()
     && !this.closed()

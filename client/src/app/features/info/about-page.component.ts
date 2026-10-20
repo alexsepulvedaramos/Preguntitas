@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -18,6 +18,7 @@ import { InfoPageNav } from './info-page-nav';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../shared/components/glyph/glyphs';
 import { QuestionTypeChipComponent } from '../../shared/components/question-type-chip/question-type-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 interface TypeExample {
   type: QuestionType;
@@ -29,10 +30,9 @@ interface TypeExample {
 // with live examples built from the real components (result bars, streak frames).
 @Component({
   selector: 'app-about-page',
-  imports: [QuestionTypeChipComponent, 
+  imports: [PageHeaderComponent, QuestionTypeChipComponent, 
     GlyphComponent,
     RouterLink,
-    NgIcon,
     HlmButtonImports,
     HlmCardImports,
     UserAvatarComponent,

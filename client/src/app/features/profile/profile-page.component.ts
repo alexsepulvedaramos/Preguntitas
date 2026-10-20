@@ -37,6 +37,7 @@ import { TranslationKey } from '../../core/i18n/translation.types';
 import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
 import { apiErrorMessage } from '../../shared/utils/api-error';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
   { label: 'profile.frameColors.streak', value: FRAME_STREAK },
@@ -54,7 +55,7 @@ const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [
+  imports: [PageHeaderComponent, 
     GlyphComponent,
     ReactiveFormsModule,
     HlmButtonImports,

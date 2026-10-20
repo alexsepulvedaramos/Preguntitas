@@ -1,13 +1,18 @@
-import { Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideX } from '@ng-icons/lucide';
 
 import { I18nService } from '../../../core/i18n/i18n.service';
+import { injectHideBottomPrompts } from '../../utils/bottom-prompt-route';
 
 @Component({
   selector: 'app-pwa-install-prompt',
-  standalone: true,
+  imports: [HlmButtonImports, NgIcon],
+  providers: [provideIcons({ lucideX })],
   template: `
-    @if (showAndroid()) {
-      <div class="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
+    @if (showAndroid() && !hidden()) {
+      <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
         <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl flex items-center gap-3">
           <img
             src="icons/android-chrome-192x192.png"
@@ -19,16 +24,10 @@ import { I18nService } from '../../../core/i18n/i18n.service';
             <p class="text-xs text-muted-foreground mt-0.5">{{ t('pwa.installAndroid') }}</p>
           </div>
           <div class="flex flex-col gap-1.5 shrink-0">
-            <button
-              (click)="install()"
-              class="text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
-            >
+            <button hlmBtn size="sm" type="button" (click)="install()">
               {{ t('pwa.install') }}
             </button>
-            <button
-              (click)="dismissAndroid()"
-              class="text-xs text-muted-foreground px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-center"
-            >
+            <button hlmBtn variant="ghost" size="sm" type="button" class="text-muted-foreground" (click)="dismissAndroid()">
               {{ t('common.notNow') }}
             </button>
           </div>
@@ -36,8 +35,8 @@ import { I18nService } from '../../../core/i18n/i18n.service';
       </div>
     }
 
-    @if (showIos()) {
-      <div class="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
+    @if (showIos() && !hidden()) {
+      <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
         <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl">
           <div class="flex items-center gap-3 mb-3">
             <img
@@ -50,13 +49,15 @@ import { I18nService } from '../../../core/i18n/i18n.service';
               <p class="text-xs text-muted-foreground mt-0.5">{{ t('pwa.installIos') }}</p>
             </div>
             <button
-              (click)="dismissIos()"
-              class="text-muted-foreground hover:text-foreground transition-colors p-1 shrink-0"
+              hlmBtn
+              variant="ghost"
+              size="icon-sm"
+              type="button"
+              class="shrink-0 text-muted-foreground"
               [attr.aria-label]="t('common.close')"
+              (click)="dismissIos()"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <ng-icon name="lucideX" />
             </button>
           </div>
           <ol class="space-y-2">
@@ -87,6 +88,7 @@ export class PwaInstallPromptComponent implements OnInit {
   protected readonly tHtml = this.i18n.tHtml;
   protected showAndroid = signal(false);
   protected showIos = signal(false);
+  protected readonly hidden = injectHideBottomPrompts();
   private deferredPrompt: any = null;
 
   ngOnInit() {

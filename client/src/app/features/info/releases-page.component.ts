@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
@@ -13,11 +13,12 @@ import { InfoPageNav } from './info-page-nav';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 // "Novedades" (rama 26): every release, newest first, written for players.
 @Component({
   selector: 'app-releases-page',
-  imports: [CoinTextComponent, GlyphComponent, RouterLink, NgIcon, HlmBadgeImports, HlmButtonImports, HlmCardImports],
+  imports: [PageHeaderComponent, CoinTextComponent, GlyphComponent, RouterLink, HlmBadgeImports, HlmButtonImports, HlmCardImports],
   providers: [provideIcons({ lucideArrowLeft })],
   templateUrl: './releases-page.component.html',
 })

@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { switchMap } from 'rxjs/operators';
-import { RouterLink } from '@angular/router';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
@@ -25,11 +24,11 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { WordStaggerPipe } from '../../../../shared/pipes/word-stagger.pipe';
 
 import { GroupStreaksService } from '../../services/group-streaks.service';
-import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { provideCalendarI18n } from '../../../../core/i18n/calendar-i18n';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
 import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 // A day's question is keyed by its date; a flash question (rama 44) by its id, since it can
 // share the day with the daily one.
@@ -39,9 +38,7 @@ export function historyKey(entry: HistoryEntry): string {
 
 @Component({
   selector: 'app-history',
-  imports: [QuestionTypeChipComponent, 
-    RouterLink,
-    MobileTopBarDirective,
+  imports: [PageHeaderComponent, QuestionTypeChipComponent, 
     HlmButtonImports,
     HlmSkeletonImports,
     HlmSpinnerImports,
