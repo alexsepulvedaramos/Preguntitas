@@ -1319,5 +1319,11 @@ Decided after one week of real data (ledger 2026-10-12 → 2026-10-20, 20 users 
    - **It must be visible (developer, 2026-10-20):** the bonus is paid right after voting and shown apart from the vote reward (e.g. toast "+5 🪙 voto · +3 🪙 racha"). The streak panel shows today's bonus and the next step ("Tu racha te da +3 🪙 por voto · +4 desde el día 30"). Exact placement settled at branch time.
 5. **Change my vote and toque/nudge go into development** (rama 43, design in §17.10). Changing the vote must be **obvious in the UI** — a visible "Cambiar voto · 50 🪙" action on the results card, plus a one-off hint or release note the first time, so people find out it exists.
 
-**Under discussion (not decided):** ring skins should layer a finish **on top of** the tier material instead of replacing it, so a gold ring still looks gold — possibly gated by tier. New sinks are still being explored: a winner's celebration effect, a group pot, predictions.
+6. **New items liked by the developer (2026-10-20)** — rules, prices and data model settled at design time; prices are rough proposals in days of play for one group (~11 🪙/day):
+   - **Anonymous flash** (~150 🪙): a flash question where nobody can see who voted what (votes are public everywhere else, §4). The tallies are still shown. Meant for the questions nobody answers honestly in public.
+   - **Duel** (~120 🪙): challenge a member to a flash Deathmatch between the two of you, which the group votes on. The challenged member gets a push.
+   - **Extension** (~30 🪙): +24 h on an open flash. **Available on every flash and every duel.**
+   - **Winner effect** (~300–500 🪙, cosmetic): when you are the most-voted option in a result, your result bar plays your effect (confetti, spotlights…). It only shows when you win, so it is earned as much as bought.
+
+**Under discussion (not decided):** ring finishes that layer **on top of** the tier material instead of replacing it, so a gold ring still looks gold, possibly gated by tier — **depends on how they look**, so they need visual prototypes first. Also still open: predictions (bet on the winner before the results), a group pot, a pinned chat message, choosing tomorrow's pack, vote-entrance and chat-bubble styles.
 
