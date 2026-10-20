@@ -36,4 +36,9 @@ public class MemberStatsDto
     // many were right.
     public int GuessesMade { get; set; }
     public int GuessesCorrect { get; set; }
+
+    // Duel record (§17.15 item 6): closed duels in the group the member fought and anyone voted on.
+    public int DuelsWon { get; set; }
+    public int DuelsDrawn { get; set; }
+    public int DuelsLost { get; set; }
 }

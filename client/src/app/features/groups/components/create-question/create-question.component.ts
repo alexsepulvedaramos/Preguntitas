@@ -26,6 +26,7 @@ import { SuperlativeCreateComponent } from '../superlative-create/superlative-cr
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
 import { ScaleCreateComponent } from '../scale-create/scale-create.component';
 import { CustomPollCreateComponent } from '../custom-poll-create/custom-poll-create.component';
+import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
@@ -62,6 +63,7 @@ const TEXT_MAX_LENGTH = 200;
     DeathmatchCreateComponent,
     ScaleCreateComponent,
     CustomPollCreateComponent,
+    DuelNoticeComponent,
   ],
   providers: [provideIcons({ lucideZap })],
   templateUrl: './create-question.component.html',

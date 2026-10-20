@@ -525,6 +525,10 @@ export const en: Translation = {
     deleteFailed: 'The question couldn’t be deleted.',
     loadFailed: 'The available questions couldn’t be loaded.',
   },
+  duel: {
+    challenge: "This will start a duel against {name}, and we'll let them know you challenged them.",
+    between: "This will start a duel between {first} and {second}, and we'll let them both know.",
+  },
   flash: {
     hintTitle: 'New!',
     hintText: 'Launch a flash question for {price} 🪙: it goes out to the whole group right away.',
@@ -667,6 +671,8 @@ export const en: Translation = {
     timesSelector: 'Times picking',
     questionsCreated: 'Questions created',
     guesses: 'Authors guessed',
+    duels: 'Duels (W · D · L)',
+    duelsRecord: 'Won {won}, drawn {drawn}, lost {lost}',
     myStats: 'My stats',
     memberStats: 'Member stats',
   },

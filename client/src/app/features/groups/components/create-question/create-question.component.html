@@ -53,6 +53,10 @@
     }
     @case (QuestionType.Deathmatch) {
       <app-deathmatch-create [members]="members()" [(teams)]="teams" [showErrors]="typeTouched()" />
+      <!-- A 1-vs-1 sent as the daily pick or a flash is a duel (§17.15 item 6) -->
+      @if (showSelectButton() || flashOnly()) {
+        <app-duel-notice [teams]="teams()" [members]="members()" />
+      }
     }
     @case (QuestionType.Scale) {
       <app-scale-create
@@ -163,6 +167,9 @@
                 </h3>
                 <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
               </hlm-alert-dialog-header>
+              @if (type() === QuestionType.Deathmatch && !(showSelectButton() || flashOnly())) {
+                <app-duel-notice [teams]="teams()" [members]="members()" />
+              }
               <hlm-alert-dialog-footer>
                 <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                 <button hlmAlertDialogAction (click)="flashDlg.close(); launchFlash()">

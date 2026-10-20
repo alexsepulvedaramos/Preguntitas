@@ -526,6 +526,10 @@ export const es = {
     deleteFailed: 'No se ha podido eliminar la pregunta.',
     loadFailed: 'No se han podido cargar las preguntas disponibles.',
   },
+  duel: {
+    challenge: 'Esto iniciará un duelo contra {name} y le avisaremos de que le has retado.',
+    between: 'Esto iniciará un duelo entre {first} y {second} y les avisaremos.',
+  },
   flash: {
     hintTitle: '¡Nuevo!',
     hintText: 'Lanza una pregunta flash por {price} 🪙: sale al momento para todo el grupo.',
@@ -668,6 +672,8 @@ export const es = {
     timesSelector: 'Veces selector',
     questionsCreated: 'Preguntas creadas',
     guesses: 'Aciertos adivinando',
+    duels: 'Duelos (G · E · P)',
+    duelsRecord: 'Ganados {won}, empatados {drawn}, perdidos {lost}',
     myStats: 'Mis estadísticas',
     memberStats: 'Estadísticas del miembro',
   },

@@ -44,17 +44,21 @@ public class NotificationService(
         int groupId,
         string groupName,
         string questionText,
-        IReadOnlyDictionary<string, string> textTranslations
+        IReadOnlyDictionary<string, string> textTranslations,
+        DuelPush? duel
     ) =>
         RunLoggedAsync("new_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.NewQuestion);
-            await SendLocalizedAsync(context, recipients, QuestionTtl, lang =>
+            var (duelists, others) = SplitDuelists(recipients, duel);
+            await SendLocalizedAsync(context, others, QuestionTtl, lang =>
             {
                 var text = ContentTranslations.Pick(questionText, textTranslations, lang);
-                var body = text.Length > 80 ? text[..77] + "…" : text;
-                return BuildPayload($"❓ {groupName}", body, groupId, groupName, "new_question", lang);
+                return BuildPayload($"❓ {groupName}", Shorten(text), groupId, groupName, "new_question", lang);
             });
+            if (duel != null)
+                await SendDuelAsync(context, duelists, duel, QuestionTtl, groupId, groupName, "duel",
+                    lang => ContentTranslations.Pick(questionText, textTranslations, lang));
         });
 
     public Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime) =>
@@ -99,17 +103,20 @@ public class NotificationService(
         });
 
     public Task SendFlashQuestionAsync(
-        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText) =>
+        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel) =>
         RunLoggedAsync("flash_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: launcherUserId, pref => pref.FlashQuestion);
-            var text = questionText.Length > 80 ? questionText[..77] + "…" : questionText;
-            await SendLocalizedAsync(context, recipients, FlashService.OpenFor, lang =>
+            var (duelists, others) = SplitDuelists(recipients, duel);
+            var text = Shorten(questionText);
+            await SendLocalizedAsync(context, others, FlashService.OpenFor, lang =>
                 BuildPayload(
                     ServerText.Push.FlashQuestionTitle(lang, groupName),
                     ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
                     groupId, groupName, "flash_question", lang, actor: launcherUsername
                 ));
+            if (duel != null)
+                await SendDuelAsync(context, duelists, duel, FlashService.OpenFor, groupId, groupName, "flash_duel", _ => questionText);
         });
 
     // Opens the group page straight on that month's story.
@@ -167,6 +174,45 @@ public class NotificationService(
         });
 
     private sealed record Recipient(DevicePushSubscription Subscription, string Language);
+
+    private static string Shorten(string text) => text.Length > 80 ? text[..77] + "…" : text;
+
+    // The duel's sides (but not its chooser, who gets the normal push or none) are taken out
+    // of the eligible recipients, so they get the duel push in its place.
+    private static (List<Recipient> Duelists, List<Recipient> Others) SplitDuelists(
+        List<Recipient> recipients, DuelPush? duel)
+    {
+        if (duel == null)
+            return ([], recipients);
+        bool IsDuelist(Recipient r) =>
+            duel.Involves(r.Subscription.UserId) && r.Subscription.UserId != duel.ChooserUserId;
+        return (recipients.Where(IsDuelist).ToList(), recipients.Where(r => !IsDuelist(r)).ToList());
+    }
+
+    // Kind "duel" stands in for new_question (it starts a new cycle in sw.js), "flash_duel"
+    // for flash_question.
+    private async Task SendDuelAsync(
+        AppDbContext context,
+        List<Recipient> duelists,
+        DuelPush duel,
+        TimeSpan ttl,
+        int groupId,
+        string groupName,
+        string kind,
+        Func<string, string> questionTextFor)
+    {
+        await SendLocalizedAsync(context, duelists, ttl, lang =>
+        {
+            var text = Shorten(questionTextFor(lang));
+            return BuildPayload(
+                ServerText.Push.DuelTitle(lang, groupName),
+                duel.ChooserIsDuelist
+                    ? ServerText.Push.DuelChallengedBody(lang, duel.ChooserUsername, text)
+                    : ServerText.Push.DuelPittedBody(lang, duel.ChooserUsername, text),
+                groupId, groupName, kind, lang, actor: duel.ChooserUsername
+            );
+        });
+    }
 
     private static string FormatTime(TimeOnly time) => time.ToString("HH:mm", CultureInfo.InvariantCulture);
 

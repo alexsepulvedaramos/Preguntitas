@@ -58,8 +58,9 @@ async function showGrouped(notification) {
 function mergeEvents(previous, event) {
   // A new question starts a new cycle: votes on the previous one and the race to pick it
   // (rama 40) no longer matter.
-  const stale = ['user_voted', 'new_question', 'race_to_select'];
-  const kept = event.kind === 'new_question'
+  // A daily duel (rama 47) is the new question for its two sides.
+  const stale = ['user_voted', 'new_question', 'duel', 'race_to_select'];
+  const kept = event.kind === 'new_question' || event.kind === 'duel'
     ? previous.filter((e) => !stale.includes(e.kind))
     : previous;
   return [...kept, event].slice(-MAX_EVENTS);
@@ -114,6 +115,9 @@ function summarize(events, text) {
 
   const question = latest('new_question');
   if (question) lines.push(`❓ ${question.body}`);
+
+  // Duels (rama 47): the daily one or a flash, each listed with who set it up.
+  events.filter((e) => e.kind === 'duel' || e.kind === 'flash_duel').forEach((e) => lines.push(`⚔️ ${e.body}`));
 
   // Flash questions (rama 44) live 24 h on their own, so every one stays listed.
   const flashes = events.filter((e) => e.kind === 'flash_question');

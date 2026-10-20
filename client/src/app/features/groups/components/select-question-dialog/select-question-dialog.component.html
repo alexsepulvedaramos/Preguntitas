@@ -124,6 +124,10 @@
                 </div>
               }
               @if (isAutoSelected()) {
+                <!-- Keeping an auto-picked 1-vs-1 is an active choice: it becomes a duel -->
+                @if (pending.type === QuestionType.Deathmatch) {
+                  <app-duel-notice [teams]="pending.teams" [members]="members()" />
+                }
                 <button
                   type="button"
                   hlmBtn
@@ -264,6 +268,8 @@
           [(teams)]="teamAssignmentTeams"
         />
       </div>
+      <!-- Choosing a 1-vs-1 for tomorrow makes it a duel (§17.15 item 6) -->
+      <app-duel-notice [teams]="teamAssignmentTeams()" [members]="members()" />
 
       <hlm-dialog-footer>
         <button
