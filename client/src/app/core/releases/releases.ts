@@ -24,7 +24,7 @@ export interface Release {
 export const RELEASES: readonly Release[] = [
   {
     version: '1.22.2',
-    date: '2026-10-19',
+    date: '2026-10-20',
     title: {
       es: 'Regalos con confirmación',
       en: 'Gifts ask first',
