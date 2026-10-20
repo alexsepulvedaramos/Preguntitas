@@ -149,37 +149,29 @@
           <div class="flex flex-col gap-1.5">
             <p class="text-xs uppercase tracking-wide text-muted-foreground">{{ t('picker.filters') }}</p>
             <div class="flex gap-2">
-              <hlm-native-select
-                size="sm"
-                class="!flex-1"
-                selectClass="rounded-default"
-                [attr.aria-label]="t('picker.filterType')"
-                [value]="typeFilterValue()"
-                (valueChange)="onTypeChange($event)"
-              >
-                <option hlmNativeSelectOption value="all">{{ t('picker.allTypes') }}</option>
-                @for (type of questionTypes; track type) {
-                  <option hlmNativeSelectOption [value]="type.toString()">
-                    {{ t(QUESTION_TYPE_LABELS[type]) }}
-                  </option>
-                }
-              </hlm-native-select>
-              <hlm-native-select
-                size="sm"
-                class="!flex-1"
-                selectClass="rounded-default"
-                [attr.aria-label]="t('picker.filterSource')"
-                [value]="sourceFilterValue()"
-                (valueChange)="onSourceChange($event)"
-              >
-                <option hlmNativeSelectOption value="all">{{ t('picker.allSources') }}</option>
-                <option hlmNativeSelectOption value="pool">{{ t('picker.fromGroup') }}</option>
-                @for (pack of availablePacks(); track pack.id) {
-                  <option hlmNativeSelectOption [value]="pack.id.toString()">
-                    {{ pack.name }}
-                  </option>
-                }
-              </hlm-native-select>
+              <hlm-select class="min-w-0 flex-1" [value]="typeFilterValue()" [itemToString]="typeFilterLabel" (valueChange)="onTypeChange($event)">
+                <hlm-select-trigger size="sm" class="w-full rounded-default" [attr.aria-label]="t('picker.filterType')">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item value="all">{{ t('picker.allTypes') }}</hlm-select-item>
+                  @for (type of questionTypes; track type) {
+                    <hlm-select-item [value]="type.toString()">{{ t(QUESTION_TYPE_LABELS[type]) }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
+              <hlm-select class="min-w-0 flex-1" [value]="sourceFilterValue()" [itemToString]="sourceFilterLabel" (valueChange)="onSourceChange($event)">
+                <hlm-select-trigger size="sm" class="w-full rounded-default" [attr.aria-label]="t('picker.filterSource')">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item value="all">{{ t('picker.allSources') }}</hlm-select-item>
+                  <hlm-select-item value="pool">{{ t('picker.fromGroup') }}</hlm-select-item>
+                  @for (pack of availablePacks(); track pack.id) {
+                    <hlm-select-item [value]="pack.id.toString()">{{ pack.name }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
             </div>
           </div>
 
@@ -215,7 +207,7 @@
                       hlmBtn
                       variant="ghost"
                       size="icon"
-                      class="size-8 shrink-0 text-destructive focus-visible:ring-2 focus-visible:ring-ring"
+                      class="size-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring"
                       [disabled]="deletingId() !== null"
                       (click)="delete(item)"
                       [attr.aria-label]="t('picker.deleteFromPool')"

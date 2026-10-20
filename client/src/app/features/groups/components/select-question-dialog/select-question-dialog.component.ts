@@ -4,7 +4,7 @@ import { forkJoin, of } from 'rxjs';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
@@ -50,7 +50,7 @@ const PAGE_SIZE = 10;
     HlmButtonImports,
     HlmDialogImports,
     HlmSpinnerImports,
-    HlmNativeSelectImports,
+    HlmSelectImports,
     NgIcon,
     CreateQuestionComponent,
     DeathmatchCreateComponent,
@@ -100,6 +100,14 @@ export class SelectQuestionDialogComponent {
   protected readonly sourceFilter = signal<SourceFilter>('all');
   protected readonly sourceFilterValue = computed(() => this.sourceFilter().toString());
   protected readonly availablePacks = signal<Pack[]>([]);
+  // Labels shown in the closed filter selects (the select only knows the string values).
+  protected readonly typeFilterLabel = (value: string): string =>
+    value === 'all' ? this.t('picker.allTypes') : this.t(QUESTION_TYPE_LABELS[Number(value) as QuestionType]);
+  protected readonly sourceFilterLabel = (value: string): string => {
+    if (value === 'all') return this.t('picker.allSources');
+    if (value === 'pool') return this.t('picker.fromGroup');
+    return this.availablePacks().find(p => p.id.toString() === value)?.name ?? '';
+  };
 
   // Pool + pack pages (fetched independently, merged for display).
   protected readonly poolItems = signal<SelectionSourceItem[]>([]);
