@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowRight, lucideCheck, lucideClock, lucideRotateCcw } from '@ng-icons/lucide';
+import { lucideArrowRight, lucideCheck, lucideRotateCcw } from '@ng-icons/lucide';
 import { catchError, of } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -81,7 +81,7 @@ import { QuestionTypeChipComponent } from '../../shared/components/question-type
   providers: [
     GroupStreaksService,
     MemberCardService,
-    provideIcons({ lucideArrowRight, lucideCheck, lucideClock, lucideRotateCcw }),
+    provideIcons({ lucideArrowRight, lucideCheck, lucideRotateCcw }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './demo-page.component.html',

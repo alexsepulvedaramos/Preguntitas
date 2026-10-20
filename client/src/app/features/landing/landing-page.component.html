@@ -38,7 +38,7 @@
           </a>
           <a hlmBtn variant="outline" size="lg" routerLink="/demo">{{ t('landing.tryDemo') }}</a>
         </div>
-        <a routerLink="/auth/login" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        <a hlmBtn variant="link" size="sm" routerLink="/auth/login" class="text-muted-foreground hover:text-foreground">
           {{ t('landing.haveAccount') }}
         </a>
       </div>
@@ -96,7 +96,7 @@
                 size="lg"
               />
             </span>
-            <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.oneYear ? t('landing.oneYear') : t('common.days', { count: frame.streak }) }}</span>
+            <span class="relative z-10 rounded-full bg-background/85 px-2 text-xs uppercase tracking-wider text-muted-foreground">{{ frame.oneYear ? t('landing.oneYear') : t('common.days', { count: frame.streak }) }}</span>
           </li>
         }
       </ul>

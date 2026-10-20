@@ -30,7 +30,6 @@ export const de: Translation = {
   },
   layout: {
     home: 'Startseite',
-    rights: 'Vaya Preguntita. Alle Rechte vorbehalten.',
     infoNav: 'Informationen',
     about: 'So funktioniert’s',
     releases: 'Neuigkeiten',
@@ -348,7 +347,7 @@ export const de: Translation = {
       start: 'Los geht’s',
     },
     join: {
-      open: 'Einer bestehenden Gruppe beitreten',
+      open: 'Mit Code beitreten',
       title: 'Einer Gruppe beitreten',
       text: 'Gib den Einladungscode ein, um einer bestehenden Gruppe beizutreten.',
       code: 'Einladungscode',
@@ -408,7 +407,7 @@ export const de: Translation = {
     soonQuestion: 'Die nächste Frage kommt jeden Moment',
     days: 'T',
     hours: 'h',
-    minutes: 'm',
+    minutes: 'Min.',
     seconds: 's',
     timeLeft: 'Noch {time}',
     timeLeftLabel: 'Verbleibende Zeit zum Abstimmen',

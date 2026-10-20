@@ -30,7 +30,6 @@ export const en: Translation = {
   },
   layout: {
     home: 'Home',
-    rights: 'Vaya Preguntita. All rights reserved.',
     infoNav: 'Information',
     about: 'How it works',
     releases: "What's new",
@@ -348,7 +347,7 @@ export const en: Translation = {
       start: 'Let’s go',
     },
     join: {
-      open: 'Join an existing group',
+      open: 'Join with a code',
       title: 'Join a group',
       text: 'Enter the invitation code to join an existing group.',
       code: 'Invitation code',
@@ -408,7 +407,7 @@ export const en: Translation = {
     soonQuestion: 'Next question any moment now',
     days: 'd',
     hours: 'h',
-    minutes: 'm',
+    minutes: 'min',
     seconds: 's',
     timeLeft: '{time} left',
     timeLeftLabel: 'Time left to vote',

@@ -94,10 +94,8 @@
       <!-- ===== 2. VOTE ===== -->
       @case ('vote') {
         <section class="vp-demo-step flex flex-col gap-4">
-          <div class="flex items-center gap-3 rounded-default border border-primary/20 bg-primary/5 px-3 py-2.5">
-            <ng-icon hlm name="lucideClock" class="shrink-0 text-primary-text" />
-            <app-countdown class="min-w-0 flex-1" [target]="closesAt" [compact]="true" />
-          </div>
+          <!-- Same thin time line as the real group screen -->
+          <app-countdown [target]="closesAt" [line]="true" />
           <p class="text-sm text-muted-foreground">{{ t('demo.vote.hint') }}</p>
           <app-vote-form class="contents" [question]="question()" [members]="membersBefore()" (vote)="onVote($event)" />
         </section>

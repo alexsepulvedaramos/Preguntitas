@@ -9,8 +9,8 @@
   <hlm-card-header class="flex flex-row items-center justify-between gap-3">
     <!-- Coloured initial circle, deterministic per group id -->
     <div
-      class="size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-bold text-white"
-      [class]="accentColor()"
+      class="size-10 text-sm font-bold"
+      [class]="toneClass()"
       aria-hidden="true"
     >
       {{ group().name.slice(0, 1).toUpperCase() }}
@@ -95,8 +95,8 @@
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
         <hlm-dialog-header class="items-center text-center">
           <span
-            class="inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold truncate"
-            [class]="accentBadgeClass()"
+            class="max-w-full px-3 py-1 text-sm font-semibold truncate"
+            [class]="toneClass()"
           >
             {{ group().name }}
           </span>
