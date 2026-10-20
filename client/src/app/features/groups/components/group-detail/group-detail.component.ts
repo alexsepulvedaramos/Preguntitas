@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { EMPTY, forkJoin } from 'rxjs';
 import { catchError, exhaustMap, filter } from 'rxjs/operators';
 
@@ -9,7 +10,8 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight,
+  lucideEllipsis, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
@@ -86,6 +88,7 @@ const ADVANCE_DELAY_MS = 1500;
     CoinTextComponent,
     RouterLink,
     HlmButtonImports,
+    HlmDropdownMenuImports,
     HlmSkeletonImports,
     HlmSpinnerImports,
     NgIcon,
@@ -120,7 +123,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly summaryService = inject(MonthlySummaryService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   protected readonly t = inject(I18nService).t;
   protected readonly raceReward = RACE_WON_REWARD;
 
@@ -502,6 +505,12 @@ export class GroupDetailComponent implements OnInit {
 
   protected showSummary(month: string) {
     this.openSummary.set(month);
+  }
+
+  // Closing the banner counts as seen: it won't come back for this month on this device.
+  protected dismissSummary(month: string) {
+    this.summaryService.markSeen(this.numericGroupId(), month);
+    this.seenSummary.set(this.summaryService.lastSeen(this.numericGroupId()));
   }
 
   protected closeSummary() {

@@ -1,19 +1,25 @@
 import { Component, inject, computed, input, output, signal } from '@angular/core';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCheck } from '@ng-icons/lucide';
 
 import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
 // Sentinel for "Nadie" — not a real member id, mirrors the backend's allowNobody rule (spec §9).
 const NOBODY_ID = 0;
 
 @Component({
   selector: 'app-superlative-vote',
-  imports: [HlmButtonImports],
+  imports: [HlmButtonImports, HlmIconImports, NgIcon, UserAvatarComponent, UserNameComponent],
+  providers: [provideIcons({ lucideCheck })],
   templateUrl: './superlative-vote.component.html',
 })
 export class SuperlativeVoteComponent {

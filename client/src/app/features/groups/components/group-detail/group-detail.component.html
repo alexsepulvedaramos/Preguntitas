@@ -30,44 +30,40 @@
           (changed)="onMyStreakChanged($event)"
         />
       }
-      @if (summaryMonths()[0]; as latest) {
-        <button
-          hlmBtn
-          variant="ghost"
-          size="icon"
-          class="relative shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-          (click)="showSummary(latest.month)"
-          [attr.aria-label]="t('monthlySummary.open')"
-        >
-          <ng-icon hlm name="lucidePartyPopper" />
-          @if (unseenSummary()) {
-            <span class="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" aria-hidden="true"></span>
+      <!-- Everything else lives in one menu, with text (UX audit: four bare icons were too
+           dense). -->
+      <button
+        hlmBtn
+        variant="ghost"
+        size="icon"
+        class="relative shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
+        [hlmDropdownMenuTrigger]="groupMenu"
+        align="end"
+        [attr.aria-label]="t('groupDetail.more')"
+      >
+        <ng-icon hlm name="lucideEllipsis" />
+      </button>
+      <ng-template #groupMenu>
+        <hlm-dropdown-menu class="w-56">
+          @if (summaryMonths()[0]; as latest) {
+            <button hlmDropdownMenuItem (triggered)="showSummary(latest.month)">
+              <ng-icon hlm name="lucidePartyPopper" />
+              <span class="flex-1">{{ t('monthlySummary.open') }}</span>
+              @if (unseenSummary()) {
+                <span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
+              }
+            </button>
           }
-          <span class="sr-only">{{ t('monthlySummary.open') }}</span>
-        </button>
-      }
-      <a
-        hlmBtn
-        variant="ghost"
-        size="icon"
-        class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-        [routerLink]="['/groups', numericGroupId(), 'history']"
-        [attr.aria-label]="t('groupDetail.history')"
-      >
-        <ng-icon hlm name="lucideHistory" />
-        <span class="sr-only">{{ t('groupDetail.history') }}</span>
-      </a>
-      <a
-        hlmBtn
-        variant="ghost"
-        size="icon"
-        class="shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
-        [routerLink]="['/groups', numericGroupId(), 'settings']"
-        [attr.aria-label]="t('groupDetail.settings')"
-      >
-        <ng-icon hlm name="lucideSettings" />
-        <span class="sr-only">{{ t('groupDetail.settings') }}</span>
-      </a>
+          <button hlmDropdownMenuItem (triggered)="router.navigate(['/groups', numericGroupId(), 'history'])">
+            <ng-icon hlm name="lucideHistory" />
+            {{ t('groupDetail.history') }}
+          </button>
+          <button hlmDropdownMenuItem (triggered)="router.navigate(['/groups', numericGroupId(), 'settings'])">
+            <ng-icon hlm name="lucideSettings" />
+            {{ t('groupDetail.settings') }}
+          </button>
+        </hlm-dropdown-menu>
+      </ng-template>
       <!-- Hidden on mobile (pull-to-refresh covers that); visible on desktop -->
       <button
         hlmBtn
@@ -100,20 +96,34 @@
     </div>
   } @else {
 
-    <!-- Last month's summary is ready (rama 41): until it's opened on this device -->
+    <!-- Last month's summary is ready (rama 41): until it's opened or dismissed on this device.
+         Sand, so it doesn't read as a second "your turn" card. It also stays in the ⋯ menu. -->
     @if (unseenSummary(); as month) {
-      <button
-        type="button"
-        class="flex w-full items-center gap-3 rounded-default border border-primary/30 bg-primary/10 px-4 py-3 text-left transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        (click)="showSummary(month)"
-      >
-        <app-glyph name="celebrate" size="md" />
-        <span class="min-w-0 flex-1">
-          <span class="block text-sm font-semibold text-foreground">{{ t('monthlySummary.readyTitle') }}</span>
-          <span class="block text-xs text-muted-foreground">{{ t('monthlySummary.readyText') }}</span>
-        </span>
-        <span class="shrink-0 text-sm font-semibold text-primary-text">{{ t('monthlySummary.see') }}</span>
-      </button>
+      <div class="relative flex w-full items-center rounded-default border border-sand-foreground/20 bg-sand">
+        <button
+          type="button"
+          class="flex min-w-0 flex-1 items-center gap-3 rounded-default py-3 pl-4 pr-12 text-left transition-colors hover:bg-sand-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="showSummary(month)"
+        >
+          <app-glyph name="celebrate" size="md" />
+          <span class="min-w-0 flex-1">
+            <span class="block text-sm font-semibold text-foreground">{{ t('monthlySummary.readyTitle') }}</span>
+            <span class="block text-xs text-muted-foreground">{{ t('monthlySummary.readyText') }}</span>
+          </span>
+          <span class="shrink-0 text-sm font-semibold text-sand-foreground">{{ t('monthlySummary.see') }}</span>
+        </button>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon-sm"
+          type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-sand-foreground hover:bg-sand-foreground/10"
+          [attr.aria-label]="t('common.close')"
+          (click)="dismissSummary(month)"
+        >
+          <ng-icon hlm name="lucideX" />
+        </button>
+      </div>
     }
 
     <!-- Notices go above the question so they're always seen — one streak notice at a time -->

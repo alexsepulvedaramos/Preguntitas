@@ -378,6 +378,7 @@ export const en: Translation = {
     history: 'View history',
     settings: 'Group settings',
     refresh: 'Refresh',
+    more: 'More options',
     loadError: 'Couldn’t load the group or today’s question.',
     lostStreakTitle: { one: 'You lost your {count}-day streak', other: 'You lost your {count}-day streak' },
     lostStreakText: 'Your record: {best} · Vote today to start a new one.',

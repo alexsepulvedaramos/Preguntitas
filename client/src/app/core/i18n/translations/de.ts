@@ -378,6 +378,7 @@ export const de: Translation = {
     history: 'Verlauf ansehen',
     settings: 'Gruppeneinstellungen',
     refresh: 'Aktualisieren',
+    more: 'Weitere Optionen',
     loadError: 'Die Gruppe oder die Frage des Tages konnte nicht geladen werden.',
     lostStreakTitle: { one: 'Du hast deine Serie von {count} Tag verloren', other: 'Du hast deine Serie von {count} Tagen verloren' },
     lostStreakText: 'Dein Rekord: {best} · Stimm heute ab, um eine neue zu starten.',

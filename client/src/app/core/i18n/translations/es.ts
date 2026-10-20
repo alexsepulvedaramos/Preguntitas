@@ -379,6 +379,7 @@ export const es = {
     history: 'Ver historial',
     settings: 'Ajustes del grupo',
     refresh: 'Actualizar',
+    more: 'Más opciones',
     loadError: 'No se ha podido cargar la información del grupo o la pregunta del día.',
     lostStreakTitle: { one: 'Has perdido tu racha de {count} día', other: 'Has perdido tu racha de {count} días' },
     lostStreakText: 'Tu récord: {best} · Vota hoy para empezar una nueva.',
