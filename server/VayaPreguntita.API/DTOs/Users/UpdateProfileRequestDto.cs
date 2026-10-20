@@ -7,8 +7,7 @@ public class UpdateProfileRequestDto
     public string? AvatarUrl { get; set; }
     public string? FrameColor { get; set; }
 
-    // Title to show: "auto" (highest unlocked), "none", an unlocked tier key or an owned shop
-    // title. null = unchanged.
+    // Title to show: "auto" (highest unlocked), "none" or an unlocked tier key. null = unchanged.
     public string? TitleKey { get; set; }
 
     // "es", "en" or "de". null = unchanged.
@@ -19,6 +18,5 @@ public class UpdateProfileRequestDto
     public string? RingSkinKey { get; set; }
     public string? AccessoryKey { get; set; }
     public string? NameColorKey { get; set; }
-    public string? BadgeKey { get; set; }
     public string? ThemeKey { get; set; }
 }

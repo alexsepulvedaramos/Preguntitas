@@ -6,7 +6,7 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
+import { lucideCheck, lucidePlus, lucideSparkles, lucideTrash2, lucideZap } from '@ng-icons/lucide';
 
 import { AuthService } from '../../../../core/auth/auth.service';
 import { DailyService } from '../../../../core/services/daily.service';
@@ -14,7 +14,7 @@ import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
 import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
 import { LaunchFlashResponse, SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
-import { CoinsEarned } from '../../../../core/models/coin.model';
+import { CoinsEarned, EMPTY_INVENTORY, FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -55,7 +55,7 @@ const PAGE_SIZE = 10;
     CreateQuestionComponent,
     DeathmatchCreateComponent,
   ],
-  providers: [provideIcons({ lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 })],
+  providers: [provideIcons({ lucideCheck, lucidePlus, lucideSparkles, lucideTrash2, lucideZap })],
   templateUrl: './select-question-dialog.component.html',
 })
 export class SelectQuestionDialogComponent {
@@ -74,6 +74,12 @@ export class SelectQuestionDialogComponent {
   // Whether that question is still the automatic pick, which the selector can keep as is.
   public readonly isAutoSelected = input(false);
   public readonly compact = input(false);
+  // The group's "⚡ Lanzar flash" entry point (§17.15): straight to writing a flash question.
+  public readonly flash = input(false);
+  protected readonly flashPrice = FLASH_QUESTION_PRICE;
+  protected readonly ownedFlashes = computed(
+    () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion
+  );
 
   public readonly selected = output<void>();
   // Coins for winning the race to select (§17.5), for the "+10 🪙" toast.
@@ -150,7 +156,7 @@ export class SelectQuestionDialogComponent {
   }
 
   resetDialog() {
-    this.step.set(this.isSelector() ? 'sources' : 'create');
+    this.step.set(this.isSelector() && !this.flash() ? 'sources' : 'create');
     this.error.set(null);
     this.pickingKey.set(null);
     this.confirming.set(false);

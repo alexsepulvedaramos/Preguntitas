@@ -64,6 +64,24 @@ export function nextStreakTier(streak: number): StreakTier | null {
   return STREAK_TIERS.find((t) => streak < t.minDays) ?? null;
 }
 
+// Daily streak bonus (rama 46, §17.15): coins added to every on-time vote, by streak day.
+// Mirrors the backend CoinRewards.StreakBonusSteps — keep both in sync.
+export const STREAK_BONUS_STEPS: readonly { fromDay: number; coins: number }[] = [
+  { fromDay: 3, coins: 1 },
+  { fromDay: 7, coins: 2 },
+  { fromDay: 15, coins: 3 },
+  { fromDay: 30, coins: 4 },
+  { fromDay: 100, coins: 5 },
+];
+
+export function streakBonus(streak: number): number {
+  return [...STREAK_BONUS_STEPS].reverse().find((s) => streak >= s.fromDay)?.coins ?? 0;
+}
+
+export function nextStreakBonusStep(streak: number): { fromDay: number; coins: number } | null {
+  return STREAK_BONUS_STEPS.find((s) => streak < s.fromDay) ?? null;
+}
+
 // Special User.frameColor values besides a plain hex colour.
 export const FRAME_STREAK = 'streak';
 export const FRAME_NONE = 'none';

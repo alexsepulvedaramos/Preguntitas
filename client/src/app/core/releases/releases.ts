@@ -23,6 +23,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.24.0',
+    date: '2026-10-20',
+    title: {
+      es: 'Flash más baratas y rachas que pagan cada día',
+      en: 'Cheaper flashes and streaks that pay every day',
+      de: 'Günstigere Blitzfragen und Serien, die jeden Tag zahlen',
+    },
+    items: [
+      {
+        emoji: '⚡',
+        title: {
+          es: 'Pregunta flash por 100 🪙',
+          en: 'Flash questions for 100 🪙',
+          de: 'Blitzfragen für 100 🪙',
+        },
+        text: {
+          es: 'Lanzar una pregunta flash cuesta ahora 100 🪙 en vez de 500, y tiene su propio botón en la pantalla del grupo, bajo la pregunta del día. Sigue habiendo una por persona y día en cada grupo.',
+          en: 'Launching a flash question now costs 100 🪙 instead of 500, and it has its own button on the group screen, under today’s question. It’s still one per person per day in each group.',
+          de: 'Eine Blitzfrage zu starten kostet jetzt 100 🪙 statt 500, und sie hat einen eigenen Knopf im Gruppenbildschirm, unter der heutigen Frage. Weiterhin eine pro Person und Tag in jeder Gruppe.',
+        },
+      },
+      {
+        emoji: '🔥',
+        title: {
+          es: 'Tu racha suma en cada voto',
+          en: 'Your streak pays on every vote',
+          de: 'Deine Serie zahlt bei jeder Stimme',
+        },
+        text: {
+          es: 'Desde el tercer día seguido, cada voto a tiempo te da monedas extra: +1, y sube hasta +5 a partir de los 100 días. Lo ves aparte al votar y en tu racha del grupo. Las monedas por llegar a cada nivel se cobran solo la primera vez que llegas, así que mantener la racha siempre compensa más que empezar de nuevo.',
+          en: 'From the third day in a row, every on-time vote gives you extra coins: +1, rising to +5 from 100 days. You see it separately when you vote and in your streak in the group. The coins for reaching each level are paid only the first time you get there, so keeping your streak always pays more than starting over.',
+          de: 'Ab dem dritten Tag am Stück bringt dir jede pünktliche Stimme Extramünzen: +1, bis zu +5 ab 100 Tagen. Du siehst es beim Abstimmen extra und bei deiner Serie in der Gruppe. Die Münzen fürs Erreichen einer Stufe gibt es nur beim ersten Mal, also lohnt es sich immer mehr, die Serie zu halten, als neu anzufangen.',
+        },
+      },
+      {
+        emoji: '↩️',
+        title: {
+          es: 'Adiós a insignias y títulos de tienda',
+          en: 'Goodbye to shop badges and titles',
+          de: 'Tschüss, Shop-Abzeichen und -Titel',
+        },
+        text: {
+          es: 'Las insignias junto al nombre y los títulos de la tienda desaparecen: los emojis ya los puedes poner en tu nombre. Si habías comprado alguno, te hemos devuelto sus monedas.',
+          en: 'Name badges and shop titles are gone: you can already put emojis in your name. If you had bought any, we’ve given you your coins back.',
+          de: 'Abzeichen neben dem Namen und Titel aus dem Shop gibt es nicht mehr: Emojis kannst du ja schon in deinen Namen schreiben. Wenn du welche gekauft hattest, haben wir dir die Münzen zurückgegeben.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.22.2',
     date: '2026-10-20',
     title: {

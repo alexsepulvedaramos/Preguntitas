@@ -18,6 +18,10 @@ public class StreakUpdateDto
     // True when the tier's title was unlocked for the first time ever.
     public bool TitleUnlocked { get; set; }
 
+    // True when this streak beats the user's best ever in any group (User.HighestStreakEver):
+    // only then do tier and milestone days pay their one-off coins (§17.15).
+    public bool IsNewRecord { get; set; }
+
     // Set on milestone days (21, 50, 200, 300), e.g. "¡3 semanas!".
     public string? MilestoneLabel { get; set; }
 

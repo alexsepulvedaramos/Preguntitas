@@ -327,7 +327,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(u => u.RingSkinKey).HasMaxLength(40);
             e.Property(u => u.AccessoryKey).HasMaxLength(40);
             e.Property(u => u.NameColorKey).HasMaxLength(40);
-            e.Property(u => u.BadgeKey).HasMaxLength(40);
             e.Property(u => u.ThemeKey).HasMaxLength(40);
         });
 

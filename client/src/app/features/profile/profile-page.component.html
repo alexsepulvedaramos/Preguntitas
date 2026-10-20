@@ -113,7 +113,7 @@
     <section class="flex flex-col gap-3">
       <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.titleHeading') }}</h2>
       @if (profile(); as p) {
-        @if (p.unlockedTitles.length === 0 && p.shopTitles.length === 0) {
+        @if (p.unlockedTitles.length === 0) {
           <p class="text-sm text-muted-foreground">
             {{ t('profile.titleLocked') }}
           </p>
@@ -139,19 +139,6 @@
                 (click)="selectTitle(option.key)"
               >
                 {{ option.title }}
-              </button>
-            }
-            @for (option of p.shopTitles; track option.key) {
-              <button
-                hlmBtn
-                size="sm"
-                [variant]="selectedTitle() === option.key ? 'default' : 'outline'"
-                [attr.aria-pressed]="selectedTitle() === option.key"
-                [attr.aria-label]="option.title + ' · ' + t('profile.titleFromShop')"
-                [disabled]="isSavingTitle()"
-                (click)="selectTitle(option.key)"
-              >
-                🛍️ {{ option.title }}
               </button>
             }
             <button

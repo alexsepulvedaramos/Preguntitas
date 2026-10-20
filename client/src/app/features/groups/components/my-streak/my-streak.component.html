@@ -27,6 +27,18 @@
     @if (danger()) {
       <p class="mt-1 text-xs font-medium text-orange-700 dark:text-orange-400">{{ t('streakFreeze.inDanger') }}</p>
     }
+    <p class="mt-1 text-xs text-muted-foreground text-balance">
+      @if (bonus() > 0) {
+        <span class="font-semibold text-foreground">{{ t('streakBonus.current', { count: bonus() }) }}</span>
+        @if (nextBonus(); as next) {
+          · {{ t('streakBonus.next', { count: next.coins, day: next.fromDay }) }}
+        } @else {
+          · {{ t('streakBonus.max') }}
+        }
+      } @else {
+        {{ t('streakBonus.none', { count: nextBonus()?.coins ?? 1, day: nextBonus()?.fromDay ?? 3 }) }}
+      }
+    </p>
   </div>
 
   @if (streak().repairableStreak) {

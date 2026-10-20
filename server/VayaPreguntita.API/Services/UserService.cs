@@ -48,11 +48,6 @@ public class UserService(
             Look = DTOs.Shop.LookDto.From(user),
             ThemeKey = user.ThemeKey,
             OwnedCosmetics = owned,
-            ShopTitles = owned
-                .Select(ShopCatalog.ByKey)
-                .Where(i => i is { Kind: Enums.CosmeticKind.Title, Name: not null })
-                .Select(i => new ShopTitleDto(i!.Key, i.Name!.ToString()))
-                .ToList(),
             FirstJoinedAt = await context
                 .GroupMembers.Where(m => m.UserId == userId)
                 .MinAsync(m => (DateTime?)m.JoinedAt),
@@ -114,8 +109,6 @@ public class UserService(
                 user.SelectedTitleKey = StreakTiers.NoTitle;
             else if (StreakTiers.UnlockedBy(user.HighestStreakEver).Any(t => t.Key == key))
                 user.SelectedTitleKey = key;
-            else if (await cosmeticsService.OwnsAsync(userId, key, Enums.CosmeticKind.Title))
-                user.SelectedTitleKey = key;
             else
                 return (false, "TITLE_NOT_UNLOCKED");
         }
@@ -126,7 +119,6 @@ public class UserService(
             (request.RingSkinKey, Enums.CosmeticKind.RingSkin, k => user.RingSkinKey = k),
             (request.AccessoryKey, Enums.CosmeticKind.Accessory, k => user.AccessoryKey = k),
             (request.NameColorKey, Enums.CosmeticKind.NameColor, k => user.NameColorKey = k),
-            (request.BadgeKey, Enums.CosmeticKind.Badge, k => user.BadgeKey = k),
             (request.ThemeKey, Enums.CosmeticKind.Theme, k => user.ThemeKey = k),
         })
         {

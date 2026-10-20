@@ -21,11 +21,15 @@ export enum CoinReason {
   FlashQuestion = 12,
   // Shop cosmetics (rama 42)
   Cosmetic = 13,
+  // Shop and economy revision (rama 46, §17.15)
+  StreakBonus = 14,
+  CosmeticRefund = 15, // a retired cosmetic given back at its price
 }
 
 // Coins paid by one request (POST daily/vote → coins).
 export interface CoinsEarned {
   earned: number;
+  streakBonus?: number; // the part of `earned` that is the daily streak bonus (§17.15)
   balance: number; // after paying
   capReached: boolean; // the daily cap cut a reward short
 }
@@ -36,7 +40,7 @@ export interface CoinTransaction {
   reason: CoinReason;
   groupId: number | null;
   groupName: string | null;
-  itemKey?: string | null; // the cosmetic bought, for CoinReason.Cosmetic (rama 42)
+  itemKey?: string | null; // the cosmetic, for CoinReason.Cosmetic (rama 42) and CosmeticRefund
   createdAt: string;
 }
 
@@ -109,7 +113,7 @@ export const STREAK_REPAIR_PRICE = 300;
 export const AUTHOR_HINT_PRICE = 20;
 
 // A flash question (rama 44, §17.11): launched at once, open 24 h.
-export const FLASH_QUESTION_PRICE = 500;
+export const FLASH_QUESTION_PRICE = 100;
 
 // Winning the race to select (rama 40, §17.5).
 export const RACE_WON_REWARD = 10;

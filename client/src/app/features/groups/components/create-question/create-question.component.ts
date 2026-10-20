@@ -77,6 +77,8 @@ export class CreateQuestionComponent {
   // Hide the "select for tomorrow" path when the current user isn't today's selector
   // (the backend rejects daily/select from anyone else) — only "save to pool" applies then.
   public readonly showSelectButton = input(true);
+  // Opened from the group's "⚡ Lanzar flash" button (§17.15): launching is the only action.
+  public readonly flashOnly = input(false);
 
   // Pre-fill the form when editing an already-chosen question (Scale / CustomPoll).
   // Deathmatch uses the dedicated assign-teams step in the parent dialog instead.

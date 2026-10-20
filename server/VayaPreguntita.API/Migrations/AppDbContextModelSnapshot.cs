@@ -643,10 +643,6 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
 
-                    b.Property<string>("BadgeKey")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
                     b.Property<int>("Coins")
                         .HasColumnType("integer");
 

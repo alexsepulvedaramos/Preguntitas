@@ -62,8 +62,9 @@ public class StreakService(
         member.BestStreak = Math.Max(member.BestStreak, current);
         member.LastStreakEntryId = openEntry.Id;
 
-        // Titles unlock forever the first time a tier is reached in any group.
-        var titleUnlocked = StreakTiers.IsTierStart(current) && current > member.User.HighestStreakEver;
+        // A personal record across all groups: titles unlock forever, and the one-off tier and
+        // milestone coins are paid, only the first time a streak is reached (§17.15).
+        var isNewRecord = current > member.User.HighestStreakEver;
         member.User.HighestStreakEver = Math.Max(member.User.HighestStreakEver, current);
 
         if (current >= StreakTiers.All[0].MinDays)
@@ -85,7 +86,7 @@ public class StreakService(
             );
 
         await context.SaveChangesAsync();
-        return BuildUpdate(previous, current, member.BestStreak, titleUnlocked);
+        return BuildUpdate(previous, current, member.BestStreak, isNewRecord);
     }
 
     // ==========================================
@@ -714,7 +715,7 @@ public class StreakService(
         user.FrameColor = FrameColors.Streak;
     }
 
-    private static StreakUpdateDto BuildUpdate(int previous, int current, int best, bool titleUnlocked = false)
+    private static StreakUpdateDto BuildUpdate(int previous, int current, int best, bool isNewRecord = false)
     {
         var tier = StreakTiers.TierFor(current);
         var next = StreakTiers.NextTier(current);
@@ -727,7 +728,8 @@ public class StreakService(
             TierTitle = tier?.Title,
             TierMaterial = tier?.Material,
             IsTierUp = current > previous && StreakTiers.IsTierStart(current),
-            TitleUnlocked = titleUnlocked,
+            TitleUnlocked = isNewRecord && StreakTiers.IsTierStart(current),
+            IsNewRecord = isNewRecord,
             MilestoneLabel = current > previous ? StreakTiers.Milestones.GetValueOrDefault(current)?.ToString() : null,
             NextTierKey = next?.Key,
             NextTierTitle = next?.Title,

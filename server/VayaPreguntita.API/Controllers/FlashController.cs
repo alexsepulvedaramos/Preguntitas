@@ -25,7 +25,7 @@ public class FlashController(IFlashService flashService, IGroupsService groupsSe
     }
 
     // POST api/groups/{groupId}/flash
-    // Buys and launches a flash question at once (500 coins). 409 when coins are short or the
+    // Buys and launches a flash question at once (CoinRewards.FlashQuestionPrice). 409 when coins are short or the
     // member already launched one today in this group. ?useOwned=true launches it with one from
     // the inventory instead of paying (rama 45); 409 when none is left.
     [HttpPost]

@@ -1,11 +1,11 @@
 import {
   ACCESSORY_ART,
-  BADGE_EMOJI,
   COSMETICS,
   CosmeticKind,
   RING_SKIN_KEYS,
   SENIORITY_STAGES,
   THEME_SWATCHES,
+  cosmeticByKey,
   nameColorClass,
   ringSkinLook,
   seniorityStage,
@@ -22,10 +22,16 @@ describe('shop catalog (rama 42)', () => {
     for (const key of keys) expect((es.shop.items as Record<string, string>)[key]).toBeTruthy();
   });
 
-  it('has art for every ring skin, accessory, badge and theme', () => {
+  it('no longer sells badges or shop titles, but still names them for the ledger (§17.15)', () => {
+    expect(ofKind(CosmeticKind.Badge)).toEqual([]);
+    expect(ofKind(CosmeticKind.Title)).toEqual([]);
+    expect(cosmeticByKey('badge-frog')?.name).toBe('shop.items.badge-frog');
+    expect(cosmeticByKey('title-oracle')?.name).toBe('shop.items.title-oracle');
+  });
+
+  it('has art for every ring skin, accessory and theme', () => {
     expect(RING_SKIN_KEYS.sort()).toEqual(ofKind(CosmeticKind.RingSkin).sort());
     expect(Object.keys(ACCESSORY_ART).sort()).toEqual(ofKind(CosmeticKind.Accessory).sort());
-    expect(Object.keys(BADGE_EMOJI).sort()).toEqual(ofKind(CosmeticKind.Badge).sort());
     expect(Object.keys(THEME_SWATCHES).sort()).toEqual(ofKind(CosmeticKind.Theme).sort());
     for (const key of ofKind(CosmeticKind.NameColor)) expect(nameColorClass(key)).toMatch(/^vp-name--/);
   });

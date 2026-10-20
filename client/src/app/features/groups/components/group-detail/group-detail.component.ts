@@ -11,7 +11,7 @@ import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
-import { COIN_DAILY_CAP, CoinsEarned, RACE_WON_REWARD } from '../../../../core/models/coin.model';
+import { COIN_DAILY_CAP, CoinsEarned, FLASH_QUESTION_PRICE, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -20,6 +20,7 @@ import { AuthorGuess, DailyStatus, FlashState, LaunchFlashResponse } from '../..
 import { MyStreak, StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
+import { OneTimeHintsService } from '../../../../core/services/one-time-hints.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -115,6 +116,7 @@ export class GroupDetailComponent implements OnInit {
   protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  private readonly hints = inject(OneTimeHintsService);
   private readonly summaryService = inject(MonthlySummaryService);
   private readonly router = inject(Router);
   protected readonly t = inject(I18nService).t;
@@ -248,7 +250,17 @@ export class GroupDetailComponent implements OnInit {
   }
 
   // The flash question you just bought (rama 44): it goes out at once, and you see it first.
+  // One-off pointer at the flash button (§17.15), gone once dismissed or used.
+  protected readonly flashPrice = FLASH_QUESTION_PRICE;
+  readonly flashHintPending = signal(this.hints.isPending('flashButton'));
+
+  dismissFlashHint() {
+    this.hints.dismiss('flashButton');
+    this.flashHintPending.set(false);
+  }
+
   onFlashLaunched(res: LaunchFlashResponse) {
+    this.dismissFlashHint();
     toast.success(this.t('flash.launched'));
     const daily = this.daily();
     if (daily) this.daily.set({ ...daily, flashes: [...(daily.flashes ?? []), res.flash] });
@@ -351,15 +363,18 @@ export class GroupDetailComponent implements OnInit {
     if (guess.state !== 'pending') this.scheduleAdvance();
   }
 
-  // "+8 🪙" after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
-  // the daily cap is full.
+  // "+8 🪙" after voting (rama 34) or a right guess (rama 36), with the streak bonus apart
+  // (§17.15), or why nothing was earned when the daily cap is full.
   announceCoins(coins: CoinsEarned | undefined) {
     if (!coins) return;
     this.authService.patchCurrentUser({ coins: coins.balance });
     const capNote = coins.capReached
       ? this.t('coins.capReachedDescription', { cap: COIN_DAILY_CAP })
       : undefined;
-    if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
+    const streak = coins.streakBonus ?? 0;
+    if (streak > 0 && coins.earned > streak)
+      toast(this.t('coins.earnedWithStreakToast', { count: coins.earned - streak, streak }), { description: capNote });
+    else if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
     else if (coins.capReached) toast(this.t('coins.capReachedToast'), { description: capNote });
   }
 
