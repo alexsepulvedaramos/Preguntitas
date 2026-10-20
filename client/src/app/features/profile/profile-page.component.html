@@ -63,7 +63,7 @@
             class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none"
             [class]="selectedFrame() === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
             [class.bg-muted]="color.value === frameStreak || color.value === frameSeniority"
-            [style.background-color]="color.value.startsWith('#') ? color.value : null"
+            [style.background-color]="swatch(color.value)"
             [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
             [attr.aria-label]="t(color.label)"
             [attr.aria-pressed]="selectedFrame() === color.value"

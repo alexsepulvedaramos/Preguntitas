@@ -204,7 +204,12 @@ export class GroupDetailComponent implements OnInit {
     this.loadSummaries();
     this.startDailyPolling();
     const tick = setInterval(() => this.now.set(Date.now()), 60_000);
-    this.destroyRef.onDestroy(() => clearInterval(tick));
+    // Seen on the way in and on the way out, so what happened while you were here counts too.
+    this.groupsService.markSeen(this.numericGroupId());
+    this.destroyRef.onDestroy(() => {
+      clearInterval(tick);
+      this.groupsService.markSeen(this.numericGroupId());
+    });
   }
 
   refresh() {

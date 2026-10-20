@@ -7,7 +7,8 @@ import {
   FrameLook,
   StreakTierKey,
   frameFollowsStreak,
-  isHexFrame,
+  frameColorVar,
+  isColorFrame,
   streakTierFor,
 } from '../../../core/constants/streak-tiers';
 import { ACCESSORY_ART, Look, ringSkinLook, seniorityStage } from '../../../core/constants/shop-catalog';
@@ -34,7 +35,7 @@ const INITIALS_SHIFT: Record<string, string> = {
       <div
         class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
         [class]="sizeClass() + (lightBackdrop() ? ' bg-white' : ' bg-card')"
-        [style.box-shadow]="hexFrame() ? '0 0 0 3px ' + hexFrame() : null"
+        [style.box-shadow]="colorFrame() ? '0 0 0 3px ' + colorFrame() : null"
       >
         <hlm-avatar [class]="sizeClass()">
           @if (avatarUrl()) {
@@ -63,7 +64,7 @@ export class UserAvatarComponent {
 
   readonly avatarUrl = input<string | null | undefined>(null);
   readonly username = input<string>('');
-  // A hex colour, 'streak' (or null: frame follows the streak tier), 'seniority' or 'none'.
+  // A palette colour key ('purple', …), 'streak' (or null: frame follows the streak tier), 'seniority' or 'none'.
   readonly frameColor = input<string | null | undefined>(null);
   // The member's streak in the current context (rama 19): their streak in the group
   // when shown inside one, their highest current streak outside. null = unknown.
@@ -85,9 +86,9 @@ export class UserAvatarComponent {
 
   protected readonly lightBackdrop = computed(() => needsLightBackdrop(this.avatarUrl()));
 
-  protected readonly hexFrame = computed(() => {
+  protected readonly colorFrame = computed(() => {
     const frame = this.frameColor();
-    return isHexFrame(frame) ? frame : null;
+    return isColorFrame(frame) ? frameColorVar(frame) : null;
   });
 
   protected readonly tier = computed<StreakTierKey | null>(() =>

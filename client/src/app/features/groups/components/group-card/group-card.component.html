@@ -8,12 +8,19 @@
 >
   <hlm-card-header class="flex flex-row items-center justify-between gap-3">
     <!-- Coloured initial circle, deterministic per group id -->
-    <div
-      class="size-10 text-sm font-bold"
-      [class]="toneClass()"
-      aria-hidden="true"
-    >
-      {{ group().name.slice(0, 1).toUpperCase() }}
+    <div class="relative shrink-0">
+      <div
+        class="size-10 text-sm font-bold"
+        [class]="toneClass()"
+        aria-hidden="true"
+      >
+        {{ group().name.slice(0, 1).toUpperCase() }}
+      </div>
+      <!-- Unread activity (§16): same dot as the user menu's release-notes one -->
+      @if (group().hasNewActivity) {
+        <span class="absolute -right-0.5 -top-0.5 size-3 rounded-full bg-accent ring-2 ring-card" aria-hidden="true"></span>
+        <span class="sr-only">{{ t('groups.card.newActivity') }}</span>
+      }
     </div>
 
     <div class="min-w-0 flex-1">

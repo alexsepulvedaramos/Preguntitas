@@ -309,6 +309,7 @@ export const es = {
     card: {
       voteNow: 'Vota ahora',
       streakAtStake: { one: 'No pierdas tu racha de {count} día', other: 'No pierdas tu racha de {count} días' },
+      newActivity: 'Hay novedades',
       yourTurn: '¡Te toca elegir!',
       nextAt: 'Próx. a las {time}',
       inviteToStart: 'Invita a alguien para empezar',

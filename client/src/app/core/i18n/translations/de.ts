@@ -308,6 +308,7 @@ export const de: Translation = {
     card: {
       voteNow: 'Jetzt abstimmen',
       streakAtStake: { one: 'Verlier nicht deine Serie von {count} Tag', other: 'Verlier nicht deine Serie von {count} Tagen' },
+      newActivity: 'Neuigkeiten',
       yourTurn: 'Du bist dran!',
       nextAt: 'Nächste um {time} Uhr',
       inviteToStart: 'Lade jemanden ein, um zu starten',

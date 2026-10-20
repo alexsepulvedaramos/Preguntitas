@@ -29,7 +29,7 @@ import {
 } from '../../core/services/notification-preferences.service';
 import { MemberCardService } from '../../core/services/member-card.service';
 import {
-  FRAME_NONE, FRAME_STREAK, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor, FRAME_SENIORITY } from '../../core/constants/streak-tiers';
+  FRAME_NONE, FRAME_STREAK, frameColorVar, isColorFrame, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor, FRAME_SENIORITY } from '../../core/constants/streak-tiers';
 import { seniorityStage } from '../../core/constants/shop-catalog';
 import { UserProfileDto } from '../../core/services/user.service';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -42,13 +42,13 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
   { label: 'profile.frameColors.streak', value: FRAME_STREAK },
   { label: 'profile.frameColors.seniority', value: FRAME_SENIORITY },
-  { label: 'profile.frameColors.purple', value: '#8b5cf6' },
-  { label: 'profile.frameColors.blue', value: '#3b82f6' },
-  { label: 'profile.frameColors.green', value: '#22c55e' },
-  { label: 'profile.frameColors.yellow', value: '#eab308' },
-  { label: 'profile.frameColors.orange', value: '#f97316' },
-  { label: 'profile.frameColors.red', value: '#ef4444' },
-  { label: 'profile.frameColors.pink', value: '#ec4899' },
+  { label: 'profile.frameColors.purple', value: 'purple' },
+  { label: 'profile.frameColors.blue', value: 'blue' },
+  { label: 'profile.frameColors.green', value: 'green' },
+  { label: 'profile.frameColors.yellow', value: 'yellow' },
+  { label: 'profile.frameColors.orange', value: 'orange' },
+  { label: 'profile.frameColors.red', value: 'red' },
+  { label: 'profile.frameColors.pink', value: 'pink' },
   { label: 'profile.frameColors.none', value: FRAME_NONE },
 ];
 
@@ -85,6 +85,7 @@ export class ProfilePageComponent implements OnInit {
 
   protected readonly frameColors = FRAME_COLORS;
   protected readonly frameNone = FRAME_NONE;
+  protected readonly swatch = (value: string) => (isColorFrame(value) ? frameColorVar(value) : null);
   protected readonly frameStreak = FRAME_STREAK;
   protected readonly frameSeniority = FRAME_SENIORITY;
 
