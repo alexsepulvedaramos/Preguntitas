@@ -48,7 +48,8 @@
            onto the next row. Up to 4 faces; from 5, three and "+n". -->
       @if (voters().length > 0) {
         <div class="absolute inset-y-0 right-2 z-30 flex items-center">
-          @for (voter of shownVoters(); track voter.id; let first = $first) {
+          <!-- Each face sits over the one on its left, frame included: explicit stacking order -->
+          @for (voter of shownVoters(); track voter.id; let first = $first; let i = $index) {
             <app-user-avatar
               [avatarUrl]="voter.avatarUrl"
               [username]="voter.username"
@@ -58,12 +59,16 @@
               [look]="groupStreaks.lookFor(voter.id)"
               [memberSince]="groupStreaks.joinedAtFor(voter.id)"
               size="xs"
-              class="rounded-full ring-2 ring-background"
+              class="relative inline-block rounded-full ring-2 ring-background"
               [class.-ml-1]="!first"
+              [style.z-index]="i + 1"
             />
           }
           @if (extraVoters() > 0) {
-            <span class="-ml-1 flex size-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground ring-2 ring-background">
+            <span
+              class="relative -ml-1 flex size-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground ring-2 ring-background"
+              [style.z-index]="shownVoters().length + 1"
+            >
               +{{ extraVoters() }}
             </span>
           }
