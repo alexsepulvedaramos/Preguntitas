@@ -303,6 +303,11 @@ public static class ServerText
         "You've already repaired a streak in this group this month.",
         "Du hast in dieser Gruppe diesen Monat schon eine Serie repariert.");
 
+    public static string CannotGiftYourself => Pick(
+        "No puedes regalarte una congelación a ti mismo.",
+        "You can't gift a freeze to yourself.",
+        "Du kannst dir selbst keinen Serienschutz schenken.");
+
     public static string GiftTargetNotMember => Pick(
         "Esa persona no es miembro del grupo.",
         "That person isn't a member of the group.",

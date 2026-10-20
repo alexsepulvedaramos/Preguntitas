@@ -23,6 +23,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.22.2',
+    date: '2026-10-20',
+    title: {
+      es: 'Regalos con confirmación',
+      en: 'Gifts ask first',
+      de: 'Geschenke mit Bestätigung',
+    },
+    items: [
+      {
+        emoji: '🎁',
+        title: {
+          es: 'Antes de regalar, te pregunta',
+          en: 'A check before you gift',
+          de: 'Erst fragen, dann schenken',
+        },
+        text: {
+          es: 'Regalar una congelación ahora te pide confirmarlo antes de gastar tus monedas. Y en tu propia tarjeta ya no aparece el botón de regalar: no puedes regalarte una a ti mismo.',
+          en: 'Gifting a freeze now asks you to confirm before spending your coins. And the gift button no longer shows on your own card: you can’t gift one to yourself.',
+          de: 'Einen Serienschutz zu verschenken fragt jetzt erst nach, bevor deine Münzen ausgegeben werden. Und auf deiner eigenen Karte gibt es den Schenken-Knopf nicht mehr: Du kannst dir selbst keinen schenken.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.22.1',
     date: '2026-10-16',
     title: {
