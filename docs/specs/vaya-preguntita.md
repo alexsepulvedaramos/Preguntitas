@@ -60,7 +60,7 @@
 
 **Design System:**
 - Colors: Sage (primary) + Electric Lime accent + Warm Sand
-- Typography: `DM Serif Display` italic (display headings) + `DM Sans` (UI text)
+- Typography: `DM Serif Display` italic (display headings) + `Quicksand` (UI text) — full rules in §14 "Frontend Design System & Style Guide"
 - Dark mode: class-based (`:root.dark`)
 - Logo: `LogoComponent` (`sm` | `lg`) + `LogoWordmarkComponent`
 - Full rules (tokens, states, accessibility) — see [§14 Frontend Design System & Style Guide](#frontend-design-system--style-guide)
@@ -518,7 +518,8 @@ Legend: ✅ done · 🔧 needs change · 🆕 to build · 🅿️ Phase 2
 
 | Method | Endpoint | Status | Notes |
 |---|---|---|---|
-| `GET` | `/api/groups` | ✅ | groups of the current user |
+| `GET` | `/api/groups` | ✅ | groups of the current user. 1.24.0: each carries `hasNewActivity` (§16 unread-activity dot) |
+| `POST` | `/api/groups/{groupId}/seen` | ✅ | 1.24.0 — the caller has the group open: sets `GroupMember.LastSeenAt` (clears the unread-activity dot); 204, 404 not a member |
 | `POST` | `/api/groups` | ✅ | create; creator = admin = first member |
 | `GET` | `/api/groups/{groupId}` | ✅ | details |
 | `PUT` | `/api/groups/{groupId}` | ✅ | admin: edit name/description/time |
@@ -883,44 +884,76 @@ The app follows **semver** (`MAJOR.MINOR.PATCH`): a new player-visible feature b
 
 ### Frontend Design System & Style Guide
 
-Source of truth for tokens: `client/src/styles.css` (`@theme` block + `:root`/`:root.dark`). **Never hardcode raw Tailwind palette classes (`text-green-500`, `bg-red-600`, hex/rgb values) or one-off colors in components** — always use a semantic token below. If a needed color/state has no token yet, add it to `styles.css` first.
+**These rules are binding for every new screen and feature** (fixed in the visual review, `feat/visual-review`, 1.24.0, from the UX/UI audit of 2026-10). A PR that breaks one needs the developer's explicit OK.
 
-**Color tokens (semantic, light + dark pair in `styles.css`):**
+Source of truth for tokens: `client/src/styles-lime.css` (`:root` / `:root.dark` in `@layer base`, the shop themes as `:root[data-vp-theme=…]` blocks, the Tailwind mapping in `@theme`). **Never hardcode raw Tailwind palette classes (`text-green-500`, `bg-amber-400`, `text-white`…), hex/rgb values or one-off colours in components** — use a semantic token below. If a colour or state has no token yet, add one first (light + dark, and say whether shop themes recolour it). The only exceptions are art that is *content*: streak-frame and shop-cosmetic artwork (`streak-tiers.ts`, `shop-catalog.ts`), the coin (fixed gold) and QR codes (dark-on-white so they scan).
+
+**Colour tokens (light + dark pair; shop themes recolour the neutrals, `primary`, `accent` and `group-*`):**
 | Token | Usage |
 |---|---|
 | `background` / `foreground` | Page base |
 | `card` / `card-foreground`, `popover` / `popover-foreground` | Elevated surfaces (cards, dialogs, menus) |
-| `primary` / `primary-foreground` (+ `primary-hover`) | Sage — brand identity, secondary actions |
-| `accent` / `accent-foreground` (+ `accent-hover`, `accent-text`) | Electric Lime — primary CTA, focus ring, selection |
-| `secondary` / `secondary-foreground`, `muted` / `muted-foreground` | Neutral surfaces, de-emphasized text |
-| `sand` / `sand-foreground` | Warm Sand — badges, supporting accents |
-| `success` / `success-foreground` | Confirmation feedback (e.g. "copiado al portapapeles") |
-| `destructive` / `destructive-foreground` | Errors, destructive actions |
+| `primary` / `primary-foreground` (+ `primary-hover`) | Sage — brand, secondary CTAs ("Sugerir pregunta", "Crear grupo"), selected toggles, result bars. In dark mode a **mid** sage with light text, so it never competes with lime |
+| `primary-text` | Sage as **text or icon** (`text-primary-text`). Same as `primary` in light, lighter in dark for contrast. Never use `text-primary` |
+| `accent` / `accent-foreground` (+ `accent-hover`, `accent-text`) | Electric Lime — the one main action of a moment ("Te toca elegir", "Adivinar", the selected vote option), focus ring, notification dots |
+| `secondary` / `secondary-foreground`, `muted` / `muted-foreground` | Neutral surfaces, chips (question type), de-emphasized text |
+| `sand` / `sand-foreground` | Warm Sand — celebrations and support (system chat pill, monthly-summary banner) |
+| `flash` / `flash-foreground` / `flash-border` | Honey — flash questions only. Fixed on every theme (an event, not the personal palette) |
+| `warning` | Calm "act soon" states (streak in danger), as text/icon over a `/15` tint |
+| `success` / `success-foreground` | Confirmation feedback ("Guardado", "copiado") |
+| `destructive` / `destructive-foreground` | **Only** errors and destructive actions. Red never means "third option", "coins spent" or "wrong guess" |
+| `frame-<key>` | The seven profile frame colours (`purple`, `blue`, `green`, `yellow`, `orange`, `red`, `pink`), tuned to the palette with a dark variant. `User.FrameColor` stores the **key**, never a hex (legacy hex is mapped by `FrameColors.LegacyHex`) |
 | `border`, `input`, `ring` | Borders, input outlines, focus ring (ring = `accent`) |
+| `group-*` | The theme's hue family; used only behind the frost glyph tone |
 | `sidebar-*`, `logo-*` | Sidebar chrome and logo mark — don't reuse for other UI |
 
-**Dark mode:** class-based (`:root.dark`, toggled by `ThemeService`; preference `light`/`dark`/`system`, picked in the user-menu drawer — rama 18). Every token is defined for both modes in `styles.css` — when adding a token, define both variants and verify WCAG AA contrast (text vs. its background) in each mode; don't assume light-mode contrast carries over.
+**Button hierarchy (identical in light and dark):** lime `accent` = the single primary action of the moment; sage `primary` = secondary CTAs and confirmations; `outline` = purchases (always with the coin) and alternatives ("Unirme con código", "Pista"); `ghost` / `link` = ways out ("Saltar", "Ahora no", "Ya tengo cuenta"). Destructive actions live in menus or confirmation dialogs, never as a bare red icon in a list (deletes in lists are grey and turn red on hover). One accent button per view.
+
+**Results and categories:** one colour, not a palette per option — result bars are `bg-primary/60` for the leading option(s) and `bg-primary/25` for the rest, labels in `text-foreground`; voters sit in a row under the bar. Question types are told apart by **glyph**, not colour: `<app-question-type-chip>` (neutral `secondary` chip + the type's glyph from `QUESTION_TYPE_GLYPH`).
+
+**Icons and glyphs:** no emoji in UI chrome. Concept icons come from the glyph set (`GlyphComponent`, `glyphs.ts`): a Lucide icon on a soft tile in a fixed tone — sage (everyday), lime (quick/bright), sand (warm moments), frost (freezes, gifts), honey (flash). Add a name to `GLYPHS` instead of choosing a tone per call site. Plain Lucide `ng-icon` is for controls (arrows, ✕, ⋯, chevrons). The coin is always `<app-coin>` / `<app-coin-text>` (dictionaries keep `🪙` as the marker). Emoji stay only where they are content or OS-rendered: shop badge emoji and push-notification text.
 
 **Typography:**
-- `font-display` (`DM Serif Display`, italic) — headings, branding, the daily question text (`.vp-question-text` utility). Loaded via `<link>` in `index.html` (not CSS `@import`, for `preconnect`/perf).
-- `font-sans` (`DM Sans`) — all UI text, body copy, form labels.
-- Sizes: default Tailwind `text-*` scale, no custom font-size tokens — pick the smallest size that satisfies the hierarchy rather than introducing new scale steps.
+- `font-display` (`DM Serif Display`, italic) — page, section and dialog titles, the daily question (`.vp-question-text`: `text-3xl`, `md:text-4xl`), big numbers (wallet, streak count, headline stats, the monthly-summary cover).
+- `font-sans` (**Quicksand**, loaded in `index.html`) — all UI text, body copy, labels.
+- Three title levels: page = the `PageHeader` title (or `font-display text-2xl italic` on a hero card); section = `font-display text-lg italic tracking-tight`; eyebrow = `text-xs uppercase tracking-widest` **only for metadata**, never as a section title.
+- Sizes: Tailwind's `text-*` steps plus `text-2xs` (10 px: timestamps, avatar initials, counters). No arbitrary `text-[Npx]`.
+- Time is always "number, space, unit": `4 h 59 min`, `22 h 25 min 5 s` (`countdown.*` keys). Month labels standing alone start with a capital ("Septiembre de 2026"); inside a sentence they keep the language's casing ("Tu septiembre de 2026") — never CSS `capitalize`.
 
-**Spacing & shape:** default Tailwind v4 spacing scale (4px base unit) — no custom spacing tokens. Border radius via `--radius` (`1.125rem`, mapped to `rounded-default`) for cards, dialogs, inputs, and primary buttons; don't introduce other radius values.
+**Spacing & shape:** default Tailwind spacing. Two radii only: `rounded-default` (`--radius`, 1.125 rem) for every surface, card, input, banner, bubble and tile; `rounded-full` for pills, chips, avatars and round buttons. No `rounded-md/lg/xl/2xl/3xl` in feature code (Spartan's own internals excepted). Shadows: `shadow-sm` at most on cards; no coloured glows.
 
-**Interactive states — apply to every interactive element (buttons, inputs, links acting as controls):**
-- **Hover:** the token's paired `-hover` variant when one exists (`primary-hover`, `accent-hover`); otherwise `hover:bg-muted` / `hover:bg-secondary`.
-- **Focus:** `focus-visible:ring-2 focus-visible:ring-ring` (never plain `focus:`) — keyboard-only focus, no mouse-click ring. The base layer also enforces a global `outline-ring/60` fallback.
-- **Disabled:** `disabled:opacity-50 disabled:pointer-events-none`.
-- **Transitions:** `transition-colors` for simple state changes, `transition-all` only when size/shadow also animates (e.g. `.vp-poll-option`).
-- **Loading:** disable the trigger and swap its label/icon for a spinner state; never let two competing loading affordances show at once.
-- **Empty states:** centered, `text-muted-foreground` secondary line under a short primary message; see `group-list.component.html` for the reference pattern.
+**Layout patterns:**
+- **Sub-page header:** always `<app-page-header>` (round ghost back arrow + display title + projected actions; `inLayout` for screens inside the main layout).
+- **Toolbars:** at most one or two icons visible plus a `⋯` menu (`hlm-dropdown-menu`) with **text** for the rest.
+- **Per-row actions** (members, items): a `⋯` menu with text labels, never two bare icons.
+- **Long pages:** split into sticky `hlm-tabs` (shop) or fold older content (Novedades: latest and new versions open, the rest collapsed). A phone page shouldn't run on for many screens.
+- **People:** wherever a member is chosen or listed (vote options, results, chat, guesses), show `app-user-avatar` with their ring and cosmetics plus `app-user-name` (name colour and badge) — cosmetics must be visible where they matter.
+- **Status chips on cards** never change the card's height (icon + number; the full sentence in `sr-only` / `title`).
+- **Floating prompts** (install, notifications) never cover the main action: they don't show on group screens, `join` or the demo, and respect the safe-area inset.
+- **After an action** stay where the result shows (don't auto-jump to the next card); point at what's next instead ("Te queda 1 pregunta").
+- **Forms:** the save button is full width at the end. Pick-one-of-few choices (question type) are glyph tiles, not a select. Text that may run long on a phone uses a 2-row `hlmTextarea`. Every password field has a show/hide toggle.
+- **News banners:** full width, dismissible with ✕; opening or dismissing counts as seen, and the item stays reachable from its menu.
+- **Empty states:** `hlm-empty` with a glyph, a short display title and a one-line explanation (see `group-list.component.html`).
+- **Unread dots:** a small `bg-accent` dot with `ring-2 ring-card`, as on the user-menu avatar and the group cards (§16 unread activity); always with `sr-only` text.
 
-**Components:** build with **Spartan** (`Hlm*` directive/element components from `agents/skills/spartan`) — never hand-roll a primitive Spartan already provides. Customize only via `class` overrides layered on top of `hlmBtn`/`hlmInput`/etc., following the states above.
+**Interactive states — every interactive element:**
+- **Hover:** the token's `-hover` variant when one exists; otherwise `hover:bg-muted` / `hover:bg-secondary`.
+- **Focus:** `focus-visible:ring-2 focus-visible:ring-ring` (never plain `focus:`). Dialogs, drawers, sheets and full-screen viewers focus their **panel** on open (`autoFocus: 'dialog'` in the Hlm wrappers), so opening with a tap never lights up the ✕.
+- **Disabled:** keep the colour at `opacity-60`; prefer a hint saying what's missing over a silent disabled button.
+- **Selected / active:** toggles and segmented controls use `bg-primary text-primary-foreground` (never a faint grey tint); selected options and tiles use the `accent` border with an `accent/15` fill.
+- **Transitions:** `transition-colors` for state changes; `transition-all` only when size or shadow animates.
+- **Loading:** disable the trigger and swap its label/icon for a spinner; never two loading affordances at once.
+- **Touch targets:** buttons are 40 px by default (`hlm-button` `default`); `sm` / `xs` / `icon-*` keep their look but get an invisible ~44 px touch area on touch screens. Don't shrink icon buttons below `size-8` in dense rows.
 
-**Logo:** `LogoComponent` (`sm` | `lg`, icon mark) and `LogoWordmarkComponent` (text lockup) — colors always via `--logo-*` tokens, never hardcoded.
+**Components:** build with **Spartan** (`Hlm*`, see `.agents/skills/spartan`) — `hlm-checkbox`, `hlm-select`, `hlm-switch`, `hlm-tabs`, `hlm-dropdown-menu`, `hlm-empty`, `hlmTextarea`… never a native `<input type="checkbox">`, a native `<select>` or a hand-rolled button. Customize with `class` on top of the Hlm primitive.
 
-**Accessibility:** icon-only controls need both `aria-label` and an `sr-only` text node (see `ThemeComponent`); decorative-only elements get `aria-hidden`. Don't render an interactive-looking element (hover/cursor-pointer) that has no real action — remove it instead of faking it (see footer "Privacy/Terms" removal precedent).
+**Avatars and cosmetics:** accessories aren't drawn on `xs` / `sm` avatars; over initials they push the letters out of the way; in dark mode their art gets a thin light outline. A plain frame colour is `var(--frame-<key>)`.
+
+**Copy glossary (es):** "correo" / "correo electrónico" (never "email"), "anillos" (not "skins"), footer "© 2026 Vaya Preguntita" everywhere. UI copy only from the dictionaries.
+
+**Logo and app icons:** `LogoComponent` / `LogoWordmarkComponent` (one line, `whitespace-nowrap`; colours via `--logo-*`). PWA icons are full-bleed opaque squares (`android-chrome-*`, `apple-touch-icon`, purpose `any`) plus `maskable-*` with the mark inside the 80 % safe zone (purpose `maskable`). Manifest colours are hex (`#051b0e`), never `oklch`.
+
+**Accessibility:** icon-only controls need an `aria-label` or `sr-only` text; decorative elements get `aria-hidden`. Meaning carried by an icon or colour (✓/✗, dots, the streak chip) also needs `sr-only` text — `aria-label` on a plain `<span>` isn't read. Don't render interactive-looking elements without an action. Pinch zoom stays enabled (developer's call, 2026-10-20).
 
 ---
 
@@ -985,9 +1018,9 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ✅ **Theme switch** — `theme.service` + `theme.component` exist; wire the toggle.
 - 🔵 **Evaluate "Impeccable"** for the UI.
 - ✅ **User avatar image** — `User.AvatarUrl` + Supabase Storage upload, DiceBear preset grid, circular canvas crop, `UserAvatarComponent` with `frameColor` ring. Profile settings page at `/profile`.
-- 🟡 **Adaptive frame-color palette (light/dark)** — currently `User.FrameColor` stores a hex value (`#8b5cf6`). Plan: migrate to a colour *key* (`"purple"`, `"blue"`, …) stored in DB; define CSS custom properties with distinct light/dark variants in `styles.css` (e.g. `--frame-purple: #7c3aed` in `:root`, `--frame-purple: #a78bfa` in `.dark`); `UserAvatarComponent` resolves key → `var(--frame-purple)`. This ensures good contrast in both themes without client-side branching. Requires a small EF migration + profile-page picker update. Deferred post-MVP-presentation; current hex palette is acceptable for the demo. (Distinct from the streak-tier ring confirmed in rama 19, §13 — that one is animated and driven by per-group streak length, not a user-chosen static color.)
-- ⚪ **Calmer streak-danger hint on the group card** *(developer, 2026-10-12, no priority or rama yet)* — the "no pierdas tu racha" notice inside the group card looks bad. Replace it with just an icon of your current streak (or similar). Hard rule: it must **never change the card's size**, so cards keep the same height whether or not the hint shows.
-- ⚪ **Unread-activity dot on group cards** *(developer, 2026-10-12, no priority or rama yet)* — a small dot on a group's card when there is new activity, like the dot on the user-menu avatar when there are release notes. Open when scheduled: what counts as activity (new question, chat messages, votes, your turn to pick) and how "seen" is tracked (per device vs. per user on the server), within the §11.1 budget (no new polling; fold it into the group list response).
+- ✅ **Adaptive frame-color palette (light/dark)** *(done in `feat/visual-review`, 1.24.0)* — `User.FrameColor` stores a palette key (`purple`, `blue`, `green`, `yellow`, `orange`, `red`, `pink`; `FrameColors.PaletteKeys`) instead of a hex; `--frame-<key>` tokens in `styles-lime.css` give each a light and a dark variant tuned to the palette, and `UserAvatarComponent` draws `var(--frame-<key>)`. Migration `AddLastSeenAndFrameKeys` converts the stored hex values (unknown hex → `streak`); the API still accepts the seven legacy hex values from old clients and stores their key (`FrameColors.LegacyHex`).
+- ✅ **Calmer streak-danger hint on the group card** *(done in `feat/visual-review`, 1.24.0)* — a fixed-size `warning` chip with the flame and the day count; the full sentence is `sr-only` / `title`. The card never changes height.
+- ✅ **Unread-activity dot on group cards** *(done in `feat/visual-review`, 1.24.0; developer's decisions 2026-10-20)* — a lime dot on the group's initial. **Counts as activity** since you last had the group open: others' chat messages, a new question you haven't voted, new votes from others on the open question you already answered, and your turn to pick. **Seen** is per user on the server: `GroupMember.LastSeenAt` (null → `JoinedAt`), set by `POST /api/groups/{id}/seen`, which the group screen calls on entering and leaving. Folded into the group list response as `GroupResponse.HasNewActivity` (no new polling, §11.1).
 - 🟢 **Multi-language gameplay (i18n)** — **promoted to ramas 23–24 (§13), confirmed 2026-07-16**: play in EN and DE; default language from the browser (`navigator.language` / `Accept-Language`), not IP; per-user `PreferredLanguage` override; translated seeded templates server-side; user-created questions stay in the author's language.
 
 ### Daily, rotation & gamification
@@ -999,7 +1032,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ⚪ **Auto-deactivate dead groups + admin reactivation** *(confirmed 2026-10-08, no priority or rama yet)* — if nobody answers, or only one member does, for several consecutive days, the group is **deactivated**: the daily cycle stops (no more preselection or activation of questions) until the group's **admin manually reactivates it**. On reactivation, **every member gets a push notification** that the group is active again (new notification type, e.g. `group_reactivated`, alongside the existing ones). *Why:* (1) abandoned groups keep burning compute and database space for nothing; (2) a dormant group keeps consuming its question stock — if its members ever come back to really play, ~100 questions would already have been used up (cloned, marked as used by §6.6) without anyone having seen them. Two real groups already show this pattern (played only on day one). **Open decisions, to settle when this is scheduled:** the inactivity threshold (how many days) and what exactly counts as "inactive" (zero voters vs. at most one voter — mirrors the ≥2-member start gate, §4.3); counted from the last day with ≥2 voters or the last day with any vote; what happens to the already-pending `DailyEntry` and the currently open question at the moment of deactivation; whether the admin is warned before deactivation and which UI shows the paused state to non-admin members; whether group mute also silences the reactivation push.
 - ⚪ **Suggest a pack question** *(developer, 2026-10-12, no priority or rama yet)* — the "Sugerir" picker that non-selectors open lets them browse the templates of **all the group's enabled packs** (§6.4, §6.5), not only write a new question. Suggesting one clones it into the group pool (`!IsUsed`), so it gets the same priority as a member-written question in the picker list and in the automatic preselection (pool before pack fallback, §6.6). Confirmed with the developer: **no coins and no points for the suggester** (it takes one tap; §17.3 points reward authorship and exclude pack clones). **It does become a guessing game:** when it is played, "guess the author" (§17.6) asks **"¿Quién la sugirió?"**, with the normal rewards for whoever guesses right. This needs a nullable `Question.SuggestedById`, and the guessable check becomes "member-written **or** suggested". **Max 3 pending suggestions per member**, so one person can't fill the pool and decide most auto-picks. Deleting a suggestion before it is played returns the template to the pack (it already works this way: §6.6 derives "used" from the clones that exist). Open: whether the picker shows "sugerida por X" (proposal: no, it would spoil the guess).
 - ⚪ **Admin can edit a badly set-up question** *(developer, 2026-10-12, no priority or rama yet)* — the group admin can fix a question that came out wrong (a typo, the wrong type, missing poll options, badly formed teams, a blacklisted member…). Today only the creator (or the selector, on the pending question) can change one, and the only admin tool is deleting it from the pool. Open when scheduled: which states can be edited (pool and pending for sure; the **open** question only while nobody has voted, because editing it after votes would make those votes meaningless); whether the creator is told; whether editing a pack clone drops its translations, as already happens when the selector rewrites one (rama 24); and whether it counts against the authorship of "guess the author" (§17.6).
-- 🟡 **Visual review: more personality** *(developer, 2026-10-12; first pass in `feat/brand-glyphs`, 1.23.0)* — **Done in the first pass:** no emoji in the UI chrome. Icons come from the app's own glyph set (`GlyphComponent`, `shared/components/glyph/glyphs.ts`): Lucide icons on a soft tile in one of four palette tones (sage, lime, sand, frost), fixed per concept and recoloured by every shop theme. The coin is `CoinComponent` (the app icon's question mark in sage on soft gold, fixed colours on every theme); dictionaries keep `🪙` as a marker that `CoinTextComponent` draws as the coin. Shop badge emoji (§17.10) stay emoji: they're content the player picks. The "Sugerir pregunta" button is a solid primary (sage) pill; lime stays for "your turn". Chat streak messages are emoji-free text plus `ChatMessageDto.glyph` (`streak` for a new tier, `celebrate` for a milestone; older messages stored with a leading 🔥/🎉 get it stripped and mapped the same way), drawn as a glyph in the system pill. Push notifications **keep their emoji** (developer's call, 2026-10-20: OS-rendered text can't show the glyph set); only the push `badge` changed, to a white-on-transparent question mark (`icons/notification-badge.png`). The PWA/apple-touch icons are now full-bleed opaque squares (iOS showed grey corners around the old pre-rounded, transparent ones). **Still open:** a square/maskable mark redesign and the rest of the review. Original note: a design pass so the app feels less generic. At least: (a) **coin art** that carries the app logo (today the coin is the 🪙 emoji), used in the wallet, toasts, the shop and the ledger; (b) **logo that works on every device**: it isn't square, so it gets cropped in some places (PWA/app icons, favicon, maskable icons, avatar-sized slots) — design a square/maskable mark that reads at small sizes, alongside the existing wordmark (`LogoComponent`, `LogoWordmarkComponent`). Scope and the rest of the review are to be agreed when it is scheduled.
+- ✅ **Visual review: more personality** *(developer, 2026-10-12; first pass in `feat/brand-glyphs`, 1.23.0; the rest in `feat/visual-review`, 1.24.0)* — **First pass:** no emoji in UI chrome — the glyph set (`GlyphComponent`, `glyphs.ts`), the coin (`CoinComponent`, `🪙` as the dictionary marker), solid sage "Sugerir pregunta", chat streak messages with `ChatMessageDto.glyph`, push notifications keep their emoji (developer's call, 2026-10-20) with a monochrome `badge`, full-bleed PWA icons. **Second pass (UX/UI audit 2026-10, `docs/reviews/ux-audit-2026-10.md`):** everything the audit found, turned into the binding rules of §14 "Frontend Design System & Style Guide" — brand tokens for flash (honey), warning and frame colours; one-colour result bars; neutral question-type chips with glyphs; a darker dark-mode `primary` with `primary-text` for text; 40 px buttons with 44 px touch areas; one `PageHeader`; display section titles, one surface radius and a `text-2xs` step; dialogs focusing their panel; Spartan checkbox/select/tabs/empty; people shown with avatar and cosmetics in vote options, results and chat; the group toolbar's `⋯` menu; member actions in a menu; shop tabs and rarity colours; folded Novedades; the monthly-summary cover; accessories clear of initials; the install/notification prompts kept off the group screens; maskable icons. Shop badges stay emoji (developer's call, 2026-10-20: the badge *is* the emoji bought).
 - 🔵 **Re-enable `Vote.GuessedCreatorId`** — "adivina el autor", scheduled as **rama 36** (§17.6).
 - 🔵 **Monthly statistics** — monthly summary ("wrapped") with awards, participation and "tu match" (no ranking: points were dropped, §17.3), scheduled as **rama 41** (§17.12).
 - 🔵 **"Reparto/casting" question type** — moved back to the backlog by the developer during rama 30 (2026-10-12); not designed.
