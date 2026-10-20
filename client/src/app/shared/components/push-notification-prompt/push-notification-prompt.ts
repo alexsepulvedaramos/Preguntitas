@@ -3,16 +3,18 @@ import { toast } from '@spartan-ng/brain/sonner';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PushNotificationService } from '../../../core/services/push-notification.service';
 import { I18nService } from '../../../core/i18n/i18n.service';
+import { GlyphComponent } from '../glyph/glyph.component';
 
 @Component({
   selector: 'app-push-notification-prompt',
+  imports: [GlyphComponent],
   standalone: true,
   template: `
     @if (visible()) {
       <div class="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
         <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl">
           <div class="flex items-start gap-3">
-            <div class="shrink-0 w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-lg">🔔</div>
+            <app-glyph name="bell" size="md" />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-semibold text-foreground leading-tight">{{ t('pushPrompt.title') }}</p>
               <p class="text-xs text-muted-foreground mt-0.5 leading-snug">

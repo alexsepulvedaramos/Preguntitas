@@ -83,8 +83,13 @@ public static class StreakTiers
         return (chosen ?? unlocked.LastOrDefault())?.Title;
     }
 
+    // The app glyph the client draws before that chat message (ChatMessageDto.Glyph): the
+    // flame for a new tier, the party popper for a milestone; null when that streak is neither.
+    public static string? ChatGlyph(int streak) =>
+        IsTierStart(streak) ? "streak" : Milestones.ContainsKey(streak) ? "celebrate" : null;
+
     // The automatic chat message when a member reaches a tier or a milestone, in the reader's
-    // language; null when that streak is neither.
+    // language; null when that streak is neither. No emoji: the client draws ChatGlyph.
     public static string? ChatMessage(string language, string username, int streak)
     {
         if (IsTierStart(streak))
@@ -92,18 +97,18 @@ public static class StreakTiers
             var title = TierFor(streak)!.Titles.In(language);
             return language switch
             {
-                AppLanguages.English => $"🔥 {username} is on a {streak}-day streak · {title}!",
-                AppLanguages.German => $"🔥 {username} hat {streak} Tage in Folge abgestimmt · {title}!",
-                _ => $"🔥 {username} lleva {streak} días seguidos · ¡{title}!",
+                AppLanguages.English => $"{username} is on a {streak}-day streak · {title}!",
+                AppLanguages.German => $"{username} hat {streak} Tage in Folge abgestimmt · {title}!",
+                _ => $"{username} lleva {streak} días seguidos · ¡{title}!",
             };
         }
 
         if (Milestones.TryGetValue(streak, out var label))
             return language switch
             {
-                AppLanguages.English => $"🎉 {username} is on a {streak}-day streak · {label.In(language)}",
-                AppLanguages.German => $"🎉 {username} hat {streak} Tage in Folge abgestimmt · {label.In(language)}",
-                _ => $"🎉 {username} lleva {streak} días seguidos · {label.In(language)}",
+                AppLanguages.English => $"{username} is on a {streak}-day streak · {label.In(language)}",
+                AppLanguages.German => $"{username} hat {streak} Tage in Folge abgestimmt · {label.In(language)}",
+                _ => $"{username} lleva {streak} días seguidos · {label.In(language)}",
             };
 
         return null;

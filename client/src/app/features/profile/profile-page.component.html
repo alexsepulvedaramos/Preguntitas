@@ -151,7 +151,8 @@
                 [disabled]="isSavingTitle()"
                 (click)="selectTitle(option.key)"
               >
-                🛍️ {{ option.title }}
+                <app-glyph name="shop" size="xs" untinted />
+                {{ option.title }}
               </button>
             }
             <button

@@ -11,11 +11,13 @@ import { RELEASES, compareVersions } from '../../core/releases/releases';
 import { ReleaseNotesService } from '../../core/services/release-notes.service';
 import { InfoPageNav } from './info-page-nav';
 import { I18nService } from '../../core/i18n/i18n.service';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
 
 // "Novedades" (rama 26): every release, newest first, written for players.
 @Component({
   selector: 'app-releases-page',
-  imports: [RouterLink, NgIcon, HlmBadgeImports, HlmButtonImports, HlmCardImports],
+  imports: [CoinTextComponent, GlyphComponent, RouterLink, NgIcon, HlmBadgeImports, HlmButtonImports, HlmCardImports],
   providers: [provideIcons({ lucideArrowLeft })],
   templateUrl: './releases-page.component.html',
 })
@@ -37,7 +39,7 @@ export class ReleasesPageComponent implements OnInit {
       version: release.version,
       date: release.date,
       title: release.title[lang],
-      items: release.items.map(item => ({ emoji: item.emoji, title: item.title[lang], text: item.text[lang] })),
+      items: release.items.map(item => ({ glyph: item.glyph, title: item.title[lang], text: item.text[lang] })),
       displayDate: formatDate(release.date, dateFormat),
       isNew: this.seenBefore
         ? compareVersions(release.version, this.seenBefore) > 0

@@ -42,10 +42,13 @@ import { TranslationKey } from '../../../../core/i18n/translation.types';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 
 @Component({
   selector: 'app-group-settings',
-  imports: [UserNameComponent, 
+  imports: [
+    GlyphComponent,
+    UserNameComponent,
     RouterLink,
     MobileTopBarDirective,
     FormsModule,

@@ -78,7 +78,7 @@
   @switch (slide.kind) {
     @case ('intro') {
       <div class="flex flex-col items-center gap-4 text-center">
-        <span class="text-6xl" aria-hidden="true">🎉</span>
+        <app-glyph name="celebrate" size="xl" />
         <h2 class="font-display text-3xl italic text-foreground">
           {{ t('monthlySummary.title', { month: monthLabel() }) }}
         </h2>
@@ -98,7 +98,8 @@
               }
             </div>
             <p class="text-sm text-foreground">
-              🔥 {{ t('monthlySummary.bestRun', { names: names(runs.people), count: runs.days }) }}
+              <app-glyph name="streak" size="xs" bare class="align-middle" />
+              {{ t('monthlySummary.bestRun', { names: names(runs.people), count: runs.days }) }}
             </p>
           </div>
         }
@@ -106,7 +107,7 @@
     }
     @case ('award') {
       <div class="flex flex-col items-center gap-4 text-center">
-        <span class="text-6xl" aria-hidden="true">{{ emoji(slide.award.key) }}</span>
+        <app-glyph [name]="glyph(slide.award.key)" size="xl" />
         <h2 class="font-display text-2xl italic text-foreground">{{ awardTitle(slide.award.key) }}</h2>
         <div class="flex flex-wrap justify-center gap-4">
           @for (w of slide.award.winners; track w.person.userId) {
@@ -130,7 +131,7 @@
     }
     @case ('match') {
       <div class="flex flex-col items-center gap-4 text-center">
-        <span class="text-6xl" aria-hidden="true">💞</span>
+        <app-glyph name="match" size="xl" />
         <h2 class="font-display text-2xl italic text-foreground">{{ t('monthlySummary.matchTitle') }}</h2>
         <div class="flex flex-wrap justify-center gap-4">
           @for (p of summary()!.myMatch!.people; track p.userId) {
@@ -155,7 +156,8 @@
                 <p class="text-xs text-muted-foreground">
                   {{ t('monthlySummary.memberLine', { answered: m.answered, eligible: m.eligible }) }}
                   @if (m.bestRun >= 2) {
-                    · 🔥 {{ t('monthlySummary.memberRun', { count: m.bestRun }) }}
+                    · <app-glyph name="streak" size="xs" bare class="align-middle" />
+                    {{ t('monthlySummary.memberRun', { count: m.bestRun }) }}
                   }
                 </p>
               </div>

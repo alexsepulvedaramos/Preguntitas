@@ -14,6 +14,8 @@ import {
 } from '../../../../core/models/monthly-summary.model';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../../../shared/components/glyph/glyphs';
 
 type Slide =
   | { kind: 'intro' }
@@ -22,12 +24,12 @@ type Slide =
   | { kind: 'match' }
   | { kind: 'members' };
 
-export const AWARD_EMOJI: Record<SummaryAwardKey, string> = {
-  superlative: '👑',
-  selector: '🎯',
-  guesser: '🕵️',
-  consistent: '📅',
-  starAuthor: '🖋️',
+export const AWARD_GLYPH: Record<SummaryAwardKey, GlyphName> = {
+  superlative: 'crown',
+  selector: 'target',
+  guesser: 'guess',
+  consistent: 'calendar',
+  starAuthor: 'author',
 };
 
 // Story-style monthly summary (§17.12): full screen, tap the right side (or →) to advance,
@@ -35,7 +37,7 @@ export const AWARD_EMOJI: Record<SummaryAwardKey, string> = {
 // static cards stacked in a scroll instead.
 @Component({
   selector: 'app-monthly-summary-viewer',
-  imports: [NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
+  imports: [GlyphComponent, NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
   providers: [provideIcons({ lucideX })],
   templateUrl: './monthly-summary-viewer.component.html',
   host: {
@@ -66,8 +68,8 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   protected readonly failed = signal(false);
   protected readonly index = signal(0);
 
-  emoji(key: SummaryAwardKey): string {
-    return AWARD_EMOJI[key];
+  glyph(key: SummaryAwardKey): GlyphName {
+    return AWARD_GLYPH[key];
   }
 
   protected readonly slides = computed<Slide[]>(() => {

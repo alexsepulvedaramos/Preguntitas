@@ -76,7 +76,7 @@ export class SelectQuestionDialogComponent {
   public readonly compact = input(false);
 
   public readonly selected = output<void>();
-  // Coins for winning the race to select (§17.5), for the "+10 🪙" toast.
+  // Coins for winning the race to select (§17.5), for the "+10" coin toast.
   public readonly coinsEarned = output<CoinsEarned>();
   // A question written here was launched as a flash question instead (rama 44, §17.11).
   public readonly flashLaunched = output<LaunchFlashResponse>();

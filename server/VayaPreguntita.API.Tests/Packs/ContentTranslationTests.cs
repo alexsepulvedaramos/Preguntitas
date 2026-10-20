@@ -213,7 +213,7 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
 
         var bodies = await ChatAsync("en", group.Id, group["bea"]);
 
-        bodies.Should().Equal("🔥 ana is on a 7-day streak · Anonymous Source!", "Mensaje de sistema antiguo");
+        bodies.Should().Equal("ana is on a 7-day streak · Anonymous Source!", "Mensaje de sistema antiguo");
     }
 
     private async Task<List<string>> ChatAsync(string language, int groupId, int userId)

@@ -27,11 +27,13 @@ import { UserAvatarComponent } from '../../../shared/components/user-avatar/user
 import { LanguagePickerComponent } from '../../../shared/components/language-picker/language-picker.component';
 import { I18nService } from '../../i18n/i18n.service';
 import { TranslationKey } from '../../i18n/translation.types';
+import { CoinComponent } from '../../../shared/components/coin/coin.component';
 
 @Component({
   selector: 'app-user-menu',
   standalone: true,
   imports: [
+    CoinComponent,
     HlmDrawerImports,
     HlmBadgeImports,
     HlmButtonImports,

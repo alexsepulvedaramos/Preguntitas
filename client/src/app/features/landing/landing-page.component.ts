@@ -14,6 +14,8 @@ import { TranslationKey } from '../../core/i18n/translation.types';
 import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { ResultsShowcaseComponent } from '../auth/components/showcase/results-showcase.component';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../shared/components/glyph/glyphs';
 
 // Public landing at `/` (rama 21): what a context-free visitor (recruiter, friend of a
 // friend) sees before signing up. Guests only — `guestGuard` sends signed-in users to
@@ -21,6 +23,7 @@ import { ResultsShowcaseComponent } from '../auth/components/showcase/results-sh
 @Component({
   selector: 'app-landing-page',
   imports: [
+    GlyphComponent,
     RouterLink,
     NgIcon,
     HlmButtonImports,
@@ -39,10 +42,10 @@ export class LandingPageComponent {
   protected readonly version = APP_VERSION;
   protected readonly frameStreak = FRAME_STREAK;
 
-  protected readonly steps: { emoji: string; title: TranslationKey; text: TranslationKey }[] = [
-    { emoji: '👥', title: 'landing.step1Title', text: 'landing.step1Text' },
-    { emoji: '❓', title: 'landing.step2Title', text: 'landing.step2Text' },
-    { emoji: '🗳️', title: 'landing.step3Title', text: 'landing.step3Text' },
+  protected readonly steps: { glyph: GlyphName; title: TranslationKey; text: TranslationKey }[] = [
+    { glyph: 'group', title: 'landing.step1Title', text: 'landing.step1Text' },
+    { glyph: 'question', title: 'landing.step2Title', text: 'landing.step2Text' },
+    { glyph: 'vote', title: 'landing.step3Title', text: 'landing.step3Text' },
   ];
 
   // Fictional members wearing a few of the streak frames (see /about for all of them).

@@ -14,8 +14,11 @@
         @if (msg.isSystem) {
           <!-- Automatic message (streak milestones, rama 19) -->
           <div class="flex justify-center py-1">
-            <p class="max-w-[90%] rounded-full bg-sand px-3 py-1 text-center text-xs font-medium text-sand-foreground">
-              {{ msg.body }}
+            <p class="inline-flex max-w-[90%] items-center gap-1.5 rounded-full bg-sand px-3 py-1 text-center text-xs font-medium text-sand-foreground">
+              @if (msg.glyph) {
+                <app-glyph [name]="msg.glyph" size="xs" bare />
+              }
+              <span>{{ msg.body }}</span>
             </p>
           </div>
         } @else if (msg.isCurrentUser) {

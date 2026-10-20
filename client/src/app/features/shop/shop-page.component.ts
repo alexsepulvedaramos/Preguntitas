@@ -45,6 +45,10 @@ import {
   STREAK_FREEZE_PRICE,
   STREAK_REPAIR_PRICE,
 } from '../../core/models/coin.model';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../shared/components/glyph/glyphs';
+import { CoinComponent } from '../../shared/components/coin/coin.component';
+import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -63,21 +67,21 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Cosmetic]: 'coins.reasons.cosmetic',
 };
 
-const REASON_EMOJI: Record<CoinReason, string> = {
-  [CoinReason.Vote]: '🗳️',
-  [CoinReason.FirstVoter]: '⚡',
-  [CoinReason.StreakTier]: '🔥',
-  [CoinReason.StreakMilestone]: '🎉',
-  [CoinReason.SelectorChoice]: '👉',
-  [CoinReason.SelectorCreated]: '✍️',
-  [CoinReason.StreakFreeze]: '🧊',
-  [CoinReason.StreakFreezeGift]: '🎁',
-  [CoinReason.StreakRepair]: '🔧',
-  [CoinReason.GuessCorrect]: '🕵️',
-  [CoinReason.AuthorHint]: '💡',
-  [CoinReason.RaceWon]: '⏱️',
-  [CoinReason.FlashQuestion]: '⚡',
-  [CoinReason.Cosmetic]: '🛍️',
+const REASON_GLYPH: Record<CoinReason, GlyphName> = {
+  [CoinReason.Vote]: 'vote',
+  [CoinReason.FirstVoter]: 'flash',
+  [CoinReason.StreakTier]: 'streak',
+  [CoinReason.StreakMilestone]: 'celebrate',
+  [CoinReason.SelectorChoice]: 'pick',
+  [CoinReason.SelectorCreated]: 'write',
+  [CoinReason.StreakFreeze]: 'freeze',
+  [CoinReason.StreakFreezeGift]: 'gift',
+  [CoinReason.StreakRepair]: 'repair',
+  [CoinReason.GuessCorrect]: 'guess',
+  [CoinReason.AuthorHint]: 'hint',
+  [CoinReason.RaceWon]: 'race',
+  [CoinReason.FlashQuestion]: 'flash',
+  [CoinReason.Cosmetic]: 'shop',
 };
 
 type Slot = keyof Look | 'theme';
@@ -113,7 +117,7 @@ const PREVIEW_STREAK = STREAK_TIERS[3].minDays;
 const SHOP_ITEMS: readonly {
   item: InventoryItem;
   slot: keyof Inventory;
-  emoji: string;
+  glyph: GlyphName;
   price: number;
   name: TranslationKey;
   text: TranslationKey;
@@ -121,7 +125,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.AuthorHint,
     slot: 'authorHint',
-    emoji: '💡',
+    glyph: 'hint',
     price: AUTHOR_HINT_PRICE,
     name: 'inventory.items.authorHint.name',
     text: 'inventory.items.authorHint.text',
@@ -129,7 +133,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.StreakFreeze,
     slot: 'streakFreeze',
-    emoji: '🧊',
+    glyph: 'freeze',
     price: STREAK_FREEZE_PRICE,
     name: 'inventory.items.streakFreeze.name',
     text: 'inventory.items.streakFreeze.text',
@@ -137,7 +141,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.StreakRepair,
     slot: 'streakRepair',
-    emoji: '🔧',
+    glyph: 'repair',
     price: STREAK_REPAIR_PRICE,
     name: 'inventory.items.streakRepair.name',
     text: 'inventory.items.streakRepair.text',
@@ -145,7 +149,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.FlashQuestion,
     slot: 'flashQuestion',
-    emoji: '⚡',
+    glyph: 'flash',
     price: FLASH_QUESTION_PRICE,
     name: 'inventory.items.flashQuestion.name',
     text: 'inventory.items.flashQuestion.text',
@@ -157,6 +161,9 @@ const SHOP_ITEMS: readonly {
 @Component({
   selector: 'app-shop-page',
   imports: [
+    CoinTextComponent,
+    CoinComponent,
+    GlyphComponent,
     NgIcon,
     RouterLink,
     UserAvatarComponent,
@@ -285,7 +292,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const format = new Intl.DateTimeFormat(this.i18n.locale(), { day: 'numeric', month: 'short' });
     return this.items().map(item => ({
       ...item,
-      emoji: REASON_EMOJI[item.reason] ?? '🪙',
+      glyph: REASON_GLYPH[item.reason] ?? 'wallet',
       label: this.t(REASON_LABELS[item.reason] ?? 'coins.reasons.vote', {
         name: this.t(cosmeticByKey(item.itemKey)?.name ?? 'shop.cosmeticsTitle'),
       }),

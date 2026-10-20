@@ -25,6 +25,9 @@ public class NotificationService(
 ) : INotificationService
 {
     private const string IconPath = "/icons/android-chrome-192x192.png";
+    // Android's status-bar icon only uses the alpha channel: the question mark alone, on
+    // transparent. (The full-bleed app icon would show as a plain white square.)
+    private const string BadgePath = "/icons/notification-badge.png";
 
     // How long the push service keeps an undelivered notification (a phone offline or
     // dozing). Chat and votes stay relevant for a while; a new question for its 24 h.
@@ -283,7 +286,7 @@ public class NotificationService(
                 title,
                 body,
                 icon = IconPath,
-                badge = IconPath,
+                badge = BadgePath,
                 // `onActionClick.default` tells the Angular service worker what to do when
                 // the notification body is clicked while the app is closed/backgrounded:
                 // focus an existing window (or open a new one at `url`). `url` is kept at

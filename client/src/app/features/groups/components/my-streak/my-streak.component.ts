@@ -13,15 +13,25 @@ import { MyStreak } from '../../../../core/models/streak.model';
 import { EMPTY_INVENTORY, ShopItem } from '../../../../core/models/coin.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
-// "Your streak in this group" (rama 35, §17.9): a small 🔥 chip in the group's top bar
+// "Your streak in this group" (rama 35, §17.9): a small streak chip in the group's top bar
 // (rama 36) that turns orange when the streak is at risk today. Tapping it opens the details —
 // best streak, the freezes held and the button to buy more, and the repair when a lost streak
 // can still be bought back. Freezes and repairs bought ahead in the shop (rama 45) are used from
 // here without charging. Drawer on mobile, dialog on desktop.
 @Component({
   selector: 'app-my-streak',
-  imports: [NgTemplateOutlet, HlmButtonImports, HlmDialogImports, HlmDrawerImports, HlmSpinnerImports],
+  imports: [
+    NgTemplateOutlet,
+    GlyphComponent,
+    CoinTextComponent,
+    HlmButtonImports,
+    HlmDialogImports,
+    HlmDrawerImports,
+    HlmSpinnerImports,
+  ],
   templateUrl: './my-streak.component.html',
 })
 export class MyStreakComponent {

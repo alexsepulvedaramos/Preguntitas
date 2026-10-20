@@ -27,6 +27,8 @@ import { SuperlativeCreateComponent } from '../superlative-create/superlative-cr
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
 import { ScaleCreateComponent } from '../scale-create/scale-create.component';
 import { CustomPollCreateComponent } from '../custom-poll-create/custom-poll-create.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 // Placeholder hint shown in the question text input, tailored to the selected type.
 const TEXT_PLACEHOLDERS: Record<QuestionType, TranslationKey> = {
@@ -49,6 +51,8 @@ const TEXT_MAX_LENGTH = 200;
 @Component({
   selector: 'app-create-question',
   imports: [
+    CoinTextComponent,
+    GlyphComponent,
     HlmButtonImports,
     HlmFieldImports,
     HlmInputImports,
@@ -91,7 +95,7 @@ export class CreateQuestionComponent {
   public readonly savedToPool = output<void>();
   public readonly flashLaunched = output<LaunchFlashResponse>();
 
-  // "⚡ Enviar ahora" (§17.11): disabled, saying how much is missing, when you can't afford it.
+  // "Enviar ahora" (§17.11): disabled, saying how much is missing, when you can't afford it.
   // Flash questions bought ahead in the shop (rama 45) launch without charging.
   protected readonly ownedFlashes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion,

@@ -3,12 +3,12 @@
     #triggerBtn
     hlmDialogTrigger
     hlmBtn
-    [variant]="isSelector() ? 'default' : 'outline'"
+    variant="default"
     [class]="
       'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
       (isSelector()
         ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
-        : '')
+        : 'bg-primary text-primary-foreground hover:bg-primary-hover')
     "
     (click)="resetDialog()"
   >

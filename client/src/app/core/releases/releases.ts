@@ -1,4 +1,5 @@
 import { Lang } from '../i18n/languages';
+import { GlyphName } from '../../shared/components/glyph/glyphs';
 
 // Player-facing release notes (rama 26, spec §14 "Releases"). Newest first: the first
 // entry is the current app version. Adding a release = a new entry here, written in every
@@ -8,7 +9,7 @@ import { Lang } from '../i18n/languages';
 export type Localized = Record<Lang, string>;
 
 export interface ReleaseItem {
-  emoji: string;
+  glyph: GlyphName;
   title: Localized;
   text: Localized;
 }
@@ -23,6 +24,82 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.23.0',
+    date: '2026-10-20',
+    title: {
+      es: 'Un aire más propio',
+      en: 'A look of its own',
+      de: 'Ein eigener Look',
+    },
+    items: [
+      {
+        glyph: 'sparkles',
+        title: {
+          es: 'Iconos con personalidad',
+          en: 'Icons with personality',
+          de: 'Icons mit Persönlichkeit',
+        },
+        text: {
+          es: 'Los emojis dejan paso a un juego de iconos propio, con los colores de la app y de tu tema: racha, congelaciones, pistas, preguntas flash, premios del mes y más.',
+          en: 'Emoji make way for a set of icons of our own, in the app’s colours and your theme’s: streaks, freezes, hints, flash questions, monthly awards and more.',
+          de: 'Emojis machen Platz für eigene Icons in den Farben der App und deines Themes: Serie, Serienschutz, Tipps, Blitzfragen, Monatspreise und mehr.',
+        },
+      },
+      {
+        glyph: 'wallet',
+        title: {
+          es: 'Una moneda nuestra',
+          en: 'A coin of our own',
+          de: 'Eine eigene Münze',
+        },
+        text: {
+          es: 'Las monedas llevan ahora la interrogación de Vaya Preguntita, en la cartera, la tienda, los precios y los avisos.',
+          en: 'Coins now carry the Vaya Preguntita question mark: in your wallet, the shop, prices and notifications.',
+          de: 'Münzen tragen jetzt das Fragezeichen von Vaya Preguntita: im Geldbeutel, im Shop, bei Preisen und Hinweisen.',
+        },
+      },
+      {
+        glyph: 'question',
+        title: {
+          es: '«Sugerir pregunta» se ve mejor',
+          en: '“Suggest a question” stands out',
+          de: '„Frage vorschlagen“ fällt besser auf',
+        },
+        text: {
+          es: 'El botón para sugerir una pregunta ahora es un botón de verdad, en el verde de la app.',
+          en: 'The button to suggest a question is now a proper button, in the app’s green.',
+          de: 'Der Knopf zum Vorschlagen einer Frage ist jetzt ein richtiger Knopf, im Grün der App.',
+        },
+      },
+      {
+        glyph: 'bell',
+        title: {
+          es: 'Notificaciones con la interrogación',
+          en: 'Notifications with the question mark',
+          de: 'Benachrichtigungen mit dem Fragezeichen',
+        },
+        text: {
+          es: 'En Android, las notificaciones muestran en la barra de estado la interrogación de la app.',
+          en: 'On Android, notifications show the app’s question mark in the status bar.',
+          de: 'Auf Android zeigen Benachrichtigungen das Fragezeichen der App in der Statusleiste.',
+        },
+      },
+      {
+        glyph: 'phone',
+        title: {
+          es: 'Icono limpio en iPhone',
+          en: 'A clean icon on iPhone',
+          de: 'Sauberes Icon auf dem iPhone',
+        },
+        text: {
+          es: 'El icono de la app en la pantalla de inicio ya no tiene esas esquinas grises. Si la tienes instalada en iPhone, quítala y vuelve a añadirla para ver el nuevo.',
+          en: 'The app icon on your home screen no longer has those grey corners. If you installed it on an iPhone, remove it and add it again to get the new one.',
+          de: 'Das App-Icon auf dem Startbildschirm hat keine grauen Ecken mehr. Wenn du die App auf dem iPhone installiert hast, entferne sie und füge sie erneut hinzu, um das neue zu sehen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.22.2',
     date: '2026-10-20',
     title: {
@@ -32,7 +109,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🎁',
+        glyph: 'gift',
         title: {
           es: 'Antes de regalar, te pregunta',
           en: 'A check before you gift',
@@ -56,7 +133,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔐',
+        glyph: 'lock',
         title: {
           es: 'Tu sesión aguanta los cortes',
           en: 'Your session survives hiccups',
@@ -80,7 +157,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🛍️',
+        glyph: 'shop',
         title: {
           es: 'Gasta tus monedas en tu estilo',
           en: 'Spend your coins on your style',
@@ -93,7 +170,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🎨',
+        glyph: 'palette',
         title: {
           es: 'Temas para toda la app',
           en: 'Themes for the whole app',
@@ -106,7 +183,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📅',
+        glyph: 'calendar',
         title: {
           es: 'Marco de antigüedad, gratis',
           en: 'A free seniority frame',
@@ -130,7 +207,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🎉',
+        glyph: 'celebrate',
         title: {
           es: 'Cada mes, vuestro resumen',
           en: 'A summary every month',
@@ -143,7 +220,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🏆',
+        glyph: 'trophy',
         title: {
           es: 'Premios del mes',
           en: 'Monthly awards',
@@ -156,7 +233,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '💞',
+        glyph: 'match',
         title: {
           es: 'Tu match',
           en: 'Your match',
@@ -180,7 +257,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🎒',
+        glyph: 'backpack',
         title: {
           es: 'Compra ahora, úsalo cuando quieras',
           en: 'Buy now, use it whenever',
@@ -193,7 +270,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '✨',
+        glyph: 'sparkles',
         title: {
           es: '«Usar · tienes N»',
           en: '“Use · you have N”',
@@ -217,7 +294,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '⚡',
+        glyph: 'flash',
         title: {
           es: 'Lanza tu pregunta ya',
           en: 'Launch your question now',
@@ -230,16 +307,16 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🃏',
+        glyph: 'cards',
         title: {
           es: 'Todas las preguntas abiertas, a mano',
           en: 'All open questions at hand',
           de: 'Alle offenen Fragen griffbereit',
         },
         text: {
-          es: 'Cuando hay más de una pregunta abierta, pasas de una a otra con las pestañas de arriba. Las que te quedan por responder llevan un punto rojo y, al votar una, saltas a la siguiente. Las flash también quedan en el historial, marcadas con ⚡. Puedes desactivar su aviso en tu perfil.',
-          en: 'When more than one question is open, switch between them with the tabs at the top. The ones you haven’t answered carry a red dot, and voting one takes you to the next. Flash questions stay in the history too, marked ⚡. You can turn their notification off in your profile.',
-          de: 'Wenn mehr als eine Frage offen ist, wechselst du oben über die Tabs zwischen ihnen. Unbeantwortete tragen einen roten Punkt, und nach dem Abstimmen geht es zur nächsten. Blitzfragen bleiben auch im Verlauf, mit ⚡ markiert. Ihre Benachrichtigung kannst du in deinem Profil ausschalten.',
+          es: 'Cuando hay más de una pregunta abierta, pasas de una a otra con las pestañas de arriba. Las que te quedan por responder llevan un punto rojo y, al votar una, saltas a la siguiente. Las flash también quedan en el historial, marcadas con un rayo. Puedes desactivar su aviso en tu perfil.',
+          en: 'When more than one question is open, switch between them with the tabs at the top. The ones you haven’t answered carry a red dot, and voting one takes you to the next. Flash questions stay in the history too, marked with a bolt. You can turn their notification off in your profile.',
+          de: 'Wenn mehr als eine Frage offen ist, wechselst du oben über die Tabs zwischen ihnen. Unbeantwortete tragen einen roten Punkt, und nach dem Abstimmen geht es zur nächsten. Blitzfragen bleiben auch im Verlauf, mit einem Blitz markiert. Ihre Benachrichtigung kannst du in deinem Profil ausschalten.',
         },
       },
     ],
@@ -254,7 +331,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '⏱️',
+        glyph: 'race',
         title: {
           es: 'La carrera por elegir',
           en: 'The race to pick',
@@ -278,7 +355,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔒',
+        glyph: 'lock',
         title: {
           es: 'El historial, solo para quien vota',
           en: 'The history, only for voters',
@@ -291,7 +368,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '✨',
+        glyph: 'sparkles',
         title: {
           es: 'Pequeños retoques',
           en: 'Small touches',
@@ -315,7 +392,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🕵️',
+        glyph: 'guess',
         title: {
           es: 'Adivina quién escribió la pregunta',
           en: 'Guess who wrote the question',
@@ -328,7 +405,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '💡',
+        glyph: 'hint',
         title: {
           es: 'Pista de autor',
           en: 'Author hint',
@@ -341,20 +418,20 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '✨',
+        glyph: 'sparkles',
         title: {
           es: 'Una pantalla de grupo más limpia',
           en: 'A cleaner group screen',
           de: 'Ein aufgeräumter Gruppenbildschirm',
         },
         text: {
-          es: 'La pregunta manda. Tu racha es ahora un pequeño 🔥 arriba que se pone naranja si está en peligro; tócalo para ver tus congelaciones. El tiempo que queda es una línea fina, y al lado ves quién ha votado ya. Los avisos importantes, como que te toca elegir, siguen saliendo encima de la pregunta.',
-          en: 'The question comes first. Your streak is now a small 🔥 at the top that turns orange when it’s at risk; tap it to see your freezes. Time left is a thin line, with who has already voted right next to it. Important notices, like your turn to pick, still show above the question.',
-          de: 'Die Frage steht im Mittelpunkt. Deine Serie ist jetzt ein kleines 🔥 oben, das orange wird, wenn sie in Gefahr ist; tipp darauf für deinen Serienschutz. Die verbleibende Zeit ist eine dünne Linie, daneben siehst du, wer schon abgestimmt hat. Wichtige Hinweise, etwa dass du mit Auswählen dran bist, stehen weiterhin über der Frage.',
+          es: 'La pregunta manda. Tu racha es ahora una pequeña llama arriba que se pone naranja si está en peligro; tócalo para ver tus congelaciones. El tiempo que queda es una línea fina, y al lado ves quién ha votado ya. Los avisos importantes, como que te toca elegir, siguen saliendo encima de la pregunta.',
+          en: 'The question comes first. Your streak is now a small flame at the top that turns orange when it’s at risk; tap it to see your freezes. Time left is a thin line, with who has already voted right next to it. Important notices, like your turn to pick, still show above the question.',
+          de: 'Die Frage steht im Mittelpunkt. Deine Serie ist jetzt eine kleine Flamme oben, das orange wird, wenn sie in Gefahr ist; tipp darauf für deinen Serienschutz. Die verbleibende Zeit ist eine dünne Linie, daneben siehst du, wer schon abgestimmt hat. Wichtige Hinweise, etwa dass du mit Auswählen dran bist, stehen weiterhin über der Frage.',
         },
       },
       {
-        emoji: '📜',
+        glyph: 'history',
         title: {
           es: 'Autores en el historial',
           en: 'Authors in the history',
@@ -367,7 +444,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🛠️',
+        glyph: 'tools',
         title: {
           es: 'Avisos que ya no se esconden',
           en: 'Notices no longer hide',
@@ -391,7 +468,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🧊',
+        glyph: 'freeze',
         title: {
           es: 'Congelaciones de racha',
           en: 'Streak freezes',
@@ -404,7 +481,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🎁',
+        glyph: 'gift',
         title: {
           es: 'Regala una congelación',
           en: 'Gift a freeze',
@@ -417,7 +494,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔧',
+        glyph: 'repair',
         title: {
           es: 'Repara una racha perdida',
           en: 'Repair a lost streak',
@@ -441,7 +518,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🪙',
+        glyph: 'wallet',
         title: {
           es: 'Gana monedas jugando',
           en: 'Earn coins as you play',
@@ -454,7 +531,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔥',
+        glyph: 'streak',
         title: {
           es: 'Tus rachas también pagan',
           en: 'Your streaks pay too',
@@ -467,7 +544,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '👛',
+        glyph: 'wallet',
         title: {
           es: 'Tu cartera',
           en: 'Your wallet',
@@ -491,7 +568,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🎲',
+        glyph: 'dice',
         title: {
           es: 'Nadie sabe a quién le toca',
           en: 'Nobody knows who’s next',
@@ -504,7 +581,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '👍',
+        glyph: 'like',
         title: {
           es: '«Me vale esta»',
           en: '“This one works”',
@@ -528,7 +605,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '📱',
+        glyph: 'phone',
         title: {
           es: 'Código QR para unirse',
           en: 'A QR code to join',
@@ -541,7 +618,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔍',
+        glyph: 'search',
         title: {
           es: 'A pantalla completa',
           en: 'Full screen',
@@ -565,7 +642,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔄',
+        glyph: 'refresh',
         title: {
           es: 'Sin tocar el botón de refrescar',
           en: 'No more tapping refresh',
@@ -589,7 +666,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🃏',
+        glyph: 'pack',
         title: {
           es: 'Packs en inglés y en alemán',
           en: 'Packs in English and German',
@@ -602,7 +679,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🏅',
+        glyph: 'medal',
         title: {
           es: 'Títulos de racha con su gracia',
           en: 'Streak titles with a local twist',
@@ -626,7 +703,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🌍',
+        glyph: 'globe',
         title: {
           es: 'Tres idiomas',
           en: 'Three languages',
@@ -639,7 +716,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔔',
+        glyph: 'bell',
         title: {
           es: 'Avisos en tu idioma',
           en: 'Notifications in your language',
@@ -652,7 +729,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📝',
+        glyph: 'note',
         title: {
           es: 'Las preguntas, de momento en español',
           en: 'Questions in Spanish, for now',
@@ -676,7 +753,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔟',
+        glyph: 'scale',
         title: {
           es: 'Todas las escalas, del 1 al 10',
           en: 'Every scale goes from 1 to 10',
@@ -700,7 +777,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '📱',
+        glyph: 'phone',
         title: {
           es: 'Una sola barra dentro del grupo',
           en: 'A single bar inside the group',
@@ -713,7 +790,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🌗',
+        glyph: 'theme',
         title: {
           es: 'El tema, en tu menú',
           en: 'Theme, now in your menu',
@@ -737,7 +814,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔔',
+        glyph: 'bell',
         title: {
           es: 'Una notificación por grupo',
           en: 'One notification per group',
@@ -750,7 +827,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔥',
+        glyph: 'streak',
         title: {
           es: 'Que no se te escape la racha',
           en: 'Don’t let your streak slip',
@@ -763,7 +840,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔗',
+        glyph: 'link',
         title: {
           es: 'Invitaciones a la primera',
           en: 'Invitations that just work',
@@ -776,7 +853,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🎨',
+        glyph: 'palette',
         title: {
           es: 'Pequeños arreglos',
           en: 'Small fixes',
@@ -800,7 +877,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🎮',
+        glyph: 'game',
         title: {
           es: 'Un día de prueba',
           en: 'A trial day',
@@ -813,7 +890,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📲',
+        glyph: 'install',
         title: {
           es: 'Para convencer a tus amigos',
           en: 'To win your friends over',
@@ -837,7 +914,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '✨',
+        glyph: 'sparkles',
         title: {
           es: 'Aviso de versión nueva',
           en: 'New-version notice',
@@ -861,7 +938,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🏠',
+        glyph: 'home',
         title: {
           es: 'Portada nueva',
           en: 'New home page',
@@ -874,7 +951,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '👋',
+        glyph: 'hello',
         title: {
           es: 'Más fácil empezar',
           en: 'Easier to get started',
@@ -887,7 +964,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔗',
+        glyph: 'link',
         title: {
           es: 'Invitaciones en español',
           en: 'Invitations in Spanish',
@@ -911,7 +988,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '📖',
+        glyph: 'book',
         title: {
           es: 'Nueva sección «Cómo funciona»',
           en: 'New “How it works” section',
@@ -924,7 +1001,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📰',
+        glyph: 'news',
         title: {
           es: 'Esta página',
           en: 'This page',
@@ -948,7 +1025,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🆕',
+        glyph: 'pack',
         title: {
           es: 'Tres packs nuevos',
           en: 'Three new packs',
@@ -961,7 +1038,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '➕',
+        glyph: 'plus',
         title: {
           es: '74 preguntas nuevas',
           en: '74 new questions',
@@ -974,7 +1051,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🧹',
+        glyph: 'cleanup',
         title: {
           es: 'Limpieza',
           en: 'Clean-up',
@@ -987,7 +1064,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📏',
+        glyph: 'ruler',
         title: {
           es: 'Escalas sin víctima al azar',
           en: 'Scales without a random victim',
@@ -1000,7 +1077,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '✍️',
+        glyph: 'write',
         title: {
           es: 'Vuelve el «Otro»',
           en: '“Other” is back',
@@ -1024,7 +1101,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔐',
+        glyph: 'lock',
         title: {
           es: 'No más expulsiones',
           en: 'No more getting kicked out',
@@ -1037,7 +1114,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📅',
+        glyph: 'calendar',
         title: {
           es: 'Sesiones de un año',
           en: 'Year-long sessions',
@@ -1061,7 +1138,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '🔥',
+        glyph: 'streak',
         title: {
           es: 'Una racha en cada grupo',
           en: 'A streak in every group',
@@ -1074,7 +1151,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🖼️',
+        glyph: 'image',
         title: {
           es: 'Siete marcos, siete títulos',
           en: 'Seven frames, seven titles',
@@ -1087,7 +1164,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '👑',
+        glyph: 'crown',
         title: {
           es: 'La corona',
           en: 'The crown',
@@ -1100,7 +1177,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🪪',
+        glyph: 'profile',
         title: {
           es: 'Tarjeta de cada miembro',
           en: 'A card for every member',
@@ -1113,7 +1190,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🎉',
+        glyph: 'celebrate',
         title: {
           es: 'Celebraciones y avisos',
           en: 'Celebrations and reminders',
@@ -1126,7 +1203,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🗨️',
+        glyph: 'chat',
         title: {
           es: 'Caras en las respuestas',
           en: 'Faces next to answers',
@@ -1139,7 +1216,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔔',
+        glyph: 'bell',
         title: {
           es: 'Notificaciones arregladas',
           en: 'Notifications fixed',
@@ -1163,7 +1240,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '⏰',
+        glyph: 'clock',
         title: {
           es: 'Cambios de hora claros',
           en: 'Clear time changes',
@@ -1176,7 +1253,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '✨',
+        glyph: 'sparkles',
         title: {
           es: 'Entrada renovada',
           en: 'A fresh sign-in',
@@ -1200,7 +1277,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '📦',
+        glyph: 'pack',
         title: {
           es: '14 packs de preguntas',
           en: '14 question packs',
@@ -1213,7 +1290,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔎',
+        glyph: 'search',
         title: {
           es: 'Buscar pregunta es más fácil',
           en: 'Finding a question is easier',
@@ -1226,7 +1303,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔁',
+        glyph: 'repeat',
         title: {
           es: 'Sin repeticiones',
           en: 'No repeats',
@@ -1239,7 +1316,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '📊',
+        glyph: 'chart',
         title: {
           es: 'Resultados más legibles',
           en: 'Easier-to-read results',
@@ -1252,7 +1329,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '💻',
+        glyph: 'desktop',
         title: {
           es: 'Varios dispositivos',
           en: 'Several devices',
@@ -1276,7 +1353,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '📲',
+        glyph: 'install',
         title: {
           es: 'Como una app más',
           en: 'Just like any other app',
@@ -1289,7 +1366,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🔔',
+        glyph: 'bell',
         title: {
           es: 'Notificaciones',
           en: 'Notifications',
@@ -1313,7 +1390,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        emoji: '👥',
+        glyph: 'group',
         title: {
           es: 'Grupos',
           en: 'Groups',
@@ -1326,7 +1403,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '❓',
+        glyph: 'question',
         title: {
           es: 'Una pregunta al día',
           en: 'One question a day',
@@ -1339,7 +1416,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🎲',
+        glyph: 'dice',
         title: {
           es: 'Turnos para elegir',
           en: 'Taking turns to pick',
@@ -1352,7 +1429,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '🗳️',
+        glyph: 'vote',
         title: {
           es: 'Seis tipos de pregunta',
           en: 'Six question types',
@@ -1365,7 +1442,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        emoji: '👀',
+        glyph: 'eye',
         title: {
           es: 'Sin votos secretos',
           en: 'No secret votes',

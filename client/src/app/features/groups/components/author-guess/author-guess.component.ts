@@ -15,6 +15,8 @@ import { GroupMember } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { GroupStreaksService } from '../../services/group-streaks.service';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 // "¿Quién la escribió?" (rama 36, §17.6): shown under today's question once you have voted on
 // a member-written one. Pick a member and confirm, or skip to see the author; the answer is
@@ -22,7 +24,7 @@ import { GroupStreaksService } from '../../services/group-streaks.service';
 // sees how many people caught them instead.
 @Component({
   selector: 'app-author-guess',
-  imports: [HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
+  imports: [HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent, GlyphComponent, CoinTextComponent],
   providers: [provideIcons({ lucideLightbulb })],
   templateUrl: './author-guess.component.html',
 })
@@ -38,7 +40,7 @@ export class AuthorGuessComponent {
 
   // The fresh guess state, for the parent to merge into daily/current.
   readonly changed = output<AuthorGuess>();
-  // Coins a right guess paid, for the "+5 🪙" toast.
+  // Coins a right guess paid, for the "+5" coin toast.
   readonly coinsEarned = output<CoinsEarned>();
 
   protected readonly reward = AUTHOR_GUESS_REWARD;
