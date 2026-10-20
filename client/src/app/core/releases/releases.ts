@@ -25,7 +25,7 @@ export interface Release {
 export const RELEASES: readonly Release[] = [
   {
     version: '1.24.0',
-    date: '2026-10-20',
+    date: '2026-10-21',
     title: {
       es: 'Todo en su sitio',
       en: 'Everything in its place',
