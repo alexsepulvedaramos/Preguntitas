@@ -108,7 +108,7 @@ export interface DeckCard {
     MonthlySummaryViewerComponent,
   ],
   providers: [
-    provideIcons({ lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap }),
+    provideIcons({ lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideEllipsis, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap }),
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.css',

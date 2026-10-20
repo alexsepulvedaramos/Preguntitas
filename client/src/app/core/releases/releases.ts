@@ -71,6 +71,19 @@ export const RELEASES: readonly Release[] = [
           de: 'Dein Guthaben ist oben immer zu sehen, und die Erklärungen stecken hinter dem „i“. Abzeichen neben dem Namen und Titel aus dem Shop gibt es nicht mehr: Emojis kannst du ja schon in deinen Namen schreiben. Wenn du welche gekauft hattest, haben wir dir die Münzen zurückgegeben.',
         },
       },
+      {
+        glyph: 'tools',
+        title: {
+          es: 'El menú del grupo, a la vista',
+          en: 'The group menu, back in view',
+          de: 'Das Gruppenmenü, wieder sichtbar',
+        },
+        text: {
+          es: 'El botón de los tres puntos del grupo vuelve a verse, y en modo oscuro ya se leen todas sus opciones, también «Resúmenes del mes».',
+          en: 'The group’s three-dot button shows again, and in dark mode every option reads clearly, “Monthly summaries” included.',
+          de: 'Der Drei-Punkte-Knopf der Gruppe ist wieder zu sehen, und im dunklen Modus sind alle Optionen lesbar, auch „Monatsrückblicke“.',
+        },
+      },
     ],
   },
   {
