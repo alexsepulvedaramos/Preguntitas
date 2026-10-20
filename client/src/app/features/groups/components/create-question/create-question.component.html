@@ -161,20 +161,21 @@
             @if (ownedFlashes() > 0) {
               {{ t('inventory.use', { count: ownedFlashes() }) }}
             } @else {
-              {{ t('flash.sendNow', { price: flashPrice }) }}
+              <app-coin-text [text]="t('flash.sendNow', { price: flashPrice })" />
             }
           </button>
           <ng-template hlmAlertDialogPortal>
             <hlm-alert-dialog-content>
               <hlm-alert-dialog-header>
                 <h3 hlmAlertDialogTitle>
-                  {{ ownedFlashes() > 0 ? t('flash.confirmTitleOwned') : t('flash.confirmTitle', { price: flashPrice }) }}
+                  <app-coin-text [text]="ownedFlashes() > 0 ? t('flash.confirmTitleOwned') : t('flash.confirmTitle', { price: flashPrice })" />
                 </h3>
                 <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
               </hlm-alert-dialog-header>
               <hlm-alert-dialog-footer>
                 <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                 <button hlmAlertDialogAction (click)="flashDlg.close(); launchFlash()">
+                  <app-glyph name="flash" size="xs" untinted />
                   {{ t('flash.confirm') }}
                 </button>
               </hlm-alert-dialog-footer>
@@ -183,7 +184,7 @@
         </hlm-alert-dialog>
         <p class="text-center text-xs text-muted-foreground">
           @if (ownedFlashes() === 0 && flashMissing() > 0) {
-            {{ t('flash.missing', { count: flashMissing() }) }}
+            <app-coin-text [text]="t('flash.missing', { count: flashMissing() })" />
           } @else {
             {{ t('flash.sendNowHint') }}
           }

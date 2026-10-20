@@ -123,7 +123,7 @@
             variant="secondary"
             class="ml-auto tabular-nums"
             [attr.aria-label]="t('coins.balanceAria', { count: authService.currentUser()?.coins ?? 0 })"
-          >🪙 {{ authService.currentUser()?.coins ?? 0 }}</span>
+          ><app-coin />{{ authService.currentUser()?.coins ?? 0 }}</span>
         </button>
         <button
           hlmBtn

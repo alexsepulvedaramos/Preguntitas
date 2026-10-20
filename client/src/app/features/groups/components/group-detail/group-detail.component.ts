@@ -45,6 +45,9 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 import { MonthlySummaryViewerComponent } from '../monthly-summary/monthly-summary-viewer.component';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { MonthlySummaryListItem } from '../../../../core/models/monthly-summary.model';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinComponent } from '../../../../shared/components/coin/coin.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -80,6 +83,8 @@ const ADVANCE_DELAY_MS = 1500;
 @Component({
   selector: 'app-group-detail',
   imports: [
+    GlyphComponent,
+    CoinTextComponent,
     RouterLink,
     HlmButtonImports,
     HlmSkeletonImports,
@@ -351,7 +356,7 @@ export class GroupDetailComponent implements OnInit {
     if (guess.state !== 'pending') this.scheduleAdvance();
   }
 
-  // "+8 🪙" after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
+  // "+8" with the coin after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
   // the daily cap is full.
   announceCoins(coins: CoinsEarned | undefined) {
     if (!coins) return;
@@ -359,7 +364,9 @@ export class GroupDetailComponent implements OnInit {
     const capNote = coins.capReached
       ? this.t('coins.capReachedDescription', { cap: COIN_DAILY_CAP })
       : undefined;
-    if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
+    if (coins.earned > 0) {
+      toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote, icon: CoinComponent });
+    }
     else if (coins.capReached) toast(this.t('coins.capReachedToast'), { description: capNote });
   }
 

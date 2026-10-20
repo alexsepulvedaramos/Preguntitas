@@ -107,7 +107,7 @@
         class="flex w-full items-center gap-3 rounded-default border border-primary/30 bg-primary/10 px-4 py-3 text-left transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         (click)="showSummary(month)"
       >
-        <span class="text-2xl" aria-hidden="true">🎉</span>
+        <app-glyph name="celebrate" size="md" />
         <span class="min-w-0 flex-1">
           <span class="block text-sm font-semibold text-foreground">{{ t('monthlySummary.readyTitle') }}</span>
           <span class="block text-xs text-muted-foreground">{{ t('monthlySummary.readyText') }}</span>
@@ -125,14 +125,14 @@
           <div hlmAlertDescription>
             <p>{{ t('groupDetail.lostStreakText', { best: daily()!.myStreak.best }) }}</p>
             @if (daily()!.myStreak.repairableStreak) {
-              <p>{{ t('streakFreeze.repairHint', { price: daily()!.myStreak.repairPrice }) }}</p>
+              <p><app-coin-text [text]="t('streakFreeze.repairHint', { price: daily()!.myStreak.repairPrice })" /></p>
               <button
                 hlmBtn
                 size="sm"
                 class="mt-2 focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="repairStreak()"
               >
-                {{ t('streakFreeze.repair', { price: daily()!.myStreak.repairPrice }) }}
+                <app-coin-text [text]="t('streakFreeze.repair', { price: daily()!.myStreak.repairPrice })" />
               </button>
             }
           </div>
@@ -195,7 +195,7 @@
     @if (daily()?.selection; as sel) {
       @if (sel.isCurrentUserSelector) {
         <div class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5">
-          <span class="text-lg" aria-hidden="true">🎯</span>
+          <app-glyph name="target" size="sm" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-foreground">
               {{ sel.isAutoSelected ? t('groupDetail.yourTurnTitle') : t('groupDetail.pickedTitle') }}
@@ -219,10 +219,12 @@
       } @else if (sel.raceOpen) {
         <!-- Race to select (§17.5): nobody chose 10 minutes before T, so anyone may -->
         <div class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5">
-          <span class="text-lg" aria-hidden="true">⏱️</span>
+          <app-glyph name="race" size="sm" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-foreground">{{ t('groupDetail.raceTitle') }}</p>
-            <p class="text-xs text-muted-foreground">{{ t('groupDetail.raceText', { coins: raceReward }) }}</p>
+            <p class="text-xs text-muted-foreground">
+              <app-coin-text [text]="t('groupDetail.raceText', { coins: raceReward })" />
+            </p>
           </div>
           <app-select-question-dialog
             [groupId]="numericGroupId()"
@@ -265,7 +267,7 @@
               (click)="goTo(card.key)"
             >
               @if (card.flash; as flash) {
-                <span aria-hidden="true">⚡</span>
+                <app-glyph name="flash" size="xs" untinted />
                 <span class="truncate">{{ flash.launchedBy.username }}</span>
               } @else {
                 {{ t('flash.dailyTab') }}
@@ -296,7 +298,7 @@
           class="flex items-center gap-2 rounded-xl border border-amber-500/60 bg-amber-400/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-amber-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           (click)="goTo(next.key)"
         >
-          <span class="text-lg" aria-hidden="true">⚡</span>
+          <app-glyph name="flash" size="sm" />
           <span class="min-w-0 flex-1">{{ t('flash.pendingCount', { count: pendingCount() }) }}</span>
           <ng-icon hlm name="lucideChevronRight" />
         </button>

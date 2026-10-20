@@ -68,6 +68,8 @@ public class ChatService(AppDbContext context, INotificationService notification
             .OrderByDescending(d => d.Date)
             .FirstOrDefaultAsync();
 
+    private static readonly (string Emoji, string Glyph)[] LegacyEmojiGlyphs = [("🔥 ", "streak"), ("🎉 ", "celebrate")];
+
     private async Task<IEnumerable<ChatMessageDto>> BuildMessageDtosAsync(int dailyEntryId, int currentUserId)
     {
         var messages = await context.ChatMessages
@@ -90,10 +92,25 @@ public class ChatService(AppDbContext context, INotificationService notification
             })
             .ToListAsync();
 
-        // Streak messages are written in the reader's language (rama 24).
+        // Streak messages are written in the reader's language (rama 24), with their glyph.
         var language = ContentTranslations.RequestLanguage;
         foreach (var m in messages.Where(m => m.StreakUsername != null && m.StreakDays != null))
+        {
             m.Dto.Body = StreakTiers.ChatMessage(language, m.StreakUsername!, m.StreakDays!.Value) ?? m.Dto.Body;
+            m.Dto.Glyph = StreakTiers.ChatGlyph(m.StreakDays!.Value);
+        }
+
+        // Older system messages were stored with a leading emoji: show its glyph instead.
+        foreach (var m in messages.Where(m => m.Dto.IsSystem && m.Dto.Glyph == null))
+        {
+            foreach (var (emoji, glyph) in LegacyEmojiGlyphs)
+            {
+                if (!m.Dto.Body.StartsWith(emoji, StringComparison.Ordinal)) continue;
+                m.Dto.Body = m.Dto.Body[emoji.Length..];
+                m.Dto.Glyph = glyph;
+                break;
+            }
+        }
 
         return messages.Select(m => m.Dto);
     }

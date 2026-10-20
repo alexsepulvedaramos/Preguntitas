@@ -29,11 +29,11 @@
           </div>
           <ul hlmCardContent class="flex flex-col gap-3">
             @for (item of release.items; track item.title) {
-              <li class="grid grid-cols-[1.75rem_1fr] gap-2 items-start">
-                <span class="text-lg leading-6" aria-hidden="true">{{ item.emoji }}</span>
+              <li class="grid grid-cols-[2.25rem_1fr] gap-3 items-start">
+                <app-glyph [name]="item.glyph" size="md" />
                 <div class="flex flex-col">
                   <span class="font-semibold text-foreground">{{ item.title }}</span>
-                  <span class="text-muted-foreground">{{ item.text }}</span>
+                  <span class="text-muted-foreground"><app-coin-text [text]="item.text" /></span>
                 </div>
               </li>
             }

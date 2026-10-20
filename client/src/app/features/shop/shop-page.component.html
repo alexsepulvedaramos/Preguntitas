@@ -16,10 +16,10 @@
           class="font-display text-5xl italic tabular-nums text-foreground"
           [attr.aria-label]="t('coins.balanceAria', { count: balance() })"
         >
-          <span aria-hidden="true">🪙 {{ balance() }}</span>
+          <span class="inline-flex items-center gap-3" aria-hidden="true"><app-coin />{{ balance() }}</span>
         </span>
         <p class="text-sm text-muted-foreground text-balance">{{ t('coins.howToEarn') }}</p>
-        <p class="text-xs text-muted-foreground">{{ t('coins.dailyCap', { cap: dailyCap }) }}</p>
+        <p class="text-xs text-muted-foreground"><app-coin-text [text]="t('coins.dailyCap', { cap: dailyCap })" /></p>
       </div>
     </section>
 
@@ -35,7 +35,7 @@
       <div hlmItemGroup class="gap-2">
         @for (entry of shopItems(); track entry.item) {
           <div hlmItem variant="outline">
-            <div hlmItemMedia class="text-2xl" aria-hidden="true">{{ entry.emoji }}</div>
+            <div hlmItemMedia><app-glyph [name]="entry.glyph" size="lg" /></div>
             <div hlmItemContent class="gap-2">
               <div hlmItemTitle>{{ entry.name }}</div>
               <p hlmItemDescription class="line-clamp-none">{{ entry.text }}</p>
@@ -46,7 +46,7 @@
                   aria-live="polite"
                 >
                   @if (entry.missing > 0) {
-                    {{ t('inventory.notEnough', { count: entry.missing }) }}
+                    <app-coin-text [text]="t('inventory.notEnough', { count: entry.missing })" />
                   } @else {
                     {{ t('inventory.owned', { count: entry.owned }) }}
                   }
@@ -63,20 +63,21 @@
                     @if (busy() === entry.item) {
                       <hlm-spinner class="size-4" />
                     }
-                    {{ t('inventory.buy', { price: entry.price }) }}
+                    <app-coin-text [text]="t('inventory.buy', { price: entry.price })" />
                   </button>
                   <ng-template hlmAlertDialogPortal>
                     <hlm-alert-dialog-content>
                       <hlm-alert-dialog-header>
                         <h3 hlmAlertDialogTitle>
-                          {{ t('inventory.confirmTitle', { name: entry.name, price: entry.price }) }}
+                          <app-coin-text [text]="t('inventory.confirmTitle', { name: entry.name, price: entry.price })" />
                         </h3>
                         <p hlmAlertDialogDescription>{{ t('inventory.confirmText') }}</p>
                       </hlm-alert-dialog-header>
                       <hlm-alert-dialog-footer>
                         <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
                         <button hlmAlertDialogAction (click)="buyDlg.close(); buy(entry.item)">
-                          {{ entry.emoji }} {{ t('inventory.confirm') }}
+                          <app-glyph [name]="entry.glyph" size="xs" untinted />
+                          {{ t('inventory.confirm') }}
                         </button>
                       </hlm-alert-dialog-footer>
                     </hlm-alert-dialog-content>
@@ -265,12 +266,14 @@
                       @if (cosmeticBusy() === item.key) {
                         <hlm-spinner class="size-4" />
                       }
-                      {{ t('shop.buy', { price: item.price }) }}
+                      <app-coin-text [text]="t('shop.buy', { price: item.price })" />
                     </button>
                     <ng-template hlmAlertDialogPortal>
                       <hlm-alert-dialog-content>
                         <hlm-alert-dialog-header>
-                          <h3 hlmAlertDialogTitle>{{ t('shop.confirmTitle', { name: item.label, price: item.price }) }}</h3>
+                          <h3 hlmAlertDialogTitle>
+                            <app-coin-text [text]="t('shop.confirmTitle', { name: item.label, price: item.price })" />
+                          </h3>
                           <p hlmAlertDialogDescription>{{ t('shop.confirmText') }}</p>
                         </hlm-alert-dialog-header>
                         <hlm-alert-dialog-footer>
@@ -283,7 +286,9 @@
                     </ng-template>
                   </hlm-alert-dialog>
                   @if (item.missing > 0) {
-                    <span class="text-xs tabular-nums text-muted-foreground">{{ t('shop.notEnough', { count: item.missing }) }}</span>
+                    <span class="text-xs tabular-nums text-muted-foreground">
+                      <app-coin-text [text]="t('shop.notEnough', { count: item.missing })" />
+                    </span>
                   }
                 }
               </div>
@@ -303,7 +308,7 @@
         <div hlmItemGroup class="gap-2">
           @for (row of rows(); track row.id) {
             <div hlmItem variant="muted" size="sm">
-              <div hlmItemMedia class="text-xl" aria-hidden="true">{{ row.emoji }}</div>
+              <div hlmItemMedia><app-glyph [name]="row.glyph" size="md" /></div>
               <div hlmItemContent>
                 <div hlmItemTitle>{{ row.label }}</div>
                 <p hlmItemDescription>
@@ -315,7 +320,7 @@
                 [class.text-primary]="row.amount > 0"
                 [class.text-destructive]="row.amount < 0"
               >
-                {{ row.amount > 0 ? '+' : '' }}{{ row.amount }} 🪙
+                <span class="inline-flex items-center gap-1">{{ row.amount > 0 ? '+' : '' }}{{ row.amount }}<app-coin /></span>
               </div>
             </div>
           }

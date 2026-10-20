@@ -48,6 +48,7 @@ import {
   demoResult,
   demoStreakUpdate,
 } from './demo-content';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 
 // Public /demo walkthrough (rama 25): one simulated day in a fictional group, built from
 // the real voting, results, avatar and celebration components fed with mock data — no
@@ -55,6 +56,7 @@ import {
 @Component({
   selector: 'app-demo-page',
   imports: [
+    GlyphComponent,
     FormsModule,
     RouterLink,
     NgIcon,

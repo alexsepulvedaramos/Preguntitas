@@ -124,7 +124,7 @@
                 <app-user-name [name]="member.username" [look]="member.look" />
                 @if (member.currentStreak > 0) {
                   <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="t('settings.streakLabel', { count: member.currentStreak })">
-                    🔥 {{ member.currentStreak }}
+                    <app-glyph name="streak" size="xs" bare />{{ member.currentStreak }}
                   </span>
                 }
               </span>

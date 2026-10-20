@@ -848,6 +848,57 @@
   .dark .vp-name--lime { color: var(--color-lime-300); }
 
   /*
+   * The app's own glyph set (GlyphComponent): a Lucide icon on a soft tile, in one of four
+   * tones built from the palette tokens so every shop theme recolours them. Replaces emoji.
+   */
+  .vp-glyph {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 32%;
+    background: var(--vp-glyph-bg, transparent);
+    color: var(--vp-glyph-fg, currentColor);
+  }
+  .vp-glyph--bare { background: transparent; }
+  .vp-glyph--sage {
+    --vp-glyph-bg: color-mix(in oklch, var(--primary) 14%, transparent);
+    --vp-glyph-fg: var(--primary);
+  }
+  .vp-glyph--lime {
+    --vp-glyph-bg: color-mix(in oklch, var(--accent) 32%, transparent);
+    --vp-glyph-fg: color-mix(in oklch, var(--accent) 50%, black);
+  }
+  .dark .vp-glyph--lime {
+    --vp-glyph-bg: color-mix(in oklch, var(--accent) 16%, transparent);
+    --vp-glyph-fg: var(--accent);
+  }
+  .vp-glyph--sand {
+    --vp-glyph-bg: var(--sand);
+    --vp-glyph-fg: var(--sand-foreground);
+  }
+  .vp-glyph--frost {
+    --vp-glyph-bg: color-mix(in oklch, var(--group-6) 20%, transparent);
+    --vp-glyph-fg: color-mix(in oklch, var(--group-6) 62%, black);
+  }
+  .dark .vp-glyph--frost {
+    --vp-glyph-bg: color-mix(in oklch, var(--group-6) 22%, transparent);
+    --vp-glyph-fg: color-mix(in oklch, var(--group-6) 55%, white);
+  }
+
+  /* The coin (CoinComponent): the logo's question mark in sage on soft gold. Fixed colours,
+     not theme tokens: gold reads as "coin" on every theme, light or dark. */
+  .vp-coin {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.14em;
+  }
+  .vp-coin__face { fill: oklch(0.86 0.12 88); }
+  .vp-coin__rim { fill: none; stroke: oklch(0.62 0.12 75); stroke-width: 1.5; }
+  .vp-coin__mark { fill: oklch(0.4 0.1 148); }
+
+  /*
    * Streak celebration scene (rama 19). Deliberately dark in both themes: the frames and
    * particles read best on black. --c-a / --c-b come from the tier's frame colours.
    */

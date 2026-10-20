@@ -210,7 +210,7 @@
         <section class="vp-demo-step flex flex-col gap-6" aria-labelledby="demo-final-title">
           <div class="flex flex-col gap-2 text-center">
             <h1 id="demo-final-title" class="font-display text-3xl italic tracking-tight text-foreground">
-              👑 {{ t('demo.final.title') }}
+              <app-glyph name="crown" size="md" class="mr-1 align-middle" />{{ t('demo.final.title') }}
             </h1>
             <p class="text-muted-foreground">{{ t('demo.final.text', { name: lostStreak.username, days: lostStreak.days }) }}</p>
           </div>
@@ -237,7 +237,9 @@
                     }
                   </span>
                   @if (m.currentStreak > 0) {
-                    <span class="shrink-0 text-sm font-semibold tabular-nums text-foreground">🔥 {{ m.currentStreak }}</span>
+                    <span class="flex shrink-0 items-center gap-1 text-sm font-semibold tabular-nums text-foreground">
+                      <app-glyph name="streak" size="xs" bare />{{ m.currentStreak }}
+                    </span>
                   }
                 </li>
               }

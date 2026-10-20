@@ -16,6 +16,8 @@ import { APP_VERSION } from '../../core/releases/releases';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { ResultsShowcaseComponent } from '../auth/components/showcase/results-showcase.component';
 import { InfoPageNav } from './info-page-nav';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../shared/components/glyph/glyphs';
 
 interface TypeExample {
   type: QuestionType;
@@ -28,6 +30,7 @@ interface TypeExample {
 @Component({
   selector: 'app-about-page',
   imports: [
+    GlyphComponent,
     RouterLink,
     NgIcon,
     HlmButtonImports,
@@ -48,11 +51,11 @@ export class AboutPageComponent {
   protected readonly typeLabels = QUESTION_TYPE_LABELS;
   protected readonly typeBadge = QUESTION_TYPE_BADGE_CLASS;
 
-  protected readonly steps: { emoji: string; title: TranslationKey; text: TranslationKey }[] = [
-    { emoji: '🕘', title: 'about.step1Title', text: 'about.step1Text' },
-    { emoji: '🗳️', title: 'about.step2Title', text: 'about.step2Text' },
-    { emoji: '🎲', title: 'about.step3Title', text: 'about.step3Text' },
-    { emoji: '💬', title: 'about.step4Title', text: 'about.step4Text' },
+  protected readonly steps: { glyph: GlyphName; title: TranslationKey; text: TranslationKey }[] = [
+    { glyph: 'clock', title: 'about.step1Title', text: 'about.step1Text' },
+    { glyph: 'vote', title: 'about.step2Title', text: 'about.step2Text' },
+    { glyph: 'dice', title: 'about.step3Title', text: 'about.step3Text' },
+    { glyph: 'chat', title: 'about.step4Title', text: 'about.step4Text' },
   ];
 
   protected readonly types: TypeExample[] = [

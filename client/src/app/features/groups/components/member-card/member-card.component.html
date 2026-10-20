@@ -28,7 +28,7 @@
       <p class="text-xs text-muted-foreground">
         {{ frameLabel(head.currentStreak) }}
         @if (!allGroups() && head.hasCrown) {
-          · {{ t('memberCard.bestInGroup') }}
+          · <app-glyph name="crown" size="xs" bare class="align-middle" /> {{ t('memberCard.bestInGroup') }}
         }
       </p>
 
@@ -61,7 +61,7 @@
               @if (ownedFreezes() > 0) {
                 {{ t('streakFreeze.giftConfirmOwned', { name: head.username, count: ownedFreezes() }) }}
               } @else {
-                {{ t('streakFreeze.giftConfirm', { name: head.username, price: freezePrice }) }}
+                <app-coin-text [text]="t('streakFreeze.giftConfirm', { name: head.username, price: freezePrice })" />
               }
             </p>
             <div class="flex gap-2">
@@ -69,7 +69,8 @@
                 {{ t('common.cancel') }}
               </button>
               <button hlmBtn class="flex-1 gap-2" (click)="giftFreeze()">
-                🎁 {{ t('streakFreeze.giftConfirmAction') }}
+                <app-glyph name="gift" size="xs" untinted />
+                {{ t('streakFreeze.giftConfirmAction') }}
               </button>
             </div>
           </div>
@@ -85,9 +86,11 @@
               <hlm-spinner class="size-4" />
             }
             @if (ownedFreezes() > 0) {
-              🎁 {{ t('inventory.giftOwned', { count: ownedFreezes() }) }}
+              <app-glyph name="gift" size="xs" untinted />
+              {{ t('inventory.giftOwned', { count: ownedFreezes() }) }}
             } @else {
-              🎁 {{ t('streakFreeze.gift', { price: freezePrice }) }}
+              <app-glyph name="gift" size="xs" untinted />
+              <app-coin-text [text]="t('streakFreeze.gift', { price: freezePrice })" />
             }
           </button>
         }
@@ -104,7 +107,9 @@
   <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3">
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
       <dt class="text-xs text-muted-foreground">{{ t('memberCard.currentStreak') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">🔥 {{ s.currentStreak }}</dd>
+      <dd class="flex items-center gap-1 text-lg font-bold text-foreground tabular-nums">
+        <app-glyph name="streak" size="xs" bare />{{ s.currentStreak }}
+      </dd>
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
       <dt class="text-xs text-muted-foreground">{{ t('memberCard.bestStreak') }}</dt>
@@ -128,7 +133,9 @@
     </div>
     <div class="flex flex-col rounded-lg bg-card px-3 py-2 ring-1 ring-border/60">
       <dt class="text-xs text-muted-foreground">{{ t('memberCard.guesses') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">🕵️ {{ s.guessesCorrect }}/{{ s.guessesMade }}</dd>
+      <dd class="flex items-center gap-1 text-lg font-bold text-foreground tabular-nums">
+        <app-glyph name="guess" size="xs" bare />{{ s.guessesCorrect }}/{{ s.guessesMade }}
+      </dd>
     </div>
   </dl>
 </ng-template>
