@@ -3,6 +3,8 @@ import type { Translation } from '../translation.types';
 // German UI copy (informal "du", like the Spanish "tú"). Must match es.ts key for key.
 export const de: Translation = {
   common: {
+    showPassword: 'Passwort anzeigen',
+    hidePassword: 'Passwort verbergen',
     language: 'Sprache',
     close: 'Schließen',
     notNow: 'Jetzt nicht',

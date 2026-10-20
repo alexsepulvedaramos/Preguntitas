@@ -34,10 +34,10 @@
               <span
                 class="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums bg-warning/15 text-warning border border-warning/40"
                 [attr.title]="t('groups.card.streakAtStake', { count: streak })"
-                [attr.aria-label]="t('groups.card.streakAtStake', { count: streak })"
               >
                 <ng-icon hlm name="lucideFlame" size="xs" aria-hidden="true" />
                 <span aria-hidden="true">{{ streak }}</span>
+                <span class="sr-only">{{ t('groups.card.streakAtStake', { count: streak }) }}</span>
               </span>
             }
           }

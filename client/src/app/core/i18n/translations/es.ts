@@ -4,6 +4,8 @@
 // carry <strong>/<em> markup.
 export const es = {
   common: {
+    showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
     language: 'Idioma',
     close: 'Cerrar',
     notNow: 'Ahora no',

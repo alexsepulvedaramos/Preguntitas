@@ -3,6 +3,8 @@ import type { Translation } from '../translation.types';
 // English UI copy. Must match es.ts key for key (the type enforces it).
 export const en: Translation = {
   common: {
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
     language: 'Language',
     close: 'Close',
     notNow: 'Not now',

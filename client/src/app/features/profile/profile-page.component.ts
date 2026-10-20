@@ -103,6 +103,7 @@ export class ProfilePageComponent implements OnInit {
   protected readonly passwordError = signal<string | null>(null);
   protected readonly showCurrentPassword = signal(false);
   protected readonly showNewPassword = signal(false);
+  protected readonly showConfirmPassword = signal(false);
 
   protected readonly notifPrefs = signal<NotificationPreferences>({
     newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
