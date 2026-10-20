@@ -603,6 +603,7 @@ export const es = {
     streakLabel: { one: 'Racha de {count} día', other: 'Racha de {count} días' },
     admin: 'Administrador',
     makeAdmin: 'Hacer administrador',
+    memberActions: 'Acciones para {name}',
     transferTitle: '¿Transferir administración?',
     transferText: '{name} pasará a ser el administrador del grupo. Tú perderás los privilegios de administración.',
     transfer: 'Transferir',

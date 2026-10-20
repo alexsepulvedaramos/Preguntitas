@@ -602,6 +602,7 @@ export const en: Translation = {
     streakLabel: { one: '{count}-day streak', other: '{count}-day streak' },
     admin: 'Admin',
     makeAdmin: 'Make admin',
+    memberActions: 'Actions for {name}',
     transferTitle: 'Transfer admin rights?',
     transferText: '{name} will become the group admin. You’ll lose your admin rights.',
     transfer: 'Transfer',

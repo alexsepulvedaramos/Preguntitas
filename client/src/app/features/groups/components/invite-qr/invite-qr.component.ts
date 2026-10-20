@@ -40,13 +40,11 @@ interface QrMatrix {
           } @else {
             <span hlmSkeleton class="block size-full"></span>
           }
-          <span
-            class="absolute end-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full bg-foreground/80 text-background opacity-80 transition-opacity group-hover:opacity-100"
-          >
-            <ng-icon hlm name="lucideMaximize2" size="xs" />
-          </span>
         </span>
-        <span class="text-xs text-muted-foreground">{{ t('groups.invite.qrHint') }}</span>
+        <!-- The enlarge cue sits under the code, never on it (it hid a corner of the QR) -->
+        <span class="inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-foreground">
+          <ng-icon hlm name="lucideMaximize2" size="xs" />{{ t('groups.invite.qrHint') }}
+        </span>
       </button>
 
       <hlm-dialog-content

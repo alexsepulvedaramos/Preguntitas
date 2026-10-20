@@ -21,6 +21,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideChevronRight,
+  lucideEllipsis,
   lucideCopy,
   lucideRefreshCw,
   lucideShield,
@@ -43,10 +44,11 @@ import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 
 @Component({
   selector: 'app-group-settings',
-  imports: [PageHeaderComponent, 
+  imports: [HlmDropdownMenuImports, PageHeaderComponent, 
     GlyphComponent,
     UserNameComponent,
     FormsModule,
@@ -67,6 +69,7 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
     provideIcons({
       lucideArrowLeft,
       lucideChevronRight,
+      lucideEllipsis,
       lucideCopy,
       lucideRefreshCw,
       lucideShield,

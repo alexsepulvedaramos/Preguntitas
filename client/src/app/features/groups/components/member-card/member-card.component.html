@@ -104,40 +104,45 @@
 </ng-template>
 
 <ng-template #grid let-s>
-  <dl class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.currentStreak') }}</dt>
-      <dd class="flex items-center gap-1 text-lg font-bold text-foreground tabular-nums">
-        <app-glyph name="streak" size="xs" bare />{{ s.currentStreak }}
-      </dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.bestStreak') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.bestStreak }}</dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.votes') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.totalVotes }}</dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.participation') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.participationPercent }}%</dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.timesSelector') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.timesSelector }}</dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.questionsCreated') }}</dt>
-      <dd class="text-lg font-bold text-foreground tabular-nums">{{ s.questionsCreated }}</dd>
-    </div>
-    <div class="flex flex-col rounded-default bg-card px-3 py-2 ring-1 ring-border/60">
-      <dt class="text-xs text-muted-foreground">{{ t('memberCard.guesses') }}</dt>
-      <dd class="flex items-center gap-1 text-lg font-bold text-foreground tabular-nums">
-        <app-glyph name="guess" size="xs" bare />{{ s.guessesCorrect }}/{{ s.guessesMade }}
-      </dd>
-    </div>
-  </dl>
+  <!-- Two headline numbers, then the rest as a compact list (UX audit) -->
+  <div class="flex flex-col gap-2">
+    <dl class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col rounded-default bg-card px-3 py-2.5 ring-1 ring-border/60">
+        <dt class="text-xs text-muted-foreground">{{ t('memberCard.currentStreak') }}</dt>
+        <dd class="flex items-center gap-1.5 font-display text-3xl italic text-foreground tabular-nums">
+          <app-glyph name="streak" size="sm" bare />{{ s.currentStreak }}
+        </dd>
+      </div>
+      <div class="flex flex-col rounded-default bg-card px-3 py-2.5 ring-1 ring-border/60">
+        <dt class="text-xs text-muted-foreground">{{ t('memberCard.participation') }}</dt>
+        <dd class="font-display text-3xl italic text-foreground tabular-nums">{{ s.participationPercent }}%</dd>
+      </div>
+    </dl>
+    <dl class="flex flex-col divide-y divide-border/60 rounded-default bg-card px-3 ring-1 ring-border/60">
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.bestStreak') }}</dt>
+        <dd class="text-sm font-semibold text-foreground tabular-nums">{{ s.bestStreak }}</dd>
+      </div>
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.votes') }}</dt>
+        <dd class="text-sm font-semibold text-foreground tabular-nums">{{ s.totalVotes }}</dd>
+      </div>
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.timesSelector') }}</dt>
+        <dd class="text-sm font-semibold text-foreground tabular-nums">{{ s.timesSelector }}</dd>
+      </div>
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.questionsCreated') }}</dt>
+        <dd class="text-sm font-semibold text-foreground tabular-nums">{{ s.questionsCreated }}</dd>
+      </div>
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.guesses') }}</dt>
+        <dd class="flex items-center gap-1 text-sm font-semibold text-foreground tabular-nums">
+          <app-glyph name="guess" size="xs" bare />{{ s.guessesCorrect }}/{{ s.guessesMade }}
+        </dd>
+      </div>
+    </dl>
+  </div>
 </ng-template>
 
 @if (isDesktop()) {
