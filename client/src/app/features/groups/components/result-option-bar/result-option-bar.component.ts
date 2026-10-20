@@ -6,24 +6,13 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { OptionResult, Voter } from '../../../../core/models/result.model';
 import { User } from '../../../../core/models/user.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
-import { isHexFrame } from '../../../../core/constants/streak-tiers';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 
-// Cycled by row index so categorical results (Custom Poll, Superlative, Secret Pairing,
-// Deathmatch) get a distinct tone per option. Scale leaves `index` unset (always chart-1) —
-// it's a single ordered distribution, not separate options, so varying the hue per bin
-// would be misleading.
-const CHART_COLORS = [
-  'bg-chart-1',
-  'bg-chart-2',
-  'bg-chart-3',
-  'bg-chart-4',
-  'bg-chart-5',
-  'bg-chart-6',
-];
+// Most voter faces shown inside a bar before collapsing into "+n".
+const MAX_FACES = 4;
 
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
 // its percentage, used by every per-type results component. Tapping a row with at least one
@@ -42,31 +31,34 @@ export class ResultOptionBarComponent {
   public readonly barWidth = input<number | null>(null);
   public readonly voters = input.required<Voter[]>();
   public readonly allResults = input<OptionResult[]>([]);
-  public readonly index = input<number>(0);
   public readonly leadUser = input<User | null>(null);
 
   protected readonly hasAnyVoters = computed(() =>
     this.allResults().some(r => r.voters.length > 0)
   );
-  protected readonly colorClass = computed(
-    () => CHART_COLORS[this.index() % CHART_COLORS.length],
-  );
+  // One brand colour for every result (§14 visual rules): the leading option(s) get the
+  // strong tint and the rest a soft one, so no option reads as "wrong" and themes recolour it.
+  protected readonly isLeader = computed(() => {
+    const max = Math.max(0, ...this.allResults().map(r => r.voteCount));
+    return max > 0 && this.voteCount() === max;
+  });
+  // Voter faces inside the bar: all of them up to 4; from 5 on, three and a "+n" chip.
+  protected readonly shownVoters = computed(() => {
+    const voters = this.voters();
+    return voters.length <= MAX_FACES ? voters : voters.slice(0, MAX_FACES - 1);
+  });
+  protected readonly extraVoters = computed(() => this.voters().length - this.shownVoters().length);
+  // Keeps the label clear of the faces: 24 px each, overlapping by 4, plus the 8 px inset.
+  protected readonly labelPaddingRight = computed(() => {
+    const chips = this.shownVoters().length + (this.extraVoters() > 0 ? 1 : 0);
+    return chips === 0 ? 16 : 8 + 24 + (chips - 1) * 20 + 8;
+  });
   protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
-  protected readonly chartColor = computed(
-    () => `var(--color-chart-${(this.index() % CHART_COLORS.length) + 1})`
-  );
 
   // Members' streak rings inside the group (rama 19) and the member card on tap.
   protected readonly groupStreaks = inject(GroupStreaksService);
   private readonly memberCard = inject(MemberCardService);
   protected readonly t = inject(I18nService).t;
-
-  // When leadUser has a fixed (hex) frame colour, use it as bar fill; otherwise fall back
-  // to the chart class ("streak"/"none" frames aren't colours).
-  protected readonly fillColor = computed(() => {
-    const frame = this.leadUser()?.frameColor;
-    return isHexFrame(frame) ? frame : null;
-  });
 
   openMemberCard(userId: number) {
     const groupId = this.groupStreaks.currentGroupId();

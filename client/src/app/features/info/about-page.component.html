@@ -1,11 +1,5 @@
 <div class="min-h-dvh flex flex-col bg-background">
-  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
-    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="nav.back()">
-      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
-      <span class="sr-only">{{ t('common.back') }}</span>
-    </button>
-    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('about.title') }}</h1>
-  </header>
+  <app-page-header [title]="t('about.title')" [backLabel]="t('common.back')" (back)="nav.back()" />
 
   <div class="flex flex-col gap-12 p-4 pb-12 max-w-2xl mx-auto w-full">
 
@@ -28,9 +22,7 @@
         @for (step of steps; track step.title; let i = $index) {
           <li hlmCard size="sm">
             <div hlmCardContent class="flex gap-4 items-start">
-              <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xl" aria-hidden="true">
-                {{ step.emoji }}
-              </span>
+              <app-glyph [name]="step.glyph" size="md" />
               <div class="flex flex-col gap-1 min-w-0">
                 <h3 class="font-semibold text-foreground">{{ i + 1 }}. {{ t(step.title) }}</h3>
                 <p class="text-muted-foreground">{{ t(step.text) }}</p>
@@ -48,9 +40,7 @@
         @for (item of types; track item.type) {
           <article hlmCard size="sm">
             <div hlmCardHeader>
-              <span class="w-fit rounded-full px-2.5 py-0.5 text-xs font-semibold" [class]="typeBadge[item.type]">
-                {{ t(typeLabels[item.type]) }}
-              </span>
+              <app-question-type-chip [type]="item.type" />
             </div>
             <div hlmCardContent class="flex flex-col gap-2">
               <p class="text-foreground">{{ t(item.how) }}</p>
@@ -67,7 +57,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div hlmCard size="sm">
           <div hlmCardHeader>
-            <h3 hlmCardTitle>{{ t('about.ownTitle') }}</h3>
+            <h3 hlmCardTitle class="flex items-center gap-2"><app-glyph name="write" size="sm" />{{ t('about.ownTitle') }}</h3>
           </div>
           <div hlmCardContent class="flex flex-col gap-2 text-muted-foreground">
             <p>{{ t('about.ownText') }}</p>
@@ -76,7 +66,7 @@
         </div>
         <div hlmCard size="sm">
           <div hlmCardHeader>
-            <h3 hlmCardTitle>{{ t('about.packsCardTitle') }}</h3>
+            <h3 hlmCardTitle class="flex items-center gap-2"><app-glyph name="pack" size="sm" />{{ t('about.packsCardTitle') }}</h3>
           </div>
           <p hlmCardContent class="text-muted-foreground">
             {{ t('about.packsText') }}
@@ -124,7 +114,9 @@
             <app-user-avatar username="bea" [frameColor]="frameStreak" [streak]="45" [crown]="true" size="xl" />
           </span>
           <div class="flex flex-col gap-2">
-            <h3 class="font-semibold text-foreground">{{ t('about.crownTitle') }}</h3>
+            <h3 class="flex items-center justify-center gap-2 font-semibold text-foreground sm:justify-start">
+              <app-glyph name="crown" size="sm" />{{ t('about.crownTitle') }}
+            </h3>
             <p class="text-muted-foreground">
               {{ t('about.crownText') }}
             </p>
@@ -137,7 +129,9 @@
 
       <div hlmCard size="sm">
         <div hlmCardContent class="flex flex-col gap-2">
-          <h3 class="font-semibold text-foreground">{{ t('about.freezeTitle') }}</h3>
+          <h3 class="flex items-center gap-2 font-semibold text-foreground">
+            <app-glyph name="freeze" size="sm" />{{ t('about.freezeTitle') }}
+          </h3>
           <p class="text-muted-foreground">
             {{ t('about.freezeText') }}
           </p>

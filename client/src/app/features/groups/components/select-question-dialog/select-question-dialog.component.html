@@ -3,23 +3,23 @@
     #triggerBtn
     hlmDialogTrigger
     hlmBtn
-    [variant]="isSelector() && !flash() ? 'default' : 'outline'"
+    [variant]="flash() ? 'outline' : 'default'"
     [class]="
       'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
       (flash()
-        ? 'border-amber-500/60 bg-amber-400/10 hover:bg-amber-400/20'
+        ? 'border-flash-border bg-flash/10 text-foreground hover:bg-flash/20'
         : isSelector()
           ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
-          : '')
+          : 'bg-primary text-primary-foreground hover:bg-primary-hover')
     "
     (click)="resetDialog()"
   >
     @if (flash()) {
-      <ng-icon hlm name="lucideZap" class="text-amber-500" />
+      <ng-icon hlm name="lucideZap" class="text-flash-foreground" />
       @if (ownedFlashes() > 0) {
         {{ t('flash.launchOwned', { count: ownedFlashes() }) }}
       } @else {
-        {{ t('flash.launch', { price: flashPrice }) }}
+        <app-coin-text [text]="t('flash.launch', { price: flashPrice })" />
       }
     } @else if (compact()) {
       @if (isSelector()) {
@@ -50,7 +50,7 @@
         class="font-display text-xl italic tracking-wider text-foreground"
       >
         @if (flash()) {
-          ⚡ {{ t('flash.launchTitle') }}
+          {{ t('flash.launchTitle') }}
         } @else if (step() === 'sources') {
           {{ t('picker.title') }}
         } @else if (step() === 'assign-teams') {
@@ -98,11 +98,7 @@
                       class="flex-1 font-display italic text-lg text-foreground leading-tight"
                       >{{ pending.text }}</span
                     >
-                    <span
-                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
-                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
-                      >{{ t(QUESTION_TYPE_LABELS[pending.type]) }}</span
-                    >
+                    <app-question-type-chip [type]="pending.type" class="mt-0.5" />
                   </span>
                   @if (
                     pending.type === QuestionType.CustomPoll &&
@@ -116,18 +112,14 @@
                 </button>
               } @else {
                 <div
-                  class="rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
+                  class="rounded-default border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
                 >
                   <span class="flex items-start gap-2">
                     <span
                       class="flex-1 font-display italic text-lg text-foreground leading-tight"
                       >{{ pending.text }}</span
                     >
-                    <span
-                      class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 mt-0.5"
-                      [class]="QUESTION_TYPE_BADGE_CLASS[pending.type]"
-                      >{{ t(QUESTION_TYPE_LABELS[pending.type]) }}</span
-                    >
+                    <app-question-type-chip [type]="pending.type" class="mt-0.5" />
                   </span>
                 </div>
               }
@@ -168,37 +160,29 @@
           <div class="flex flex-col gap-1.5">
             <p class="text-xs uppercase tracking-wide text-muted-foreground">{{ t('picker.filters') }}</p>
             <div class="flex gap-2">
-              <hlm-native-select
-                size="sm"
-                class="!flex-1"
-                selectClass="rounded-xl"
-                [attr.aria-label]="t('picker.filterType')"
-                [value]="typeFilterValue()"
-                (valueChange)="onTypeChange($event)"
-              >
-                <option hlmNativeSelectOption value="all">{{ t('picker.allTypes') }}</option>
-                @for (type of questionTypes; track type) {
-                  <option hlmNativeSelectOption [value]="type.toString()">
-                    {{ t(QUESTION_TYPE_LABELS[type]) }}
-                  </option>
-                }
-              </hlm-native-select>
-              <hlm-native-select
-                size="sm"
-                class="!flex-1"
-                selectClass="rounded-xl"
-                [attr.aria-label]="t('picker.filterSource')"
-                [value]="sourceFilterValue()"
-                (valueChange)="onSourceChange($event)"
-              >
-                <option hlmNativeSelectOption value="all">{{ t('picker.allSources') }}</option>
-                <option hlmNativeSelectOption value="pool">{{ t('picker.fromGroup') }}</option>
-                @for (pack of availablePacks(); track pack.id) {
-                  <option hlmNativeSelectOption [value]="pack.id.toString()">
-                    {{ pack.name }}
-                  </option>
-                }
-              </hlm-native-select>
+              <hlm-select class="min-w-0 flex-1" [value]="typeFilterValue()" [itemToString]="typeFilterLabel" (valueChange)="onTypeChange($event)">
+                <hlm-select-trigger size="sm" class="w-full rounded-default" [attr.aria-label]="t('picker.filterType')">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item value="all">{{ t('picker.allTypes') }}</hlm-select-item>
+                  @for (type of questionTypes; track type) {
+                    <hlm-select-item [value]="type.toString()">{{ t(QUESTION_TYPE_LABELS[type]) }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
+              <hlm-select class="min-w-0 flex-1" [value]="sourceFilterValue()" [itemToString]="sourceFilterLabel" (valueChange)="onSourceChange($event)">
+                <hlm-select-trigger size="sm" class="w-full rounded-default" [attr.aria-label]="t('picker.filterSource')">
+                  <hlm-select-value />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item value="all">{{ t('picker.allSources') }}</hlm-select-item>
+                  <hlm-select-item value="pool">{{ t('picker.fromGroup') }}</hlm-select-item>
+                  @for (pack of availablePacks(); track pack.id) {
+                    <hlm-select-item [value]="pack.id.toString()">{{ pack.name }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
             </div>
           </div>
 
@@ -217,11 +201,7 @@
                         <hlm-spinner class="size-4" />
                       }
                       <span class="flex-1">{{ item.text }}</span>
-                      <span
-                        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold shrink-0"
-                        [class]="QUESTION_TYPE_BADGE_CLASS[item.type]"
-                        >{{ t(QUESTION_TYPE_LABELS[item.type]) }}</span
-                      >
+                      <app-question-type-chip [type]="item.type" />
                     </span>
                     @if (
                       item.type === QuestionType.CustomPoll &&
@@ -238,7 +218,7 @@
                       hlmBtn
                       variant="ghost"
                       size="icon"
-                      class="size-8 shrink-0 text-destructive focus-visible:ring-2 focus-visible:ring-ring"
+                      class="size-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring"
                       [disabled]="deletingId() !== null"
                       (click)="delete(item)"
                       [attr.aria-label]="t('picker.deleteFromPool')"

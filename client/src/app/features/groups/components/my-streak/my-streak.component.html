@@ -3,21 +3,26 @@
   class="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border px-2.5 text-sm font-semibold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
   [class]="
     danger()
-      ? 'border-orange-500/40 bg-orange-500/20 text-orange-700 dark:text-orange-400'
+      ? 'border-warning/40 bg-warning/15 text-warning'
       : 'border-border bg-muted/60 text-foreground hover:bg-muted'
   "
   [attr.aria-label]="t('streakFreeze.chipAria', { count: streak().current, freezes: streak().freezes })"
   (click)="open.set(true)"
 >
-  <span aria-hidden="true">🔥 {{ streak().current }}</span>
+  <app-glyph name="streak" size="xs" [bare]="!danger()" [untinted]="danger()" />
+  <span aria-hidden="true">{{ streak().current }}</span>
   @if (streak().freezes > 0) {
-    <span class="text-xs font-medium opacity-80" aria-hidden="true">🧊{{ streak().freezes }}</span>
+    <span class="inline-flex items-center gap-0.5 text-xs font-medium opacity-80" aria-hidden="true">
+      <app-glyph name="freeze" size="xs" bare />{{ streak().freezes }}
+    </span>
   }
 </button>
 
 <ng-template #body>
   <div class="flex flex-col items-center gap-1 pt-1 text-center">
-    <p class="text-4xl font-bold tabular-nums text-foreground">🔥 {{ streak().current }}</p>
+    <p class="inline-flex items-center gap-2 font-display text-5xl italic tabular-nums text-foreground">
+      <app-glyph name="streak" size="lg" bare />{{ streak().current }}
+    </p>
     <p class="text-sm text-foreground">
       {{ streak().current > 0 ? t('common.days', { count: streak().current }) : t('streakFreeze.noStreak') }}
     </p>
@@ -25,25 +30,27 @@
       <p class="text-xs text-muted-foreground tabular-nums">{{ t('streakFreeze.best', { count: streak().best }) }}</p>
     }
     @if (danger()) {
-      <p class="mt-1 text-xs font-medium text-orange-700 dark:text-orange-400">{{ t('streakFreeze.inDanger') }}</p>
+      <p class="mt-1 text-xs font-medium text-warning">{{ t('streakFreeze.inDanger') }}</p>
     }
     <p class="mt-1 text-xs text-muted-foreground text-balance">
       @if (bonus() > 0) {
-        <span class="font-semibold text-foreground">{{ t('streakBonus.current', { count: bonus() }) }}</span>
+        <span class="font-semibold text-foreground"><app-coin-text [text]="t('streakBonus.current', { count: bonus() })" /></span>
         @if (nextBonus(); as next) {
           · {{ t('streakBonus.next', { count: next.coins, day: next.fromDay }) }}
         } @else {
           · {{ t('streakBonus.max') }}
         }
       } @else {
-        {{ t('streakBonus.none', { count: nextBonus()?.coins ?? 1, day: nextBonus()?.fromDay ?? 3 }) }}
+        <app-coin-text [text]="t('streakBonus.none', { count: nextBonus()?.coins ?? 1, day: nextBonus()?.fromDay ?? 3 })" />
       }
     </p>
   </div>
 
   @if (streak().repairableStreak) {
-    <div class="flex flex-col gap-2 rounded-xl bg-muted/50 p-3">
-      <p class="text-xs text-muted-foreground">{{ t('streakFreeze.repairHint', { price: streak().repairPrice }) }}</p>
+    <div class="flex flex-col gap-2 rounded-default bg-muted/50 p-3">
+      <p class="text-xs text-muted-foreground">
+        <app-coin-text [text]="t('streakFreeze.repairHint', { price: streak().repairPrice })" />
+      </p>
       <button
         hlmBtn
         [variant]="inventory().streakRepair > 0 ? 'default' : 'outline'"
@@ -55,9 +62,10 @@
           <hlm-spinner class="size-4" />
         }
         @if (inventory().streakRepair > 0) {
-          🔧 {{ t('inventory.use', { count: inventory().streakRepair }) }}
+          <app-glyph name="repair" size="xs" untinted />
+          {{ t('inventory.use', { count: inventory().streakRepair }) }}
         } @else {
-          {{ t('streakFreeze.repair', { price: streak().repairPrice }) }}
+          <app-coin-text [text]="t('streakFreeze.repair', { price: streak().repairPrice })" />
         }
       </button>
     </div>
@@ -67,12 +75,11 @@
     <p class="text-sm font-semibold text-foreground">{{ t('streakFreeze.dialogTitle') }}</p>
     <div class="flex gap-3" aria-hidden="true">
       @for (held of slots(); track $index) {
-        <span
-          class="flex size-12 items-center justify-center rounded-xl text-2xl"
-          [class]="held ? 'bg-primary/10 ring-1 ring-primary/30' : 'border-2 border-dashed border-border opacity-60'"
-        >
-          {{ held ? '🧊' : '' }}
-        </span>
+        @if (held) {
+          <app-glyph name="freeze" size="lg" />
+        } @else {
+          <span class="size-12 rounded-[32%] border-2 border-dashed border-border opacity-60"></span>
+        }
       }
     </div>
     <p class="text-sm text-foreground">
@@ -95,9 +102,10 @@
         <hlm-spinner class="size-4" />
       }
       @if (inventory().streakFreeze > 0) {
-        🧊 {{ t('inventory.use', { count: inventory().streakFreeze }) }}
+        <app-glyph name="freeze" size="xs" untinted />
+        {{ t('inventory.use', { count: inventory().streakFreeze }) }}
       } @else {
-        {{ t('streakFreeze.buy', { price: streak().freezePrice }) }}
+        <app-coin-text [text]="t('streakFreeze.buy', { price: streak().freezePrice })" />
       }
     </button>
     <p class="text-center text-xs text-muted-foreground" aria-live="polite">
@@ -106,9 +114,9 @@
       } @else if (inventory().streakFreeze > 0) {
         {{ t('inventory.confirmText') }}
       } @else if (missingCoins() > 0) {
-        {{ t('streakFreeze.notEnough', { count: missingCoins() }) }}
+        <app-coin-text [text]="t('streakFreeze.notEnough', { count: missingCoins() })" />
       } @else {
-        {{ t('streakFreeze.balance', { count: balance() }) }}
+        <app-coin-text [text]="t('streakFreeze.balance', { count: balance() })" />
       }
     </p>
   </div>

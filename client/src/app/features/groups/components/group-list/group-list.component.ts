@@ -9,10 +9,12 @@ import { JoinGroupDialogComponent } from '../join-group-dialog/join-group-dialog
 import { GroupCardComponent } from "../group-card/group-card.component";
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
+import { HlmEmptyImports } from '@spartan-ng/helm/empty';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 
 @Component({
   selector: 'app-group-list',
-  imports: [
+  imports: [HlmEmptyImports, GlyphComponent, 
     RouterLink,
     HlmSkeletonImports,
     CreateGroupDialogComponent,

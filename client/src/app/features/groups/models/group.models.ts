@@ -16,6 +16,8 @@ export interface GroupResponse {
     dailyStatus?: 'voting' | 'selector' | 'results' | 'no_question';
     // Your current streak in this group (group list only); 0 = none.
     myStreak?: number;
+    // Something new since you last opened the group (group list only, §16).
+    hasNewActivity?: boolean;
     // Set only on the update response: the daily time changed but today's question had
     // already activated, so the new time takes effect from the next cycle (§4.8).
     dailyTimeChangeAppliesFromTomorrow?: boolean;

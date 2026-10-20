@@ -16,6 +16,11 @@ public class GroupResponse
     // list, so the "Vota ahora" pill can say what's at stake.
     public int MyStreak { get; set; }
 
+    // Group list only: something happened since the caller last opened the group — others'
+    // chat messages, a new question still to vote, new votes on a question they answered, or
+    // their turn to pick (§16 unread-activity dot).
+    public bool HasNewActivity { get; set; }
+
     // Set only on the update response: true when DailyQuestionTime changed but today's
     // question had already activated, so the new time only takes effect next cycle (§4.8).
     // Lets the settings UI tell the admin "the change applies from tomorrow".

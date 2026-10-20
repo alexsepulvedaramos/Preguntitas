@@ -21,13 +21,18 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { GroupsService } from '../../services/groups.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 // Member detail card (rama 19): opened by tapping a member avatar inside a group, or from
 // the profile page for your own stats in every group. Spartan drawer on mobile, dialog on
 // desktop. Rendered once in the main layout and driven by MemberCardService.
 @Component({
   selector: 'app-member-card',
-  imports: [UserNameComponent, 
+  imports: [
+    CoinTextComponent,
+    GlyphComponent,
+    UserNameComponent,
     NgTemplateOutlet,
     HlmButtonImports,
     HlmDialogImports,

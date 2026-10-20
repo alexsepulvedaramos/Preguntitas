@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { EMPTY, forkJoin } from 'rxjs';
 import { catchError, exhaustMap, filter } from 'rxjs/operators';
 
@@ -9,7 +10,8 @@ import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight,
+  lucideEllipsis, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
 import { COIN_DAILY_CAP, CoinsEarned, FLASH_QUESTION_PRICE, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
@@ -24,7 +26,6 @@ import { OneTimeHintsService } from '../../../../core/services/one-time-hints.se
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { VoteComponent } from '../vote/vote.component';
 import { ResultsComponent } from '../results/results.component';
 import { CountdownComponent } from '../countdown/countdown.component';
@@ -46,10 +47,13 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 import { MonthlySummaryViewerComponent } from '../monthly-summary/monthly-summary-viewer.component';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { MonthlySummaryListItem } from '../../../../core/models/monthly-summary.model';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { CoinComponent } from '../../../../shared/components/coin/coin.component';
+import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
-// The streak chip turns orange when you haven't voted and the question closes within this
+// The streak chip turns to the warning colour when you haven't voted and the question closes within this
 // window (the default of the "racha en peligro" push, rama 19).
 const STREAK_DANGER_MS = 3 * 60 * 60 * 1000;
 
@@ -62,9 +66,6 @@ export interface DeckCard {
   flash: FlashState | null;
   pending: boolean; // not answered yet
 }
-
-// After answering, the next unanswered question slides in once the results have had a moment.
-const ADVANCE_DELAY_MS = 1500;
 
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
@@ -81,8 +82,11 @@ const ADVANCE_DELAY_MS = 1500;
 @Component({
   selector: 'app-group-detail',
   imports: [
+    GlyphComponent,
+    CoinTextComponent,
     RouterLink,
     HlmButtonImports,
+    HlmDropdownMenuImports,
     HlmSkeletonImports,
     HlmSpinnerImports,
     NgIcon,
@@ -118,7 +122,7 @@ export class GroupDetailComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly hints = inject(OneTimeHintsService);
   private readonly summaryService = inject(MonthlySummaryService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   protected readonly t = inject(I18nService).t;
   protected readonly raceReward = RACE_WON_REWARD;
 
@@ -180,7 +184,6 @@ export class GroupDetailComponent implements OnInit {
   });
 
   private readonly activeKey = signal<string | null>(null);
-  private advanceTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly activeIndex = computed(() =>
     Math.max(0, this.deck().findIndex((c) => c.key === this.activeKey())),
@@ -203,9 +206,11 @@ export class GroupDetailComponent implements OnInit {
     this.loadSummaries();
     this.startDailyPolling();
     const tick = setInterval(() => this.now.set(Date.now()), 60_000);
+    // Seen on the way in and on the way out, so what happened while you were here counts too.
+    this.groupsService.markSeen(this.numericGroupId());
     this.destroyRef.onDestroy(() => {
       clearInterval(tick);
-      this.cancelAdvance();
+      this.groupsService.markSeen(this.numericGroupId());
     });
   }
 
@@ -225,7 +230,6 @@ export class GroupDetailComponent implements OnInit {
   }
 
   goTo(key: string) {
-    this.cancelAdvance();
     this.activeKey.set(key);
   }
 
@@ -236,9 +240,9 @@ export class GroupDetailComponent implements OnInit {
 
   deckTabClass(card: DeckCard, active: boolean): string {
     if (active)
-      return card.flash ? 'bg-amber-400 text-neutral-950' : 'bg-primary text-primary-foreground';
+      return card.flash ? 'bg-flash text-flash-foreground' : 'bg-primary text-primary-foreground';
     return card.flash
-      ? 'bg-amber-400/15 text-foreground hover:bg-amber-400/25'
+      ? 'bg-flash/15 text-foreground hover:bg-flash/25'
       : 'bg-muted text-muted-foreground hover:bg-muted/70';
   }
 
@@ -274,23 +278,6 @@ export class GroupDetailComponent implements OnInit {
       ...daily,
       flashes: (daily.flashes ?? []).map((f) => (f.id === state.id ? state : f)),
     });
-    this.scheduleAdvance();
-  }
-
-  // Moves on to the next unanswered question, unless the user navigates first.
-  private scheduleAdvance() {
-    this.cancelAdvance();
-    if (!this.findNextPending()) return;
-    this.advanceTimer = setTimeout(() => {
-      this.advanceTimer = null;
-      const next = this.findNextPending();
-      if (next) this.activeKey.set(next.key);
-    }, ADVANCE_DELAY_MS);
-  }
-
-  private cancelAdvance() {
-    if (this.advanceTimer) clearTimeout(this.advanceTimer);
-    this.advanceTimer = null;
   }
 
   // The first unanswered card after the active one, wrapping around.
@@ -308,9 +295,6 @@ export class GroupDetailComponent implements OnInit {
     return this.t(QUESTION_TYPE_LABELS[type]);
   }
 
-  questionTypeBadgeClass(type: QuestionType): string {
-    return QUESTION_TYPE_BADGE_CLASS[type];
-  }
 
   // The backend already returns the fresh QuestionResultDto (plus the streak change) from
   // POST vote, so update the local state in place instead of re-fetching daily/current.
@@ -343,8 +327,8 @@ export class GroupDetailComponent implements OnInit {
 
     // If this user is the selector for the next question, auto-open the picker —
     // after the celebration when one is shown.
-    // "¿Quién la escribió?" is the next step after voting: only move on when it isn't waiting.
-    if (guess?.state !== 'pending') this.scheduleAdvance();
+    // Stay on the card you just answered so you see its results; the "1 question left" button
+    // points at the next one (UX audit: jumping away hid the results you'd just unlocked).
 
     const isSelector = !!daily.selection?.isCurrentUserSelector;
     if (streak.current > streak.previous) {
@@ -360,11 +344,10 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (!daily) return;
     this.daily.set({ ...daily, today: { ...daily.today, guess } });
-    if (guess.state !== 'pending') this.scheduleAdvance();
   }
 
-  // "+8 🪙" after voting (rama 34) or a right guess (rama 36), with the streak bonus apart
-  // (§17.15), or why nothing was earned when the daily cap is full.
+  // "+8" with the coin after voting (rama 34) or a right guess (rama 36), with the streak
+  // bonus apart (§17.15), or why nothing was earned when the daily cap is full.
   announceCoins(coins: CoinsEarned | undefined) {
     if (!coins) return;
     this.authService.patchCurrentUser({ coins: coins.balance });
@@ -372,9 +355,14 @@ export class GroupDetailComponent implements OnInit {
       ? this.t('coins.capReachedDescription', { cap: COIN_DAILY_CAP })
       : undefined;
     const streak = coins.streakBonus ?? 0;
-    if (streak > 0 && coins.earned > streak)
-      toast(this.t('coins.earnedWithStreakToast', { count: coins.earned - streak, streak }), { description: capNote });
-    else if (coins.earned > 0) toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote });
+    if (streak > 0 && coins.earned > streak) {
+      toast(this.t('coins.earnedWithStreakToast', { count: coins.earned - streak, streak }), {
+        description: capNote,
+        icon: CoinComponent,
+      });
+    } else if (coins.earned > 0) {
+      toast(this.t('coins.earnedToast', { count: coins.earned }), { description: capNote, icon: CoinComponent });
+    }
     else if (coins.capReached) toast(this.t('coins.capReachedToast'), { description: capNote });
   }
 
@@ -514,6 +502,12 @@ export class GroupDetailComponent implements OnInit {
 
   protected showSummary(month: string) {
     this.openSummary.set(month);
+  }
+
+  // Closing the banner counts as seen: it won't come back for this month on this device.
+  protected dismissSummary(month: string) {
+    this.summaryService.markSeen(this.numericGroupId(), month);
+    this.seenSummary.set(this.summaryService.lastSeen(this.numericGroupId()));
   }
 
   protected closeSummary() {

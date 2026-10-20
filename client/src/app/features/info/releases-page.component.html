@@ -1,11 +1,5 @@
 <div class="min-h-dvh flex flex-col bg-background">
-  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
-    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="nav.back()">
-      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
-      <span class="sr-only">{{ t('common.back') }}</span>
-    </button>
-    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('releases.title') }}</h1>
-  </header>
+  <app-page-header [title]="t('releases.title')" [backLabel]="t('common.back')" (back)="nav.back()" />
 
   <div class="flex flex-col gap-6 p-4 pb-12 max-w-2xl mx-auto w-full">
     <p class="pt-2 text-muted-foreground">
@@ -15,7 +9,15 @@
     <ol class="flex flex-col gap-4">
       @for (release of releases(); track release.version) {
         <li hlmCard size="sm" [attr.aria-labelledby]="'release-' + release.version">
-          <div hlmCardHeader class="flex flex-col gap-1">
+          <!-- Older versions start folded (UX audit: the page was ~13,000 px on a phone) -->
+          <button
+            type="button"
+            hlmCardHeader
+            class="flex w-full flex-col gap-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-default"
+            [attr.aria-expanded]="isOpen(release)"
+            [attr.aria-controls]="'release-items-' + release.version"
+            (click)="toggle(release)"
+          >
             <div class="flex flex-wrap items-center gap-2">
               <span hlmBadge variant="secondary">v{{ release.version }}</span>
               @if (release.isNew) {
@@ -23,21 +25,26 @@
               }
               <time class="text-xs text-muted-foreground" [attr.datetime]="release.date">{{ release.displayDate }}</time>
             </div>
-            <h2 [id]="'release-' + release.version" class="font-display text-xl italic tracking-tight text-foreground">
-              {{ release.title }}
-            </h2>
-          </div>
-          <ul hlmCardContent class="flex flex-col gap-3">
+            <span class="flex w-full items-center gap-2">
+              <h2 [id]="'release-' + release.version" class="min-w-0 flex-1 font-display text-xl italic tracking-tight text-foreground">
+                {{ release.title }}
+              </h2>
+              <ng-icon hlm name="lucideChevronDown" class="shrink-0 text-muted-foreground transition-transform" [class.rotate-180]="isOpen(release)" />
+            </span>
+          </button>
+          @if (isOpen(release)) {
+          <ul hlmCardContent [id]="'release-items-' + release.version" class="flex flex-col gap-3">
             @for (item of release.items; track item.title) {
-              <li class="grid grid-cols-[1.75rem_1fr] gap-2 items-start">
-                <span class="text-lg leading-6" aria-hidden="true">{{ item.emoji }}</span>
+              <li class="grid grid-cols-[2.25rem_1fr] gap-3 items-start">
+                <app-glyph [name]="item.glyph" size="md" />
                 <div class="flex flex-col">
                   <span class="font-semibold text-foreground">{{ item.title }}</span>
-                  <span class="text-muted-foreground">{{ item.text }}</span>
+                  <span class="text-muted-foreground"><app-coin-text [text]="item.text" /></span>
                 </div>
               </li>
             }
           </ul>
+          }
         </li>
       }
     </ol>

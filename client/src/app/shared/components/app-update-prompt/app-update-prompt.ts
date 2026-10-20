@@ -18,9 +18,9 @@ import { I18nService } from '../../../core/i18n/i18n.service';
   template: `
     @if (appUpdate.ready()) {
       <div class="fixed top-3 left-4 right-4 z-[60] sm:left-auto sm:right-4 sm:w-80" role="status" aria-live="polite">
-        <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-2xl">
+        <div class="flex flex-col gap-3 rounded-default border border-border bg-card p-4 shadow-2xl">
           <div class="flex items-start gap-3">
-            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <span class="flex size-10 shrink-0 items-center justify-center rounded-default bg-primary/10 text-primary-text">
               <ng-icon hlm name="lucideRefreshCw" size="20px" />
             </span>
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">

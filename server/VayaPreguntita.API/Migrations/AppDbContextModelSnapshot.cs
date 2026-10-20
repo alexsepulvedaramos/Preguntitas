@@ -343,6 +343,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("LastRepairMonth")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("LastSelectorRound")
                         .HasColumnType("integer");
 

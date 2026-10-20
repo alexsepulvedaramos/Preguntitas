@@ -9,5 +9,7 @@ public class ChatMessageDto
     public int? UserId { get; set; }
     public string? Username { get; set; }
     public bool IsSystem { get; set; }
+    // System messages only: the app glyph drawn before the text ("streak", "celebrate").
+    public string? Glyph { get; set; }
     public bool IsCurrentUser { get; set; }
 }

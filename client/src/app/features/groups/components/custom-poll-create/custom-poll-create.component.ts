@@ -7,6 +7,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideX } from '@ng-icons/lucide';
 
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 
 const MIN_OPTIONS = 2;
 const MAX_OPTIONS = 8;
@@ -15,7 +16,7 @@ const MAX_OPTIONS = 8;
 // min/max selections allowed per voter (single vs multi-select).
 @Component({
   selector: 'app-custom-poll-create',
-  imports: [HlmButtonImports, HlmFieldImports, HlmInputImports, NgIcon],
+  imports: [HlmCheckboxImports, HlmButtonImports, HlmFieldImports, HlmInputImports, NgIcon],
   providers: [provideIcons({ lucidePlus, lucideX })],
   templateUrl: './custom-poll-create.component.html',
 })

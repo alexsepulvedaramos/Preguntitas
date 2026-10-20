@@ -1,12 +1,14 @@
 @switch (guess().state) {
   @case ('pending') {
     <section
-      class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3"
+      class="flex flex-col gap-3 rounded-default border border-primary/30 bg-primary/5 p-3"
       [attr.aria-label]="t('guess.title')"
     >
       <div class="flex flex-col gap-0.5">
-        <p class="font-display text-lg italic text-foreground">🕵️ {{ t('guess.title') }}</p>
-        <p class="text-xs text-muted-foreground">{{ t('guess.subtitle', { coins: reward }) }}</p>
+        <p class="flex items-center gap-2 font-display text-lg italic text-foreground">
+          <app-glyph name="guess" size="sm" />{{ t('guess.title') }}
+        </p>
+        <p class="text-xs text-muted-foreground"><app-coin-text [text]="t('guess.subtitle', { coins: reward })" /></p>
       </div>
 
       <div class="flex flex-wrap gap-2" role="radiogroup" [attr.aria-label]="t('guess.title')">
@@ -14,22 +16,22 @@
           <button
             type="button"
             role="radio"
-            class="flex w-16 flex-col items-center gap-1 rounded-lg p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="flex w-16 flex-col items-center gap-1 rounded-default p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             [class]="selectedId() === m.id ? 'bg-primary/15 ring-2 ring-primary text-foreground' : 'text-muted-foreground hover:bg-muted'"
             [attr.aria-checked]="selectedId() === m.id"
             (click)="select(m.id)"
           >
             <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" size="sm" />
-            <span class="w-full truncate text-center">{{ m.username }}</span>
+            <span class="line-clamp-2 w-full break-words text-center leading-tight" [attr.title]="m.username">{{ m.username }}</span>
           </button>
         }
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <!-- One clear order (UX audit): guess (the action), hint (paid help), skip (a way out) -->
+      <div class="flex items-center gap-2">
         <button
           hlmBtn
-          size="sm"
-          class="focus-visible:ring-2 focus-visible:ring-ring"
+          class="flex-1 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="selectedId() === null || !!busy()"
           (click)="confirm()"
         >
@@ -38,25 +40,10 @@
           }
           {{ t('guess.confirm') }}
         </button>
-        <button
-          hlmBtn
-          size="sm"
-          variant="ghost"
-          class="focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="!!busy()"
-          (click)="skip()"
-        >
-          @if (busy() === 'skip') {
-            <hlm-spinner class="size-4" />
-          }
-          {{ t('guess.skip') }}
-        </button>
-        <span class="flex-1"></span>
         @if (guess().hintAvailable) {
           <button
             hlmBtn
-            size="sm"
-            [variant]="ownedHints() > 0 ? 'default' : 'outline'"
+            variant="outline"
             class="gap-1 focus-visible:ring-2 focus-visible:ring-ring"
             [disabled]="!!busy()"
             (click)="buyHint()"
@@ -69,19 +56,37 @@
             @if (ownedHints() > 0) {
               {{ t('inventory.use', { count: ownedHints() }) }}
             } @else {
-              {{ t('guess.hint', { price: guess().hintPrice }) }}
+              <app-coin-text [text]="t('guess.hint', { price: guess().hintPrice })" />
             }
           </button>
-        } @else if (guess().hintUsed) {
-          <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>
         }
+      </div>
+      <div class="flex items-center justify-between gap-2">
+        @if (guess().hintUsed) {
+          <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>
+        } @else {
+          <span></span>
+        }
+        <button
+          hlmBtn
+          size="sm"
+          variant="link"
+          class="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="!!busy()"
+          (click)="skip()"
+        >
+          @if (busy() === 'skip') {
+            <hlm-spinner class="size-4" />
+          }
+          {{ t('guess.skip') }}
+        </button>
       </div>
 
       @if (hintError(); as message) {
         <p class="text-xs text-destructive" aria-live="polite">
           {{ message }}
           @if (missingCoins() > 0) {
-            · {{ t('streakFreeze.notEnough', { count: missingCoins() }) }}
+            · <app-coin-text [text]="t('streakFreeze.notEnough', { count: missingCoins() })" />
           }
         </p>
       }
@@ -89,8 +94,8 @@
   }
 
   @case ('mine') {
-    <div class="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-      <span aria-hidden="true">✍️</span>
+    <div class="flex items-center gap-2 rounded-default border border-border bg-card px-3 py-2 text-sm">
+      <app-glyph name="write" size="sm" />
       <p class="min-w-0 flex-1 text-foreground">
         {{ t('guess.mine') }}
         <span class="text-muted-foreground">
@@ -108,7 +113,7 @@
   @default {
     @if (guess().author; as author) {
       <div
-        class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm"
+        class="flex items-center gap-2 rounded-default border px-3 py-2 text-sm"
         [class]="guess().correct ? 'border-primary/40 bg-primary/10' : 'border-border bg-card'"
         aria-live="polite"
       >
@@ -117,7 +122,7 @@
           @if (guess().state === 'skipped') {
             {{ t('guess.wroteIt', { name: author.username }) }}
           } @else if (guess().correct) {
-            🎉 {{ t('guess.right', { name: author.username }) }}
+            {{ t('guess.right', { name: author.username }) }}
           } @else {
             {{ t('guess.wrong', { name: author.username }) }}
             <span class="text-muted-foreground">· {{ t('guess.yourPick', { name: guessedName() }) }}</span>

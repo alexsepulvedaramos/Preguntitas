@@ -7,7 +7,8 @@ import {
   FrameLook,
   StreakTierKey,
   frameFollowsStreak,
-  isHexFrame,
+  frameColorVar,
+  isColorFrame,
   streakTierFor,
 } from '../../../core/constants/streak-tiers';
 import { ACCESSORY_ART, Look, ringSkinLook, seniorityStage } from '../../../core/constants/shop-catalog';
@@ -15,6 +16,12 @@ import { needsLightBackdrop } from '../../utils/avatar-backdrop';
 import { StreakFrameComponent } from '../streak-frame/streak-frame.component';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+// Accessories drawn across the middle of the face push the initials below or above them.
+const INITIALS_SHIFT: Record<string, string> = {
+  'acc-sunglasses': '42%',
+  'acc-moustache': '-38%',
+};
 
 @Component({
   selector: 'app-user-avatar',
@@ -28,23 +35,26 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
       <div
         class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
         [class]="sizeClass() + (lightBackdrop() ? ' bg-white' : ' bg-card')"
-        [style.box-shadow]="hexFrame() ? '0 0 0 3px ' + hexFrame() : null"
+        [style.box-shadow]="colorFrame() ? '0 0 0 3px ' + colorFrame() : null"
       >
         <hlm-avatar [class]="sizeClass()">
           @if (avatarUrl()) {
             <img hlmAvatarImage [src]="avatarUrl()!" [alt]="username() + ' avatar'" class="object-cover w-full h-full" />
           }
-          <span hlmAvatarFallback class="font-semibold bg-primary/15 text-primary" [class]="fallbackSizeClass()">
-            @if (initials()) {
-              {{ initials() }}
-            } @else {
-              ?
-            }
+          <span hlmAvatarFallback class="font-semibold bg-primary/15 text-primary-text" [class]="fallbackSizeClass()">
+            <!-- With an accessory, the initials step out of its way (UX audit T8) -->
+            <span class="inline-block" [style.transform]="initialsShift()">
+              @if (initials()) {
+                {{ initials() }}
+              } @else {
+                ?
+              }
+            </span>
           </span>
         </hlm-avatar>
       </div>
       @if (accessory()) {
-        <div class="absolute inset-0 z-[6] pointer-events-none" aria-hidden="true" [innerHTML]="accessory()"></div>
+        <div class="vp-accessory absolute inset-0 z-[6] pointer-events-none" aria-hidden="true" [innerHTML]="accessory()"></div>
       }
     </div>
   `,
@@ -54,7 +64,7 @@ export class UserAvatarComponent {
 
   readonly avatarUrl = input<string | null | undefined>(null);
   readonly username = input<string>('');
-  // A hex colour, 'streak' (or null: frame follows the streak tier), 'seniority' or 'none'.
+  // A palette colour key ('purple', …), 'streak' (or null: frame follows the streak tier), 'seniority' or 'none'.
   readonly frameColor = input<string | null | undefined>(null);
   // The member's streak in the current context (rama 19): their streak in the group
   // when shown inside one, their highest current streak outside. null = unknown.
@@ -76,9 +86,9 @@ export class UserAvatarComponent {
 
   protected readonly lightBackdrop = computed(() => needsLightBackdrop(this.avatarUrl()));
 
-  protected readonly hexFrame = computed(() => {
+  protected readonly colorFrame = computed(() => {
     const frame = this.frameColor();
-    return isHexFrame(frame) ? frame : null;
+    return isColorFrame(frame) ? frameColorVar(frame) : null;
   });
 
   protected readonly tier = computed<StreakTierKey | null>(() =>
@@ -93,11 +103,20 @@ export class UserAvatarComponent {
   });
 
   // The markup comes only from our own constants (ACCESSORY_ART), never from user input.
+  // Not on the two smallest sizes: at 24–32 px the art is only a smudge over the face.
   protected readonly accessory = computed<SafeHtml | null>(() => {
+    if (this.size() === 'xs' || this.size() === 'sm') return null;
     const art = ACCESSORY_ART[this.look()?.accessory ?? ''];
     return art
       ? this.sanitizer.bypassSecurityTrustHtml(`<svg viewBox="0 0 100 100" width="100%" height="100%">${art}</svg>`)
       : null;
+  });
+
+  // Where the initials move so the accessory doesn't cover them (no photo only).
+  protected readonly initialsShift = computed(() => {
+    if (this.avatarUrl() || !this.accessory()) return null;
+    const shift = INITIALS_SHIFT[this.look()?.accessory ?? ''];
+    return shift ? `translateY(${shift}) scale(0.85)` : null;
   });
 
   // Full frames (particles, ornaments) only where the avatar is big enough to show them.
@@ -116,7 +135,7 @@ export class UserAvatarComponent {
   })[this.size()]);
 
   protected readonly fallbackSizeClass = computed(() => ({
-    xs: 'text-[9px]',
+    xs: 'text-2xs',
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-lg',

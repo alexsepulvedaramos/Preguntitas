@@ -12,7 +12,7 @@ using VayaPreguntita.API.Data;
 namespace VayaPreguntita.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261020211135_RetireBadgesAndShopTitles")]
+    [Migration("20261020222338_RetireBadgesAndShopTitles")]
     partial class RetireBadgesAndShopTitles
     {
         /// <inheritdoc />
@@ -345,6 +345,9 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<int>("LastRepairMonth")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("LastSelectorRound")
                         .HasColumnType("integer");

@@ -29,24 +29,22 @@ interface QrMatrix {
       <button
         hlmDialogTrigger
         type="button"
-        class="group flex flex-col items-center gap-2 rounded-xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        class="group flex flex-col items-center gap-2 rounded-default p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         [attr.aria-label]="t('groups.invite.qrEnlarge')"
         (click)="$event.stopPropagation()"
       >
         <!-- QR codes must stay dark-on-light to scan, so the tile is white in both themes. -->
-        <span class="relative block size-40 overflow-hidden rounded-xl bg-white ring-1 ring-border shadow-sm">
+        <span class="relative block size-40 overflow-hidden rounded-default bg-white ring-1 ring-border shadow-sm">
           @if (qr(); as m) {
             <ng-container *ngTemplateOutlet="code; context: { $implicit: m }" />
           } @else {
             <span hlmSkeleton class="block size-full"></span>
           }
-          <span
-            class="absolute end-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-full bg-foreground/80 text-background opacity-80 transition-opacity group-hover:opacity-100"
-          >
-            <ng-icon hlm name="lucideMaximize2" size="xs" />
-          </span>
         </span>
-        <span class="text-xs text-muted-foreground">{{ t('groups.invite.qrHint') }}</span>
+        <!-- The enlarge cue sits under the code, never on it (it hid a corner of the QR) -->
+        <span class="inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-foreground">
+          <ng-icon hlm name="lucideMaximize2" size="xs" />{{ t('groups.invite.qrHint') }}
+        </span>
       </button>
 
       <hlm-dialog-content
@@ -60,7 +58,7 @@ interface QrMatrix {
           </p>
         </div>
 
-        <div class="w-full max-w-[min(85vw,60dvh)] aspect-square rounded-2xl bg-white p-2 shadow-lg">
+        <div class="w-full max-w-[min(85vw,60dvh)] aspect-square rounded-default bg-white p-2 shadow-lg">
           @if (qr(); as m) {
             <ng-container *ngTemplateOutlet="code; context: { $implicit: m }" />
           }

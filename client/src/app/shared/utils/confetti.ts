@@ -46,7 +46,10 @@ export function playCelebrationParticles(
 
   const start = performance.now();
   const frame = (now: number) => {
-    if (!isActive() || !canvas.isConnected) return;
+    if (!isActive() || !canvas.isConnected) {
+      ctx.clearRect(0, 0, W, H); // don't leave the last frame frozen on screen
+      return;
+    }
     const t = (now - start) / 1000;
     ctx.clearRect(0, 0, W, H);
 

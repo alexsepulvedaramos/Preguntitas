@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowRight, lucideCheck, lucideClock, lucideRotateCcw } from '@ng-icons/lucide';
+import { lucideArrowRight, lucideCheck, lucideRotateCcw } from '@ng-icons/lucide';
 import { catchError, of } from 'rxjs';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -13,7 +13,6 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 
 import { AuthService } from '../../core/auth/auth.service';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../core/constants/question-type-colors';
 import { QUESTION_TYPE_LABELS } from '../../core/constants/question-type-labels';
 import { FRAME_STREAK, STREAK_MATERIAL_KEYS } from '../../core/constants/streak-tiers';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -48,13 +47,16 @@ import {
   demoResult,
   demoStreakUpdate,
 } from './demo-content';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { QuestionTypeChipComponent } from '../../shared/components/question-type-chip/question-type-chip.component';
 
 // Public /demo walkthrough (rama 25): one simulated day in a fictional group, built from
 // the real voting, results, avatar and celebration components fed with mock data — no
 // account, no API calls. Open to guests and signed-in users alike.
 @Component({
   selector: 'app-demo-page',
-  imports: [
+  imports: [QuestionTypeChipComponent, 
+    GlyphComponent,
     FormsModule,
     RouterLink,
     NgIcon,
@@ -79,7 +81,7 @@ import {
   providers: [
     GroupStreaksService,
     MemberCardService,
-    provideIcons({ lucideArrowRight, lucideCheck, lucideClock, lucideRotateCcw }),
+    provideIcons({ lucideArrowRight, lucideCheck, lucideRotateCcw }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './demo-page.component.html',
@@ -115,7 +117,6 @@ export class DemoPageComponent {
   protected readonly nicknameMaxLength = DEMO_NICKNAME_MAX_LENGTH;
   protected readonly frameStreak = FRAME_STREAK;
   protected readonly typeLabels = QUESTION_TYPE_LABELS;
-  protected readonly typeBadge = QUESTION_TYPE_BADGE_CLASS;
   protected readonly optionClass = voteOptionClass;
 
   // Same check the guards run; the header and the final CTA adapt to it.

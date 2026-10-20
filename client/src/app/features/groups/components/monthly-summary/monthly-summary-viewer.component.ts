@@ -1,5 +1,5 @@
 import {
-  AfterViewInit, Component, ElementRef, OnInit, computed, inject, input, output, signal, viewChild,
+  AfterViewInit, Component, DestroyRef, ElementRef, OnInit, computed, effect, inject, input, output, signal, viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -14,6 +14,8 @@ import {
 } from '../../../../core/models/monthly-summary.model';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../../../shared/components/glyph/glyphs';
 
 type Slide =
   | { kind: 'intro' }
@@ -22,12 +24,12 @@ type Slide =
   | { kind: 'match' }
   | { kind: 'members' };
 
-export const AWARD_EMOJI: Record<SummaryAwardKey, string> = {
-  superlative: '👑',
-  selector: '🎯',
-  guesser: '🕵️',
-  consistent: '📅',
-  starAuthor: '🖋️',
+export const AWARD_GLYPH: Record<SummaryAwardKey, GlyphName> = {
+  superlative: 'crown',
+  selector: 'target',
+  guesser: 'guess',
+  consistent: 'calendar',
+  starAuthor: 'author',
 };
 
 // Story-style monthly summary (§17.12): full screen, tap the right side (or →) to advance,
@@ -35,7 +37,7 @@ export const AWARD_EMOJI: Record<SummaryAwardKey, string> = {
 // static cards stacked in a scroll instead.
 @Component({
   selector: 'app-monthly-summary-viewer',
-  imports: [NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
+  imports: [GlyphComponent, NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
   providers: [provideIcons({ lucideX })],
   templateUrl: './monthly-summary-viewer.component.html',
   host: {
@@ -55,7 +57,10 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   readonly initialMonth = input.required<string>();
   readonly closed = output<void>();
 
-  private readonly closeButton = viewChild<ElementRef<HTMLElement>>('closeButton');
+  private readonly root = viewChild<ElementRef<HTMLElement>>('root');
+  private readonly confettiCanvas = viewChild<ElementRef<HTMLCanvasElement>>('confetti');
+  private alive = true;
+  private confettiPlayed = false;
 
   protected readonly reducedMotion =
     typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -66,8 +71,8 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   protected readonly failed = signal(false);
   protected readonly index = signal(0);
 
-  emoji(key: SummaryAwardKey): string {
-    return AWARD_EMOJI[key];
+  glyph(key: SummaryAwardKey): GlyphName {
+    return AWARD_GLYPH[key];
   }
 
   protected readonly slides = computed<Slide[]>(() => {
@@ -83,8 +88,27 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   });
 
   protected readonly current = computed(() => this.slides()[this.index()] ?? null);
+  protected readonly onCover = computed(() => this.current()?.kind === 'intro');
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => (this.alive = false));
+    // One confetti burst per opening, in the theme's own colours (lazy: not in the main bundle).
+    effect(() => {
+      const canvas = this.confettiCanvas()?.nativeElement;
+      if (!canvas || !this.onCover() || this.confettiPlayed || this.reducedMotion) return;
+      this.confettiPlayed = true;
+      const css = getComputedStyle(document.documentElement);
+      const colors = ['--primary', '--accent', '--sand'].map((v) => css.getPropertyValue(v).trim());
+      const until = Date.now() + 4000;
+      import('../../../../shared/utils/confetti').then((m) =>
+        m.playCelebrationParticles(canvas, colors, true, () => this.alive && Date.now() < until),
+      );
+    });
+  }
 
   protected readonly monthLabel = computed(() => this.labelFor(this.month()));
+  // Inside a sentence ("Tu septiembre de 2026") the month keeps the language's own casing.
+  protected readonly monthInSentence = computed(() => this.labelFor(this.month(), false));
 
   // Best runs worth showing: the longest ones of the month (≥ 2 in a row).
   protected readonly bestRuns = computed(() => {
@@ -98,7 +122,8 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.closeButton()?.nativeElement.focus();
+    // Focus the story itself, not the ✕, so opening it doesn't light up a focus ring (UX audit T7).
+    this.root()?.nativeElement.focus();
   }
 
   open(month: string): void {
@@ -119,10 +144,12 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
     });
   }
 
-  labelFor(month: string): string {
+  labelFor(month: string, standalone = true): string {
     const [year, m] = month.split('-').map(Number);
     if (!year || !m) return month;
-    return this.i18n.formatDate(new Date(year, m - 1, 1), { month: 'long', year: 'numeric' });
+    // Only the first letter up: CSS `capitalize` turned "septiembre de 2026" into "Septiembre De 2026".
+    const label = this.i18n.formatDate(new Date(year, m - 1, 1), { month: 'long', year: 'numeric' });
+    return standalone ? label.charAt(0).toLocaleUpperCase() + label.slice(1) : label;
   }
 
   awardTitle(key: SummaryAwardKey): string {

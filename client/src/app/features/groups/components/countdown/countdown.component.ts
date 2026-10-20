@@ -48,6 +48,7 @@ export class CountdownComponent {
     return diffMs !== null && diffMs <= 0;
   });
 
+  // One time format everywhere (UX audit T12): number, space, unit — "4 h 59 min 5 s".
   protected readonly label = computed(() => {
     const diffMs = this.diffMs();
     if (diffMs === null || diffMs <= 0) return null;
@@ -58,10 +59,10 @@ export class CountdownComponent {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    const d = `${days}${this.t('countdown.days')}`;
-    const h = `${hours}${this.t('countdown.hours')}`;
-    const m = `${minutes}${this.t('countdown.minutes')}`;
-    const s = `${seconds}${this.t('countdown.seconds')}`;
+    const d = `${days} ${this.t('countdown.days')}`;
+    const h = `${hours} ${this.t('countdown.hours')}`;
+    const m = `${minutes} ${this.t('countdown.minutes')}`;
+    const s = `${seconds} ${this.t('countdown.seconds')}`;
     if (days > 0) return `${d} ${h} ${m} ${s}`;
     if (hours > 0) return `${h} ${m} ${s}`;
     if (minutes > 0) return `${m} ${s}`;

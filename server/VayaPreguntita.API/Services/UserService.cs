@@ -4,7 +4,6 @@ using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Users;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Helpers;
-using System.Text.RegularExpressions;
 using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Services;
@@ -19,7 +18,6 @@ public class UserService(
 {
     private static readonly string[] AllowedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
-    private static readonly Regex HexColor = new("^#[0-9a-fA-F]{6}$", RegexOptions.Compiled);
 
     public async Task<UserProfileDto?> GetProfileAsync(int userId)
     {
@@ -87,15 +85,17 @@ public class UserService(
         if (request.AvatarUrl is not null)
             user.AvatarUrl = string.IsNullOrWhiteSpace(request.AvatarUrl) ? null : request.AvatarUrl;
 
-        // FrameColor: a hex colour, "streak", "seniority" or "none"; an empty string also means
-        // no frame.
+        // FrameColor: a palette key, "streak", "seniority" or "none"; an empty string also means
+        // no frame. A legacy hex from the old picker becomes its key.
         if (request.FrameColor is not null)
         {
             var frame = request.FrameColor.Trim();
             if (frame.Length == 0)
                 frame = FrameColors.None;
+            if (FrameColors.LegacyHex.TryGetValue(frame, out var key))
+                frame = key;
             if (frame != FrameColors.Streak && frame != FrameColors.None && frame != FrameColors.Seniority
-                && !HexColor.IsMatch(frame))
+                && !FrameColors.PaletteKeys.Contains(frame))
                 return (false, "INVALID_FRAME_COLOR");
             user.FrameColor = frame;
         }

@@ -4,12 +4,13 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { GroupMember } from '../../models/group.models';
 import { voteOptionClass } from '../vote/vote-option.util';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 
 // Superlative create fields (spec §5.1, §9): who is excluded from being picked, and
 // whether voters may answer "Nadie". The creator can never blacklist themselves.
 @Component({
   selector: 'app-superlative-create',
-  imports: [],
+  imports: [HlmCheckboxImports, ],
   templateUrl: './superlative-create.component.html',
 })
 export class SuperlativeCreateComponent {

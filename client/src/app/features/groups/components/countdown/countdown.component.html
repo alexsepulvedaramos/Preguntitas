@@ -39,7 +39,7 @@
     @if (compact()) {
       <p
         class="text-xs font-medium"
-        [class.text-primary]="!urgent()"
+        [class.text-primary-text]="!urgent()"
         [class.text-destructive]="urgent()"
       >
         {{ t('countdown.nextIn') }} <span>{{ text }}</span>

@@ -14,8 +14,11 @@
         @if (msg.isSystem) {
           <!-- Automatic message (streak milestones, rama 19) -->
           <div class="flex justify-center py-1">
-            <p class="max-w-[90%] rounded-full bg-sand px-3 py-1 text-center text-xs font-medium text-sand-foreground">
-              {{ msg.body }}
+            <p class="inline-flex max-w-[90%] items-center gap-1.5 rounded-full bg-sand px-3 py-1 text-center text-xs font-medium text-sand-foreground">
+              @if (msg.glyph) {
+                <app-glyph [name]="msg.glyph" size="xs" bare />
+              }
+              <span>{{ msg.body }}</span>
             </p>
           </div>
         } @else if (msg.isCurrentUser) {
@@ -23,24 +26,42 @@
             @if (showLabel) {
               <span class="px-1 text-xs font-medium text-muted-foreground">{{ t('common.you') }}</span>
             }
-            <div class="max-w-[85%] rounded-lg bg-primary/15 px-3 py-2 text-foreground">
+            <div class="max-w-[85%] rounded-default bg-primary/15 px-3 py-2 text-foreground">
               <div class="flex items-end gap-2">
                 <p class="flex-1 text-sm break-words whitespace-pre-wrap leading-snug">{{ msg.body }}</p>
-                <time class="shrink-0 text-[10px] text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
+                <time class="shrink-0 text-2xs text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
               </div>
             </div>
           </div>
         } @else {
-          <div class="flex flex-col gap-0.5 max-w-[85%]">
+          <!-- Others: their avatar (ring and cosmetics) on the first message of a run -->
+          <div class="flex max-w-[85%] items-start gap-2">
+            @if (showLabel) {
+              <app-user-avatar
+                class="mt-4 shrink-0"
+                [avatarUrl]="groupStreaks.faceFor(msg.userId)?.avatarUrl"
+                [username]="msg.username ?? ''"
+                [frameColor]="groupStreaks.faceFor(msg.userId)?.frameColor"
+                [streak]="groupStreaks.streakFor(msg.userId)"
+                [crown]="groupStreaks.hasCrown(msg.userId)"
+                [look]="groupStreaks.lookFor(msg.userId)"
+                [memberSince]="groupStreaks.joinedAtFor(msg.userId)"
+                size="sm"
+              />
+            } @else {
+              <span class="w-8 shrink-0" aria-hidden="true"></span>
+            }
+          <div class="flex min-w-0 flex-col gap-0.5">
             @if (showLabel) {
               <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" [look]="groupStreaks.lookFor(msg.userId)" />
             }
-            <div class="rounded-lg bg-muted px-3 py-2 text-foreground">
+            <div class="rounded-default bg-muted px-3 py-2 text-foreground">
               <div class="flex items-end gap-2">
                 <p class="flex-1 text-sm break-words whitespace-pre-wrap leading-snug">{{ msg.body }}</p>
-                <time class="shrink-0 text-[10px] text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
+                <time class="shrink-0 text-2xs text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
               </div>
             </div>
+          </div>
           </div>
         }
       }

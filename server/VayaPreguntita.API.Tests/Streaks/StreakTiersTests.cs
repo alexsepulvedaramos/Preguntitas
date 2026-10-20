@@ -31,19 +31,26 @@ public class StreakTiersTests
     }
 
     [Theory]
-    [InlineData("es", "🔥 ana lleva 30 días seguidos · ¡Carne de tertulia!")]
-    [InlineData("en", "🔥 ana is on a 30-day streak · Talk-Show Regular!")]
-    [InlineData("de", "🔥 ana hat 30 Tage in Folge abgestimmt · Talkshow-Dauergast!")]
+    [InlineData("es", "ana lleva 30 días seguidos · ¡Carne de tertulia!")]
+    [InlineData("en", "ana is on a 30-day streak · Talk-Show Regular!")]
+    [InlineData("de", "ana hat 30 Tage in Folge abgestimmt · Talkshow-Dauergast!")]
     public void ATierChatMessage_IsWrittenInTheReadersLanguage(string language, string expected) =>
         StreakTiers.ChatMessage(language, "ana", 30).Should().Be(expected);
 
     [Theory]
-    [InlineData("es", "🎉 ana lleva 21 días seguidos · ¡3 semanas!")]
-    [InlineData("en", "🎉 ana is on a 21-day streak · 3 weeks!")]
-    [InlineData("de", "🎉 ana hat 21 Tage in Folge abgestimmt · 3 Wochen!")]
+    [InlineData("es", "ana lleva 21 días seguidos · ¡3 semanas!")]
+    [InlineData("en", "ana is on a 21-day streak · 3 weeks!")]
+    [InlineData("de", "ana hat 21 Tage in Folge abgestimmt · 3 Wochen!")]
     public void AMilestoneChatMessage_IsWrittenInTheReadersLanguage(string language, string expected) =>
         StreakTiers.ChatMessage(language, "ana", 21).Should().Be(expected);
 
     [Fact]
     public void AnOrdinaryDay_HasNoChatMessage() => StreakTiers.ChatMessage("en", "ana", 22).Should().BeNull();
+
+    [Theory]
+    [InlineData(30, "streak")]
+    [InlineData(21, "celebrate")]
+    [InlineData(22, null)]
+    public void ChatGlyph_FlameForATier_PartyForAMilestone(int streak, string? expected) =>
+        StreakTiers.ChatGlyph(streak).Should().Be(expected);
 }

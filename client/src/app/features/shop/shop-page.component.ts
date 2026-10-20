@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular
 import { Router } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCheck } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCheck, lucideInfo } from '@ng-icons/lucide';
 
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmItemImports } from '@spartan-ng/helm/item';
+import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -44,6 +45,12 @@ import {
   STREAK_FREEZE_PRICE,
   STREAK_REPAIR_PRICE,
 } from '../../core/models/coin.model';
+import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
+import { GlyphName } from '../../shared/components/glyph/glyphs';
+import { CoinComponent } from '../../shared/components/coin/coin.component';
+import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -64,23 +71,23 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.CosmeticRefund]: 'coins.reasons.cosmeticRefund',
 };
 
-const REASON_EMOJI: Record<CoinReason, string> = {
-  [CoinReason.Vote]: '🗳️',
-  [CoinReason.FirstVoter]: '⚡',
-  [CoinReason.StreakTier]: '🔥',
-  [CoinReason.StreakMilestone]: '🎉',
-  [CoinReason.SelectorChoice]: '👉',
-  [CoinReason.SelectorCreated]: '✍️',
-  [CoinReason.StreakFreeze]: '🧊',
-  [CoinReason.StreakFreezeGift]: '🎁',
-  [CoinReason.StreakRepair]: '🔧',
-  [CoinReason.GuessCorrect]: '🕵️',
-  [CoinReason.AuthorHint]: '💡',
-  [CoinReason.RaceWon]: '⏱️',
-  [CoinReason.FlashQuestion]: '⚡',
-  [CoinReason.Cosmetic]: '🛍️',
-  [CoinReason.StreakBonus]: '🔥',
-  [CoinReason.CosmeticRefund]: '↩️',
+const REASON_GLYPH: Record<CoinReason, GlyphName> = {
+  [CoinReason.Vote]: 'vote',
+  [CoinReason.FirstVoter]: 'flash',
+  [CoinReason.StreakTier]: 'streak',
+  [CoinReason.StreakMilestone]: 'celebrate',
+  [CoinReason.SelectorChoice]: 'pick',
+  [CoinReason.SelectorCreated]: 'write',
+  [CoinReason.StreakFreeze]: 'freeze',
+  [CoinReason.StreakFreezeGift]: 'gift',
+  [CoinReason.StreakRepair]: 'repair',
+  [CoinReason.GuessCorrect]: 'guess',
+  [CoinReason.AuthorHint]: 'hint',
+  [CoinReason.RaceWon]: 'race',
+  [CoinReason.FlashQuestion]: 'flash',
+  [CoinReason.Cosmetic]: 'shop',
+  [CoinReason.StreakBonus]: 'streak',
+  [CoinReason.CosmeticRefund]: 'wallet',
 };
 
 type Slot = keyof Look | 'theme';
@@ -113,7 +120,7 @@ const PREVIEW_STREAK = STREAK_TIERS[3].minDays;
 const SHOP_ITEMS: readonly {
   item: InventoryItem;
   slot: keyof Inventory;
-  emoji: string;
+  glyph: GlyphName;
   price: number;
   name: TranslationKey;
   text: TranslationKey;
@@ -121,7 +128,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.AuthorHint,
     slot: 'authorHint',
-    emoji: '💡',
+    glyph: 'hint',
     price: AUTHOR_HINT_PRICE,
     name: 'inventory.items.authorHint.name',
     text: 'inventory.items.authorHint.text',
@@ -129,7 +136,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.FlashQuestion,
     slot: 'flashQuestion',
-    emoji: '⚡',
+    glyph: 'flash',
     price: FLASH_QUESTION_PRICE,
     name: 'inventory.items.flashQuestion.name',
     text: 'inventory.items.flashQuestion.text',
@@ -137,7 +144,7 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.StreakFreeze,
     slot: 'streakFreeze',
-    emoji: '🧊',
+    glyph: 'freeze',
     price: STREAK_FREEZE_PRICE,
     name: 'inventory.items.streakFreeze.name',
     text: 'inventory.items.streakFreeze.text',
@@ -145,18 +152,22 @@ const SHOP_ITEMS: readonly {
   {
     item: InventoryItem.StreakRepair,
     slot: 'streakRepair',
-    emoji: '🔧',
+    glyph: 'repair',
     price: STREAK_REPAIR_PRICE,
     name: 'inventory.items.streakRepair.name',
     text: 'inventory.items.streakRepair.text',
   },
 ];
 
-// Coins & shop (rama 34, §17.2): the wallet, the game items you can buy ahead (rama 45),
+// Coins & shop (rama 34, §17.2): the balance and an "i" with the explanations in the header
+// (rama 46), the game items you can buy ahead (rama 45),
 // the cosmetics with a try-on preview on your own avatar (rama 42, §17.10) and the ledger.
 @Component({
   selector: 'app-shop-page',
-  imports: [
+  imports: [PageHeaderComponent, HlmTabsImports, 
+    CoinTextComponent,
+    CoinComponent,
+    GlyphComponent,
     NgIcon,
     UserAvatarComponent,
     UserNameComponent,
@@ -165,9 +176,10 @@ const SHOP_ITEMS: readonly {
     HlmButtonImports,
     HlmCardImports,
     HlmItemImports,
+    HlmPopoverImports,
     HlmSpinnerImports,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCheck })],
+  providers: [provideIcons({ lucideArrowLeft, lucideCheck, lucideInfo })],
   templateUrl: './shop-page.component.html',
 })
 export class ShopPageComponent implements OnInit, OnDestroy {
@@ -233,6 +245,16 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     return streak >= FIRST_RING_DAYS ? streak : PREVIEW_STREAK;
   });
 
+  // Open tab: 'items', a cosmetic section id, or 'history'.
+  protected readonly tab = signal('items');
+
+  // Rarity chips (1 rare, 2 epic, 3 legendary) in the glyph tile tones, inside the palette.
+  protected readonly rarityClass: Record<number, string> = {
+    1: 'vp-glyph vp-glyph--sage',
+    2: 'vp-glyph vp-glyph--frost',
+    3: 'vp-glyph vp-glyph--honey',
+  };
+
   protected readonly sections = computed(() => {
     const owned = this.owned();
     const equipped = this.equipped();
@@ -280,7 +302,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const format = new Intl.DateTimeFormat(this.i18n.locale(), { day: 'numeric', month: 'short' });
     return this.items().map(item => ({
       ...item,
-      emoji: REASON_EMOJI[item.reason] ?? '🪙',
+      glyph: REASON_GLYPH[item.reason] ?? 'wallet',
       label: this.t(REASON_LABELS[item.reason] ?? 'coins.reasons.vote', {
         name: this.t(cosmeticByKey(item.itemKey)?.name ?? 'shop.cosmeticsTitle'),
       }),

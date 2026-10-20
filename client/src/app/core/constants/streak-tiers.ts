@@ -82,7 +82,7 @@ export function nextStreakBonusStep(streak: number): { fromDay: number; coins: n
   return STREAK_BONUS_STEPS.find((s) => streak < s.fromDay) ?? null;
 }
 
-// Special User.frameColor values besides a plain hex colour.
+// Special User.frameColor values besides a palette colour key (FRAME_COLOR_KEYS).
 export const FRAME_STREAK = 'streak';
 export const FRAME_NONE = 'none';
 // Free seniority frame by time in the group (rama 42, §17.10).
@@ -97,8 +97,18 @@ export function frameFollowsStreak(frameColor: string | null | undefined): boole
   return frameColor == null || frameColor === FRAME_STREAK;
 }
 
-export function isHexFrame(frameColor: string | null | undefined): frameColor is string {
-  return !!frameColor && frameColor.startsWith('#');
+// Plain frame colours the player can pick (§14 visual rules): keys, not hex, so each one
+// has a light and a dark variant tuned to the palette (`--frame-<key>` in styles-lime.css).
+export const FRAME_COLOR_KEYS = ['purple', 'blue', 'green', 'yellow', 'orange', 'red', 'pink'] as const;
+export type FrameColorKey = (typeof FRAME_COLOR_KEYS)[number];
+
+export function isColorFrame(frameColor: string | null | undefined): frameColor is FrameColorKey {
+  return !!frameColor && (FRAME_COLOR_KEYS as readonly string[]).includes(frameColor);
+}
+
+// The CSS colour for a plain frame colour key.
+export function frameColorVar(key: FrameColorKey): string {
+  return `var(--frame-${key})`;
 }
 
 // ── Frame look per material ────────────────────────────────────────────────

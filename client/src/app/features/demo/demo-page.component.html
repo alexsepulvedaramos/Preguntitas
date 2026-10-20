@@ -22,7 +22,7 @@
       <div class="flex items-center justify-between gap-3 text-sm">
         <span class="flex min-w-0 items-center gap-2">
           <span
-            class="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary"
+            class="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-primary-text"
             >{{ t('demo.badge') }}</span
           >
           <span class="truncate font-semibold text-foreground">{{ groupName() }}</span>
@@ -94,10 +94,8 @@
       <!-- ===== 2. VOTE ===== -->
       @case ('vote') {
         <section class="vp-demo-step flex flex-col gap-4">
-          <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
-            <ng-icon hlm name="lucideClock" class="shrink-0 text-primary" />
-            <app-countdown class="min-w-0 flex-1" [target]="closesAt" [compact]="true" />
-          </div>
+          <!-- Same thin time line as the real group screen -->
+          <app-countdown [target]="closesAt" [line]="true" />
           <p class="text-sm text-muted-foreground">{{ t('demo.vote.hint') }}</p>
           <app-vote-form class="contents" [question]="question()" [members]="membersBefore()" (vote)="onVote($event)" />
         </section>
@@ -152,11 +150,7 @@
               >
                 <span class="font-medium">{{ t(option.text) }}</span>
                 <span class="flex items-center gap-2">
-                  <span
-                    class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                    [class]="typeBadge[option.type]"
-                    >{{ t(typeLabels[option.type]) }}</span
-                  >
+                  <app-question-type-chip [type]="option.type" />
                   <span class="text-xs text-muted-foreground">{{ t('demo.select.pack', { name: t('demo.select.basePack') }) }}</span>
                 </span>
               </button>
@@ -164,8 +158,8 @@
           </div>
 
           @if (pickedId() !== null) {
-            <p class="vp-demo-step flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
-              <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary" />
+            <p class="vp-demo-step flex items-start gap-2 rounded-default border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
+              <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary-text" />
               {{ t('demo.select.picked', { time: dailyTime }) }}
             </p>
           }
@@ -186,7 +180,7 @@
 
           <ol class="flex gap-3" [attr.aria-label]="t('demo.jump.daysLabel')">
             @for (day of jumpDays; track day) {
-              <li class="flex w-20 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3">
+              <li class="flex w-20 flex-col items-center gap-1.5 rounded-default border border-border bg-card px-2 py-3">
                 <span class="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <ng-icon hlm name="lucideCheck" class="size-4!" />
                 </span>
@@ -210,7 +204,7 @@
         <section class="vp-demo-step flex flex-col gap-6" aria-labelledby="demo-final-title">
           <div class="flex flex-col gap-2 text-center">
             <h1 id="demo-final-title" class="font-display text-3xl italic tracking-tight text-foreground">
-              👑 {{ t('demo.final.title') }}
+              <app-glyph name="crown" size="md" class="mr-1 align-middle" />{{ t('demo.final.title') }}
             </h1>
             <p class="text-muted-foreground">{{ t('demo.final.text', { name: lostStreak.username, days: lostStreak.days }) }}</p>
           </div>
@@ -237,7 +231,9 @@
                     }
                   </span>
                   @if (m.currentStreak > 0) {
-                    <span class="shrink-0 text-sm font-semibold tabular-nums text-foreground">🔥 {{ m.currentStreak }}</span>
+                    <span class="flex shrink-0 items-center gap-1 text-sm font-semibold tabular-nums text-foreground">
+                      <app-glyph name="streak" size="xs" bare />{{ m.currentStreak }}
+                    </span>
                   }
                 </li>
               }

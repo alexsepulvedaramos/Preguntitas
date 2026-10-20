@@ -3,12 +3,8 @@
   <div class="flex items-center gap-2">
 
     <!-- ── Bar ──────────────────────────────────────────────────────────────── -->
-    <!-- Outer wrapper: relative but NO overflow-hidden so the avatar (z-10)
-         and voter badges (-bottom-2.5) can bleed out -->
-    <div
-      class="relative flex-1 h-10"
-      [class.mb-3]="voters().length > 0"
-    >
+    <!-- Outer wrapper: relative but NO overflow-hidden so the lead avatar (z-10) can bleed out -->
+    <div class="relative flex-1 h-10">
       <!-- Track (always full width) -->
       <div class="absolute inset-0 rounded-full bg-muted"></div>
 
@@ -16,8 +12,7 @@
       @if (displayWidth() > 0) {
         <div
           class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500"
-          [class]="!fillColor() ? colorClass() : ''"
-          [style.background-color]="fillColor() ?? null"
+          [class]="isLeader() ? 'bg-primary/60' : 'bg-primary/25'"
           [style.width.%]="displayWidth()"
         ></div>
       }
@@ -42,18 +37,19 @@
       <!-- Label overlay (z-20, above fill and avatar) -->
       <div
         class="absolute inset-0 z-20 flex items-center overflow-hidden"
-        [class]="leadUser() ? 'pl-14 pr-4' : 'pl-4 pr-4'"
+        [class]="leadUser() ? 'pl-14' : 'pl-4'"
+        [style.padding-right.px]="labelPaddingRight()"
       >
-        <span
-          class="text-sm font-semibold text-white truncate"
-          style="text-shadow: 0 1px 2px rgb(0 0 0 / 0.7), 0 0 4px rgb(0 0 0 / 0.5);"
-        >{{ label() }}</span>
+        <span class="text-sm font-semibold text-foreground truncate">{{ label() }}</span>
       </div>
 
-      <!-- Voter badges: centered on bottom edge, outside overflow -->
+
+      <!-- Who voted it: inside the bar, right side, vertically centred — never spilling
+           onto the next row. Up to 4 faces; from 5, three and "+n". -->
       @if (voters().length > 0) {
-        <div class="absolute right-2 -bottom-2.5 z-30 flex flex-row-reverse -space-x-1.5 space-x-reverse">
-          @for (voter of voters().slice(0, 4); track voter.id) {
+        <div class="absolute inset-y-0 right-2 z-30 flex items-center">
+          <!-- Each face sits over the one on its left, frame included: explicit stacking order -->
+          @for (voter of shownVoters(); track voter.id; let first = $first; let i = $index) {
             <app-user-avatar
               [avatarUrl]="voter.avatarUrl"
               [username]="voter.username"
@@ -63,12 +59,17 @@
               [look]="groupStreaks.lookFor(voter.id)"
               [memberSince]="groupStreaks.joinedAtFor(voter.id)"
               size="xs"
-              class="ring-2 ring-background rounded-full"
+              class="relative inline-block rounded-full ring-2 ring-background"
+              [class.-ml-1]="!first"
+              [style.z-index]="i + 1"
             />
           }
-          @if (voters().length > 4) {
-            <span class="size-6 rounded-full bg-muted ring-2 ring-background flex items-center justify-center text-[9px] text-muted-foreground font-semibold">
-              +{{ voters().length - 4 }}
+          @if (extraVoters() > 0) {
+            <span
+              class="relative -ml-1 flex size-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground ring-2 ring-background"
+              [style.z-index]="shownVoters().length + 1"
+            >
+              +{{ extraVoters() }}
             </span>
           }
         </div>
@@ -92,7 +93,7 @@
     <button
       type="button"
       hlmDialogTrigger
-      class="w-full flex flex-col gap-1 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
+      class="w-full flex flex-col gap-1 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-default"
     >
       <ng-container *ngTemplateOutlet="barRow" />
     </button>
@@ -107,7 +108,7 @@
       <div class="flex flex-col gap-2 py-1 max-h-[60vh] overflow-y-auto">
         @for (option of allResults(); track option.id) {
           @if (option.voters.length > 0) {
-            <div class="flex flex-col gap-0.5 rounded-xl bg-muted/50 px-4 py-3">
+            <div class="flex flex-col gap-0.5 rounded-default bg-muted/50 px-4 py-3">
               <div class="flex items-center gap-2.5">
                 @if (option.targetUser) {
                   <button

@@ -6,7 +6,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { toast } from '@spartan-ng/brain/sonner';
 
@@ -21,6 +21,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideChevronRight,
+  lucideEllipsis,
   lucideCopy,
   lucideRefreshCw,
   lucideShield,
@@ -36,18 +37,20 @@ import { PacksService } from '../../../../core/services/packs.service';
 import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { Pack } from '../../../../core/models/pack.model';
-import { MobileTopBarDirective } from '../../../../shared/directives/mobile-top-bar.directive';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { TranslationKey } from '../../../../core/i18n/translation.types';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 
 @Component({
   selector: 'app-group-settings',
-  imports: [UserNameComponent, 
-    RouterLink,
-    MobileTopBarDirective,
+  imports: [HlmDropdownMenuImports, PageHeaderComponent, 
+    GlyphComponent,
+    UserNameComponent,
     FormsModule,
     HlmButtonImports,
     HlmInputImports,
@@ -66,6 +69,7 @@ import { UserNameComponent } from '../../../../shared/components/user-name/user-
     provideIcons({
       lucideArrowLeft,
       lucideChevronRight,
+      lucideEllipsis,
       lucideCopy,
       lucideRefreshCw,
       lucideShield,
