@@ -1323,7 +1323,10 @@ Decided after one week of real data (ledger 2026-10-12 → 2026-10-20, 20 users 
    - **Anonymous flash** (~150 🪙): a flash question where nobody can see who voted what (votes are public everywhere else, §4). The tallies are still shown. Meant for the questions nobody answers honestly in public.
    - **Duel** (~120 🪙): challenge a member to a flash Deathmatch between the two of you, which the group votes on. The challenged member gets a push.
    - **Extension** (~30 🪙): +24 h on an open flash. **Available on every flash and every duel.**
+   - **Time capsule** (~150 🪙): a flash question whose results stay hidden until a date the buyer picks (1 month, 6 months, 1 year); everyone gets a push when it opens.
+   - **Duel record on the profile** (free): duels played / won shown on the profile (and the member card).
+   - **Reactions (free, must have):** react to results (and ideally chat messages) for free. Emoji reactions if feasible; at minimum a like. Not a shop item.
    - **Winner effect** (~300–500 🪙, cosmetic): when you are the most-voted option in a result, your result bar plays your effect (confetti, spotlights…). It only shows when you win, so it is earned as much as bought.
 
-**Under discussion (not decided):** ring finishes that layer **on top of** the tier material instead of replacing it, so a gold ring still looks gold, possibly gated by tier — **depends on how they look**, so they need visual prototypes first. Also still open: predictions (bet on the winner before the results), a group pot, a pinned chat message, choosing tomorrow's pack, vote-entrance and chat-bubble styles.
+**Under discussion (not decided):** ring finishes that layer **on top of** the tier material instead of replacing it, so a gold ring still looks gold, possibly gated by tier — **depends on how they look**, so they need visual prototypes first. Also still open: the final (top two of a Superlative in a duel), scheduled flash, declining a duel for coins, rematch, custom flash card, paid sticker packs, predictions (bet on the winner before the results), a group pot, a pinned chat message, choosing tomorrow's pack, vote-entrance and chat-bubble styles.
 
