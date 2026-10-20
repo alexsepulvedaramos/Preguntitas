@@ -23,7 +23,6 @@ export interface UserProfileDto {
   look: Look | null;
   themeKey: string | null;
   ownedCosmetics: string[];
-  shopTitles: { key: string; title: string }[];
   firstJoinedAt: string | null;
 }
 
@@ -32,13 +31,12 @@ export interface UpdateProfileRequest {
   email?: string;
   avatarUrl?: string | null;
   frameColor?: string | null;
-  titleKey?: string; // 'auto', 'none', an unlocked tier key or an owned shop title
+  titleKey?: string; // 'auto', 'none' or an unlocked tier key
   preferredLanguage?: string;
   // Equipped cosmetics (rama 42): an owned key, '' to take it off, omitted = unchanged.
   ringSkinKey?: string;
   accessoryKey?: string;
   nameColorKey?: string;
-  badgeKey?: string;
   themeKey?: string;
 }
 

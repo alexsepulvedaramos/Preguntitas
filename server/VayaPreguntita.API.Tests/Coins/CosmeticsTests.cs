@@ -91,20 +91,35 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public async Task AnOwnedShopTitle_ReplacesTheStreakTitle()
+    public async Task RetiredBadgesAndShopTitles_CanNoLongerBeBoughtOrWorn()
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
 
+        (await BuyAsync(group["ana"], "badge-frog")).Should().Be(CosmeticPurchaseResult.UnknownItem);
+        (await BuyAsync(group["ana"], "title-oracle")).Should().Be(CosmeticPurchaseResult.UnknownItem);
         (await UpdateAsync(group["ana"], new() { TitleKey = "title-oracle" })).Error.Should().Be("TITLE_NOT_UNLOCKED");
-        await BuyAsync(group["ana"], "title-oracle");
-        (await UpdateAsync(group["ana"], new() { TitleKey = "title-oracle" })).Success.Should().BeTrue();
+        (await CoinsAsync(group["ana"])).Should().Be(1000);
+    }
 
+    [Fact]
+    public async Task TheLedger_StillNamesARetiredItem()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
         await using var db = NewContext();
-        var profile = await NewUserService(db).GetProfileAsync(group["ana"]);
-        profile!.Title.Should().Be("El Oráculo");
-        profile.ShopTitles.Should().ContainSingle(t => t.Key == "title-oracle");
-        profile.OwnedCosmetics.Should().Equal("title-oracle");
+        db.CoinTransactions.Add(
+            new()
+            {
+                UserId = group["ana"],
+                Amount = 150,
+                Reason = CoinReason.CosmeticRefund,
+                RefId = ShopCatalog.Retired.Single(i => i.Key == "badge-frog").Id,
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+        await db.SaveChangesAsync();
+
+        (await NewCoinService(db).GetHistoryAsync(group["ana"], null)).Items.Single().ItemKey.Should().Be("badge-frog");
     }
 
     [Fact]
@@ -113,15 +128,13 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
         await BuyAsync(group["ana"], "ring-pixel");
-        await BuyAsync(group["ana"], "badge-frog");
-        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-pixel", BadgeKey = "badge-frog" });
+        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-pixel" });
 
         await using var db = NewContext();
         var members = (await NewGroupsService(db).GetGroupMembersAsync(group.Id, group["bea"])).ToList();
 
         var ana = members.Single(m => m.Id == group["ana"]);
         ana.Look!.RingSkin.Should().Be("ring-pixel");
-        ana.Look.Badge.Should().Be("badge-frog");
         ana.Look.Accessory.Should().BeNull();
         members.Single(m => m.Id == group["bea"]).Look.Should().BeNull();
     }
@@ -154,11 +167,11 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public void TheCatalog_HasUniqueIdsAndKeys_AndEveryTitleIsNamed()
+    public void TheCatalog_HasUniqueIdsAndKeys_RetiredOnesIncluded()
     {
-        ShopCatalog.All.Select(i => i.Id).Should().OnlyHaveUniqueItems();
-        ShopCatalog.All.Select(i => i.Key).Should().OnlyHaveUniqueItems();
-        ShopCatalog.All.Where(i => i.Kind == CosmeticKind.Title).Should().OnlyContain(i => i.Name != null);
+        var everything = ShopCatalog.All.Concat(ShopCatalog.Retired).ToList();
+        everything.Select(i => i.Id).Should().OnlyHaveUniqueItems();
+        everything.Select(i => i.Key).Should().OnlyHaveUniqueItems();
         ShopCatalog.All.Should().OnlyContain(i => i.Key.Length <= 40 && i.Price > 0);
     }
 }

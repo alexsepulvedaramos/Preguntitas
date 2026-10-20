@@ -132,7 +132,10 @@ public class CoinService(AppDbContext context, TimeProvider clock) : ICoinServic
                 Reason = t.Reason,
                 GroupId = t.GroupId,
                 GroupName = t.Group != null ? t.Group.Name : null,
-                ItemKey = t.Reason == CoinReason.Cosmetic ? t.RefId.ToString() : null,
+                ItemKey =
+                    t.Reason == CoinReason.Cosmetic || t.Reason == CoinReason.CosmeticRefund
+                        ? t.RefId.ToString()
+                        : null,
                 CreatedAt = t.CreatedAt,
             })
             .ToListAsync();

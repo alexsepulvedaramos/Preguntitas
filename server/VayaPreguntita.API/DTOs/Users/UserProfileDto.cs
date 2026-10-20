@@ -25,14 +25,11 @@ public class UserProfileDto
     public List<Streaks.TitleOptionDto> UnlockedTitles { get; set; } = [];
 
     // Shop cosmetics (rama 42, §17.10): what's equipped, the personal app theme, and every
-    // owned key (owned shop titles also appear in ShopTitles, ready for the title picker).
+    // owned key.
     public Shop.LookDto? Look { get; set; }
     public string? ThemeKey { get; set; }
     public List<string> OwnedCosmetics { get; set; } = [];
-    public List<ShopTitleDto> ShopTitles { get; set; } = [];
 
     // When the user joined their oldest current group: seniority frame outside a group.
     public DateTime? FirstJoinedAt { get; set; }
 }
-
-public record ShopTitleDto(string Key, string Title);

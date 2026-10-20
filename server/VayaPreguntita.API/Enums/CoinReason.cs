@@ -27,4 +27,10 @@ public enum CoinReason
 
     // Shop cosmetics (rama 42); RefId = the ShopCatalog item id
     Cosmetic = 13,
+
+    // Shop and economy revision (rama 46, §17.15)
+    StreakBonus = 14,
+
+    // A retired cosmetic given back at its price; RefId = the ShopCatalog item id
+    CosmeticRefund = 15,
 }

@@ -20,14 +20,31 @@ public static class CoinRewards
     // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min.
     public const int RaceWon = 10;
 
-    // Flash question (§17.11): launched at once, open 24 h.
-    public const int FlashQuestionPrice = 500;
+    // Flash question (§17.11): launched at once, open 24 h. Cheap on purpose (§17.15): it
+    // drives the group dynamic, so it should be used often.
+    public const int FlashQuestionPrice = 100;
 
     // Max capped coins a user can earn per local day, across all groups (anti-farm).
     public const int DailyCap = 40;
 
-    // Paid every time a streak reaches the tier, so a long streak must always beat
-    // rebuilding shorter ones: one 7-day streak (5 + 20) > two 3-day streaks (5 + 5).
+    // Daily streak bonus (§17.15), paid with every on-time vote on top of CoinRewards.Vote:
+    // (first streak day, coins per vote). It never decreases as the streak grows, so breaking
+    // a streak can only drop you to a lower bonus and one unbroken streak always earns at
+    // least as much as any split of the same days into shorter ones.
+    public static readonly (int FromDay, int Coins)[] StreakBonusSteps =
+    [
+        (3, 1),
+        (7, 2),
+        (15, 3),
+        (30, 4),
+        (100, 5),
+    ];
+
+    public static int StreakBonus(int streak) =>
+        StreakBonusSteps.LastOrDefault(s => streak >= s.FromDay).Coins;
+
+    // One-off rewards for reaching a tier or a milestone, paid only the first time the user
+    // ever reaches that streak (User.HighestStreakEver), so they can't be farmed by restarting.
     public static readonly IReadOnlyDictionary<int, int> StreakTiers = new Dictionary<int, int>
     {
         [3] = 5,
@@ -47,7 +64,7 @@ public static class CoinRewards
         [300] = 150,
     };
 
-    // Rewards for rare milestones skip the daily cap.
+    // Streak rewards (the daily bonus included, §17.15) and refunds skip the daily cap.
     public static bool IsCapped(CoinReason reason) =>
         reason
             is CoinReason.Vote

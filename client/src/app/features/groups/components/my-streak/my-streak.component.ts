@@ -12,6 +12,7 @@ import { ShopService } from '../../../../core/services/shop.service';
 import { MyStreak } from '../../../../core/models/streak.model';
 import { EMPTY_INVENTORY, ShopItem } from '../../../../core/models/coin.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { nextStreakBonusStep, streakBonus } from '../../../../core/constants/streak-tiers';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
@@ -60,6 +61,10 @@ export class MyStreakComponent {
   protected readonly atLimit = computed(() => this.streak().freezes >= this.streak().maxFreezes);
   protected readonly missingCoins = computed(() => Math.max(0, this.streak().freezePrice - this.balance()));
   protected readonly inventory = computed(() => this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY);
+
+  // The daily streak bonus (§17.15): what the streak adds to each vote, and the next step.
+  protected readonly bonus = computed(() => streakBonus(this.streak().current));
+  protected readonly nextBonus = computed(() => nextStreakBonusStep(this.streak().current));
 
   buyFreeze(): void {
     const owned = this.inventory().streakFreeze > 0;

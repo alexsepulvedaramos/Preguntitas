@@ -3,16 +3,25 @@
     #triggerBtn
     hlmDialogTrigger
     hlmBtn
-    variant="default"
+    [variant]="flash() ? 'outline' : 'default'"
     [class]="
       'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
-      (isSelector()
-        ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
-        : 'bg-primary text-primary-foreground hover:bg-primary-hover')
+      (flash()
+        ? 'border-flash-border bg-flash/10 text-foreground hover:bg-flash/20'
+        : isSelector()
+          ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
+          : 'bg-primary text-primary-foreground hover:bg-primary-hover')
     "
     (click)="resetDialog()"
   >
-    @if (compact()) {
+    @if (flash()) {
+      <ng-icon hlm name="lucideZap" class="text-flash-foreground" />
+      @if (ownedFlashes() > 0) {
+        {{ t('flash.launchOwned', { count: ownedFlashes() }) }}
+      } @else {
+        <app-coin-text [text]="t('flash.launch', { price: flashPrice })" />
+      }
+    } @else if (compact()) {
       @if (isSelector()) {
         <ng-icon hlm name="lucideSparkles" />
         {{ pendingQuestion() ? t('picker.change') : t('picker.pick') }}
@@ -40,7 +49,9 @@
         hlmDialogTitle
         class="font-display text-xl italic tracking-wider text-foreground"
       >
-        @if (step() === 'sources') {
+        @if (flash()) {
+          {{ t('flash.launchTitle') }}
+        } @else if (step() === 'sources') {
           {{ t('picker.title') }}
         } @else if (step() === 'assign-teams') {
           {{ t('picker.teamsTitle') }}
@@ -53,7 +64,7 @@
           {{ t('picker.teamsText', { text: teamAssignmentItem()?.text ?? '' }) }}
         </p>
       } @else if (step() === 'create') {
-        <p hlmDialogDescription>{{ t('picker.createText') }}</p>
+        <p hlmDialogDescription>{{ flash() ? t('flash.launchText') : t('picker.createText') }}</p>
       }
     </hlm-dialog-header>
 
@@ -283,6 +294,7 @@
           [groupId]="groupId()"
           [members]="members()"
           [showSelectButton]="isSelector()"
+          [flashOnly]="flash()"
           [initialValue]="pendingEditValue()"
           [overwriteQuestionId]="pendingEditValue()?.id ?? null"
           (selected)="onSelectedForTomorrow(ctx, $event)"
@@ -291,7 +303,7 @@
         />
       </div>
 
-      @if (isSelector()) {
+      @if (isSelector() && !flash()) {
         <hlm-dialog-footer>
           <button
             hlmBtn

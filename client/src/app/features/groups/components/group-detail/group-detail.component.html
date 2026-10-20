@@ -48,7 +48,7 @@
           @if (summaryMonths()[0]; as latest) {
             <button hlmDropdownMenuItem (triggered)="showSummary(latest.month)">
               <ng-icon hlm name="lucidePartyPopper" />
-              <span class="flex-1">{{ t('monthlySummary.open') }}</span>
+              <span class="flex-1 text-left">{{ t('monthlySummary.open') }}</span>
               @if (unseenSummary()) {
                 <span class="size-2 rounded-full bg-accent" aria-hidden="true"></span>
               }
@@ -434,18 +434,49 @@
     }
 
     @if (daily()?.today?.status !== 'no_question') {
-      <!-- Suggest a question for the pool: a quiet secondary action for everyone but the selector -->
-      @if (!daily()?.selection?.isCurrentUserSelector) {
+      <!-- Quiet secondary actions under the question: suggest one for the pool (everyone but
+           the selector) and launch a flash question (everyone, §17.15) -->
+      @if (flashHintPending()) {
+        <div class="relative flex w-full items-center gap-3 rounded-default border border-flash-border bg-flash/10 py-2.5 pl-3 pr-11">
+          <app-glyph name="flash" size="sm" />
+          <p class="text-sm text-foreground text-balance">
+            <span class="font-semibold">{{ t('flash.hintTitle') }}</span>
+            <app-coin-text [text]="t('flash.hintText', { price: flashPrice })" />
+          </p>
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="absolute right-1.5 top-1/2 size-8 -translate-y-1/2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="dismissFlashHint()"
+            [attr.aria-label]="t('groupDetail.dismissAlert')"
+          >
+            <ng-icon hlm name="lucideX" class="size-4!" />
+          </button>
+        </div>
+      }
+      <div class="flex flex-wrap justify-center gap-2">
+        @if (!daily()?.selection?.isCurrentUserSelector) {
+          <app-select-question-dialog
+            [groupId]="numericGroupId()"
+            [members]="members()"
+            [isSelector]="false"
+            [pendingQuestion]="null"
+            [isAutoSelected]="false"
+            (selected)="refresh()"
+            (flashLaunched)="onFlashLaunched($event)"
+          />
+        }
         <app-select-question-dialog
           [groupId]="numericGroupId()"
           [members]="members()"
           [isSelector]="false"
           [pendingQuestion]="null"
           [isAutoSelected]="false"
-          (selected)="refresh()"
+          [flash]="true"
           (flashLaunched)="onFlashLaunched($event)"
         />
-      }
+      </div>
 
       <div class="flex items-center gap-3 pt-2">
         <div class="flex-1 border-t border-border"></div>

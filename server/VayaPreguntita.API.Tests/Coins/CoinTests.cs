@@ -68,22 +68,48 @@ public class CoinTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         (await db.CoinTransactions.CountAsync(t => t.Reason == CoinReason.FirstVoter)).Should().Be(1);
     }
 
-    [Fact]
-    public async Task ReachingAStreakTier_PaysItsReward_OnTopOfTheVote()
+    private async Task<List<VoteResponseDto>> VoteDaysAsync(SeededGroup group, string voter, int days)
     {
-        var group = await SeedGroupAsync("ana", "bea");
         var responses = new List<VoteResponseDto>();
-        for (var day = 0; day < 3; day++)
+        for (var day = 0; day < days; day++)
         {
             var date = Today.AddDays(day);
             await AddActivatedDayAsync(group.Id, date, group["ana"]);
             Clock.SetLocal(date, DailyTime.AddHours(1));
-            responses.Add(await VoteAsync(group.Id, group["bea"]));
+            responses.Add(await VoteAsync(group.Id, group[voter]));
         }
+        return responses;
+    }
 
+    [Fact]
+    public async Task ReachingAStreakTier_ForTheFirstTime_PaysTheBonusAndTheTierReward()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+
+        var responses = await VoteDaysAsync(group, "bea", 3);
+
+        responses[1].Coins.StreakBonus.Should().Be(0);
         responses[2].Streak.Current.Should().Be(3);
-        responses[2].Coins.Earned.Should().Be(CoinRewards.Vote + CoinRewards.FirstVoter + CoinRewards.StreakTiers[3]);
-        (await BalanceAsync(group["bea"])).Should().Be(3 * 8 + CoinRewards.StreakTiers[3]);
+        responses[2].Coins.StreakBonus.Should().Be(1);
+        responses[2].Coins.Earned.Should()
+            .Be(CoinRewards.Vote + CoinRewards.FirstVoter + 1 + CoinRewards.StreakTiers[3]);
+        (await BalanceAsync(group["bea"])).Should().Be(3 * 8 + 1 + CoinRewards.StreakTiers[3]);
+    }
+
+    [Fact]
+    public async Task ReachingAStreakTier_Again_PaysOnlyTheDailyBonus()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        await using (var db = NewContext())
+            await db.Users.Where(u => u.Id == group["bea"])
+                .ExecuteUpdateAsync(s => s.SetProperty(u => u.HighestStreakEver, 10));
+
+        var responses = await VoteDaysAsync(group, "bea", 3);
+
+        responses[2].Coins.StreakBonus.Should().Be(1);
+        responses[2].Coins.Earned.Should().Be(CoinRewards.Vote + CoinRewards.FirstVoter + 1);
+        await using var check = NewContext();
+        (await check.CoinTransactions.AnyAsync(t => t.Reason == CoinReason.StreakTier)).Should().BeFalse();
     }
 
     [Fact]

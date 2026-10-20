@@ -5,6 +5,9 @@ public class CoinsEarnedDto
 {
     public int Earned { get; set; }
 
+    // The part of Earned that is the daily streak bonus (§17.15), shown apart in the toast.
+    public int StreakBonus { get; set; }
+
     // Balance after paying.
     public int Balance { get; set; }
 

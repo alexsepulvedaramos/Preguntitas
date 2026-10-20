@@ -1,14 +1,15 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCheck } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCheck, lucideInfo } from '@ng-icons/lucide';
 
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmItemImports } from '@spartan-ng/helm/item';
+import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { AuthService } from '../../core/auth/auth.service';
@@ -19,7 +20,6 @@ import { ThemeService } from '../../core/services/theme.service';
 import { UserAvatarComponent } from '../../shared/components/user-avatar/user-avatar.component';
 import { UserNameComponent } from '../../shared/components/user-name/user-name.component';
 import {
-  BADGE_EMOJI,
   COSMETICS,
   CosmeticEntry,
   CosmeticKind,
@@ -67,6 +67,8 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.RaceWon]: 'coins.reasons.raceWon',
   [CoinReason.FlashQuestion]: 'coins.reasons.flashQuestion',
   [CoinReason.Cosmetic]: 'coins.reasons.cosmetic',
+  [CoinReason.StreakBonus]: 'coins.reasons.streakBonus',
+  [CoinReason.CosmeticRefund]: 'coins.reasons.cosmeticRefund',
 };
 
 const REASON_GLYPH: Record<CoinReason, GlyphName> = {
@@ -84,23 +86,22 @@ const REASON_GLYPH: Record<CoinReason, GlyphName> = {
   [CoinReason.RaceWon]: 'race',
   [CoinReason.FlashQuestion]: 'flash',
   [CoinReason.Cosmetic]: 'shop',
+  [CoinReason.StreakBonus]: 'streak',
+  [CoinReason.CosmeticRefund]: 'wallet',
 };
 
 type Slot = keyof Look | 'theme';
 
 // Cosmetics sections in the shop (rama 42), each with the profile field that equips it.
-// Titles are equipped from the profile's title picker instead.
 const KIND_SECTIONS: readonly {
   kind: CosmeticKind;
   id: string;
-  field: 'ringSkinKey' | 'accessoryKey' | 'nameColorKey' | 'badgeKey' | 'themeKey' | null;
-  slot: Slot | null;
+  field: 'ringSkinKey' | 'accessoryKey' | 'nameColorKey' | 'themeKey';
+  slot: Slot;
 }[] = [
   { kind: CosmeticKind.RingSkin, id: 'ringSkin', field: 'ringSkinKey', slot: 'ringSkin' },
   { kind: CosmeticKind.Accessory, id: 'accessory', field: 'accessoryKey', slot: 'accessory' },
   { kind: CosmeticKind.NameColor, id: 'nameColor', field: 'nameColorKey', slot: 'nameColor' },
-  { kind: CosmeticKind.Badge, id: 'badge', field: 'badgeKey', slot: 'badge' },
-  { kind: CosmeticKind.Title, id: 'title', field: null, slot: null },
   { kind: CosmeticKind.Theme, id: 'theme', field: 'themeKey', slot: 'theme' },
 ];
 
@@ -133,6 +134,14 @@ const SHOP_ITEMS: readonly {
     text: 'inventory.items.authorHint.text',
   },
   {
+    item: InventoryItem.FlashQuestion,
+    slot: 'flashQuestion',
+    glyph: 'flash',
+    price: FLASH_QUESTION_PRICE,
+    name: 'inventory.items.flashQuestion.name',
+    text: 'inventory.items.flashQuestion.text',
+  },
+  {
     item: InventoryItem.StreakFreeze,
     slot: 'streakFreeze',
     glyph: 'freeze',
@@ -148,17 +157,10 @@ const SHOP_ITEMS: readonly {
     name: 'inventory.items.streakRepair.name',
     text: 'inventory.items.streakRepair.text',
   },
-  {
-    item: InventoryItem.FlashQuestion,
-    slot: 'flashQuestion',
-    glyph: 'flash',
-    price: FLASH_QUESTION_PRICE,
-    name: 'inventory.items.flashQuestion.name',
-    text: 'inventory.items.flashQuestion.text',
-  },
 ];
 
-// Coins & shop (rama 34, §17.2): the wallet, the game items you can buy ahead (rama 45),
+// Coins & shop (rama 34, §17.2): the balance and an "i" with the explanations in the header
+// (rama 46), the game items you can buy ahead (rama 45),
 // the cosmetics with a try-on preview on your own avatar (rama 42, §17.10) and the ledger.
 @Component({
   selector: 'app-shop-page',
@@ -167,7 +169,6 @@ const SHOP_ITEMS: readonly {
     CoinComponent,
     GlyphComponent,
     NgIcon,
-    RouterLink,
     UserAvatarComponent,
     UserNameComponent,
     HlmAlertDialogImports,
@@ -175,9 +176,10 @@ const SHOP_ITEMS: readonly {
     HlmButtonImports,
     HlmCardImports,
     HlmItemImports,
+    HlmPopoverImports,
     HlmSpinnerImports,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCheck })],
+  providers: [provideIcons({ lucideArrowLeft, lucideCheck, lucideInfo })],
   templateUrl: './shop-page.component.html',
 })
 export class ShopPageComponent implements OnInit, OnDestroy {
@@ -213,7 +215,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       ringSkin: look?.ringSkin ?? null,
       accessory: look?.accessory ?? null,
       nameColor: look?.nameColor ?? null,
-      badge: look?.badge ?? null,
       theme: this.user()?.themeKey ?? null,
     };
   });
@@ -225,7 +226,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       ringSkin: merged.ringSkin ?? null,
       accessory: merged.accessory ?? null,
       nameColor: merged.nameColor ?? null,
-      badge: merged.badge ?? null,
     };
   });
 
@@ -269,17 +269,15 @@ export class ShopPageComponent implements OnInit, OnDestroy {
         label: this.t(c.name),
         rarityLabel: this.t(RARITY_KEYS[c.rarity]),
         owned: owned.has(c.key),
-        equipped: !!section.slot && equipped[section.slot] === c.key,
-        tried: !!section.slot && trying[section.slot] === c.key,
+        equipped: equipped[section.slot] === c.key,
+        tried: trying[section.slot] === c.key,
         missing: Math.max(0, c.price - balance),
-        emoji: BADGE_EMOJI[c.key] ?? null,
         colorClass: nameColorClass(c.key),
         swatch: THEME_SWATCHES[c.key] ?? null,
         look: {
           ringSkin: c.kind === CosmeticKind.RingSkin ? c.key : null,
           accessory: c.kind === CosmeticKind.Accessory ? c.key : null,
           nameColor: null,
-          badge: null,
         } as Look,
       })),
     }));
@@ -354,9 +352,9 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   }
 
   // Wears an owned item in its slot, or with null takes the slot's item off.
-  equip(section: { field: string | null; slot: Slot | null }, key: string | null): void {
+  equip(section: { field: string; slot: Slot }, key: string | null): void {
     const { field, slot } = section;
-    if (!field || !slot || this.cosmeticBusy()) return;
+    if (this.cosmeticBusy()) return;
     this.cosmeticBusy.set(key ?? field);
     this.userService.updateProfile({ [field]: key ?? '' }).subscribe({
       next: (profile) => {

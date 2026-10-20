@@ -565,8 +565,8 @@ public class DailyService(
         return VoteResult.Success;
     }
 
-    // Coins for an on-time vote (§17.2): the vote itself, the first-voter bonus and any
-    // streak tier or milestone this vote reached.
+    // Coins for an on-time vote (§17.2, §17.15): the vote itself, the first-voter bonus, the
+    // daily streak bonus and any tier or milestone this vote reached for the first time ever.
     private async Task<CoinsEarnedDto> PayVoteRewardsAsync(
         int groupId,
         int userId,
@@ -595,7 +595,22 @@ public class DailyService(
                 )
             );
 
+        // The daily streak bonus (§17.15), shown apart from the vote reward.
+        var streakBonus = new CoinGrant(0, false);
         if (streak.Current > streak.Previous)
+        {
+            streakBonus = await coinService.GrantAsync(
+                userId,
+                CoinReason.StreakBonus,
+                CoinRewards.StreakBonus(streak.Current),
+                groupId,
+                entry.Id
+            );
+            grants.Add(streakBonus);
+        }
+
+        // One-off tier and milestone coins: only the first time the user ever reaches them.
+        if (streak.Current > streak.Previous && streak.IsNewRecord)
         {
             if (CoinRewards.StreakTiers.TryGetValue(streak.Current, out var tierCoins))
                 grants.Add(
@@ -616,6 +631,7 @@ public class DailyService(
         return new CoinsEarnedDto
         {
             Earned = grants.Sum(g => g.Granted),
+            StreakBonus = streakBonus.Granted,
             CapReached = grants.Any(g => g.CapReached),
             Balance = await coinService.GetBalanceAsync(userId),
         };

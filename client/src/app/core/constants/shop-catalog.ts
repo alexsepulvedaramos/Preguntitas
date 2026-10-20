@@ -10,8 +10,8 @@ export enum CosmeticKind {
   RingSkin = 0,
   Accessory = 1,
   NameColor = 2,
-  Badge = 3,
-  Title = 4,
+  Badge = 3, // retired (§17.15)
+  Title = 4, // retired (§17.15)
   Theme = 5,
 }
 
@@ -27,7 +27,6 @@ export interface Look {
   ringSkin: string | null;
   accessory: string | null;
   nameColor: string | null;
-  badge: string | null;
 }
 
 export interface CosmeticEntry {
@@ -68,6 +67,15 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   item('color-pink', CosmeticKind.NameColor, 250),
   item('color-lime', CosmeticKind.NameColor, 250),
 
+  item('theme-ocean', CosmeticKind.Theme, 250),
+  item('theme-strawberry', CosmeticKind.Theme, 250),
+  item('theme-grape', CosmeticKind.Theme, 250),
+  item('theme-tangerine', CosmeticKind.Theme, 250),
+];
+
+// Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners. Kept
+// only so the ledger can still name them.
+const RETIRED_COSMETICS: readonly CosmeticEntry[] = [
   item('badge-fire', CosmeticKind.Badge, 150),
   item('badge-eyes', CosmeticKind.Badge, 150),
   item('badge-popcorn', CosmeticKind.Badge, 150),
@@ -85,38 +93,19 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   item('title-undecided', CosmeticKind.Title, 200),
   item('title-devils-advocate', CosmeticKind.Title, 300, CosmeticRarity.Rare),
   item('title-oracle', CosmeticKind.Title, 400, CosmeticRarity.Epic),
-
-  item('theme-ocean', CosmeticKind.Theme, 250),
-  item('theme-strawberry', CosmeticKind.Theme, 250),
-  item('theme-grape', CosmeticKind.Theme, 250),
-  item('theme-tangerine', CosmeticKind.Theme, 250),
 ];
 
+// Any cosmetic the ledger may mention, retired ones included.
 export function cosmeticByKey(key: string | null | undefined): CosmeticEntry | null {
-  return COSMETICS.find((c) => c.key === key) ?? null;
+  return COSMETICS.find((c) => c.key === key) ?? RETIRED_COSMETICS.find((c) => c.key === key) ?? null;
 }
 
-// ── Name colour + badge ──────────────────────────────────────────────────────
+// ── Name colour ──────────────────────────────────────────────────────────────
 
 // Class with light/dark variants (styles-lime.css, .vp-name--*).
 export function nameColorClass(key: string | null | undefined): string {
   return key?.startsWith('color-') ? `vp-name--${key.slice('color-'.length)}` : '';
 }
-
-export const BADGE_EMOJI: Record<string, string> = {
-  'badge-fire': '🔥',
-  'badge-eyes': '👀',
-  'badge-popcorn': '🍿',
-  'badge-teapot': '🫖',
-  'badge-frog': '🐸',
-  'badge-coffee': '☕',
-  'badge-chili': '🌶️',
-  'badge-unicorn': '🦄',
-  'badge-nails': '💅',
-  'badge-clown': '🤡',
-  'badge-goat': '🐐',
-  'badge-brain': '🧠',
-};
 
 // ── App themes ───────────────────────────────────────────────────────────────
 

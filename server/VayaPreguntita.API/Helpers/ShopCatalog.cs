@@ -4,15 +4,8 @@ namespace VayaPreguntita.API.Helpers;
 
 // One cosmetic for sale. Id is the ledger RefId of its purchase (with the ledger's unique
 // (UserId, Reason, RefId) index that makes buying twice impossible) — never reuse or
-// renumber one. Name is set only for titles, the one cosmetic whose text the server renders.
-public record CosmeticItem(
-    int Id,
-    string Key,
-    CosmeticKind Kind,
-    int Price,
-    CosmeticRarity Rarity,
-    LocalizedText? Name = null
-);
+// renumber one.
+public record CosmeticItem(int Id, string Key, CosmeticKind Kind, int Price, CosmeticRarity Rarity);
 
 // The cosmetics catalog (rama 42, §17.10): a server constant, like the pack catalog. The
 // art is pure CSS/SVG on the client — mirrored in core/constants/shop-catalog.ts, keep both
@@ -45,7 +38,19 @@ public static class ShopCatalog
         new(27, "color-pink", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
         new(28, "color-lime", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
 
-        // Badge emoji next to the name.
+        // App themes: a full personal palette (light and dark). Only the owner sees it.
+        new(61, "theme-ocean", CosmeticKind.Theme, 250, CosmeticRarity.Common),
+        new(62, "theme-strawberry", CosmeticKind.Theme, 250, CosmeticRarity.Common),
+        new(63, "theme-grape", CosmeticKind.Theme, 250, CosmeticRarity.Common),
+        new(64, "theme-tangerine", CosmeticKind.Theme, 250, CosmeticRarity.Common),
+    ];
+
+    // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners by the
+    // RetireBadgesAndShopTitles migration. Kept only so the ledger can still name them; their
+    // ids are never reused.
+    public static readonly CosmeticItem[] Retired =
+    [
+        // Badge emoji next to the name: a name can already hold emojis.
         new(31, "badge-fire", CosmeticKind.Badge, 150, CosmeticRarity.Common),
         new(32, "badge-eyes", CosmeticKind.Badge, 150, CosmeticRarity.Common),
         new(33, "badge-popcorn", CosmeticKind.Badge, 150, CosmeticRarity.Common),
@@ -59,32 +64,21 @@ public static class ShopCatalog
         new(41, "badge-goat", CosmeticKind.Badge, 150, CosmeticRarity.Common),
         new(42, "badge-brain", CosmeticKind.Badge, 150, CosmeticRarity.Common),
 
-        // Shop titles: shown in place of the streak title (User.SelectedTitleKey). Adapted,
-        // not translated, like the streak titles (rama 24).
-        new(51, "title-pro-gossip", CosmeticKind.Title, 200, CosmeticRarity.Common,
-            new("Cotilla Profesional", "Professional Busybody", "Berufs-Tratschtante")),
-        new(52, "title-undecided", CosmeticKind.Title, 200, CosmeticRarity.Common,
-            new("Voto Indeciso", "Eternal Fence-Sitter", "Ewig Unentschlossen")),
-        new(53, "title-devils-advocate", CosmeticKind.Title, 300, CosmeticRarity.Rare,
-            new("Abogado del Diablo", "Devil's Advocate", "Advocatus Diaboli")),
-        new(54, "title-oracle", CosmeticKind.Title, 400, CosmeticRarity.Epic,
-            new("El Oráculo", "The Oracle", "Das Orakel")),
-
-        // App themes: a full personal palette (light and dark). Only the owner sees it.
-        new(61, "theme-ocean", CosmeticKind.Theme, 250, CosmeticRarity.Common),
-        new(62, "theme-strawberry", CosmeticKind.Theme, 250, CosmeticRarity.Common),
-        new(63, "theme-grape", CosmeticKind.Theme, 250, CosmeticRarity.Common),
-        new(64, "theme-tangerine", CosmeticKind.Theme, 250, CosmeticRarity.Common),
+        // Shop titles: a bought title didn't show off anything.
+        new(51, "title-pro-gossip", CosmeticKind.Title, 200, CosmeticRarity.Common),
+        new(52, "title-undecided", CosmeticKind.Title, 200, CosmeticRarity.Common),
+        new(53, "title-devils-advocate", CosmeticKind.Title, 300, CosmeticRarity.Rare),
+        new(54, "title-oracle", CosmeticKind.Title, 400, CosmeticRarity.Epic),
     ];
 
     private static readonly Dictionary<string, CosmeticItem> ByKeyMap = All.ToDictionary(i => i.Key);
-    private static readonly Dictionary<int, CosmeticItem> ByIdMap = All.ToDictionary(i => i.Id);
+    private static readonly Dictionary<int, CosmeticItem> ByIdMap = All.Concat(Retired).ToDictionary(i => i.Id);
 
+    // Only cosmetics on sale.
     public static CosmeticItem? ByKey(string? key) =>
         key is not null && ByKeyMap.TryGetValue(key, out var item) ? item : null;
 
+    // Retired ones too, for the ledger.
     public static CosmeticItem? ById(int? id) =>
         id is int value && ByIdMap.TryGetValue(value, out var item) ? item : null;
-
-    public static bool IsShopTitle(string? key) => ByKey(key)?.Kind == CosmeticKind.Title;
 }

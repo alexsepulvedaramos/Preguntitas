@@ -24,6 +24,69 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.25.0',
+    date: '2026-10-21',
+    title: {
+      es: 'Flash más baratas y rachas que pagan cada día',
+      en: 'Cheaper flashes and streaks that pay every day',
+      de: 'Günstigere Blitzfragen und Serien, die jeden Tag zahlen',
+    },
+    items: [
+      {
+        glyph: 'flash',
+        title: {
+          es: 'Pregunta flash por 100 monedas',
+          en: 'Flash questions for 100 coins',
+          de: 'Blitzfragen für 100 Münzen',
+        },
+        text: {
+          es: 'Lanzar una pregunta flash cuesta ahora 100 🪙 en vez de 500, y tiene su propio botón en la pantalla del grupo, bajo la pregunta del día. Sigue habiendo una por persona y día en cada grupo.',
+          en: 'Launching a flash question now costs 100 🪙 instead of 500, and it has its own button on the group screen, under today’s question. It’s still one per person per day in each group.',
+          de: 'Eine Blitzfrage zu starten kostet jetzt 100 🪙 statt 500, und sie hat einen eigenen Knopf im Gruppenbildschirm, unter der heutigen Frage. Weiterhin eine pro Person und Tag in jeder Gruppe.',
+        },
+      },
+      {
+        glyph: 'streak',
+        title: {
+          es: 'Tu racha suma en cada voto',
+          en: 'Your streak pays on every vote',
+          de: 'Deine Serie zahlt bei jeder Stimme',
+        },
+        text: {
+          es: 'Desde el tercer día seguido, cada voto a tiempo te da monedas extra: +1, y sube hasta +5 a partir de los 100 días. Lo ves aparte al votar y en tu racha del grupo. Las monedas por llegar a cada nivel se cobran solo la primera vez que llegas, así que mantener la racha siempre compensa más que empezar de nuevo.',
+          en: 'From the third day in a row, every on-time vote gives you extra coins: +1, rising to +5 from 100 days. You see it separately when you vote and in your streak in the group. The coins for reaching each level are paid only the first time you get there, so keeping your streak always pays more than starting over.',
+          de: 'Ab dem dritten Tag am Stück bringt dir jede pünktliche Stimme Extramünzen: +1, bis zu +5 ab 100 Tagen. Du siehst es beim Abstimmen extra und bei deiner Serie in der Gruppe. Die Münzen fürs Erreichen einer Stufe gibt es nur beim ersten Mal, also lohnt es sich immer mehr, die Serie zu halten, als neu anzufangen.',
+        },
+      },
+      {
+        glyph: 'shop',
+        title: {
+          es: 'Una tienda más limpia',
+          en: 'A tidier shop',
+          de: 'Ein aufgeräumter Shop',
+        },
+        text: {
+          es: 'Tu saldo está siempre a la vista arriba y las explicaciones se esconden tras la «i». Las insignias junto al nombre y los títulos de la tienda desaparecen: los emojis ya los puedes poner en tu nombre. Si habías comprado alguno, te hemos devuelto sus monedas.',
+          en: 'Your balance is always in view at the top and the explanations sit behind the “i”. Name badges and shop titles are gone: you can already put emojis in your name. If you had bought any, we’ve given you your coins back.',
+          de: 'Dein Guthaben ist oben immer zu sehen, und die Erklärungen stecken hinter dem „i“. Abzeichen neben dem Namen und Titel aus dem Shop gibt es nicht mehr: Emojis kannst du ja schon in deinen Namen schreiben. Wenn du welche gekauft hattest, haben wir dir die Münzen zurückgegeben.',
+        },
+      },
+      {
+        glyph: 'tools',
+        title: {
+          es: 'El menú del grupo, a la vista',
+          en: 'The group menu, back in view',
+          de: 'Das Gruppenmenü, wieder sichtbar',
+        },
+        text: {
+          es: 'El botón de los tres puntos del grupo vuelve a verse, y en modo oscuro ya se leen todas sus opciones, también «Resúmenes del mes».',
+          en: 'The group’s three-dot button shows again, and in dark mode every option reads clearly, “Monthly summaries” included.',
+          de: 'Der Drei-Punkte-Knopf der Gruppe ist wieder zu sehen, und im dunklen Modus sind alle Optionen lesbar, auch „Monatsrückblicke“.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.24.0',
     date: '2026-10-21',
     title: {
