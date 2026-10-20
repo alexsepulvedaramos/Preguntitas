@@ -83,7 +83,7 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         question.IsUsed.Should().BeTrue("a flash question never enters the pool");
         question.CreatorId.Should().Be(group["ana"]);
         Notifications.Verify(
-            n => n.SendFlashQuestionAsync(group.Id, group["ana"], "Los de siempre", "ana", It.IsAny<string>()),
+            n => n.SendFlashQuestionAsync(group.Id, group["ana"], "Los de siempre", "ana", It.IsAny<string>(), null),
             Times.Once
         );
     }

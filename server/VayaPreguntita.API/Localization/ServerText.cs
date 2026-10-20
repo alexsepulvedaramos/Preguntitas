@@ -411,6 +411,24 @@ public static class ServerText
             $"{launcher} asks: {text}",
             $"{launcher} fragt: {text}");
 
+        // Duel (§17.15 item 6): replaces the flash or new-question push for the two duelists.
+        public static string DuelTitle(string lang, string groupName) => Pick(lang,
+            $"⚔️ Duelo en {groupName}",
+            $"⚔️ Duel in {groupName}",
+            $"⚔️ Duell in {groupName}");
+
+        // The chooser is the other side.
+        public static string DuelChallengedBody(string lang, string chooser, string text) => Pick(lang,
+            $"{chooser} te ha retado a un duelo: {text}",
+            $"{chooser} has challenged you to a duel: {text}",
+            $"{chooser} hat dich zum Duell herausgefordert: {text}");
+
+        // The chooser put two other members to fight.
+        public static string DuelPittedBody(string lang, string chooser, string text) => Pick(lang,
+            $"{chooser} os ha puesto a pelear: {text}",
+            $"{chooser} has pitted you against each other: {text}",
+            $"{chooser} lässt euch gegeneinander antreten: {text}");
+
         // Race to select (§17.5): to everyone but the selector, 10 minutes before T.
         public static string RaceToSelectTitle(string lang, string groupName) => Pick(lang,
             $"⏱️ ¡Elige tú en {groupName}!",

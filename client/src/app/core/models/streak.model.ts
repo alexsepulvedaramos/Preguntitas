@@ -65,6 +65,10 @@ export interface MemberStats {
   questionsCreated: number;
   guessesMade: number; // guess the author (rama 36), skips excluded
   guessesCorrect: number;
+  // Duel record (rama 47, §17.15 item 6): closed duels in the group anyone voted on.
+  duelsWon: number;
+  duelsDrawn: number;
+  duelsLost: number;
 }
 
 // An unlocked title the user can choose to show (GET users/me → unlockedTitles).

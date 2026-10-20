@@ -410,6 +410,7 @@ public class StreakService(
 
         var openId = entries.Count > 0 ? entries[^1].Id : (int?)null;
         var previousId = entries.Count > 1 ? entries[^2].Id : (int?)null;
+        var duels = await GetDuelRecordAsync(groupId, userId, openId);
 
         return new MemberStatsDto
         {
@@ -436,7 +437,62 @@ public class StreakService(
             ),
             GuessesMade = guesses.Count,
             GuessesCorrect = guesses.Count(correct => correct),
+            DuelsWon = duels.Count(o => o == DuelOutcome.Won),
+            DuelsDrawn = duels.Count(o => o == DuelOutcome.Drawn),
+            DuelsLost = duels.Count(o => o == DuelOutcome.Lost),
         };
+    }
+
+    // How each closed duel (§17.15 item 6) the member fought in the group ended. A daily duel
+    // is closed once the next question opened; a flash one once its 24 h are over. Open duels
+    // stay out so the record doesn't move with every vote, and votes cast late still count.
+    private async Task<List<DuelOutcome>> GetDuelRecordAsync(int groupId, int userId, int? openEntryId)
+    {
+        var nowUtc = DailyClock.UtcNow(clock);
+        var dailyQuestions = await context
+            .DailyEntries.Where(d =>
+                d.GroupId == groupId
+                && d.ActivatedAt != null
+                && d.Id != openEntryId
+                && d.SelectionKind != SelectionKind.Auto
+                && d.Question.Type == QuestionType.Deathmatch
+            )
+            .Select(d => d.Question)
+            .ToListAsync();
+        var flashQuestions = await context
+            .FlashEntries.Where(f =>
+                f.GroupId == groupId && f.ClosesAt <= nowUtc && f.Question.Type == QuestionType.Deathmatch
+            )
+            .Select(f => f.Question)
+            .ToListAsync();
+
+        var opponents = new Dictionary<int, int>(); // question id → opponent id
+        foreach (var question in dailyQuestions.Concat(flashQuestions))
+        {
+            if (DuelRules.Duelists(question) is not (int first, int second))
+                continue;
+            if (first == userId)
+                opponents[question.Id] = second;
+            else if (second == userId)
+                opponents[question.Id] = first;
+        }
+        if (opponents.Count == 0)
+            return [];
+
+        var questionIds = opponents.Keys.ToList();
+        var tallies = await context
+            .Votes.Where(v => questionIds.Contains(v.QuestionId) && v.SelectedTargetUserId != null)
+            .GroupBy(v => new { v.QuestionId, v.SelectedTargetUserId })
+            .Select(g => new { g.Key.QuestionId, g.Key.SelectedTargetUserId, Count = g.Count() })
+            .ToListAsync();
+
+        int VotesFor(int questionId, int side) =>
+            tallies.Where(t => t.QuestionId == questionId && t.SelectedTargetUserId == side).Sum(t => t.Count);
+
+        return opponents
+            .Select(pair => DuelRules.Outcome(VotesFor(pair.Key, userId), VotesFor(pair.Key, pair.Value)))
+            .OfType<DuelOutcome>()
+            .ToList();
     }
 
     public async Task<List<MemberStatsDto>> GetUserGroupStatsAsync(int userId)

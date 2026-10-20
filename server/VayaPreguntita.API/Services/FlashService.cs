@@ -113,12 +113,16 @@ public class FlashService(
         await transaction.CommitAsync();
 
         var launcher = await context.Users.FindAsync(userId);
+        var launcherName = launcher?.Username ?? string.Empty;
+        // A 1-vs-1 flash Deathmatch is a duel (§17.15 item 6): its sides get the duel push.
+        var duelists = DuelRules.Duelists(question);
         _ = notificationService.SendFlashQuestionAsync(
             groupId,
             userId,
             group.Name,
-            launcher?.Username ?? string.Empty,
-            question.Text
+            launcherName,
+            question.Text,
+            duelists is (int first, int second) ? new DuelPush(userId, launcherName, first, second) : null
         );
 
         return (

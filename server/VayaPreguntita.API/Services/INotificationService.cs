@@ -6,13 +6,16 @@ public interface INotificationService
         int groupId,
         string groupName,
         string questionText,
-        IReadOnlyDictionary<string, string> textTranslations
+        IReadOnlyDictionary<string, string> textTranslations,
+        DuelPush? duel
     );
     Task SendSelectorTurnAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
     // "¡Elige tú!" (§17.5): every member but the selector, 10 minutes before T.
     Task SendRaceToSelectAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
-    // "⚡ Pregunta flash" (§17.11): every member but the buyer.
-    Task SendFlashQuestionAsync(int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText);
+    // "⚡ Pregunta flash" (§17.11): every member but the buyer. A duel's two sides get the duel
+    // push instead (§17.15 item 6).
+    Task SendFlashQuestionAsync(
+        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel);
     // "Resumen del mes" (§17.12): every member, when last month's summary is ready.
     Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month);
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
@@ -21,4 +24,15 @@ public interface INotificationService
     // freezeCovers: a held freeze (§17.9) will save the streak if the member misses the cycle.
     Task SendStreakDangerAsync(
         int groupId, int userId, string groupName, int streak, TimeOnly dailyTime, bool freezeCovers = false);
+}
+
+// A duel (§17.15 item 6) replaces the normal question push for its two sides, except the one
+// who set it up: "Ana te ha retado a un duelo" / "Ana os ha puesto a pelear". It follows the
+// preference of the push it replaces and the group mute.
+public sealed record DuelPush(int ChooserUserId, string ChooserUsername, int FirstUserId, int SecondUserId)
+{
+    public bool Involves(int userId) => userId == FirstUserId || userId == SecondUserId;
+
+    // The chooser is one side: the other one is being challenged.
+    public bool ChooserIsDuelist => Involves(ChooserUserId);
 }

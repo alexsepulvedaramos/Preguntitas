@@ -525,6 +525,10 @@ export const de: Translation = {
     deleteFailed: 'Die Frage konnte nicht gelöscht werden.',
     loadFailed: 'Die verfügbaren Fragen konnten nicht geladen werden.',
   },
+  duel: {
+    challenge: 'Damit beginnt ein Duell gegen {name}, und wir sagen Bescheid, dass die Herausforderung von dir kommt.',
+    between: 'Damit beginnt ein Duell zwischen {first} und {second}, und wir sagen beiden Bescheid.',
+  },
   flash: {
     hintTitle: 'Neu!',
     hintText: 'Starte eine Blitzfrage für {price} 🪙: Sie geht sofort an die ganze Gruppe.',
@@ -667,6 +671,8 @@ export const de: Translation = {
     timesSelector: 'Mal ausgewählt',
     questionsCreated: 'Erstellte Fragen',
     guesses: 'Richtig geraten',
+    duels: 'Duelle (S · U · N)',
+    duelsRecord: '{won} gewonnen, {drawn} unentschieden, {lost} verloren',
     myStats: 'Meine Statistiken',
     memberStats: 'Statistiken des Mitglieds',
   },

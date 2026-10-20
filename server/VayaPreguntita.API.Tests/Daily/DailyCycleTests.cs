@@ -4,6 +4,7 @@ using Moq;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
+using VayaPreguntita.API.Services;
 using VayaPreguntita.API.Tests.Testing;
 
 namespace VayaPreguntita.API.Tests.Daily;
@@ -110,7 +111,8 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
                 It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                It.IsAny<IReadOnlyDictionary<string, string>>()
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<DuelPush?>()
             ),
             Times.Never
         );
@@ -141,7 +143,8 @@ public class DailyCycleTests(DatabaseFixture fixture) : DomainTestBase(fixture)
                 group.Id,
                 "Los de siempre",
                 "¿Quién sobreviviría menos en una isla desierta?",
-                It.IsAny<IReadOnlyDictionary<string, string>>()
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                null
             ),
             Times.Once
         );

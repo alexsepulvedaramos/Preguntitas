@@ -141,6 +141,15 @@
           <app-glyph name="guess" size="xs" bare />{{ s.guessesCorrect }}/{{ s.guessesMade }}
         </dd>
       </div>
+      <div class="flex items-center justify-between gap-3 py-2">
+        <dt class="text-sm text-muted-foreground">{{ t('memberCard.duels') }}</dt>
+        <dd
+          class="flex items-center gap-1 text-sm font-semibold text-foreground tabular-nums"
+          [attr.aria-label]="t('memberCard.duelsRecord', { won: s.duelsWon, drawn: s.duelsDrawn, lost: s.duelsLost })"
+        >
+          <app-glyph name="versus" size="xs" bare />{{ s.duelsWon }} · {{ s.duelsDrawn }} · {{ s.duelsLost }}
+        </dd>
+      </div>
     </dl>
   </div>
 </ng-template>

@@ -24,6 +24,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.26.0',
+    date: '2026-10-21',
+    title: {
+      es: 'Duelos',
+      en: 'Duels',
+      de: 'Duelle',
+    },
+    items: [
+      {
+        glyph: 'versus',
+        title: {
+          es: 'Uno contra uno es un duelo',
+          en: 'One against one is a duel',
+          de: 'Eins gegen eins ist ein Duell',
+        },
+        text: {
+          es: 'Un Deathmatch de una persona contra otra, lanzado como pregunta flash o elegido por quien elige la del día, es ahora un duelo, gratis. Antes de enviarlo te lo avisamos, y los dos rivales reciben un aviso especial: «Ana te ha retado a un duelo» o «Ana os ha puesto a pelear». Gana el lado más votado; con los mismos votos es empate.',
+          en: 'A Deathmatch of one person against another, launched as a flash question or chosen by whoever picks today’s question, is now a duel, for free. We tell you before you send it, and the two rivals get a special notification: “Ana has challenged you to a duel” or “Ana has pitted you against each other”. The side with the most votes wins; equal votes are a draw.',
+          de: 'Ein Deathmatch von einer Person gegen eine andere, als Blitzfrage gestartet oder von der Person gewählt, die die heutige Frage aussucht, ist jetzt ein Duell, kostenlos. Wir sagen es dir vor dem Senden, und die beiden bekommen eine eigene Benachrichtigung: „Ana hat dich zum Duell herausgefordert“ oder „Ana lässt euch gegeneinander antreten“. Die Seite mit den meisten Stimmen gewinnt; bei gleich vielen ist es unentschieden.',
+        },
+      },
+      {
+        glyph: 'trophy',
+        title: {
+          es: 'Tu historial de duelos',
+          en: 'Your duel record',
+          de: 'Deine Duell-Bilanz',
+        },
+        text: {
+          es: 'Tus estadísticas y las de cada miembro muestran los duelos ganados, empatados y perdidos en el grupo. Cuentan cuando el duelo se cierra, y uno sin votos no cuenta.',
+          en: 'Your stats and every member’s show the duels won, drawn and lost in the group. They count once the duel closes, and one nobody voted on doesn’t count.',
+          de: 'Deine Statistik und die jedes Mitglieds zeigen die gewonnenen, unentschiedenen und verlorenen Duelle in der Gruppe. Sie zählen, sobald das Duell vorbei ist, und eines ohne Stimmen zählt nicht.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.25.0',
     date: '2026-10-21',
     title: {

@@ -62,6 +62,7 @@ public class DailyCycleRunner(
         var entriesToActivate = await context
             .DailyEntries.Include(d => d.Group)
             .Include(d => d.Question)
+            .Include(d => d.Selector)
             .Where(d =>
                 d.Date == today
                 && d.ActivatedAt == null
@@ -93,7 +94,8 @@ public class DailyCycleRunner(
 
             foreach (var entry in entriesToActivate)
                 _ = notificationService.SendNewQuestionAsync(
-                    entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations);
+                    entry.GroupId, entry.Group.Name, entry.Question.Text, entry.Question.TextTranslations,
+                    DuelPushFor(entry));
 
             // Last month's summary goes out with the activation, adding no new burst (§17.12).
             foreach (var entry in entriesToActivate)
@@ -135,6 +137,13 @@ public class DailyCycleRunner(
         // ── MONTHLY SUMMARY (§17.12): a few groups per tick ────────────────────
         await monthlySummaryService.BuildPendingAsync();
     }
+
+    // A 1-vs-1 Deathmatch the selector actively chose is a duel (§17.15 item 6); a pure
+    // auto-selection isn't, so no duel happens without someone wanting it.
+    private static DuelPush? DuelPushFor(DailyEntry entry) =>
+        DuelRules.IsDailyDuel(entry, entry.Question) && DuelRules.Duelists(entry.Question) is (int first, int second)
+            ? new DuelPush(entry.SelectorUserId, entry.Selector.Username, first, second)
+            : null;
 
     private async Task NotifyMonthlySummaryAsync(DailyEntry entry)
     {

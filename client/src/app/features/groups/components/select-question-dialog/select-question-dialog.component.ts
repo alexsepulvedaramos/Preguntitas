@@ -21,6 +21,7 @@ import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-l
 import { GroupMember } from '../../models/group.models';
 import { CreateQuestionComponent } from '../create-question/create-question.component';
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
+import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
@@ -55,6 +56,7 @@ const PAGE_SIZE = 10;
     NgIcon,
     CreateQuestionComponent,
     DeathmatchCreateComponent,
+    DuelNoticeComponent,
     CoinTextComponent,
   ],
   providers: [provideIcons({ lucideCheck, lucidePlus, lucideSparkles, lucideTrash2, lucideZap })],
