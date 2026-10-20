@@ -22,16 +22,16 @@
             (click)="select(m.id)"
           >
             <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" size="sm" />
-            <span class="w-full truncate text-center">{{ m.username }}</span>
+            <span class="line-clamp-2 w-full break-words text-center leading-tight" [attr.title]="m.username">{{ m.username }}</span>
           </button>
         }
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <!-- One clear order (UX audit): guess (the action), hint (paid help), skip (a way out) -->
+      <div class="flex items-center gap-2">
         <button
           hlmBtn
-          size="sm"
-          class="focus-visible:ring-2 focus-visible:ring-ring"
+          class="flex-1 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="selectedId() === null || !!busy()"
           (click)="confirm()"
         >
@@ -40,25 +40,10 @@
           }
           {{ t('guess.confirm') }}
         </button>
-        <button
-          hlmBtn
-          size="sm"
-          variant="ghost"
-          class="focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="!!busy()"
-          (click)="skip()"
-        >
-          @if (busy() === 'skip') {
-            <hlm-spinner class="size-4" />
-          }
-          {{ t('guess.skip') }}
-        </button>
-        <span class="flex-1"></span>
         @if (guess().hintAvailable) {
           <button
             hlmBtn
-            size="sm"
-            [variant]="ownedHints() > 0 ? 'default' : 'outline'"
+            variant="outline"
             class="gap-1 focus-visible:ring-2 focus-visible:ring-ring"
             [disabled]="!!busy()"
             (click)="buyHint()"
@@ -74,9 +59,27 @@
               <app-coin-text [text]="t('guess.hint', { price: guess().hintPrice })" />
             }
           </button>
-        } @else if (guess().hintUsed) {
-          <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>
         }
+      </div>
+      <div class="flex items-center justify-between gap-2">
+        @if (guess().hintUsed) {
+          <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>
+        } @else {
+          <span></span>
+        }
+        <button
+          hlmBtn
+          size="sm"
+          variant="link"
+          class="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="!!busy()"
+          (click)="skip()"
+        >
+          @if (busy() === 'skip') {
+            <hlm-spinner class="size-4" />
+          }
+          {{ t('guess.skip') }}
+        </button>
       </div>
 
       @if (hintError(); as message) {

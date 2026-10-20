@@ -66,9 +66,6 @@ export interface DeckCard {
   pending: boolean; // not answered yet
 }
 
-// After answering, the next unanswered question slides in once the results have had a moment.
-const ADVANCE_DELAY_MS = 1500;
-
 // Group-detail screen (rama 5, spec §13 row 5): shows today's voting/results state
 // and the next-day selection panel from `daily/current` (§4.7). The voting UI itself
 // is `app-vote` (rama 6); full results visualization lands in rama 7. The selection
@@ -185,7 +182,6 @@ export class GroupDetailComponent implements OnInit {
   });
 
   private readonly activeKey = signal<string | null>(null);
-  private advanceTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly activeIndex = computed(() =>
     Math.max(0, this.deck().findIndex((c) => c.key === this.activeKey())),
@@ -208,10 +204,7 @@ export class GroupDetailComponent implements OnInit {
     this.loadSummaries();
     this.startDailyPolling();
     const tick = setInterval(() => this.now.set(Date.now()), 60_000);
-    this.destroyRef.onDestroy(() => {
-      clearInterval(tick);
-      this.cancelAdvance();
-    });
+    this.destroyRef.onDestroy(() => clearInterval(tick));
   }
 
   refresh() {
@@ -230,7 +223,6 @@ export class GroupDetailComponent implements OnInit {
   }
 
   goTo(key: string) {
-    this.cancelAdvance();
     this.activeKey.set(key);
   }
 
@@ -269,23 +261,6 @@ export class GroupDetailComponent implements OnInit {
       ...daily,
       flashes: (daily.flashes ?? []).map((f) => (f.id === state.id ? state : f)),
     });
-    this.scheduleAdvance();
-  }
-
-  // Moves on to the next unanswered question, unless the user navigates first.
-  private scheduleAdvance() {
-    this.cancelAdvance();
-    if (!this.findNextPending()) return;
-    this.advanceTimer = setTimeout(() => {
-      this.advanceTimer = null;
-      const next = this.findNextPending();
-      if (next) this.activeKey.set(next.key);
-    }, ADVANCE_DELAY_MS);
-  }
-
-  private cancelAdvance() {
-    if (this.advanceTimer) clearTimeout(this.advanceTimer);
-    this.advanceTimer = null;
   }
 
   // The first unanswered card after the active one, wrapping around.
@@ -335,8 +310,8 @@ export class GroupDetailComponent implements OnInit {
 
     // If this user is the selector for the next question, auto-open the picker —
     // after the celebration when one is shown.
-    // "¿Quién la escribió?" is the next step after voting: only move on when it isn't waiting.
-    if (guess?.state !== 'pending') this.scheduleAdvance();
+    // Stay on the card you just answered so you see its results; the "1 question left" button
+    // points at the next one (UX audit: jumping away hid the results you'd just unlocked).
 
     const isSelector = !!daily.selection?.isCurrentUserSelector;
     if (streak.current > streak.previous) {
@@ -352,7 +327,6 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (!daily) return;
     this.daily.set({ ...daily, today: { ...daily.today, guess } });
-    if (guess.state !== 'pending') this.scheduleAdvance();
   }
 
   // "+8" with the coin after voting (rama 34) or a right guess (rama 36), or why nothing was earned when
