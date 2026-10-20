@@ -2,11 +2,27 @@
   @for (member of candidates(); track member.id) {
     <button
       type="button"
-      [class]="optionClass(member.id)"
+      [class]="optionClass(member.id) + ' py-2.5'"
       [attr.aria-pressed]="selected() === member.id"
       (click)="select(member.id)"
     >
-      {{ member.username }}
+      <span class="flex items-center gap-3">
+        <app-user-avatar
+          [avatarUrl]="member.avatarUrl"
+          [username]="member.username"
+          [frameColor]="member.frameColor"
+          [streak]="member.currentStreak"
+          [crown]="member.hasCrown"
+          [look]="member.look"
+          [memberSince]="member.joinedAt"
+          [showRibbon]="false"
+          size="sm"
+        />
+        <app-user-name class="min-w-0 flex-1 truncate font-semibold" [name]="member.username" [look]="member.look" />
+        @if (selected() === member.id) {
+          <ng-icon hlm name="lucideCheck" class="shrink-0 text-primary-text" aria-hidden="true" />
+        }
+      </span>
     </button>
   }
 

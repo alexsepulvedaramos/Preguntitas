@@ -3,7 +3,7 @@
   class="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border px-2.5 text-sm font-semibold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
   [class]="
     danger()
-      ? 'border-orange-500/40 bg-orange-500/20 text-orange-700 dark:text-orange-400'
+      ? 'border-warning/40 bg-warning/15 text-warning'
       : 'border-border bg-muted/60 text-foreground hover:bg-muted'
   "
   [attr.aria-label]="t('streakFreeze.chipAria', { count: streak().current, freezes: streak().freezes })"
@@ -20,7 +20,7 @@
 
 <ng-template #body>
   <div class="flex flex-col items-center gap-1 pt-1 text-center">
-    <p class="inline-flex items-center gap-2 text-4xl font-bold tabular-nums text-foreground">
+    <p class="inline-flex items-center gap-2 font-display text-5xl italic tabular-nums text-foreground">
       <app-glyph name="streak" size="lg" bare />{{ streak().current }}
     </p>
     <p class="text-sm text-foreground">
@@ -30,12 +30,12 @@
       <p class="text-xs text-muted-foreground tabular-nums">{{ t('streakFreeze.best', { count: streak().best }) }}</p>
     }
     @if (danger()) {
-      <p class="mt-1 text-xs font-medium text-orange-700 dark:text-orange-400">{{ t('streakFreeze.inDanger') }}</p>
+      <p class="mt-1 text-xs font-medium text-warning">{{ t('streakFreeze.inDanger') }}</p>
     }
   </div>
 
   @if (streak().repairableStreak) {
-    <div class="flex flex-col gap-2 rounded-xl bg-muted/50 p-3">
+    <div class="flex flex-col gap-2 rounded-default bg-muted/50 p-3">
       <p class="text-xs text-muted-foreground">
         <app-coin-text [text]="t('streakFreeze.repairHint', { price: streak().repairPrice })" />
       </p>

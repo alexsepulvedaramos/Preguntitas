@@ -3,6 +3,8 @@ import type { Translation } from '../translation.types';
 // German UI copy (informal "du", like the Spanish "tú"). Must match es.ts key for key.
 export const de: Translation = {
   common: {
+    showPassword: 'Passwort anzeigen',
+    hidePassword: 'Passwort verbergen',
     language: 'Sprache',
     close: 'Schließen',
     notNow: 'Jetzt nicht',
@@ -30,7 +32,6 @@ export const de: Translation = {
   },
   layout: {
     home: 'Startseite',
-    rights: 'Vaya Preguntita. Alle Rechte vorbehalten.',
     infoNav: 'Informationen',
     about: 'So funktioniert’s',
     releases: 'Neuigkeiten',
@@ -307,6 +308,7 @@ export const de: Translation = {
     card: {
       voteNow: 'Jetzt abstimmen',
       streakAtStake: { one: 'Verlier nicht deine Serie von {count} Tag', other: 'Verlier nicht deine Serie von {count} Tagen' },
+      newActivity: 'Neuigkeiten',
       yourTurn: 'Du bist dran!',
       nextAt: 'Nächste um {time} Uhr',
       inviteToStart: 'Lade jemanden ein, um zu starten',
@@ -348,7 +350,7 @@ export const de: Translation = {
       start: 'Los geht’s',
     },
     join: {
-      open: 'Einer bestehenden Gruppe beitreten',
+      open: 'Mit Code beitreten',
       title: 'Einer Gruppe beitreten',
       text: 'Gib den Einladungscode ein, um einer bestehenden Gruppe beizutreten.',
       code: 'Einladungscode',
@@ -379,6 +381,7 @@ export const de: Translation = {
     history: 'Verlauf ansehen',
     settings: 'Gruppeneinstellungen',
     refresh: 'Aktualisieren',
+    more: 'Weitere Optionen',
     loadError: 'Die Gruppe oder die Frage des Tages konnte nicht geladen werden.',
     lostStreakTitle: { one: 'Du hast deine Serie von {count} Tag verloren', other: 'Du hast deine Serie von {count} Tagen verloren' },
     lostStreakText: 'Dein Rekord: {best} · Stimm heute ab, um eine neue zu starten.',
@@ -408,7 +411,7 @@ export const de: Translation = {
     soonQuestion: 'Die nächste Frage kommt jeden Moment',
     days: 'T',
     hours: 'h',
-    minutes: 'm',
+    minutes: 'Min.',
     seconds: 's',
     timeLeft: 'Noch {time}',
     timeLeftLabel: 'Verbleibende Zeit zum Abstimmen',
@@ -602,6 +605,7 @@ export const de: Translation = {
     streakLabel: { one: 'Serie von {count} Tag', other: 'Serie von {count} Tagen' },
     admin: 'Admin',
     makeAdmin: 'Zum Admin machen',
+    memberActions: 'Aktionen für {name}',
     transferTitle: 'Adminrechte übertragen?',
     transferText: '{name} wird Admin der Gruppe. Du verlierst deine Adminrechte.',
     transfer: 'Übertragen',
@@ -859,6 +863,8 @@ export const de: Translation = {
     },
   },
   shop: {
+    tabItems: 'Gegenstände',
+    tabHistory: 'Verlauf',
     cosmeticsTitle: 'Dein Style',
     cosmeticsIntro: 'Extras, die du einmal kaufst und für immer behältst. Probier sie vor dem Kauf an.',
     previewHint: 'Tipp auf ein Teil, um es hier anzuprobieren.',

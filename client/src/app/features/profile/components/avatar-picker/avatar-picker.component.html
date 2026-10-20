@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-4">
   <!-- Tabs -->
-  <div class="flex rounded-lg bg-muted p-1 gap-1">
+  <div class="flex rounded-default bg-muted p-1 gap-1">
     <button
       hlmBtn
       variant="ghost"
@@ -83,7 +83,7 @@
       <div class="grid grid-cols-4 gap-3">
         @for (style of styles; track style.id) {
           <button
-            class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none"
+            class="flex flex-col items-center gap-1 p-2 rounded-default hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none"
             [disabled]="isUploading()"
             (click)="selectDiceBear(style.id)"
           >

@@ -12,6 +12,10 @@ public class GroupMember
     public bool IsAdmin { get; set; } = false;
     public bool NotificationsMuted { get; set; } = false;
 
+    // When this member last had the group open (§16 unread-activity dot). Null until the
+    // first visit after the column was added: JoinedAt stands in for it.
+    public DateTime? LastSeenAt { get; set; }
+
     // Shuffled selector rotation (§17.4): the last Group.SelectorRound this member was the
     // selector in. Members below the group's current round are still due a turn in it.
     public int LastSelectorRound { get; set; } = 0;

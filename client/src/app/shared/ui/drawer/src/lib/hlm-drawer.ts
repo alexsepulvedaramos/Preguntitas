@@ -17,7 +17,9 @@ import { HlmDrawerOverlay } from './hlm-drawer-overlay';
 			useExisting: forwardRef(() => HlmDrawer),
 		},
 		provideBrnDialogDefaultOptions({
-			// add custom options here
+			// Focus the panel itself on open, not its first button: opening with a tap must not
+			// light up the close button's focus ring (UX audit T7). Tab still reaches everything.
+			autoFocus: 'dialog',
 		}),
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,

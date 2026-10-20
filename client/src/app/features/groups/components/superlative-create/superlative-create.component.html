@@ -1,22 +1,12 @@
 <div class="flex flex-col gap-3">
   <label class="flex items-center gap-2 cursor-pointer select-none">
-    <input
-      type="checkbox"
-      class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
-      [checked]="allowNobody()"
-      (change)="toggleAllowNobody()"
-    />
+    <hlm-checkbox [checked]="allowNobody()" (checkedChange)="toggleAllowNobody()" />
     <span class="text-sm text-foreground">{{ t('createQuestion.allowNobody') }}</span>
   </label>
 
   <div class="flex flex-col gap-1.5">
     <label class="flex items-center gap-2 cursor-pointer select-none">
-      <input
-        type="checkbox"
-        class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
-        [checked]="showExclude()"
-        (change)="toggleShowExclude()"
-      />
+      <hlm-checkbox [checked]="showExclude()" (checkedChange)="toggleShowExclude()" />
       <span class="text-sm text-foreground">{{ t('createQuestion.exclude') }}</span>
     </label>
     @if (showExclude()) {

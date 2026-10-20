@@ -4,7 +4,7 @@ import { forkJoin, of } from 'rxjs';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucidePlus, lucideSparkles, lucideTrash2 } from '@ng-icons/lucide';
 
@@ -18,12 +18,12 @@ import { CoinsEarned } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../../../core/constants/question-type-colors';
 import { GroupMember } from '../../models/group.models';
 import { CreateQuestionComponent } from '../create-question/create-question.component';
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
+import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
 
 type Step = 'sources' | 'create' | 'assign-teams';
 
@@ -46,11 +46,11 @@ const PAGE_SIZE = 10;
 // logic below doesn't care which source an item came from.
 @Component({
   selector: 'app-select-question-dialog',
-  imports: [
+  imports: [QuestionTypeChipComponent, 
     HlmButtonImports,
     HlmDialogImports,
     HlmSpinnerImports,
-    HlmNativeSelectImports,
+    HlmSelectImports,
     NgIcon,
     CreateQuestionComponent,
     DeathmatchCreateComponent,
@@ -83,7 +83,6 @@ export class SelectQuestionDialogComponent {
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
-  protected readonly QUESTION_TYPE_BADGE_CLASS = QUESTION_TYPE_BADGE_CLASS;
   protected readonly questionTypes = Object.values(QuestionType).filter(
     (v): v is QuestionType => typeof v === 'number',
   );
@@ -101,6 +100,14 @@ export class SelectQuestionDialogComponent {
   protected readonly sourceFilter = signal<SourceFilter>('all');
   protected readonly sourceFilterValue = computed(() => this.sourceFilter().toString());
   protected readonly availablePacks = signal<Pack[]>([]);
+  // Labels shown in the closed filter selects (the select only knows the string values).
+  protected readonly typeFilterLabel = (value: string): string =>
+    value === 'all' ? this.t('picker.allTypes') : this.t(QUESTION_TYPE_LABELS[Number(value) as QuestionType]);
+  protected readonly sourceFilterLabel = (value: string): string => {
+    if (value === 'all') return this.t('picker.allSources');
+    if (value === 'pool') return this.t('picker.fromGroup');
+    return this.availablePacks().find(p => p.id.toString() === value)?.name ?? '';
+  };
 
   // Pool + pack pages (fetched independently, merged for display).
   protected readonly poolItems = signal<SelectionSourceItem[]>([]);

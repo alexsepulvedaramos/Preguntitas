@@ -8,12 +8,19 @@
 >
   <hlm-card-header class="flex flex-row items-center justify-between gap-3">
     <!-- Coloured initial circle, deterministic per group id -->
-    <div
-      class="size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-bold text-white"
-      [class]="accentColor()"
-      aria-hidden="true"
-    >
-      {{ group().name.slice(0, 1).toUpperCase() }}
+    <div class="relative shrink-0">
+      <div
+        class="size-10 text-sm font-bold"
+        [class]="toneClass()"
+        aria-hidden="true"
+      >
+        {{ group().name.slice(0, 1).toUpperCase() }}
+      </div>
+      <!-- Unread activity (§16): same dot as the user menu's release-notes one -->
+      @if (group().hasNewActivity) {
+        <span class="absolute -right-0.5 -top-0.5 size-3 rounded-full bg-accent ring-2 ring-card" aria-hidden="true"></span>
+        <span class="sr-only">{{ t('groups.card.newActivity') }}</span>
+      }
     </div>
 
     <div class="min-w-0 flex-1">
@@ -24,23 +31,26 @@
         @switch (group().dailyStatus) {
           @case ('voting') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary border border-primary/40"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-primary/25 text-primary-text border border-primary/40"
             >
               {{ t('groups.card.voteNow') }}
             </span>
             @if (group().myStreak; as streak) {
-              <!-- What's at stake if today's question closes without your vote -->
+              <!-- What's at stake if today's question closes without your vote: a fixed-size
+                   chip (flame + days) so the card never grows a second line -->
               <span
-                class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-500/40"
+                class="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums bg-warning/15 text-warning border border-warning/40"
+                [attr.title]="t('groups.card.streakAtStake', { count: streak })"
               >
-                <ng-icon hlm name="lucideFlame" size="xs" />
-                {{ t('groups.card.streakAtStake', { count: streak }) }}
+                <ng-icon hlm name="lucideFlame" size="xs" aria-hidden="true" />
+                <span aria-hidden="true">{{ streak }}</span>
+                <span class="sr-only">{{ t('groups.card.streakAtStake', { count: streak }) }}</span>
               </span>
             }
           }
           @case ('selector') {
             <span
-              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-lime-500/25 text-lime-700 dark:text-lime-400 border border-lime-500/40"
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-accent text-accent-foreground border border-accent"
             >
               {{ t('groups.card.yourTurn') }}
             </span>
@@ -92,8 +102,8 @@
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="w-[95vw] max-w-md">
         <hlm-dialog-header class="items-center text-center">
           <span
-            class="inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-semibold truncate"
-            [class]="accentBadgeClass()"
+            class="max-w-full px-3 py-1 text-sm font-semibold truncate"
+            [class]="toneClass()"
           >
             {{ group().name }}
           </span>

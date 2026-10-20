@@ -1,11 +1,5 @@
 <div class="min-h-dvh flex flex-col bg-background">
-  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
-    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="goBack()">
-      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
-      <span class="sr-only">{{ t('common.back') }}</span>
-    </button>
-    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('titles.shop') }}</h1>
-  </header>
+  <app-page-header [title]="t('titles.shop')" [backLabel]="t('common.back')" (back)="goBack()" />
 
   <div class="flex flex-col gap-6 p-4 pb-12 max-w-lg mx-auto w-full">
     <!-- Wallet -->
@@ -23,10 +17,22 @@
       </div>
     </section>
 
+    <!-- One tab per kind (UX audit): the shop was a single ~6,000 px page on a phone -->
+    <hlm-tabs class="flex flex-col gap-4" [tab]="tab()" (tabActivated)="tab.set($event)">
+      <div class="sticky top-[3.5rem] z-20 -mx-4 bg-background/95 px-4 py-2 backdrop-blur">
+        <hlm-tabs-list class="flex w-full justify-start overflow-x-auto [scrollbar-width:none]" [attr.aria-label]="t('titles.shop')">
+          <button hlmTabsTrigger="items" class="shrink-0">{{ t('shop.tabItems') }}</button>
+          @for (section of sections(); track section.id) {
+            <button [hlmTabsTrigger]="section.id" class="shrink-0">{{ section.title }}</button>
+          }
+          <button hlmTabsTrigger="history" class="shrink-0">{{ t('shop.tabHistory') }}</button>
+        </hlm-tabs-list>
+      </div>
+
     <!-- Game items (rama 45): bought here, used later from their spot in any group -->
-    <section class="flex flex-col gap-3" aria-labelledby="shop-items-title">
+    <section class="flex flex-col gap-3" hlmTabsContent="items" aria-labelledby="shop-items-title">
       <div class="flex flex-col gap-1">
-        <h2 id="shop-items-title" class="font-display text-xl italic tracking-tight text-foreground">
+        <h2 id="shop-items-title" class="font-display text-lg italic tracking-tight text-foreground">
           {{ t('inventory.title') }}
         </h2>
         <p class="text-sm text-muted-foreground text-balance">{{ t('inventory.intro') }}</p>
@@ -42,7 +48,7 @@
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span
                   class="text-xs font-medium tabular-nums"
-                  [class]="entry.owned > 0 ? 'text-primary' : 'text-muted-foreground'"
+                  [class]="entry.owned > 0 ? 'text-primary-text' : 'text-muted-foreground'"
                   aria-live="polite"
                 >
                   @if (entry.missing > 0) {
@@ -56,6 +62,7 @@
                     type="button"
                     hlmBtn
                     size="sm"
+                    variant="outline"
                     class="focus-visible:ring-2 focus-visible:ring-ring"
                     [disabled]="busy() !== null || entry.missing > 0"
                     (click)="buyDlg.open()"
@@ -91,9 +98,12 @@
     </section>
 
     <!-- Cosmetics (rama 42): bought once, tried on here first, worn from here (titles: profile) -->
-    <section class="flex flex-col gap-4" aria-labelledby="shop-style-title">
+
+      @if (tab() !== 'items' && tab() !== 'history') {
+        <!-- Cosmetics: what they are and a try-on preview, above every style tab -->
+        <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1">
-        <h2 id="shop-style-title" class="font-display text-xl italic tracking-tight text-foreground">
+        <h2 id="shop-style-title" class="font-display text-lg italic tracking-tight text-foreground">
           {{ t('shop.cosmeticsTitle') }}
         </h2>
         <p class="text-sm text-muted-foreground text-balance">{{ t('shop.cosmeticsIntro') }}</p>
@@ -102,7 +112,7 @@
       <!-- Try-on preview on your own avatar -->
       <div
         hlmCard
-        class="sticky top-[4.25rem] z-10 flex-row items-center gap-5 overflow-hidden px-6 py-5 shadow-md"
+        class="sticky top-[7rem] z-10 flex-row items-center gap-5 overflow-hidden px-6 py-5 shadow-md"
         aria-live="polite"
       >
         <div class="p-3">
@@ -122,7 +132,7 @@
             <app-user-name [name]="user()?.username" [look]="previewLook()" />
           </p>
           @if (user()?.title) {
-            <p class="truncate text-sm font-semibold text-primary">{{ user()?.title }}</p>
+            <p class="truncate text-sm font-semibold text-primary-text">{{ user()?.title }}</p>
           }
           @if (isTrying()) {
             <button hlmBtn variant="outline" size="sm" class="mt-1 self-start" (click)="stopTrying()">
@@ -134,10 +144,13 @@
         </div>
       </div>
 
+        </div>
+      }
+
       @for (section of sections(); track section.id) {
-        <div class="flex flex-col gap-3" role="group" [attr.aria-labelledby]="'shop-kind-' + section.id">
+        <div class="flex flex-col gap-3" [hlmTabsContent]="section.id">
           <div class="flex flex-col gap-0.5">
-            <h3 [id]="'shop-kind-' + section.id" class="text-base font-semibold text-foreground">{{ section.title }}</h3>
+            <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ section.title }}</h2>
             <p class="text-xs text-muted-foreground text-balance">{{ section.hint }}</p>
           </div>
 
@@ -145,12 +158,12 @@
             @if (section.slot === 'theme') {
               <!-- The free default theme -->
               <div
-                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                class="flex flex-col items-center gap-2 rounded-default border bg-card p-3 text-center transition-shadow"
                 [class]="defaultThemeTried() ? 'border-primary ring-2 ring-primary' : 'border-border'"
               >
                 <button
                   type="button"
-                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  class="flex h-20 w-full items-center justify-center rounded-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   [attr.aria-pressed]="defaultThemeTried()"
                   [attr.aria-label]="t('shop.defaultTheme')"
                   (click)="tryOn('theme', null)"
@@ -159,7 +172,7 @@
                 </button>
                 <span class="text-sm font-medium text-foreground">{{ t('shop.defaultTheme') }}</span>
                 @if (defaultThemeEquipped()) {
-                  <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary">
+                  <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary-text">
                     <ng-icon hlm name="lucideCheck" size="sm" /> {{ t('shop.equipped') }}
                   </span>
                 } @else {
@@ -172,12 +185,12 @@
 
             @for (item of section.items; track item.key) {
               <div
-                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                class="flex flex-col items-center gap-2 rounded-default border bg-card p-3 text-center transition-shadow [&>:last-child]:mt-auto [&>hlm-alert-dialog]:mt-auto"
                 [class]="item.tried ? 'border-primary ring-2 ring-primary' : 'border-border'"
               >
                 <button
                   type="button"
-                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  class="flex h-20 w-full items-center justify-center rounded-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   [attr.aria-pressed]="item.tried"
                   [attr.aria-label]="item.label"
                   [disabled]="section.slot === null"
@@ -212,7 +225,7 @@
                       <span class="text-4xl" aria-hidden="true">{{ item.emoji }}</span>
                     }
                     @case ('title') {
-                      <span class="font-display text-lg italic leading-tight text-primary text-balance">{{ item.label }}</span>
+                      <span class="font-display text-lg italic leading-tight text-primary-text text-balance">{{ item.label }}</span>
                     }
                     @case ('theme') {
                       <span class="size-10 rounded-full border border-border" [style.background]="item.swatch"></span>
@@ -225,7 +238,7 @@
                     <span class="text-sm font-medium text-foreground">{{ item.label }}</span>
                   }
                   @if (item.rarity !== 0) {
-                    <span hlmBadge variant="secondary" class="text-[10px]">{{ item.rarityLabel }}</span>
+                    <span class="rounded-full px-2 py-0.5 text-2xs font-semibold" [class]="rarityClass[item.rarity]">{{ item.rarityLabel }}</span>
                   }
                 </div>
 
@@ -241,7 +254,7 @@
                       [disabled]="cosmeticBusy() !== null"
                       (click)="equip(section, null)"
                     >
-                      <ng-icon hlm name="lucideCheck" size="sm" class="text-primary" />
+                      <ng-icon hlm name="lucideCheck" size="sm" class="text-primary-text" />
                       {{ t('shop.equipped') }} · {{ t('shop.unequip') }}
                     </button>
                   } @else {
@@ -296,11 +309,10 @@
           </div>
         </div>
       }
-    </section>
 
     <!-- Ledger -->
-    <section class="flex flex-col gap-3" aria-labelledby="coin-history-title">
-      <h2 id="coin-history-title" class="font-display text-xl italic tracking-tight text-foreground">
+    <section class="flex flex-col gap-3" hlmTabsContent="history" aria-labelledby="coin-history-title">
+      <h2 id="coin-history-title" class="font-display text-lg italic tracking-tight text-foreground">
         {{ t('coins.historyTitle') }}
       </h2>
 
@@ -317,8 +329,8 @@
               </div>
               <div hlmItemActions
                 class="font-semibold tabular-nums"
-                [class.text-primary]="row.amount > 0"
-                [class.text-destructive]="row.amount < 0"
+                [class.text-primary-text]="row.amount > 0"
+                [class.text-foreground]="row.amount < 0"
               >
                 <span class="inline-flex items-center gap-1">{{ row.amount > 0 ? '+' : '' }}{{ row.amount }}<app-coin /></span>
               </div>
@@ -338,5 +350,6 @@
         <button hlmBtn variant="outline" class="self-center" (click)="loadMore()">{{ t('coins.loadMore') }}</button>
       }
     </section>
+    </hlm-tabs>
   </div>
 </div>

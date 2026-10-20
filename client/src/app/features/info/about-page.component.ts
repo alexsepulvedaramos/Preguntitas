@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 
 import { QuestionType } from '../../core/enums/question-type.enum';
-import { QUESTION_TYPE_BADGE_CLASS } from '../../core/constants/question-type-colors';
 import { QUESTION_TYPE_LABELS } from '../../core/constants/question-type-labels';
 import { FRAME_STREAK, STREAK_MATERIAL_KEYS, STREAK_TIERS } from '../../core/constants/streak-tiers';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -18,6 +17,8 @@ import { ResultsShowcaseComponent } from '../auth/components/showcase/results-sh
 import { InfoPageNav } from './info-page-nav';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../shared/components/glyph/glyphs';
+import { QuestionTypeChipComponent } from '../../shared/components/question-type-chip/question-type-chip.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 interface TypeExample {
   type: QuestionType;
@@ -29,10 +30,9 @@ interface TypeExample {
 // with live examples built from the real components (result bars, streak frames).
 @Component({
   selector: 'app-about-page',
-  imports: [
+  imports: [PageHeaderComponent, QuestionTypeChipComponent, 
     GlyphComponent,
     RouterLink,
-    NgIcon,
     HlmButtonImports,
     HlmCardImports,
     UserAvatarComponent,
@@ -49,7 +49,6 @@ export class AboutPageComponent {
   protected readonly version = APP_VERSION;
   protected readonly frameStreak = FRAME_STREAK;
   protected readonly typeLabels = QUESTION_TYPE_LABELS;
-  protected readonly typeBadge = QUESTION_TYPE_BADGE_CLASS;
 
   protected readonly steps: { glyph: GlyphName; title: TranslationKey; text: TranslationKey }[] = [
     { glyph: 'clock', title: 'about.step1Title', text: 'about.step1Text' },

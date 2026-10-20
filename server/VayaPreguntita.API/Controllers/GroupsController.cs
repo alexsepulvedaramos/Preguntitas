@@ -181,6 +181,16 @@ public class GroupsController(
     }
 
     /// <summary>
+    /// POST /api/groups/{groupId}/seen
+    /// The caller has the group open: clears its unread-activity dot on the group list.
+    /// </summary>
+    [HttpPost("{groupId}/seen")]
+    public async Task<IActionResult> MarkSeen(int groupId)
+    {
+        return await groupsService.MarkSeenAsync(User.GetUserId(), groupId) ? NoContent() : NotFound();
+    }
+
+    /// <summary>
     /// PATCH /api/groups/{groupId}/members/me/mute
     /// Mutes or unmutes all notifications for this group for the current user.
     /// </summary>

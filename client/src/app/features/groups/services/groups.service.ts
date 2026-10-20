@@ -84,6 +84,13 @@ export class GroupsService {
         );
     }
 
+    // You have the group open: clears its unread-activity dot. Also updates the cached list so
+    // the dot is already gone when you go back. Fire-and-forget: a failure only leaves the dot.
+    markSeen(groupId: number): void {
+        this.http.post<void>(`${this.baseUrl}/${groupId}/seen`, {}).subscribe({ error: () => {} });
+        this._groups.update(groups => groups.map(g => (g.id === groupId ? { ...g, hasNewActivity: false } : g)));
+    }
+
     setGroupMute(groupId: number, muted: boolean): Observable<{ muted: boolean }> {
         return this.http.patch<{ muted: boolean }>(`${this.baseUrl}/${groupId}/members/me/mute`, { muted });
     }

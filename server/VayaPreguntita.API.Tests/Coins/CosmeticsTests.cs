@@ -140,6 +140,20 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
+    public async Task FrameColours_ArePaletteKeys_AndALegacyHexBecomesItsKey()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+
+        (await UpdateAsync(group["ana"], new() { FrameColor = "purple" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["bea"], new() { FrameColor = "#3B82F6" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { FrameColor = "#123456" })).Error.Should().Be("INVALID_FRAME_COLOR");
+
+        await using var db = NewContext();
+        (await NewUserService(db).GetProfileAsync(group["ana"]))!.FrameColor.Should().Be("purple");
+        (await NewUserService(db).GetProfileAsync(group["bea"]))!.FrameColor.Should().Be("blue");
+    }
+
+    [Fact]
     public void TheCatalog_HasUniqueIdsAndKeys_AndEveryTitleIsNamed()
     {
         ShopCatalog.All.Select(i => i.Id).Should().OnlyHaveUniqueItems();

@@ -18,6 +18,7 @@ import { visiblePolling } from '../../../../shared/utils/visible-polling';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 export const CHAT_POLL_INTERVAL_MS = 15_000;
 
@@ -26,7 +27,7 @@ const AT_BOTTOM_THRESHOLD_PX = 80;
 
 @Component({
   selector: 'app-group-chat',
-  imports: [GlyphComponent, UserNameComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
+  imports: [GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
   providers: [provideIcons({ lucideSend })],
   templateUrl: './group-chat.component.html',
 })

@@ -169,15 +169,14 @@ describe('GroupDetailComponent live refresh', () => {
     expect(activeKey()).toBe('flash-2');
   });
 
-  it('moves on to the next unanswered question after voting a flash', () => {
+  it('stays on a flash after voting it, so its results show', () => {
     fixture.detectChanges();
     flushWithFlashes('voting', [flash(1)]);
     fixture.componentInstance.goTo('flash-1');
 
     fixture.componentInstance.onFlashVoted(flash(1, true) as never);
-    expect(activeKey()).toBe('flash-1');
     vi.advanceTimersByTime(1500);
-    expect(activeKey()).toBe('daily');
+    expect(activeKey()).toBe('flash-1');
   });
 
   it('polls while a flash question is open, keeping a local flash vote', () => {

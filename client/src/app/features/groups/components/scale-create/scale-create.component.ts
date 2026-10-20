@@ -3,10 +3,12 @@ import { Component, inject, input, model, signal } from '@angular/core';
 import { GroupMember } from '../../models/group.models';
 import { voteOptionClass } from '../vote/vote-option.util';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 
 // Scale create fields (spec §5.3): who is being rated, if anyone. The range is always 1–10.
 @Component({
   selector: 'app-scale-create',
+  imports: [HlmCheckboxImports],
   templateUrl: './scale-create.component.html',
 })
 export class ScaleCreateComponent {

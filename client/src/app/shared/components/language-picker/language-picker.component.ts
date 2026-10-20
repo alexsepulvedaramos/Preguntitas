@@ -46,7 +46,7 @@ import { LANGUAGES, LANGUAGE_NAMES, Lang, isLang } from '../../../core/i18n/lang
         [attr.aria-label]="t('common.language') + ': ' + names[i18n.lang()]"
       >
         <ng-icon hlm name="lucideLanguages" size="sm" />
-        <span class="text-xs font-semibold uppercase">{{ i18n.lang() }}</span>
+        <span class="hidden text-xs font-semibold uppercase sm:inline">{{ i18n.lang() }}</span>
       </button>
 
       <ng-template #menu>

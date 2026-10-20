@@ -66,6 +66,30 @@ public class GroupsService(
 
         var myStreaks = await streakService.GetMyEffectiveStreaksByGroupAsync(userId);
 
+        // Unread activity (§16): everything is compared with when the caller last had each
+        // group open (JoinedAt until their first visit).
+        var lastSeen = await context.GroupMembers
+            .Where(m => m.UserId == userId && groupIds.Contains(m.GroupId))
+            .Select(m => new { m.GroupId, Seen = m.LastSeenAt ?? m.JoinedAt })
+            .ToDictionaryAsync(m => m.GroupId, m => m.Seen);
+        var lastChatByOthers = await context.ChatMessages
+            .Where(c => groupIds.Contains(c.DailyEntry.GroupId) && c.UserId != null && c.UserId != userId)
+            .GroupBy(c => c.DailyEntry.GroupId)
+            .Select(g => new { GroupId = g.Key, At = g.Max(c => c.CreatedAt) })
+            .ToDictionaryAsync(x => x.GroupId, x => x.At);
+        var lastVoteByOthers = openQuestionIds.Count > 0
+            ? await context.Votes
+                .Where(v => openQuestionIds.Contains(v.QuestionId) && v.UserId != userId)
+                .GroupBy(v => v.QuestionId)
+                .Select(g => new { QuestionId = g.Key, At = g.Max(v => v.DateResponded) })
+                .ToDictionaryAsync(x => x.QuestionId, x => x.At)
+            : new Dictionary<int, DateTime>();
+        var selectorSince = await context.DailyEntries
+            .Where(d => groupIds.Contains(d.GroupId) && d.ActivatedAt == null && d.SelectorUserId == userId)
+            .GroupBy(d => d.GroupId)
+            .Select(g => new { GroupId = g.Key, At = g.Max(d => d.PreselectedAt) })
+            .ToDictionaryAsync(x => x.GroupId, x => x.At);
+
         var openByGroup = openEntries.ToDictionary(e => e.GroupId);
         var votedSet = new HashSet<int>(votedQuestionIds);
         var selectorSet = new HashSet<int>(selectorGroupIds);
@@ -84,8 +108,27 @@ public class GroupsService(
             };
             dto.MyStreak = myStreaks.GetValueOrDefault(g.Id);
 
+            var seen = lastSeen.GetValueOrDefault(g.Id);
+            var voted = openEntry != null && votedSet.Contains(openEntry.QuestionId);
+            dto.HasNewActivity =
+                lastChatByOthers.GetValueOrDefault(g.Id) > seen
+                || (openEntry != null && !voted && openEntry.ActivatedAt > seen)
+                || (voted && lastVoteByOthers.GetValueOrDefault(openEntry!.QuestionId) > seen)
+                || (selectorSince.TryGetValue(g.Id, out var pickSince) && pickSince > seen);
+
             return dto;
         });
+    }
+
+    public async Task<bool> MarkSeenAsync(int userId, int groupId)
+    {
+        var member = await context.GroupMembers
+            .FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        if (member == null) return false;
+
+        member.LastSeenAt = clock.GetUtcNow().UtcDateTime;
+        await context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<GroupResponse> CreateGroupAsync(CreateGroupRequest request, int userId)

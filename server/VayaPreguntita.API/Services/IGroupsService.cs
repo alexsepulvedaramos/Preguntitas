@@ -9,6 +9,8 @@ public interface IGroupsService
 
     // Retrieves a list of groups for a specific user
     Task<IEnumerable<GroupResponse>> GetUserGroupsAsync(int userId);
+    // Records that the user has the group open now (clears its unread-activity dot).
+    Task<bool> MarkSeenAsync(int userId, int groupId);
 
     // Creates a new group, generates its invitation code, and returns the details
     Task<GroupResponse> CreateGroupAsync(CreateGroupRequest request, int userId);

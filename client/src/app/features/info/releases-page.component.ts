@@ -1,7 +1,8 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
+import { lucideChevronDown } from '@ng-icons/lucide';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
 
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -13,12 +14,13 @@ import { InfoPageNav } from './info-page-nav';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 // "Novedades" (rama 26): every release, newest first, written for players.
 @Component({
   selector: 'app-releases-page',
-  imports: [CoinTextComponent, GlyphComponent, RouterLink, NgIcon, HlmBadgeImports, HlmButtonImports, HlmCardImports],
-  providers: [provideIcons({ lucideArrowLeft })],
+  imports: [PageHeaderComponent, CoinTextComponent, GlyphComponent, RouterLink, HlmBadgeImports, HlmButtonImports, HlmCardImports, HlmIconImports, NgIcon],
+  providers: [provideIcons({ lucideChevronDown })],
   templateUrl: './releases-page.component.html',
 })
 export class ReleasesPageComponent implements OnInit {
@@ -46,6 +48,19 @@ export class ReleasesPageComponent implements OnInit {
         : release === RELEASES[0],
     }));
   });
+
+  // Versions the player opened or closed by hand; the rest follow the default (open when it's
+  // the latest or new to this device).
+  private readonly toggled = signal<ReadonlyMap<string, boolean>>(new Map());
+
+  protected isOpen(release: { version: string; isNew: boolean }): boolean {
+    return this.toggled().get(release.version) ?? (release.isNew || release.version === RELEASES[0].version);
+  }
+
+  protected toggle(release: { version: string; isNew: boolean }): void {
+    const open = this.isOpen(release);
+    this.toggled.update((m) => new Map(m).set(release.version, !open));
+  }
 
   ngOnInit(): void {
     this.releaseNotes.markSeen();

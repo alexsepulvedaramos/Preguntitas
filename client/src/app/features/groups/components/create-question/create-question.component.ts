@@ -2,12 +2,11 @@ import { Component, computed, effect, inject, input, output, signal } from '@ang
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmNativeSelectImports } from '@spartan-ng/helm/native-select';
 import { HlmAlertDialog, HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideInfo, lucideZap } from '@ng-icons/lucide';
+import { lucideZap } from '@ng-icons/lucide';
 
 import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
@@ -16,7 +15,7 @@ import { LaunchFlashResponse, SelectResponse } from '../../../../core/models/dai
 import { EMPTY_INVENTORY, FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
-import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
+import { QUESTION_TYPE_GLYPH, QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
 import { QUESTION_TYPE_DESCRIPTIONS } from '../../../../core/constants/question-type-descriptions';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -55,9 +54,8 @@ const TEXT_MAX_LENGTH = 200;
     GlyphComponent,
     HlmButtonImports,
     HlmFieldImports,
-    HlmInputImports,
+    HlmTextareaImports,
     HlmSpinnerImports,
-    HlmNativeSelectImports,
     HlmAlertDialogImports,
     NgIcon,
     SuperlativeCreateComponent,
@@ -65,7 +63,7 @@ const TEXT_MAX_LENGTH = 200;
     ScaleCreateComponent,
     CustomPollCreateComponent,
   ],
-  providers: [provideIcons({ lucideInfo, lucideZap })],
+  providers: [provideIcons({ lucideZap })],
   templateUrl: './create-question.component.html',
 })
 export class CreateQuestionComponent {
@@ -106,6 +104,7 @@ export class CreateQuestionComponent {
 
   protected readonly QuestionType = QuestionType;
   protected readonly QUESTION_TYPE_LABELS = QUESTION_TYPE_LABELS;
+  protected readonly QUESTION_TYPE_GLYPH = QUESTION_TYPE_GLYPH;
   protected readonly QUESTION_TYPE_DESCRIPTIONS = QUESTION_TYPE_DESCRIPTIONS;
   // Superlativo first — it's the default, and the most intuitive type to start with.
   protected readonly types = [
@@ -120,7 +119,6 @@ export class CreateQuestionComponent {
   protected readonly text = signal('');
   protected readonly textTouched = signal(false);
   protected readonly type = signal<QuestionType>(QuestionType.Superlative);
-  protected readonly infoOpen = signal(false);
 
   // Per-type state, shared via two-way bindings with the per-type sub-forms
   protected readonly allowNobody = signal(false);
@@ -204,14 +202,8 @@ export class CreateQuestionComponent {
     }
   });
 
-  onTypeChange(value: string | null | undefined) {
-    this.type.set(Number(value) as QuestionType);
-    this.infoOpen.set(false);
-  }
-
-  toggleInfo(event: Event) {
-    event.stopPropagation();
-    this.infoOpen.set(!this.infoOpen());
+  onTypeChange(value: QuestionType) {
+    this.type.set(value);
   }
 
   onTextChange(value: string) {

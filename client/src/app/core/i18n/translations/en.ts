@@ -3,6 +3,8 @@ import type { Translation } from '../translation.types';
 // English UI copy. Must match es.ts key for key (the type enforces it).
 export const en: Translation = {
   common: {
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
     language: 'Language',
     close: 'Close',
     notNow: 'Not now',
@@ -30,7 +32,6 @@ export const en: Translation = {
   },
   layout: {
     home: 'Home',
-    rights: 'Vaya Preguntita. All rights reserved.',
     infoNav: 'Information',
     about: 'How it works',
     releases: "What's new",
@@ -307,6 +308,7 @@ export const en: Translation = {
     card: {
       voteNow: 'Vote now',
       streakAtStake: { one: 'Don’t lose your {count}-day streak', other: 'Don’t lose your {count}-day streak' },
+      newActivity: 'New activity',
       yourTurn: 'Your turn to pick!',
       nextAt: 'Next at {time}',
       inviteToStart: 'Invite someone to start',
@@ -348,7 +350,7 @@ export const en: Translation = {
       start: 'Let’s go',
     },
     join: {
-      open: 'Join an existing group',
+      open: 'Join with a code',
       title: 'Join a group',
       text: 'Enter the invitation code to join an existing group.',
       code: 'Invitation code',
@@ -379,6 +381,7 @@ export const en: Translation = {
     history: 'View history',
     settings: 'Group settings',
     refresh: 'Refresh',
+    more: 'More options',
     loadError: 'Couldn’t load the group or today’s question.',
     lostStreakTitle: { one: 'You lost your {count}-day streak', other: 'You lost your {count}-day streak' },
     lostStreakText: 'Your record: {best} · Vote today to start a new one.',
@@ -408,7 +411,7 @@ export const en: Translation = {
     soonQuestion: 'Next question any moment now',
     days: 'd',
     hours: 'h',
-    minutes: 'm',
+    minutes: 'min',
     seconds: 's',
     timeLeft: '{time} left',
     timeLeftLabel: 'Time left to vote',
@@ -602,6 +605,7 @@ export const en: Translation = {
     streakLabel: { one: '{count}-day streak', other: '{count}-day streak' },
     admin: 'Admin',
     makeAdmin: 'Make admin',
+    memberActions: 'Actions for {name}',
     transferTitle: 'Transfer admin rights?',
     transferText: '{name} will become the group admin. You’ll lose your admin rights.',
     transfer: 'Transfer',
@@ -859,6 +863,8 @@ export const en: Translation = {
     },
   },
   shop: {
+    tabItems: 'Items',
+    tabHistory: 'Activity',
     cosmeticsTitle: 'Your style',
     cosmeticsIntro: 'Extras you buy once and keep forever. Try them on before you buy.',
     previewHint: 'Tap any item to try it on here.',

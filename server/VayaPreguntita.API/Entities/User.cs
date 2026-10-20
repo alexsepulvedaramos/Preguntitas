@@ -10,7 +10,7 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
-    // A hex colour, FrameColors.Streak (ring follows the streak tier) or FrameColors.None.
+    // A palette colour key (FrameColors.PaletteKeys), FrameColors.Streak (ring follows the streak tier) or FrameColors.None.
     // null is treated as Streak.
     public string? FrameColor { get; set; } = Helpers.FrameColors.Streak;
 

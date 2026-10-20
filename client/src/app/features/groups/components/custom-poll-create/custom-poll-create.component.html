@@ -88,12 +88,7 @@
   </div>
 
   <label class="flex items-center gap-2 cursor-pointer select-none">
-    <input
-      type="checkbox"
-      class="size-4 rounded border-input accent-accent focus-visible:ring-2 focus-visible:ring-ring"
-      [checked]="allowOther()"
-      (change)="toggleAllowOther()"
-    />
+    <hlm-checkbox [checked]="allowOther()" (checkedChange)="toggleAllowOther()" />
     <span class="text-sm text-foreground"
       >{{ t('createQuestion.allowOther') }}</span
     >

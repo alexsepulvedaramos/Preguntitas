@@ -19,7 +19,7 @@
       aria-labelledby="landing-title"
     >
       <div class="flex flex-col items-center gap-5 text-center md:items-start md:text-left">
-        <p class="text-xs font-medium uppercase tracking-widest text-primary">
+        <p class="text-xs font-medium uppercase tracking-widest text-primary-text">
           {{ t('landing.eyebrow') }}
         </p>
         <h1
@@ -38,7 +38,7 @@
           </a>
           <a hlmBtn variant="outline" size="lg" routerLink="/demo">{{ t('landing.tryDemo') }}</a>
         </div>
-        <a routerLink="/auth/login" class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        <a hlmBtn variant="link" size="sm" routerLink="/auth/login" class="text-muted-foreground hover:text-foreground">
           {{ t('landing.haveAccount') }}
         </a>
       </div>
@@ -57,10 +57,10 @@
         </h2>
         <ol class="grid gap-4 md:grid-cols-3">
           @for (step of steps; track step.title; let i = $index) {
-            <li class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5">
+            <li class="flex flex-col gap-2 rounded-default border border-border bg-card p-5">
               <div class="flex items-center gap-3">
                 <app-glyph [name]="step.glyph" size="md" />
-                <span class="text-xs font-bold uppercase tracking-widest text-primary">{{ t('landing.step', { n: i + 1 }) }}</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary-text">{{ t('landing.step', { n: i + 1 }) }}</span>
               </div>
               <h3 class="font-semibold text-foreground">{{ t(step.title) }}</h3>
               <p class="text-sm text-muted-foreground">{{ t(step.text) }}</p>
@@ -96,7 +96,7 @@
                 size="lg"
               />
             </span>
-            <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ frame.oneYear ? t('landing.oneYear') : t('common.days', { count: frame.streak }) }}</span>
+            <span class="relative z-10 rounded-full bg-background/85 px-2 text-xs uppercase tracking-wider text-muted-foreground">{{ frame.oneYear ? t('landing.oneYear') : t('common.days', { count: frame.streak }) }}</span>
           </li>
         }
       </ul>

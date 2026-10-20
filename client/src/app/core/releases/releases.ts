@@ -24,6 +24,121 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.24.0',
+    date: '2026-10-21',
+    title: {
+      es: 'Todo en su sitio',
+      en: 'Everything in its place',
+      de: 'Alles an seinem Platz',
+    },
+    items: [
+      {
+        glyph: 'group',
+        title: {
+          es: 'Caras en las votaciones',
+          en: 'Faces in the votes',
+          de: 'Gesichter bei den Abstimmungen',
+        },
+        text: {
+          es: 'Al votar a alguien del grupo ves su foto, su anillo y lo que lleva puesto de la tienda. En el chat también aparece cada uno con su avatar.',
+          en: 'When you vote for someone in the group you see their photo, their ring and what they’re wearing from the shop. In the chat, everyone shows up with their avatar too.',
+          de: 'Wenn du jemanden aus der Gruppe wählst, siehst du Foto, Ring und was die Person aus dem Shop trägt. Auch im Chat erscheint jede Person mit ihrem Avatar.',
+        },
+      },
+      {
+        glyph: 'chart',
+        title: {
+          es: 'Resultados más claros',
+          en: 'Clearer results',
+          de: 'Klarere Ergebnisse',
+        },
+        text: {
+          es: 'Las barras usan el color de tu tema y destacan la opción ganadora; quién votó qué aparece al final de cada barra.',
+          en: 'Bars use your theme’s colour and highlight the winning option; who voted for what shows at the end of each bar.',
+          de: 'Die Balken nutzen die Farbe deines Themes und heben die Siegeroption hervor; wer was gewählt hat, steht am Ende jedes Balkens.',
+        },
+      },
+      {
+        glyph: 'bell',
+        title: {
+          es: 'Un punto cuando hay novedades',
+          en: 'A dot when there’s news',
+          de: 'Ein Punkt bei Neuigkeiten',
+        },
+        text: {
+          es: 'En tu lista de grupos, un punto te avisa de mensajes nuevos, preguntas por votar, votos nuevos o de que te toca elegir.',
+          en: 'In your group list, a dot tells you about new messages, questions to vote on, new votes or that it’s your turn to pick.',
+          de: 'In deiner Gruppenliste zeigt ein Punkt neue Nachrichten, offene Fragen, neue Stimmen oder dass du mit Auswählen dran bist.',
+        },
+      },
+      {
+        glyph: 'shop',
+        title: {
+          es: 'Una tienda por pestañas',
+          en: 'A shop with tabs',
+          de: 'Ein Shop mit Tabs',
+        },
+        text: {
+          es: 'Objetos, anillos, accesorios, temas y tus movimientos, cada cosa en su pestaña. Las rarezas tienen color propio.',
+          en: 'Items, rings, accessories, themes and your activity, each in its own tab. Rarities have their own colour.',
+          de: 'Gegenstände, Ringe, Accessoires, Themes und dein Verlauf, jedes in seinem Tab. Seltenheiten haben eine eigene Farbe.',
+        },
+      },
+      {
+        glyph: 'palette',
+        title: {
+          es: 'Colores que encajan',
+          en: 'Colours that fit',
+          de: 'Farben, die passen',
+        },
+        text: {
+          es: 'Los colores de marco, las preguntas flash y los avisos de racha ahora van con la app y se ven bien en modo oscuro. En oscuro, cada botón vuelve a tener su peso.',
+          en: 'Frame colours, flash questions and streak warnings now match the app and look right in dark mode. In dark mode, every button has its proper weight again.',
+          de: 'Rahmenfarben, Blitzfragen und Serien-Hinweise passen jetzt zur App und sehen im Dunkelmodus gut aus. Im Dunkelmodus hat jeder Knopf wieder sein richtiges Gewicht.',
+        },
+      },
+      {
+        glyph: 'celebrate',
+        title: {
+          es: 'Un resumen del mes con más fiesta',
+          en: 'A more festive monthly summary',
+          de: 'Ein festlicherer Monatsrückblick',
+        },
+        text: {
+          es: 'La portada del resumen llega con confeti, y el aviso se queda arriba hasta que lo abras o lo cierres.',
+          en: 'The summary cover arrives with confetti, and its notice stays on top until you open or close it.',
+          de: 'Das Titelbild des Rückblicks kommt mit Konfetti, und der Hinweis bleibt oben, bis du ihn öffnest oder schließt.',
+        },
+      },
+      {
+        glyph: 'tools',
+        title: {
+          es: 'Más cómodo en el móvil',
+          en: 'Easier on your phone',
+          de: 'Bequemer auf dem Handy',
+        },
+        text: {
+          es: 'Botones más fáciles de pulsar, un menú «⋯» en el grupo, el aviso de instalar la app ya no tapa «Votar», y Novedades viene plegado.',
+          en: 'Easier-to-tap buttons, a “⋯” menu in the group, the install prompt no longer covers “Vote”, and What’s new comes folded.',
+          de: 'Leichter zu tippende Knöpfe, ein „⋯“-Menü in der Gruppe, der Installationshinweis verdeckt „Abstimmen“ nicht mehr, und die Neuigkeiten sind eingeklappt.',
+        },
+      },
+      {
+        glyph: 'phone',
+        title: {
+          es: 'Icono redondo en Android',
+          en: 'Round icon on Android',
+          de: 'Rundes Icon auf Android',
+        },
+        text: {
+          es: 'En Android el icono se adapta a la forma de tu móvil sin cortar la interrogación.',
+          en: 'On Android the icon adapts to your phone’s shape without cutting off the question mark.',
+          de: 'Auf Android passt sich das Icon der Form deines Handys an, ohne das Fragezeichen abzuschneiden.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.23.0',
     date: '2026-10-21',
     title: {

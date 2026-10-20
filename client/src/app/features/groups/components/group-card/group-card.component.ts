@@ -41,30 +41,12 @@ export class GroupCardComponent {
 
   public group = input.required<GroupResponse>();
 
-  private readonly ACCENT_COLORS = [
-    'bg-group-1',
-    'bg-group-2',
-    'bg-group-3',
-    'bg-group-4',
-    'bg-group-5',
-    'bg-group-6',
-  ];
+  // The group's tone, deterministic per id: one of the glyph tile families (styles-lime.css
+  // `.vp-glyph--*`), so group initials stay inside the app palette on every theme.
+  private readonly TONES = ['sage', 'sand', 'frost', 'lime'] as const;
 
-  private readonly BADGE_COLORS = [
-    'bg-group-1/15 text-group-1',
-    'bg-group-2/15 text-group-2',
-    'bg-group-3/15 text-group-3',
-    'bg-group-4/15 text-group-4',
-    'bg-group-5/15 text-group-5',
-    'bg-group-6/15 text-group-6',
-  ];
-
-  readonly accentColor = computed(
-    () => this.ACCENT_COLORS[this.group().id % this.ACCENT_COLORS.length]
-  );
-
-  readonly accentBadgeClass = computed(
-    () => this.BADGE_COLORS[this.group().id % this.BADGE_COLORS.length]
+  readonly toneClass = computed(
+    () => `vp-glyph vp-glyph--${this.TONES[this.group().id % this.TONES.length]} rounded-full!`
   );
 
   readonly nextQuestionTime = computed(() =>

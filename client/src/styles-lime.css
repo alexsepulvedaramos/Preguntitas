@@ -35,6 +35,9 @@
     --primary: oklch(0.5 0.13 148);
     --primary-foreground: oklch(0.98 0.005 140);
     --primary-hover: oklch(0.44 0.13 148);
+    /* Sage as text and icons. Same as --primary in light; lighter in dark, where the
+       solid --primary is a mid sage so it never competes with the lime action colour. */
+    --primary-text: var(--primary);
 
     /* Lime — Primary Action */
     --accent: oklch(0.83 0.22 128);
@@ -78,13 +81,24 @@
     --logo-dot-3: oklch(0.83 0.22 128);
     --logo-bg: oklch(0.2 0.04 155);
 
-    /* Chart Palette — distinct tones per result row (results visualization) */
-    --chart-1: oklch(0.7 0.16 148);
-    --chart-2: oklch(0.78 0.16 90);
-    --chart-3: oklch(0.7 0.19 25);
-    --chart-4: oklch(0.66 0.16 290);
-    --chart-5: oklch(0.72 0.13 230);
-    --chart-6: oklch(0.78 0.18 128);
+    /* Honey — flash questions. Fixed on every shop theme, like sand: a flash is an event,
+       not part of the personal palette. */
+    --flash: oklch(0.8 0.14 78);
+    --flash-foreground: oklch(0.3 0.07 60);
+    --flash-border: oklch(0.78 0.13 75);
+
+    /* Warning — calm "act soon" states (a streak in danger). Never red: red is only for
+       errors and destructive actions (§14 visual rules). */
+    --warning: oklch(0.52 0.12 60);
+
+    /* Frame colours the player picks (§14): palette-tuned, AA against the card. */
+    --frame-purple: oklch(0.55 0.15 300);
+    --frame-blue: oklch(0.55 0.13 245);
+    --frame-green: oklch(0.58 0.13 148);
+    --frame-yellow: oklch(0.75 0.15 90);
+    --frame-orange: oklch(0.68 0.15 55);
+    --frame-red: oklch(0.58 0.17 25);
+    --frame-pink: oklch(0.65 0.16 350);
 
     /* Group Icon Palette — Equal weight greens (Hue 135 to 185) */
     --group-1: oklch(0.7 0.12 135); /* Pistachio */
@@ -117,9 +131,10 @@
     --secondary-foreground: oklch(0.9 0.02 150);
 
     /* Sage — Brand Identity */
-    --primary: oklch(0.8 0.1 145);
-    --primary-foreground: oklch(0.15 0.02 155);
-    --primary-hover: oklch(0.74 0.1 145);
+    --primary: oklch(0.58 0.11 145);
+    --primary-text: oklch(0.8 0.1 145);
+    --primary-foreground: oklch(0.98 0.005 155);
+    --primary-hover: oklch(0.52 0.11 145);
 
     /* Lime — Primary Action */
     --accent: oklch(0.83 0.22 128);
@@ -161,13 +176,22 @@
     --logo-dot-3: oklch(0.83 0.22 128);
     --logo-bg: oklch(0.27 0.05 155);
 
-    /* Chart Palette — distinct tones per result row (results visualization) */
-    --chart-1: oklch(0.6 0.14 148);
-    --chart-2: oklch(0.68 0.14 90);
-    --chart-3: oklch(0.6 0.17 25);
-    --chart-4: oklch(0.58 0.15 290);
-    --chart-5: oklch(0.62 0.12 230);
-    --chart-6: oklch(0.68 0.17 128);
+    /* Honey — flash questions */
+    --flash: oklch(0.78 0.13 78);
+    --flash-foreground: oklch(0.25 0.06 60);
+    --flash-border: oklch(0.6 0.11 75);
+
+    /* Warning */
+    --warning: oklch(0.82 0.11 70);
+
+    /* Frame colours: lighter so they read on dark cards */
+    --frame-purple: oklch(0.72 0.13 300);
+    --frame-blue: oklch(0.72 0.12 245);
+    --frame-green: oklch(0.75 0.13 148);
+    --frame-yellow: oklch(0.85 0.14 90);
+    --frame-orange: oklch(0.78 0.13 55);
+    --frame-red: oklch(0.7 0.15 25);
+    --frame-pink: oklch(0.77 0.13 350);
 
     /* Darkened slightly for contrast against dark backgrounds */
     --group-1: oklch(0.6 0.12 135);
@@ -181,8 +205,8 @@
   /*
    * App themes bought in the shop (rama 42, §17.10): a full personal palette, light and
    * dark, set as data-vp-theme on <html> by ThemeService. Generated from the default
-   * tokens by rotating the hues: neutrals, primary, accent and group icons. Charts, sand
-   * and the success/destructive states keep their meaning and colour.
+   * tokens by rotating the hues: neutrals, primary, accent and group icons. Sand, flash,
+   * warning and the success/destructive states keep their meaning and colour.
    */
   :root:not(.dark)[data-vp-theme='ocean'] {
     --background: oklch(0.98 0.005 235);
@@ -237,9 +261,10 @@
     --muted: oklch(0.22 0.025 235);
     --secondary: oklch(0.25 0.03 235);
     --secondary-foreground: oklch(0.9 0.02 235);
-    --primary: oklch(0.8 0.1 245);
-    --primary-foreground: oklch(0.15 0.02 235);
-    --primary-hover: oklch(0.74 0.1 245);
+    --primary: oklch(0.58 0.11 245);
+    --primary-text: oklch(0.8 0.1 245);
+    --primary-foreground: oklch(0.98 0.005 235);
+    --primary-hover: oklch(0.52 0.11 245);
     --accent: oklch(0.83 0.13 205);
     --accent-text: oklch(0.83 0.13 205);
     --accent-foreground: oklch(0.15 0.05 205);
@@ -317,9 +342,10 @@
     --muted: oklch(0.22 0.025 10);
     --secondary: oklch(0.25 0.03 10);
     --secondary-foreground: oklch(0.9 0.02 10);
-    --primary: oklch(0.8 0.1 15);
-    --primary-foreground: oklch(0.15 0.02 10);
-    --primary-hover: oklch(0.74 0.1 15);
+    --primary: oklch(0.58 0.11 15);
+    --primary-text: oklch(0.8 0.1 15);
+    --primary-foreground: oklch(0.98 0.005 10);
+    --primary-hover: oklch(0.52 0.11 15);
     --accent: oklch(0.83 0.15 355);
     --accent-text: oklch(0.83 0.15 355);
     --accent-foreground: oklch(0.15 0.05 355);
@@ -397,9 +423,10 @@
     --muted: oklch(0.22 0.025 300);
     --secondary: oklch(0.25 0.03 300);
     --secondary-foreground: oklch(0.9 0.02 300);
-    --primary: oklch(0.8 0.1 295);
-    --primary-foreground: oklch(0.15 0.02 300);
-    --primary-hover: oklch(0.74 0.1 295);
+    --primary: oklch(0.58 0.11 295);
+    --primary-text: oklch(0.8 0.1 295);
+    --primary-foreground: oklch(0.98 0.005 300);
+    --primary-hover: oklch(0.52 0.11 295);
     --accent: oklch(0.83 0.15 325);
     --accent-text: oklch(0.83 0.15 325);
     --accent-foreground: oklch(0.15 0.05 325);
@@ -477,9 +504,10 @@
     --muted: oklch(0.22 0.025 55);
     --secondary: oklch(0.25 0.03 55);
     --secondary-foreground: oklch(0.9 0.02 55);
-    --primary: oklch(0.8 0.1 45);
-    --primary-foreground: oklch(0.15 0.02 55);
-    --primary-hover: oklch(0.74 0.1 45);
+    --primary: oklch(0.58 0.11 45);
+    --primary-text: oklch(0.8 0.1 45);
+    --primary-foreground: oklch(0.98 0.005 55);
+    --primary-hover: oklch(0.52 0.11 45);
     --accent: oklch(0.83 0.16 80);
     --accent-text: oklch(0.83 0.16 80);
     --accent-foreground: oklch(0.15 0.05 80);
@@ -530,6 +558,13 @@
     background: transparent;
   }
 
+  /* Dialogs, drawers and sheets focus their own panel on open (autoFocus: 'dialog'); the
+     panel itself never shows a ring. */
+  .cdk-dialog-container:focus,
+  .cdk-dialog-container:focus-visible {
+    outline: none;
+  }
+
   *::-webkit-scrollbar-thumb {
     background-color: var(--border);
     border-radius: 9999px;
@@ -564,6 +599,11 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-sand: var(--sand);
   --color-sand-foreground: var(--sand-foreground);
+  --color-primary-text: var(--primary-text);
+  --color-flash: var(--flash);
+  --color-flash-foreground: var(--flash-foreground);
+  --color-flash-border: var(--flash-border);
+  --color-warning: var(--warning);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-destructive: var(--destructive);
@@ -587,6 +627,11 @@
   --font-display: var(--font-display);
   --radius-default: var(--radius);
 
+  /* Type scale (§14 visual rules): Tailwind's steps plus one tiny step for timestamps,
+     avatar initials and badge counters. No arbitrary text-[Npx] sizes. */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
+
   /* Logo mapping */
   --color-logo-v: var(--logo-v);
   --color-logo-q: var(--logo-q);
@@ -596,12 +641,6 @@
   --color-logo-bg: var(--logo-bg);
 
   /* Chart palette mapping */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-chart-6: var(--chart-6);
 
   /* Group palette mapping */
   --color-group-1: var(--group-1);
@@ -681,7 +720,7 @@
    * Enforces display font, italics, and proper spacing.
    */
   .vp-question-text {
-    @apply font-display italic text-3xl md:text-5xl leading-tight text-foreground tracking-tight;
+    @apply font-display italic text-3xl md:text-4xl leading-tight text-foreground tracking-tight;
   }
 
   .vp-question-text > span {
@@ -701,7 +740,7 @@
    * Implements large touch targets (Fitts's Law).
    */
   .vp-poll-option {
-    @apply relative w-full p-4 rounded-xl border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary hover:bg-secondary text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    @apply relative w-full p-4 rounded-default border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary hover:bg-secondary text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring;
   }
 
   /* 
@@ -851,6 +890,12 @@
    * The app's own glyph set (GlyphComponent): a Lucide icon on a soft tile, in one of four
    * tones built from the palette tokens so every shop theme recolours them. Replaces emoji.
    */
+  /* Shop accessories on avatars: a thin light outline in dark mode so dark art (sunglasses,
+     moustache) doesn't vanish into the dark card. */
+  .dark .vp-accessory svg {
+    filter: drop-shadow(0 0 0.75px rgb(255 255 255 / 0.85));
+  }
+
   .vp-glyph {
     display: inline-grid;
     place-items: center;
@@ -862,7 +907,7 @@
   .vp-glyph--bare { background: transparent; }
   .vp-glyph--sage {
     --vp-glyph-bg: color-mix(in oklch, var(--primary) 14%, transparent);
-    --vp-glyph-fg: var(--primary);
+    --vp-glyph-fg: var(--primary-text);
   }
   .vp-glyph--lime {
     --vp-glyph-bg: color-mix(in oklch, var(--accent) 32%, transparent);
@@ -883,6 +928,14 @@
   .dark .vp-glyph--frost {
     --vp-glyph-bg: color-mix(in oklch, var(--group-6) 22%, transparent);
     --vp-glyph-fg: color-mix(in oklch, var(--group-6) 55%, white);
+  }
+  .vp-glyph--honey {
+    --vp-glyph-bg: color-mix(in oklch, var(--flash) 35%, transparent);
+    --vp-glyph-fg: var(--flash-foreground);
+  }
+  .dark .vp-glyph--honey {
+    --vp-glyph-bg: color-mix(in oklch, var(--flash) 22%, transparent);
+    --vp-glyph-fg: var(--flash);
   }
 
   /* The coin (CoinComponent): the logo's question mark in sage on soft gold. Fixed colours,

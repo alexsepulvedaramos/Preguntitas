@@ -22,7 +22,7 @@ import { Component, Input } from '@angular/core';
 
       <!-- Wordmark -->
       <div class="flex flex-col">
-        <span class="font-bold uppercase tracking-widest text-primary/60"
+        <span class="font-bold uppercase tracking-widest text-primary-text/60"
               [class]="sizeClasses[size].eyebrow">VAYA</span>
         <span class="font-display italic leading-tight tracking-wide text-foreground"
               [class]="sizeClasses[size].wordmark">

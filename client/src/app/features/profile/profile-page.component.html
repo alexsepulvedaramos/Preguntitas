@@ -1,12 +1,6 @@
 <div class="min-h-dvh flex flex-col bg-background">
   <!-- Header -->
-  <header class="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-background/95 backdrop-blur border-b border-border">
-    <button hlmBtn variant="ghost" size="icon" class="rounded-full" (click)="goBack()">
-      <ng-icon hlm name="lucideArrowLeft" class="size-5! text-foreground" />
-      <span class="sr-only">{{ t('common.back') }}</span>
-    </button>
-    <h1 class="font-display text-lg italic tracking-tight text-foreground">{{ t('titles.profile') }}</h1>
-  </header>
+  <app-page-header [title]="t('titles.profile')" [backLabel]="t('common.back')" (back)="goBack()" />
 
   <div class="flex flex-col gap-6 p-4 pb-8 max-w-lg mx-auto w-full">
 
@@ -50,7 +44,7 @@
       </hlm-drawer>
 
       @if (user()?.title; as title) {
-        <p class="-mt-1 text-sm font-semibold text-primary">{{ title }}</p>
+        <p class="-mt-1 text-sm font-semibold text-primary-text">{{ title }}</p>
       }
       <p class="text-sm text-muted-foreground">{{ t('profile.tapToChange') }}</p>
 
@@ -69,7 +63,7 @@
             class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none"
             [class]="selectedFrame() === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
             [class.bg-muted]="color.value === frameStreak || color.value === frameSeniority"
-            [style.background-color]="color.value.startsWith('#') ? color.value : null"
+            [style.background-color]="swatch(color.value)"
             [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
             [attr.aria-label]="t(color.label)"
             [attr.aria-pressed]="selectedFrame() === color.value"
@@ -77,9 +71,9 @@
             (click)="selectFrame(color.value)"
           >
             @if (color.value === frameStreak) {
-              <ng-icon hlm name="lucideFlame" class="size-4! text-primary" />
+              <ng-icon hlm name="lucideFlame" class="size-4! text-primary-text" />
             } @else if (color.value === frameSeniority) {
-              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary" />
+              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary-text" />
             } @else if (color.value === frameNone) {
               <span class="text-xs text-muted-foreground leading-none">✕</span>
             } @else if (selectedFrame() === color.value) {
@@ -208,7 +202,7 @@
           <p class="text-sm text-destructive">{{ profileError() }}</p>
         }
         @if (profileSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.saved') }}</p>
+          <p class="text-sm text-success">{{ t('profile.saved') }}</p>
         }
 
         <button
@@ -255,6 +249,7 @@
               variant="ghost"
               size="icon"
               class="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+              [attr.aria-label]="showCurrentPassword() ? t('common.hidePassword') : t('common.showPassword')"
               (click)="showCurrentPassword.set(!showCurrentPassword())"
             >
               <ng-icon hlm [name]="showCurrentPassword() ? 'lucideEyeOff' : 'lucideEye'" class="size-4!" />
@@ -279,6 +274,7 @@
               variant="ghost"
               size="icon"
               class="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+              [attr.aria-label]="showNewPassword() ? t('common.hidePassword') : t('common.showPassword')"
               (click)="showNewPassword.set(!showNewPassword())"
             >
               <ng-icon hlm [name]="showNewPassword() ? 'lucideEyeOff' : 'lucideEye'" class="size-4!" />
@@ -288,21 +284,34 @@
 
         <div class="flex flex-col gap-1.5">
           <label hlmLabel for="confirmPassword">{{ t('profile.confirmNewPassword') }}</label>
-          <input
-            hlmInput
-            id="confirmPassword"
-            type="password"
-            formControlName="confirmPassword"
-            autocomplete="new-password"
-            class="w-full"
-          />
+          <div class="relative">
+            <input
+              hlmInput
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              class="w-full pr-10"
+            />
+            <button
+              type="button"
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+              [attr.aria-label]="showConfirmPassword() ? t('common.hidePassword') : t('common.showPassword')"
+              (click)="showConfirmPassword.set(!showConfirmPassword())"
+            >
+              <ng-icon hlm [name]="showConfirmPassword() ? 'lucideEyeOff' : 'lucideEye'" class="size-4!" />
+            </button>
+          </div>
         </div>
 
         @if (passwordError()) {
           <p class="text-sm text-destructive">{{ passwordError() }}</p>
         }
         @if (passwordSuccess()) {
-          <p class="text-sm text-green-600 dark:text-green-400">{{ t('profile.passwordChanged') }}</p>
+          <p class="text-sm text-success">{{ t('profile.passwordChanged') }}</p>
         }
 
         <button
