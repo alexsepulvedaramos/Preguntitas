@@ -50,6 +50,7 @@ import { GlyphName } from '../../shared/components/glyph/glyphs';
 import { CoinComponent } from '../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -161,7 +162,7 @@ const SHOP_ITEMS: readonly {
 // the cosmetics with a try-on preview on your own avatar (rama 42, §17.10) and the ledger.
 @Component({
   selector: 'app-shop-page',
-  imports: [PageHeaderComponent, 
+  imports: [PageHeaderComponent, HlmTabsImports, 
     CoinTextComponent,
     CoinComponent,
     GlyphComponent,
@@ -243,6 +244,16 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const streak = this.user()?.highestStreak ?? 0;
     return streak >= FIRST_RING_DAYS ? streak : PREVIEW_STREAK;
   });
+
+  // Open tab: 'items', a cosmetic section id, or 'history'.
+  protected readonly tab = signal('items');
+
+  // Rarity chips (1 rare, 2 epic, 3 legendary) in the glyph tile tones, inside the palette.
+  protected readonly rarityClass: Record<number, string> = {
+    1: 'vp-glyph vp-glyph--sage',
+    2: 'vp-glyph vp-glyph--frost',
+    3: 'vp-glyph vp-glyph--honey',
+  };
 
   protected readonly sections = computed(() => {
     const owned = this.owned();

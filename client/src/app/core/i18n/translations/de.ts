@@ -860,6 +860,8 @@ export const de: Translation = {
     },
   },
   shop: {
+    tabItems: 'Gegenstände',
+    tabHistory: 'Verlauf',
     cosmeticsTitle: 'Dein Style',
     cosmeticsIntro: 'Extras, die du einmal kaufst und für immer behältst. Probier sie vor dem Kauf an.',
     previewHint: 'Tipp auf ein Teil, um es hier anzuprobieren.',

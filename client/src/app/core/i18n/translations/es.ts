@@ -863,6 +863,8 @@ export const es = {
     },
   },
   shop: {
+    tabItems: 'Objetos',
+    tabHistory: 'Movimientos',
     cosmeticsTitle: 'Tu estilo',
     cosmeticsIntro: 'Adornos que compras una vez y son tuyos para siempre. Pruébatelos antes de comprar.',
     previewHint: 'Toca cualquier objeto para probártelo aquí.',

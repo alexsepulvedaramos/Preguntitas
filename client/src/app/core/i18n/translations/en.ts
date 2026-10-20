@@ -860,6 +860,8 @@ export const en: Translation = {
     },
   },
   shop: {
+    tabItems: 'Items',
+    tabHistory: 'Activity',
     cosmeticsTitle: 'Your style',
     cosmeticsIntro: 'Extras you buy once and keep forever. Try them on before you buy.',
     previewHint: 'Tap any item to try it on here.',
