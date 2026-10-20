@@ -20,7 +20,7 @@
     <!-- Group info (admin only) -->
     @if (isAdmin()) {
       <section class="flex flex-col gap-4">
-        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+        <h2 class="font-display text-lg italic tracking-tight text-foreground">
           {{ t('settings.infoTitle') }}
         </h2>
 
@@ -82,7 +82,7 @@
 
     <!-- Members -->
     <section class="flex flex-col gap-4">
-      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">
         {{ t('settings.members', { count: members().length }) }}
       </h2>
 
@@ -218,7 +218,7 @@
       <hr class="border-border" />
 
       <section class="flex flex-col gap-4">
-        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">
+        <h2 class="font-display text-lg italic tracking-tight text-foreground">
           {{ t('groups.invite.code') }}
         </h2>
 
@@ -285,7 +285,7 @@
       <hr class="border-border" />
 
       <section class="flex flex-col gap-3">
-        <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('settings.packs') }}</h2>
+        <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('settings.packs') }}</h2>
 
         <hlm-dialog>
           <button
@@ -338,7 +338,7 @@
 
     <!-- Notifications -->
     <section class="flex flex-col gap-3">
-      <h2 class="text-sm font-semibold text-foreground uppercase tracking-wide">{{ t('settings.notifications') }}</h2>
+      <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('settings.notifications') }}</h2>
       <div class="flex items-center justify-between gap-3">
         <div class="flex flex-col gap-0.5">
           <p class="text-sm font-medium text-foreground">{{ t('settings.mute') }}</p>
@@ -352,7 +352,7 @@
     <hr class="border-border" />
 
     <section class="flex flex-col gap-4">
-      <h2 class="text-sm font-semibold text-destructive uppercase tracking-wide">
+      <h2 class="font-display text-lg italic tracking-tight text-destructive">
         {{ t('settings.danger') }}
       </h2>
 

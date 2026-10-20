@@ -39,7 +39,7 @@ const STACKED_AVATARS = 4;
             @for (m of voted(); track m.id) {
               <button
                 type="button"
-                class="flex items-center gap-2 rounded-md text-left text-sm text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                class="flex items-center gap-2 rounded-default text-left text-sm text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="openCard(m.id); ctx.close()"
               >
                 <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" size="xs" />
@@ -54,7 +54,7 @@ const STACKED_AVATARS = 4;
             @for (m of pending(); track m.id) {
               <button
                 type="button"
-                class="flex items-center gap-2 rounded-md text-left text-sm text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                class="flex items-center gap-2 rounded-default text-left text-sm text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="openCard(m.id); ctx.close()"
               >
                 <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" size="xs" />

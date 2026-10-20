@@ -94,7 +94,7 @@
       <!-- ===== 2. VOTE ===== -->
       @case ('vote') {
         <section class="vp-demo-step flex flex-col gap-4">
-          <div class="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+          <div class="flex items-center gap-3 rounded-default border border-primary/20 bg-primary/5 px-3 py-2.5">
             <ng-icon hlm name="lucideClock" class="shrink-0 text-primary-text" />
             <app-countdown class="min-w-0 flex-1" [target]="closesAt" [compact]="true" />
           </div>
@@ -160,7 +160,7 @@
           </div>
 
           @if (pickedId() !== null) {
-            <p class="vp-demo-step flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
+            <p class="vp-demo-step flex items-start gap-2 rounded-default border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm text-foreground" role="status">
               <ng-icon hlm name="lucideCheck" class="mt-0.5 shrink-0 text-primary-text" />
               {{ t('demo.select.picked', { time: dailyTime }) }}
             </p>
@@ -182,7 +182,7 @@
 
           <ol class="flex gap-3" [attr.aria-label]="t('demo.jump.daysLabel')">
             @for (day of jumpDays; track day) {
-              <li class="flex w-20 flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3">
+              <li class="flex w-20 flex-col items-center gap-1.5 rounded-default border border-border bg-card px-2 py-3">
                 <span class="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <ng-icon hlm name="lucideCheck" class="size-4!" />
                 </span>

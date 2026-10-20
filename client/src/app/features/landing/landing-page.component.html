@@ -57,7 +57,7 @@
         </h2>
         <ol class="grid gap-4 md:grid-cols-3">
           @for (step of steps; track step.title; let i = $index) {
-            <li class="flex flex-col gap-2 rounded-xl border border-border bg-card p-5">
+            <li class="flex flex-col gap-2 rounded-default border border-border bg-card p-5">
               <div class="flex items-center gap-3">
                 <app-glyph [name]="step.glyph" size="md" />
                 <span class="text-xs font-bold uppercase tracking-widest text-primary-text">{{ t('landing.step', { n: i + 1 }) }}</span>

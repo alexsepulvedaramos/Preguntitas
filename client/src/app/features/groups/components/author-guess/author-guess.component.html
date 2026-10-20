@@ -1,7 +1,7 @@
 @switch (guess().state) {
   @case ('pending') {
     <section
-      class="flex flex-col gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3"
+      class="flex flex-col gap-3 rounded-default border border-primary/30 bg-primary/5 p-3"
       [attr.aria-label]="t('guess.title')"
     >
       <div class="flex flex-col gap-0.5">
@@ -16,7 +16,7 @@
           <button
             type="button"
             role="radio"
-            class="flex w-16 flex-col items-center gap-1 rounded-lg p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="flex w-16 flex-col items-center gap-1 rounded-default p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             [class]="selectedId() === m.id ? 'bg-primary/15 ring-2 ring-primary text-foreground' : 'text-muted-foreground hover:bg-muted'"
             [attr.aria-checked]="selectedId() === m.id"
             (click)="select(m.id)"
@@ -91,7 +91,7 @@
   }
 
   @case ('mine') {
-    <div class="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+    <div class="flex items-center gap-2 rounded-default border border-border bg-card px-3 py-2 text-sm">
       <app-glyph name="write" size="sm" />
       <p class="min-w-0 flex-1 text-foreground">
         {{ t('guess.mine') }}
@@ -110,7 +110,7 @@
   @default {
     @if (guess().author; as author) {
       <div
-        class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm"
+        class="flex items-center gap-2 rounded-default border px-3 py-2 text-sm"
         [class]="guess().correct ? 'border-primary/40 bg-primary/10' : 'border-border bg-card'"
         aria-live="polite"
       >

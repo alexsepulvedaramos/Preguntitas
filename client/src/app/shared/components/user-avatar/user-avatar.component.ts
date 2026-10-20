@@ -116,7 +116,7 @@ export class UserAvatarComponent {
   })[this.size()]);
 
   protected readonly fallbackSizeClass = computed(() => ({
-    xs: 'text-[9px]',
+    xs: 'text-2xs',
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-lg',

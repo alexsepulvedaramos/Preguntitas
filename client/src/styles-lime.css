@@ -609,6 +609,11 @@
   --font-display: var(--font-display);
   --radius-default: var(--radius);
 
+  /* Type scale (§14 visual rules): Tailwind's steps plus one tiny step for timestamps,
+     avatar initials and badge counters. No arbitrary text-[Npx] sizes. */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
+
   /* Logo mapping */
   --color-logo-v: var(--logo-v);
   --color-logo-q: var(--logo-q);
@@ -717,7 +722,7 @@
    * Implements large touch targets (Fitts's Law).
    */
   .vp-poll-option {
-    @apply relative w-full p-4 rounded-xl border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary hover:bg-secondary text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    @apply relative w-full p-4 rounded-default border-2 border-border bg-card text-card-foreground transition-all duration-200 hover:border-primary hover:bg-secondary text-left cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring;
   }
 
   /* 

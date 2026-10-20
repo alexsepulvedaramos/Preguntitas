@@ -14,7 +14,7 @@ interface ShowcaseRow {
   selector: 'app-results-showcase',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="space-y-3 rounded-xl border border-border bg-card/60 p-4" aria-hidden="true">
+    <div class="space-y-3 rounded-default border border-border bg-card/60 p-4" aria-hidden="true">
       <p class="vp-question-text text-lg md:text-xl text-center">
         {{ t('auth.showcase.resultsQuestion') }}
       </p>
@@ -27,9 +27,9 @@ interface ShowcaseRow {
             >
               {{ row.name[0] }}
             </div>
-            <div class="relative h-8 flex-1 overflow-hidden rounded-lg bg-muted">
+            <div class="relative h-8 flex-1 overflow-hidden rounded-default bg-muted">
               <div
-                class="vp-demo-fill absolute inset-y-0 left-0 rounded-lg"
+                class="vp-demo-fill absolute inset-y-0 left-0 rounded-default"
                 [class]="row.lead ? 'bg-primary/60' : 'bg-primary/25'"
                 [style.max-width.%]="row.pct"
               ></div>
@@ -41,7 +41,7 @@ interface ShowcaseRow {
               <div class="vp-demo-voters absolute inset-y-0 right-2 flex items-center">
                 @for (voter of row.voters; track voter) {
                   <div
-                    class="-ml-1 flex size-5 items-center justify-center rounded-full border border-background bg-secondary text-[10px] font-semibold text-secondary-foreground"
+                    class="-ml-1 flex size-5 items-center justify-center rounded-full border border-background bg-secondary text-2xs font-semibold text-secondary-foreground"
                   >
                     {{ voter }}
                   </div>

@@ -1,10 +1,10 @@
 <app-rotating-question class="mb-6 block" />
 
 <hlm-card
-  class="w-full max-w-md border-border bg-card shadow-lg transition-all duration-200"
+  class="w-full max-w-md border-border bg-card shadow-sm transition-all duration-200"
 >
   <hlm-card-header class="space-y-1 text-center">
-    <h3 hlmCardTitle class="text-2xl font-bold tracking-tight text-foreground">
+    <h3 hlmCardTitle class="font-display text-2xl italic tracking-tight text-foreground">
       {{ t('auth.login.title') }}
     </h3>
   </hlm-card-header>
@@ -70,7 +70,7 @@
       </hlm-field-group>
 
       @if (loginError(); as error) {
-        <p class="text-sm text-destructive text-center rounded-lg bg-destructive/10 px-3 py-2">
+        <p class="text-sm text-destructive text-center rounded-default bg-destructive/10 px-3 py-2">
           {{ t(error) }}
         </p>
       }

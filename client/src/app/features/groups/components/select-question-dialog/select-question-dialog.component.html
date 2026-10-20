@@ -101,7 +101,7 @@
                 </button>
               } @else {
                 <div
-                  class="rounded-xl border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
+                  class="rounded-default border-2 border-accent/40 bg-accent/5 p-4 flex flex-col gap-1.5"
                 >
                   <span class="flex items-start gap-2">
                     <span
@@ -152,7 +152,7 @@
               <hlm-native-select
                 size="sm"
                 class="!flex-1"
-                selectClass="rounded-xl"
+                selectClass="rounded-default"
                 [attr.aria-label]="t('picker.filterType')"
                 [value]="typeFilterValue()"
                 (valueChange)="onTypeChange($event)"
@@ -167,7 +167,7 @@
               <hlm-native-select
                 size="sm"
                 class="!flex-1"
-                selectClass="rounded-xl"
+                selectClass="rounded-default"
                 [attr.aria-label]="t('picker.filterSource')"
                 [value]="sourceFilterValue()"
                 (valueChange)="onSourceChange($event)"

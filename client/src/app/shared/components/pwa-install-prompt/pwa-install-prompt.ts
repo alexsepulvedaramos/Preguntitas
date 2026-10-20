@@ -13,11 +13,11 @@ import { injectHideBottomPrompts } from '../../utils/bottom-prompt-route';
   template: `
     @if (showAndroid() && !hidden()) {
       <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
-        <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl flex items-center gap-3">
+        <div class="bg-card border border-border rounded-default p-4 shadow-2xl flex items-center gap-3">
           <img
             src="icons/android-chrome-192x192.png"
             alt="Vaya Preguntita"
-            class="w-11 h-11 rounded-xl shrink-0"
+            class="w-11 h-11 rounded-default shrink-0"
           />
           <div class="flex-1 min-w-0">
             <p class="text-sm font-semibold text-foreground leading-tight">{{ t('pwa.installTitle') }}</p>
@@ -37,12 +37,12 @@ import { injectHideBottomPrompts } from '../../utils/bottom-prompt-route';
 
     @if (showIos() && !hidden()) {
       <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
-        <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl">
+        <div class="bg-card border border-border rounded-default p-4 shadow-2xl">
           <div class="flex items-center gap-3 mb-3">
             <img
               src="icons/android-chrome-192x192.png"
               alt="Vaya Preguntita"
-              class="w-11 h-11 rounded-xl shrink-0"
+              class="w-11 h-11 rounded-default shrink-0"
             />
             <div class="flex-1">
               <p class="text-sm font-semibold text-foreground leading-tight">{{ t('pwa.installTitle') }}</p>

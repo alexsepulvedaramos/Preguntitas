@@ -16,7 +16,7 @@ import { injectHideBottomPrompts } from '../../utils/bottom-prompt-route';
   template: `
     @if (visible() && !hidden()) {
       <div class="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
-        <div class="bg-card border border-border rounded-2xl p-4 shadow-2xl">
+        <div class="bg-card border border-border rounded-default p-4 shadow-2xl">
           <div class="flex items-start gap-3">
             <app-glyph name="bell" size="md" />
             <div class="flex-1 min-w-0">

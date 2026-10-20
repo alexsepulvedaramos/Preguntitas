@@ -194,7 +194,7 @@
     <!-- Your turn to pick tomorrow's question: always above the question -->
     @if (daily()?.selection; as sel) {
       @if (sel.isCurrentUserSelector) {
-        <div class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5">
+        <div class="flex items-center gap-3 rounded-default border border-primary/30 bg-primary/10 px-3 py-2.5">
           <app-glyph name="target" size="sm" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-foreground">
@@ -218,7 +218,7 @@
         </div>
       } @else if (sel.raceOpen) {
         <!-- Race to select (§17.5): nobody chose 10 minutes before T, so anyone may -->
-        <div class="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2.5">
+        <div class="flex items-center gap-3 rounded-default border border-primary/30 bg-primary/10 px-3 py-2.5">
           <app-glyph name="race" size="sm" />
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-foreground">{{ t('groupDetail.raceTitle') }}</p>
@@ -295,7 +295,7 @@
       @if (!activeCard()?.pending && nextPending(); as next) {
         <button
           type="button"
-          class="flex items-center gap-2 rounded-xl border border-flash-border bg-flash/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-flash/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          class="flex items-center gap-2 rounded-default border border-flash-border bg-flash/10 px-3 py-2 text-left text-sm font-semibold text-foreground transition-colors hover:bg-flash/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           (click)="goTo(next.key)"
         >
           <app-glyph name="flash" size="sm" />
@@ -307,7 +307,7 @@
 
     @for (flash of activeFlashList(); track flash.id) {
       <section
-        class="flex flex-col gap-4 rounded-2xl border-2 border-flash-border bg-flash/5 p-4 animate-in fade-in slide-in-from-right-4 duration-300"
+        class="flex flex-col gap-4 rounded-default border-2 border-flash-border bg-flash/5 p-4 animate-in fade-in slide-in-from-right-4 duration-300"
       >
         <div class="flex items-center gap-2">
           <span class="inline-flex items-center gap-1 rounded-full bg-flash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-flash-foreground">

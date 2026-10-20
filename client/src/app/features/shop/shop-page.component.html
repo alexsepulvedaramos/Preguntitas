@@ -139,12 +139,12 @@
             @if (section.slot === 'theme') {
               <!-- The free default theme -->
               <div
-                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                class="flex flex-col items-center gap-2 rounded-default border bg-card p-3 text-center transition-shadow"
                 [class]="defaultThemeTried() ? 'border-primary ring-2 ring-primary' : 'border-border'"
               >
                 <button
                   type="button"
-                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  class="flex h-20 w-full items-center justify-center rounded-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   [attr.aria-pressed]="defaultThemeTried()"
                   [attr.aria-label]="t('shop.defaultTheme')"
                   (click)="tryOn('theme', null)"
@@ -166,12 +166,12 @@
 
             @for (item of section.items; track item.key) {
               <div
-                class="flex flex-col items-center gap-2 rounded-xl border bg-card p-3 text-center transition-shadow"
+                class="flex flex-col items-center gap-2 rounded-default border bg-card p-3 text-center transition-shadow"
                 [class]="item.tried ? 'border-primary ring-2 ring-primary' : 'border-border'"
               >
                 <button
                   type="button"
-                  class="flex h-20 w-full items-center justify-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  class="flex h-20 w-full items-center justify-center rounded-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   [attr.aria-pressed]="item.tried"
                   [attr.aria-label]="item.label"
                   [disabled]="section.slot === null"
@@ -219,7 +219,7 @@
                     <span class="text-sm font-medium text-foreground">{{ item.label }}</span>
                   }
                   @if (item.rarity !== 0) {
-                    <span hlmBadge variant="secondary" class="text-[10px]">{{ item.rarityLabel }}</span>
+                    <span hlmBadge variant="secondary" class="text-2xs">{{ item.rarityLabel }}</span>
                   }
                 </div>
 
