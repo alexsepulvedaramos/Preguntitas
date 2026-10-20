@@ -25,7 +25,7 @@ export interface Release {
 export const RELEASES: readonly Release[] = [
   {
     version: '1.23.0',
-    date: '2026-10-20',
+    date: '2026-10-21',
     title: {
       es: 'Un aire más propio',
       en: 'A look of its own',
