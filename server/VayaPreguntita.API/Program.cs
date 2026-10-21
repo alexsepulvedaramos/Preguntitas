@@ -79,6 +79,8 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ICosmeticsService, CosmeticsService>();
 builder.Services.AddScoped<IAuthorGuessService, AuthorGuessService>();
 builder.Services.AddScoped<IFlashService, FlashService>();
+builder.Services.AddScoped<IVoteChangeService, VoteChangeService>();
+builder.Services.AddScoped<INudgeService, NudgeService>();
 builder.Services.AddScoped<IMonthlySummaryService, MonthlySummaryService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<DailyCycleRunner>();

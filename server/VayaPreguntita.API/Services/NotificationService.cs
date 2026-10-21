@@ -173,6 +173,24 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendNudgeAsync(
+        int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl) =>
+        RunLoggedAsync("nudge", groupId, async context =>
+        {
+            var recipients = await context.DevicePushSubscriptions
+                .Where(s => s.UserId == targetUserId)
+                .Select(s => new Recipient(s, s.User.PreferredLanguage))
+                .ToListAsync();
+            await SendLocalizedAsync(context, recipients, ttl < TimeSpan.FromMinutes(5) ? TimeSpan.FromMinutes(5) : ttl, lang =>
+                BuildPayload(
+                    ServerText.Push.NudgeTitle(lang, groupName),
+                    message is null
+                        ? ServerText.Push.NudgeBody(lang, senderUsername)
+                        : ServerText.Push.NudgeBodyWithMessage(lang, senderUsername, message),
+                    groupId, groupName, "nudge", lang, actor: senderUsername
+                ));
+        });
+
     private sealed record Recipient(DevicePushSubscription Subscription, string Language);
 
     private static string Shorten(string text) => text.Length > 80 ? text[..77] + "…" : text;

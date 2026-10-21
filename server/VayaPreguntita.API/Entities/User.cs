@@ -38,7 +38,6 @@ public class User
     // Equipped shop cosmetics (rama 42, §17.10): ShopCatalog keys the user owns (UserItem),
     // null = none.
     public string? RingSkinKey { get; set; }
-    public string? AccessoryKey { get; set; }
     public string? NameColorKey { get; set; }
     public string? ThemeKey { get; set; }
     public List<GroupMember> GroupMemberships { get; set; } = [];

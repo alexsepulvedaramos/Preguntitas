@@ -117,7 +117,6 @@ public class UserService(
         foreach (var (requested, kind, apply) in new (string?, Enums.CosmeticKind, Action<string?>)[]
         {
             (request.RingSkinKey, Enums.CosmeticKind.RingSkin, k => user.RingSkinKey = k),
-            (request.AccessoryKey, Enums.CosmeticKind.Accessory, k => user.AccessoryKey = k),
             (request.NameColorKey, Enums.CosmeticKind.NameColor, k => user.NameColorKey = k),
             (request.ThemeKey, Enums.CosmeticKind.Theme, k => user.ThemeKey = k),
         })

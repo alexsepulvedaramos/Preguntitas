@@ -24,6 +24,10 @@ public interface INotificationService
     // freezeCovers: a held freeze (§17.9) will save the streak if the member misses the cycle.
     Task SendStreakDangerAsync(
         int groupId, int userId, string groupName, int streak, TimeOnly dailyTime, bool freezeCovers = false);
+    // Toque / nudge (rama 43): caller has already checked that it can reach the target (a device,
+    // the Nudge preference, the group not muted). ttl = until the question closes.
+    Task SendNudgeAsync(
+        int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl);
 }
 
 // A duel (§17.15 item 6) replaces the normal question push for its two sides, except the one

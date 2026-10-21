@@ -20,6 +20,7 @@ export interface TodayState {
     voterIds: number[]; // members who have voted (never their answers)
     memberCount: number;
     guess: AuthorGuess | null; // once you have voted, when the question is guessable (§17.6)
+    canChangeVote: boolean; // you voted and haven't changed it yet (rama 43)
 }
 
 // "Guess the author" (§17.6). pending → guessed | skipped; "mine" when you wrote it.
@@ -88,6 +89,36 @@ export interface FlashState {
     userHasVoted: boolean;
     results: QuestionResult | null; // present when userHasVoted
     voterIds: number[];
+    canChangeVote: boolean; // you voted and haven't changed it yet (rama 43)
+}
+
+// PUT daily/vote and PUT flash/{id}/vote (rama 43): fresh results (daily) or flash state.
+export interface ChangeVoteResponse {
+    results: QuestionResult | null;
+    flash: FlashState | null;
+    balance: number;
+    inventory: Inventory;
+}
+
+// GET nudges/targets (rama 43): who hasn't voted yet, and whether a nudge reaches them.
+// "unreachable" = notifications off or the group muted (not told apart, on purpose).
+export type NudgeStatus = 'available' | 'recent' | 'unreachable';
+
+export interface NudgeTarget {
+    userId: number;
+    status: NudgeStatus;
+}
+
+export interface SendNudgeRequest {
+    targetUserId: number;
+    flashId: number | null; // null = today's question
+    message: string | null;
+    useOwned: boolean;
+}
+
+export interface SendNudgeResponse {
+    balance: number;
+    inventory: Inventory;
 }
 
 // POST flash

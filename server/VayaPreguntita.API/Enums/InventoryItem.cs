@@ -8,4 +8,8 @@ public enum InventoryItem
     StreakFreeze = 1,
     AuthorHint = 2,
     StreakRepair = 3,
+
+    // Rama 43 (§17.10)
+    VoteChange = 4,
+    Nudge = 5,
 }
