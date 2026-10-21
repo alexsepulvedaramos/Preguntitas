@@ -95,6 +95,9 @@ public class DailyService(
             state.Status = "results";
             state.Results = await CalculateResultsAsync(openEntry.Question);
             state.Guess = await authorGuessService.GetStateAsync(openEntry, userId);
+            state.CanChangeVote = !await context.VoteChanges.AnyAsync(c =>
+                c.QuestionId == openEntry.QuestionId && c.UserId == userId
+            );
         }
         else
         {

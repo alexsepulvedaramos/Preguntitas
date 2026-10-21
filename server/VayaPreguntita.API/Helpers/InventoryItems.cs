@@ -13,6 +13,8 @@ public static class InventoryItems
             InventoryItem.StreakFreeze => StreakFreezeRules.FreezePrice,
             InventoryItem.AuthorHint => CoinRewards.AuthorHintPrice,
             InventoryItem.StreakRepair => StreakFreezeRules.RepairPrice,
+            InventoryItem.VoteChange => CoinRewards.VoteChangePrice,
+            InventoryItem.Nudge => CoinRewards.NudgePrice,
             _ => throw new ArgumentOutOfRangeException(nameof(item)),
         };
 
@@ -23,6 +25,8 @@ public static class InventoryItems
             InventoryItem.StreakFreeze => CoinReason.StreakFreeze,
             InventoryItem.AuthorHint => CoinReason.AuthorHint,
             InventoryItem.StreakRepair => CoinReason.StreakRepair,
+            InventoryItem.VoteChange => CoinReason.VoteChange,
+            InventoryItem.Nudge => CoinReason.Nudge,
             _ => throw new ArgumentOutOfRangeException(nameof(item)),
         };
 }

@@ -18,7 +18,7 @@ import { COIN_DAILY_CAP, CoinsEarned, FLASH_QUESTION_PRICE, RACE_WON_REWARD } fr
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
 import { DailyService } from '../../../../core/services/daily.service';
-import { AuthorGuess, DailyStatus, FlashState, LaunchFlashResponse } from '../../../../core/models/daily.model';
+import { AuthorGuess, ChangeVoteResponse, DailyStatus, FlashState, LaunchFlashResponse } from '../../../../core/models/daily.model';
 import { MyStreak, StreakUpdate, VoteResponse } from '../../../../core/models/streak.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { UserService } from '../../../../core/services/user.service';
@@ -43,6 +43,7 @@ import { InviteQrComponent } from '../invite-qr/invite-qr.component';
 import { MyStreakComponent } from '../my-streak/my-streak.component';
 import { TodayVotersComponent } from '../today-voters/today-voters.component';
 import { AuthorGuessComponent } from '../author-guess/author-guess.component';
+import { ChangeVoteComponent } from '../change-vote/change-vote.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { MonthlySummaryViewerComponent } from '../monthly-summary/monthly-summary-viewer.component';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
@@ -104,6 +105,7 @@ export interface DeckCard {
     MyStreakComponent,
     TodayVotersComponent,
     AuthorGuessComponent,
+    ChangeVoteComponent,
     UserAvatarComponent,
     MonthlySummaryViewerComponent,
   ],
@@ -280,6 +282,17 @@ export class GroupDetailComponent implements OnInit {
     });
   }
 
+  // "Cambiar voto" (rama 43): the fresh flash state, or today's fresh results.
+  onVoteChanged(res: ChangeVoteResponse) {
+    if (res.flash) {
+      this.onFlashVoted(res.flash);
+      return;
+    }
+    const daily = this.daily();
+    if (!daily || !res.results) return;
+    this.daily.set({ ...daily, today: { ...daily.today, results: res.results, canChangeVote: false } });
+  }
+
   // The first unanswered card after the active one, wrapping around.
   private findNextPending(): DeckCard | null {
     const cards = this.deck();
@@ -313,6 +326,7 @@ export class GroupDetailComponent implements OnInit {
         userHasVoted: true,
         results,
         guess: guess ?? null,
+        canChangeVote: true,
         voterIds: voterIds.includes(me) ? voterIds : [...voterIds, me],
       },
       myStreak: { ...daily.myStreak, current: streak.current, best: streak.best, lostStreak: null },

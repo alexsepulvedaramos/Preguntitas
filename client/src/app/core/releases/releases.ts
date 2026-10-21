@@ -24,6 +24,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.27.0',
+    date: '2026-10-21',
+    title: {
+      es: 'Cambia tu voto y avisa a quien falta',
+      en: 'Change your vote and remind whoever’s missing',
+      de: 'Stimme ändern und die Fehlenden erinnern',
+    },
+    items: [
+      {
+        glyph: 'changeVote',
+        title: {
+          es: 'Cambiar voto',
+          en: 'Change your vote',
+          de: 'Stimme ändern',
+        },
+        text: {
+          es: '¿Te has arrepentido? Bajo los resultados tienes «Cambiar voto · 50 🪙»: lo cambias una vez mientras la pregunta siga abierta, sea la del día o una flash. Lo que ganaste al votar se queda como estaba.',
+          en: 'Changed your mind? Under the results there’s “Change vote · 50 🪙”: you can change it once while the question is still open, today’s or a flash one. What you earned by voting stays as it was.',
+          de: 'Umentschieden? Unter den Ergebnissen gibt es „Stimme ändern · 50 🪙“: Du kannst sie einmal ändern, solange die Frage offen ist – die heutige oder eine Blitzfrage. Was du fürs Abstimmen bekommen hast, bleibt.',
+        },
+      },
+      {
+        glyph: 'nudge',
+        title: {
+          es: 'Avisa a quien falta',
+          en: 'Remind whoever’s missing',
+          de: 'Erinnere die Fehlenden',
+        },
+        text: {
+          es: 'Toca «3/6 han votado» y, junto a quien falta, pulsa «Avisar» (10 🪙): le llega una notificación recordándole que vote, con un mensaje tuyo si quieres. Solo a quien tiene las notificaciones activadas y el grupo sin silenciar, y como mucho un aviso cada 24 horas por persona. Si no quieres recibirlos, apágalos en tu perfil.',
+          en: 'Tap “3/6 voted” and, next to whoever is missing, press “Remind” (10 🪙): they get a notification reminding them to vote, with your own message if you like. Only for people with notifications on and the group not muted, and at most one reminder every 24 hours per person. Don’t want them? Turn them off in your profile.',
+          de: 'Tipp auf „3/6 haben abgestimmt“ und neben den Fehlenden auf „Erinnern“ (10 🪙): Die Person bekommt eine Benachrichtigung, dass sie noch abstimmen soll, auf Wunsch mit deiner Nachricht. Nur bei eingeschalteten Benachrichtigungen und nicht stummgeschalteter Gruppe, und höchstens einmal alle 24 Stunden pro Person. Willst du keine? Schalt sie in deinem Profil aus.',
+        },
+      },
+      {
+        glyph: 'wallet',
+        title: {
+          es: 'Adiós a los accesorios del avatar',
+          en: 'Goodbye to avatar accessories',
+          de: 'Tschüss, Avatar-Accessoires',
+        },
+        text: {
+          es: 'Las gafas, el gorro, el bigote y compañía salen de la tienda: cualquiera podía falsificarlos subiendo una foto con el adorno ya puesto. Si compraste alguno, te hemos devuelto sus monedas. El cambio de voto y el aviso también se pueden comprar por adelantado en la tienda.',
+          en: 'The sunglasses, hat, moustache and friends leave the shop: anyone could fake them by uploading a photo with the sticker already on. If you bought one, you’ve got its coins back. Vote changes and reminders can also be bought ahead in the shop.',
+          de: 'Sonnenbrille, Hut, Schnurrbart und Co. verlassen den Shop: Jede und jeder konnte sie mit einem Foto samt Aufkleber fälschen. Hast du eins gekauft, hast du die Münzen zurückbekommen. Stimmänderungen und Erinnerungen kannst du auch im Voraus im Shop kaufen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.26.0',
     date: '2026-10-21',
     title: {

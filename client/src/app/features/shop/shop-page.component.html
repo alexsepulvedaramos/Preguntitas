@@ -229,15 +229,6 @@
                         size="md"
                       />
                     }
-                    @case ('accessory') {
-                      <app-user-avatar
-                        [avatarUrl]="user()?.avatarUrl"
-                        [username]="user()?.username ?? ''"
-                        frameColor="none"
-                        [look]="item.look"
-                        size="lg"
-                      />
-                    }
                     @case ('nameColor') {
                       <span class="max-w-full truncate font-display text-xl italic" [class]="item.colorClass">
                         {{ user()?.username }}

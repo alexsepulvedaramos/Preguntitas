@@ -33,4 +33,10 @@ public enum CoinReason
 
     // A retired cosmetic given back at its price; RefId = the ShopCatalog item id
     CosmeticRefund = 15,
+
+    // Change my vote (rama 43); RefId = the question
+    VoteChange = 16,
+
+    // Toque / nudge (rama 43); RefId = the Nudge row
+    Nudge = 17,
 }

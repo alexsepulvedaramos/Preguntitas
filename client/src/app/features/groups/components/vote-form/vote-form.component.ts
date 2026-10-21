@@ -34,6 +34,8 @@ import { QuestionTypeChipComponent } from '../../../../shared/components/questio
 export class VoteFormComponent {
   public readonly question = input.required<QuestionToVote>();
   public readonly members = input.required<GroupMember[]>();
+  // Off when the question is already on screen (changing your vote under its results, rama 43).
+  public readonly showQuestion = input(true);
 
   public readonly vote = output<CreateVote>();
 

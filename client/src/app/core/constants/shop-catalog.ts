@@ -8,7 +8,7 @@ import { FrameLook, STREAK_TIERS, StreakTierKey } from './streak-tiers';
 // Mirrors the backend CosmeticKind / CosmeticRarity — never renumber.
 export enum CosmeticKind {
   RingSkin = 0,
-  Accessory = 1,
+  Accessory = 1, // retired (rama 43, §17.15)
   NameColor = 2,
   Badge = 3, // retired (§17.15)
   Title = 4, // retired (§17.15)
@@ -25,7 +25,6 @@ export enum CosmeticRarity {
 // What other members see on someone (GroupMember.look, MemberStats.look, the own profile).
 export interface Look {
   ringSkin: string | null;
-  accessory: string | null;
   nameColor: string | null;
 }
 
@@ -51,13 +50,6 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   item('ring-ice', CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
   item('ring-flames', CosmeticKind.RingSkin, 1000, CosmeticRarity.Legendary),
 
-  item('acc-sunglasses', CosmeticKind.Accessory, 200),
-  item('acc-party-hat', CosmeticKind.Accessory, 200),
-  item('acc-moustache', CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
-  item('acc-headphones', CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
-  item('acc-paper-crown', CosmeticKind.Accessory, 400, CosmeticRarity.Epic),
-  item('acc-halo', CosmeticKind.Accessory, 500, CosmeticRarity.Legendary),
-
   item('color-coral', CosmeticKind.NameColor, 250),
   item('color-tangerine', CosmeticKind.NameColor, 250),
   item('color-gold', CosmeticKind.NameColor, 250),
@@ -76,6 +68,14 @@ export const COSMETICS: readonly CosmeticEntry[] = [
 // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners. Kept
 // only so the ledger can still name them.
 const RETIRED_COSMETICS: readonly CosmeticEntry[] = [
+  // Avatar accessories (rama 43): drawn over the photo, so anyone could fake one with a picture.
+  item('acc-sunglasses', CosmeticKind.Accessory, 200),
+  item('acc-party-hat', CosmeticKind.Accessory, 200),
+  item('acc-moustache', CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
+  item('acc-headphones', CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
+  item('acc-paper-crown', CosmeticKind.Accessory, 400, CosmeticRarity.Epic),
+  item('acc-halo', CosmeticKind.Accessory, 500, CosmeticRarity.Legendary),
+
   item('badge-fire', CosmeticKind.Badge, 150),
   item('badge-eyes', CosmeticKind.Badge, 150),
   item('badge-popcorn', CosmeticKind.Badge, 150),
@@ -236,34 +236,3 @@ export function seniorityStage(joinedAt: string | null | undefined) {
   const days = seniorityDays(joinedAt);
   return [...SENIORITY_STAGES].reverse().find((s) => days >= s.days) ?? null;
 }
-
-// ── Avatar accessories ───────────────────────────────────────────────────────
-// Drawn over the photo in a 0–100 box, inside a radius of ~46 so they never cover the ring.
-
-export const ACCESSORY_ART: Record<string, string> = {
-  'acc-sunglasses': `
-    <path d="M18 38 H82 V41 H18 Z" fill="#111"/>
-    <path d="M20 40 H46 V48 Q46 58 35 58 H31 Q20 58 20 48 Z" fill="#141414"/>
-    <path d="M54 40 H80 V48 Q80 58 69 58 H65 Q54 58 54 48 Z" fill="#141414"/>
-    <path d="M24 43 L33 43 L26 52 Z M58 43 L67 43 L60 52 Z" fill="#fff" opacity=".35"/>`,
-  'acc-party-hat': `
-    <path d="M52 30 L71 8 L80 38 Z" fill="#ff4fa3" stroke="#8a1a54" stroke-width="1.2" stroke-linejoin="round"/>
-    <path d="M58 23 L74 18 M55 29 L77 27 M61 17 L72 12" stroke="#ffe14d" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="71" cy="8" r="4.5" fill="#ffe14d" stroke="#b38f00" stroke-width="1"/>
-    <path d="M51 31 Q66 41 81 38" fill="none" stroke="#8a1a54" stroke-width="2.4" stroke-linecap="round"/>`,
-  'acc-moustache': `
-    <path d="M50 64 C44 58 34 58 28 64 C25 67 21 67 19 64 C20 71 29 74 37 71 C43 69 47 67 50 66 C53 67 57 69 63 71 C71 74 80 71 81 64 C79 67 75 67 72 64 C66 58 56 58 50 64 Z" fill="#3a2414" stroke="#1d110a" stroke-width="1"/>`,
-  'acc-headphones': `
-    <path d="M16 52 Q16 12 50 12 Q84 12 84 52" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round"/>
-    <path d="M16 52 Q16 12 50 12 Q84 12 84 52" fill="none" stroke="#e23e57" stroke-width="2.4" stroke-linecap="round"/>
-    <rect x="9" y="44" width="13" height="22" rx="6" fill="#e23e57" stroke="#222" stroke-width="2"/>
-    <rect x="78" y="44" width="13" height="22" rx="6" fill="#e23e57" stroke="#222" stroke-width="2"/>`,
-  'acc-paper-crown': `
-    <path d="M30 30 L30 14 L39 22 L50 10 L61 22 L70 14 L70 30 Z" fill="#ffd34d" stroke="#a87900" stroke-width="1.4" stroke-linejoin="round"/>
-    <path d="M30 26 H70" stroke="#a87900" stroke-width="1" stroke-dasharray="2 2"/>
-    <circle cx="40" cy="27.5" r="1.8" fill="#e23e57"/><circle cx="50" cy="27.5" r="1.8" fill="#2f6bff"/><circle cx="60" cy="27.5" r="1.8" fill="#3ae374"/>`,
-  'acc-halo': `
-    <ellipse cx="50" cy="11" rx="23" ry="6" fill="none" stroke="#ffe27a" stroke-width="6" opacity=".45" style="filter:blur(1.5px)"/>
-    <ellipse cx="50" cy="11" rx="23" ry="6" fill="none" stroke="#ffd23f" stroke-width="3"/>
-    <ellipse cx="50" cy="10" rx="21" ry="4.6" fill="none" stroke="#fffbe0" stroke-width="1" opacity=".9"/>`,
-};

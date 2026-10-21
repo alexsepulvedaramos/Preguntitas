@@ -21,6 +21,8 @@ public class InventoryService(AppDbContext context, ICoinService coinService) : 
             StreakFreeze = counts.GetValueOrDefault(InventoryItem.StreakFreeze),
             AuthorHint = counts.GetValueOrDefault(InventoryItem.AuthorHint),
             StreakRepair = counts.GetValueOrDefault(InventoryItem.StreakRepair),
+            VoteChange = counts.GetValueOrDefault(InventoryItem.VoteChange),
+            Nudge = counts.GetValueOrDefault(InventoryItem.Nudge),
         };
     }
 

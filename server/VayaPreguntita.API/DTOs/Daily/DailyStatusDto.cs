@@ -46,6 +46,9 @@ public class TodayStateDto
 
     // "Guess the author" (§17.6), once you have voted; null when the question isn't guessable.
     public AuthorGuessDto? Guess { get; set; }
+
+    // You voted and haven't changed your vote yet (rama 43, §17.10).
+    public bool CanChangeVote { get; set; }
 }
 
 public class SelectionStateDto

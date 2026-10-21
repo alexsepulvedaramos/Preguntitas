@@ -24,6 +24,9 @@ export enum CoinReason {
   // Shop and economy revision (rama 46, §17.15)
   StreakBonus = 14,
   CosmeticRefund = 15, // a retired cosmetic given back at its price
+  // Change my vote and toque / nudge (rama 43)
+  VoteChange = 16,
+  Nudge = 17,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -77,6 +80,9 @@ export enum InventoryItem {
   StreakFreeze = 1,
   AuthorHint = 2,
   StreakRepair = 3,
+  // Rama 43 (§17.10)
+  VoteChange = 4,
+  Nudge = 5,
 }
 
 // How many of each item the user holds (GET users/me → inventory, and every purchase/use).
@@ -85,9 +91,18 @@ export interface Inventory {
   streakFreeze: number;
   authorHint: number;
   streakRepair: number;
+  voteChange: number;
+  nudge: number;
 }
 
-export const EMPTY_INVENTORY: Inventory = { flashQuestion: 0, streakFreeze: 0, authorHint: 0, streakRepair: 0 };
+export const EMPTY_INVENTORY: Inventory = {
+  flashQuestion: 0,
+  streakFreeze: 0,
+  authorHint: 0,
+  streakRepair: 0,
+  voteChange: 0,
+  nudge: 0,
+};
 
 // GET shop (rama 42): the cosmetics catalog, with what you own.
 export interface ShopCatalog {
@@ -111,6 +126,11 @@ export const STREAK_REPAIR_PRICE = 300;
 
 // The author hint in "guess the author" (rama 36, §17.10).
 export const AUTHOR_HINT_PRICE = 20;
+
+// Change my vote and toque / nudge (rama 43, §17.10).
+export const VOTE_CHANGE_PRICE = 50;
+export const NUDGE_PRICE = 10;
+export const NUDGE_MESSAGE_MAX = 80;
 
 // A flash question (rama 44, §17.11): launched at once, open 24 h.
 export const FLASH_QUESTION_PRICE = 100;

@@ -1,7 +1,9 @@
-<div class="flex flex-col gap-2">
-  <p class="vp-question-text text-foreground">{{ question().text }}</p>
-  <app-question-type-chip [type]="question().type" />
-</div>
+@if (showQuestion()) {
+  <div class="flex flex-col gap-2">
+    <p class="vp-question-text text-foreground">{{ question().text }}</p>
+    <app-question-type-chip [type]="question().type" />
+  </div>
+}
 
 @switch (question().type) {
   @case (QuestionType.CustomPoll) {

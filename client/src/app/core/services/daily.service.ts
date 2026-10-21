@@ -4,13 +4,17 @@ import { Observable } from 'rxjs';
 
 import {
     AuthorHintResponse,
+    ChangeVoteResponse,
     DailyStatus,
     FlashState,
     GuessAuthorRequest,
     GuessAuthorResponse,
     LaunchFlashResponse,
+    NudgeTarget,
     SelectQuestion,
     SelectResponse,
+    SendNudgeRequest,
+    SendNudgeResponse,
 } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { CreateQuestion } from '../models/question.model';
@@ -91,6 +95,26 @@ export class DailyService {
     // vote from the history
     voteFlash(groupId: number, flashId: number, dto: CreateVote): Observable<FlashState | null> {
         return this.http.post<FlashState | null>(`${this.baseUrl}/${groupId}/flash/${flashId}/vote`, dto);
+    }
+
+    // "Change my vote" (rama 43): redo your vote once while it's open, today's question or a
+    // flash. useOwned: use one from the inventory instead of paying.
+    changeVote(groupId: number, dto: CreateVote, flashId: number | null, useOwned = false): Observable<ChangeVoteResponse> {
+        const url = flashId == null
+            ? `${this.baseUrl}/${groupId}/daily/vote`
+            : `${this.baseUrl}/${groupId}/flash/${flashId}/vote`;
+        return this.http.put<ChangeVoteResponse>(url, dto, { params: useOwned ? { useOwned: true } : {} });
+    }
+
+    // Toque / nudge (rama 43): who hasn't voted the question yet and whether a nudge reaches them
+    getNudgeTargets(groupId: number, flashId: number | null): Observable<NudgeTarget[]> {
+        return this.http.get<NudgeTarget[]>(`${this.baseUrl}/${groupId}/nudges/targets`, {
+            params: flashId == null ? {} : { flashId },
+        });
+    }
+
+    sendNudge(groupId: number, request: SendNudgeRequest): Observable<SendNudgeResponse> {
+        return this.http.post<SendNudgeResponse>(`${this.baseUrl}/${groupId}/nudges`, request);
     }
 
     // History detail of a flash question, gated like a daily one (§17.7)

@@ -110,6 +110,10 @@ function summarize(events, text) {
   if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
   if (latest('race_to_select')) lines.push(`⏱️ ${text.raceToSelect}`);
 
+  // A nudge (rama 43) carries its sender's own words, so it's kept as it came.
+  const nudge = latest('nudge');
+  if (nudge) lines.push(`👉 ${nudge.body}`);
+
   // Monthly summary (rama 41): sent with the 1st's question, so it usually merges with it.
   if (latest('monthly_summary')) lines.push(`🎉 ${text.summary}`);
 

@@ -19,7 +19,8 @@ public class DailyController(
     IDailyService dailyService,
     IGroupsService groupsService,
     IStreakService streakService,
-    IAuthorGuessService authorGuessService
+    IAuthorGuessService authorGuessService,
+    IVoteChangeService voteChangeService
 )
     : ControllerBase
 {
@@ -109,6 +110,25 @@ public class DailyController(
             VoteResult.InvalidPayload => BadRequest(ServerText.InvalidVote),
             _ => StatusCode(500),
         };
+    }
+
+    // PUT api/groups/{groupId}/daily/vote
+    // "Change my vote" (rama 43, §17.10): redo your vote on today's open question, once, for
+    // CoinRewards.VoteChangePrice. ?useOwned=true uses one from the inventory instead.
+    [HttpPut("vote")]
+    public async Task<ActionResult<ChangeVoteResponseDto>> ChangeVote(
+        int groupId,
+        CreateVoteDto dto,
+        [FromQuery] bool useOwned = false
+    )
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var (result, response) = await voteChangeService.ChangeDailyAsync(groupId, userId, dto, useOwned);
+        return result == VoteChangeResult.Success ? Ok(response) : VoteChangeErrors.ToResult(this, result);
     }
 
     // POST api/groups/{groupId}/daily/guess
