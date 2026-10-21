@@ -72,6 +72,7 @@ const TEXT = {
     selectorTurn: '¡Te toca elegir la pregunta!',
     raceToSelect: '¡Elige tú la próxima pregunta!',
     flash: (name) => `Pregunta flash de ${name}`,
+    flashAnonymous: 'Pregunta flash anónima',
     summary: 'Ya está el resumen del mes',
     voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
     messages: (count, names) => `${count} mensajes nuevos de ${names}`,
@@ -83,6 +84,7 @@ const TEXT = {
     selectorTurn: "It's your turn to pick the question!",
     raceToSelect: 'Your pick: the next question is up for grabs!',
     flash: (name) => `Flash question from ${name}`,
+    flashAnonymous: 'Anonymous flash question',
     summary: 'Your monthly summary is here',
     voted: (names) => `${names} voted`,
     messages: (count, names) => `${count} new messages from ${names}`,
@@ -94,6 +96,7 @@ const TEXT = {
     selectorTurn: 'Du bist dran, die Frage auszuwählen!',
     raceToSelect: 'Du darfst die nächste Frage wählen!',
     flash: (name) => `Blitzfrage von ${name}`,
+    flashAnonymous: 'Anonyme Blitzfrage',
     summary: 'Dein Monatsrückblick ist da',
     voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
     messages: (count, names) => `${count} neue Nachrichten von ${names}`,
@@ -126,10 +129,14 @@ function summarize(events, text) {
   // Duels (rama 47): the daily one or a flash, each listed with who set it up.
   events.filter((e) => e.kind === 'duel' || e.kind === 'flash_duel').forEach((e) => lines.push(`⚔️ ${e.body}`));
 
-  // Flash questions (rama 44) live 24 h on their own, so every one stays listed.
+  // Flash questions (rama 44) live 24 h on their own, so every one stays listed. An
+  // anonymous one (rama 50) has no actor.
   const flashes = events.filter((e) => e.kind === 'flash_question');
   if (flashes.length === 1) lines.push(`⚡ ${flashes[0].body}`);
-  else flashes.forEach((e) => lines.push(`⚡ ${text.flash(e.actor)}`));
+  else flashes.forEach((e) => lines.push(`⚡ ${e.actor ? text.flash(e.actor) : text.flashAnonymous}`));
+
+  // Time capsules (rama 50): each opened one keeps its own text.
+  events.filter((e) => e.kind === 'flash_capsule_opened').forEach((e) => lines.push(`⏳ ${e.body}`));
 
   const voters = unique(events.filter((e) => e.kind === 'user_voted').map((e) => e.actor));
   if (voters.length) lines.push(`🗳️ ${text.voted(listNames(voters, text), voters.length)}`);

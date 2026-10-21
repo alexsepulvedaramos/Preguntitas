@@ -65,6 +65,8 @@ export interface HistoryEntry {
     authorUsername: string | null; // member-written questions only (rama 36)
     myGuessCorrect: boolean | null; // null when you didn't guess
     flashId?: number | null; // a closed flash question (rama 44, marked with a bolt); authorUsername = who launched it
+    isAnonymous?: boolean; // anonymous flash (rama 50): no authorUsername
+    capsuleOpensAt?: string | null; // time capsule (rama 50): when its results open
 }
 
 // Mirrors backend HistoryPageDto — cursor-based paginated response.

@@ -63,6 +63,8 @@ export class HistoryComponent implements OnInit {
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
+  // ?flash={id}: opened from the "time capsule opened" push (rama 50), straight on that flash.
+  public readonly flash = input<string | undefined>();
 
   // History list state
   public readonly entries = signal<HistoryEntry[]>([]);
@@ -117,12 +119,51 @@ export class HistoryComponent implements OnInit {
         this.entries.set(page.items);
         this.hasMore.set(page.hasMore);
         this.loading.set(false);
+        this.openLinkedFlash();
       },
       error: () => {
         this.error.set('history.loadError');
         this.loading.set(false);
       },
     });
+  }
+
+  // The flash named in ?flash= is opened; if it's older than the first page, its row is
+  // added on top so the detail panel has somewhere to render.
+  private openLinkedFlash() {
+    const flashId = Number(this.flash());
+    if (!flashId) return;
+    const loaded = this.entries().find((e) => e.flashId === flashId);
+    if (loaded) {
+      this.selectEntry(loaded);
+      return;
+    }
+    this.dailyService.getFlash(this.numericGroupId(), flashId).subscribe({
+      next: (result) => {
+        const entry: HistoryEntry = {
+          date: new Date(result.dateCreated).toISOString().slice(0, 10),
+          questionText: result.text,
+          type: result.type,
+          totalVotes: result.totalVotes,
+          authorUsername: result.author?.username ?? null,
+          myGuessCorrect: null,
+          flashId,
+          isAnonymous: result.anonymous ?? false,
+          capsuleOpensAt: result.capsuleOpensAt ?? null,
+        };
+        this.entries.update((prev) => [entry, ...prev]);
+        this.selectEntry(entry);
+      },
+    });
+  }
+
+  isSealed(iso: string): boolean {
+    return new Date(iso).getTime() > Date.now();
+  }
+
+  // Time capsule (rama 50): the day its results open, in the app's language.
+  formatCapsuleDate(iso: string): string {
+    return this.i18n.formatDate(iso, { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   loadMore() {

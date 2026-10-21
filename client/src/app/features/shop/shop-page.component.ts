@@ -73,6 +73,9 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.CosmeticRefund]: 'coins.reasons.cosmeticRefund',
   [CoinReason.VoteChange]: 'coins.reasons.voteChange',
   [CoinReason.Nudge]: 'coins.reasons.nudge',
+  [CoinReason.FlashAnonymous]: 'coins.reasons.flashAnonymous',
+  [CoinReason.FlashCapsule]: 'coins.reasons.flashCapsule',
+  [CoinReason.FlashExtension]: 'coins.reasons.flashExtension',
 };
 
 const REASON_GLYPH: Record<CoinReason, GlyphName> = {
@@ -94,6 +97,9 @@ const REASON_GLYPH: Record<CoinReason, GlyphName> = {
   [CoinReason.CosmeticRefund]: 'wallet',
   [CoinReason.VoteChange]: 'changeVote',
   [CoinReason.Nudge]: 'nudge',
+  [CoinReason.FlashAnonymous]: 'anonymous',
+  [CoinReason.FlashCapsule]: 'capsule',
+  [CoinReason.FlashExtension]: 'extend',
 };
 
 type Slot = keyof Look | 'theme';

@@ -24,6 +24,56 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.30.0',
+    date: '2026-10-21',
+    title: {
+      es: 'Flash anónimas, cápsulas del tiempo y +24 h',
+      en: 'Anonymous flashes, time capsules and +24 h',
+      de: 'Anonyme Blitzfragen, Zeitkapseln und +24 Std.',
+    },
+    items: [
+      {
+        glyph: 'anonymous',
+        title: {
+          es: 'Pregunta flash anónima',
+          en: 'Anonymous flash question',
+          de: 'Anonyme Blitzfrage',
+        },
+        text: {
+          es: 'Al lanzar una flash puedes hacerla anónima por 50 🪙 más: nadie sabrá quién la lanzó, quién ha votado ni qué ha votado cada uno. Solo se ven los resultados. Para las preguntas que nadie contestaría en público.',
+          en: 'When you launch a flash you can make it anonymous for 50 more 🪙: nobody will know who launched it, who has voted or what anyone voted. Only the results show. For the questions nobody would answer in public.',
+          de: 'Beim Starten einer Blitzfrage kannst du sie für 50 🪙 mehr anonym machen: Niemand erfährt, wer sie gestartet hat, wer abgestimmt hat oder wer was gewählt hat. Nur die Ergebnisse sind zu sehen. Für die Fragen, die niemand öffentlich beantworten würde.',
+        },
+      },
+      {
+        glyph: 'capsule',
+        title: {
+          es: 'Cápsula del tiempo',
+          en: 'Time capsule',
+          de: 'Zeitkapsel',
+        },
+        text: {
+          es: 'Por 50 🪙 más, los resultados de tu flash quedan guardados hasta el día que elijas, de mañana a dentro de un año. Nadie los ve antes, ni quien la lanzó, y os avisamos a todos cuando se abre.',
+          en: 'For 50 more 🪙, your flash’s results are locked away until the day you pick, from tomorrow to a year from now. Nobody sees them before, not even whoever launched it, and everyone gets a notification when it opens.',
+          de: 'Für 50 🪙 mehr bleiben die Ergebnisse deiner Blitzfrage bis zu dem Tag verwahrt, den du wählst – von morgen bis in einem Jahr. Vorher sieht sie niemand, nicht mal, wer sie gestartet hat, und alle bekommen eine Benachrichtigung, wenn sie sich öffnet.',
+        },
+      },
+      {
+        glyph: 'extend',
+        title: {
+          es: '+24 h en una flash',
+          en: '+24 h on a flash',
+          de: '+24 Std. für eine Blitzfrage',
+        },
+        text: {
+          es: 'Cualquiera puede ampliar una pregunta flash abierta 24 h más por 30 🪙, una vez por pregunta. También sirve para alargar un duelo flash.',
+          en: 'Anyone can keep an open flash question going 24 h longer for 30 🪙, once per question. It works on flash duels too.',
+          de: 'Alle können eine offene Blitzfrage für 30 🪙 um 24 Std. verlängern, einmal pro Frage. Das geht auch bei Blitz-Duellen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.29.0',
     date: '2026-10-21',
     title: {

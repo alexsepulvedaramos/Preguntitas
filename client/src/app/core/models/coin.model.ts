@@ -27,6 +27,10 @@ export enum CoinReason {
   // Change my vote and toque / nudge (rama 43)
   VoteChange = 16,
   Nudge = 17,
+  // Flash variants (rama 50)
+  FlashAnonymous = 18,
+  FlashCapsule = 19,
+  FlashExtension = 20,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -134,6 +138,14 @@ export const NUDGE_MESSAGE_MAX = 80;
 
 // A flash question (rama 44, §17.11): launched at once, open 24 h.
 export const FLASH_QUESTION_PRICE = 100;
+
+// Flash variants (rama 50, §17.15 item 6): combinable add-ons paid in coins on top of the
+// flash, and the +24 h extension any member can buy once per flash.
+export const FLASH_ANONYMOUS_PRICE = 50;
+export const FLASH_CAPSULE_PRICE = 50;
+export const FLASH_EXTENSION_PRICE = 30;
+export const FLASH_CAPSULE_MIN_DAYS = 1;
+export const FLASH_CAPSULE_MAX_DAYS = 365;
 
 // Winning the race to select (rama 40, §17.5).
 export const RACE_WON_REWARD = 10;

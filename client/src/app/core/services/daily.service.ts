@@ -6,6 +6,8 @@ import {
     AuthorHintResponse,
     ChangeVoteResponse,
     DailyStatus,
+    ExtendFlashResponse,
+    FlashOptions,
     FlashState,
     GuessAuthorRequest,
     GuessAuthorResponse,
@@ -86,10 +88,24 @@ export class DailyService {
     // Buy and launch a flash question at once (rama 44, §17.11); 409 when coins are short or
     // you already launched one today in this group
     // useOwned: launch it with one from the inventory instead of paying (rama 45).
-    launchFlash(groupId: number, dto: CreateQuestion, useOwned = false): Observable<LaunchFlashResponse> {
-        return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto, {
-            params: useOwned ? { useOwned: true } : {},
-        });
+    // options: the anonymous / time-capsule add-ons (rama 50), paid in coins on top.
+    launchFlash(
+        groupId: number,
+        dto: CreateQuestion,
+        useOwned = false,
+        options: FlashOptions = { anonymous: false, capsuleOpensOn: null },
+    ): Observable<LaunchFlashResponse> {
+        const params: Record<string, string | boolean> = {};
+        if (useOwned) params['useOwned'] = true;
+        if (options.anonymous) params['anonymous'] = true;
+        if (options.capsuleOpensOn) params['capsuleOpensOn'] = options.capsuleOpensOn;
+        return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto, { params });
+    }
+
+    // +24 h on an open flash (rama 50): once per flash, by any member. 409 when it was already
+    // extended or coins are short.
+    extendFlash(groupId: number, flashId: number): Observable<ExtendFlashResponse> {
+        return this.http.post<ExtendFlashResponse>(`${this.baseUrl}/${groupId}/flash/${flashId}/extend`, {});
     }
 
     // Vote a flash question: the fresh state while it's open, nothing (204) when it's a late

@@ -142,6 +142,10 @@
       <!-- Flash question (rama 44, §17.11): pay to send it right now instead. The only action
            when the form was opened from the group's flash button (§17.15). -->
       <div class="flex flex-col gap-1.5" [class]="flashOnly() ? '' : 'mt-2 border-t border-border pt-3'">
+        <!-- Anonymous and time-capsule add-ons (rama 50), in the form opened from "Lanzar flash" -->
+        @if (flashOnly()) {
+          <app-flash-options class="mb-2" [(anonymous)]="anonymous" [(capsuleOpensOn)]="capsuleOpensOn" />
+        }
         <hlm-alert-dialog #flashDlg="hlmAlertDialog">
           <button
             type="button"
@@ -149,24 +153,42 @@
             variant="outline"
             class="w-full gap-1.5 border-flash-border text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             [class]="ownedFlashes() > 0 ? 'bg-flash/30 hover:bg-flash/40' : 'bg-flash/10 hover:bg-flash/20'"
-            [disabled]="submitting() || (ownedFlashes() === 0 && flashMissing() > 0)"
+            [disabled]="submitting() || flashMissing() > 0"
             (click)="askLaunchFlash(flashDlg)"
           >
             <ng-icon hlm name="lucideZap" class="text-flash-foreground" />
-            @if (ownedFlashes() > 0) {
+            @if (ownedFlashes() > 0 && addOnsPrice() > 0) {
+              <app-coin-text [text]="t('flash.useOwnedPlus', { count: ownedFlashes(), price: addOnsPrice() })" />
+            } @else if (ownedFlashes() > 0) {
               {{ t('inventory.use', { count: ownedFlashes() }) }}
             } @else {
-              <app-coin-text [text]="t('flash.sendNow', { price: flashPrice })" />
+              <app-coin-text [text]="t('flash.sendNow', { price: flashPrice() })" />
             }
           </button>
           <ng-template hlmAlertDialogPortal>
             <hlm-alert-dialog-content>
               <hlm-alert-dialog-header>
                 <h3 hlmAlertDialogTitle>
-                  <app-coin-text [text]="ownedFlashes() > 0 ? t('flash.confirmTitleOwned') : t('flash.confirmTitle', { price: flashPrice })" />
+                  <app-coin-text [text]="ownedFlashes() > 0 && addOnsPrice() === 0 ? t('flash.confirmTitleOwned') : t('flash.confirmTitle', { price: flashPrice() })" />
                 </h3>
                 <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
               </hlm-alert-dialog-header>
+              @if (anonymous() || capsuleOpensOn()) {
+                <ul class="flex flex-col gap-1.5 text-sm text-foreground">
+                  @if (anonymous()) {
+                    <li class="flex items-center gap-2">
+                      <app-glyph name="anonymous" size="xs" />
+                      {{ t('flash.confirmAnonymous') }}
+                    </li>
+                  }
+                  @if (capsuleOpensOn()) {
+                    <li class="flex items-center gap-2">
+                      <app-glyph name="capsule" size="xs" />
+                      {{ t('flash.confirmCapsule', { date: capsuleOpeningLabel() }) }}
+                    </li>
+                  }
+                </ul>
+              }
               @if (type() === QuestionType.Deathmatch && !(showSelectButton() || flashOnly())) {
                 <app-duel-notice [teams]="teams()" [members]="members()" />
               }
@@ -181,7 +203,7 @@
           </ng-template>
         </hlm-alert-dialog>
         <p class="text-center text-xs text-muted-foreground">
-          @if (ownedFlashes() === 0 && flashMissing() > 0) {
+          @if (flashMissing() > 0) {
             <app-coin-text [text]="t('flash.missing', { count: flashMissing() })" />
           } @else {
             {{ t('flash.sendNowHint') }}
