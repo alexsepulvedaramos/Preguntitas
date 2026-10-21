@@ -20,4 +20,10 @@ public class NotificationPreferences
 
     // "Resumen del mes" — last month's summary is ready, on the 1st at T (§17.12).
     public bool MonthlySummary { get; set; } = true;
+
+    // "👉 Toque" — a member reminds you to vote (§17.10). Off = nobody can nudge you.
+    public bool Nudge { get; set; } = true;
+
+    // "😂 Reacción" — someone reacted to your chat message or answer (§17.15 item 6).
+    public bool Reaction { get; set; } = true;
 }

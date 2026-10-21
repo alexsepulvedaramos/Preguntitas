@@ -4,19 +4,24 @@ import { Observable } from 'rxjs';
 
 import {
     AuthorHintResponse,
+    ChangeVoteResponse,
     DailyStatus,
     FlashState,
     GuessAuthorRequest,
     GuessAuthorResponse,
     LaunchFlashResponse,
+    NudgeTarget,
     SelectQuestion,
     SelectResponse,
+    SendNudgeRequest,
+    SendNudgeResponse,
 } from '../models/daily.model';
 import { CreateVote } from '../models/vote.model';
 import { CreateQuestion } from '../models/question.model';
 import { QuestionResult } from '../models/result.model';
 import { VoteResponse } from '../models/streak.model';
 import { ChatMessage } from '../models/chat-message.model';
+import { Reaction, ReactionKey, ReactionTarget } from '../models/reaction.model';
 import { environment } from '../../../environments/environment';
 
 // Daily flow within a group: current state ({ today, selection }), selection sources,
@@ -93,9 +98,35 @@ export class DailyService {
         return this.http.post<FlashState | null>(`${this.baseUrl}/${groupId}/flash/${flashId}/vote`, dto);
     }
 
+    // "Change my vote" (rama 43): redo your vote once while it's open, today's question or a
+    // flash. useOwned: use one from the inventory instead of paying.
+    changeVote(groupId: number, dto: CreateVote, flashId: number | null, useOwned = false): Observable<ChangeVoteResponse> {
+        const url = flashId == null
+            ? `${this.baseUrl}/${groupId}/daily/vote`
+            : `${this.baseUrl}/${groupId}/flash/${flashId}/vote`;
+        return this.http.put<ChangeVoteResponse>(url, dto, { params: useOwned ? { useOwned: true } : {} });
+    }
+
+    // Toque / nudge (rama 43): who hasn't voted the question yet and whether a nudge reaches them
+    getNudgeTargets(groupId: number, flashId: number | null): Observable<NudgeTarget[]> {
+        return this.http.get<NudgeTarget[]>(`${this.baseUrl}/${groupId}/nudges/targets`, {
+            params: flashId == null ? {} : { flashId },
+        });
+    }
+
+    sendNudge(groupId: number, request: SendNudgeRequest): Observable<SendNudgeResponse> {
+        return this.http.post<SendNudgeResponse>(`${this.baseUrl}/${groupId}/nudges`, request);
+    }
+
     // History detail of a flash question, gated like a daily one (§17.7)
     getFlash(groupId: number, flashId: number): Observable<QuestionResult> {
         return this.http.get<QuestionResult>(`${this.baseUrl}/${groupId}/flash/${flashId}`);
+    }
+
+    // Reactions (rama 48): set yours (another emoji replaces it) or remove it with null.
+    // Returns the target's reactions after the change.
+    setReaction(groupId: number, target: ReactionTarget, emoji: ReactionKey | null): Observable<Reaction[]> {
+        return this.http.put<Reaction[]>(`${this.baseUrl}/${groupId}/reactions/${target.kind}/${target.id}`, { emoji });
     }
 
     // Chat messages for the currently-open daily question

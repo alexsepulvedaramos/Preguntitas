@@ -35,7 +35,6 @@ export interface UpdateProfileRequest {
   preferredLanguage?: string;
   // Equipped cosmetics (rama 42): an owned key, '' to take it off, omitted = unchanged.
   ringSkinKey?: string;
-  accessoryKey?: string;
   nameColorKey?: string;
   themeKey?: string;
 }

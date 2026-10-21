@@ -24,6 +24,10 @@ public static class CoinRewards
     // drives the group dynamic, so it should be used often.
     public const int FlashQuestionPrice = 100;
 
+    // Change my vote and toque / nudge (§17.10, rama 43).
+    public const int VoteChangePrice = 50;
+    public const int NudgePrice = 10;
+
     // Max capped coins a user can earn per local day, across all groups (anti-farm).
     public const int DailyCap = 40;
 

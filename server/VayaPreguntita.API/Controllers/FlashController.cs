@@ -15,7 +15,11 @@ using VayaPreguntita.API.Services;
 [Authorize]
 [ApiController]
 [Route("api/groups/{groupId}/flash")]
-public class FlashController(IFlashService flashService, IGroupsService groupsService) : ControllerBase
+public class FlashController(
+    IFlashService flashService,
+    IGroupsService groupsService,
+    IVoteChangeService voteChangeService
+) : ControllerBase
 {
     private bool TryGetCurrentUserId(out int userId)
     {
@@ -59,6 +63,26 @@ public class FlashController(IFlashService flashService, IGroupsService groupsSe
         if (result != FlashResult.Success)
             return Error(result);
         return state != null ? Ok(state) : NoContent();
+    }
+
+    // PUT api/groups/{groupId}/flash/{flashId}/vote
+    // "Change my vote" (rama 43, §17.10) on an open flash, once. ?useOwned=true uses one from
+    // the inventory instead of paying.
+    [HttpPut("{flashId:int}/vote")]
+    public async Task<ActionResult<ChangeVoteResponseDto>> ChangeVote(
+        int groupId,
+        int flashId,
+        CreateVoteDto dto,
+        [FromQuery] bool useOwned = false
+    )
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var (result, response) = await voteChangeService.ChangeFlashAsync(groupId, userId, flashId, dto, useOwned);
+        return result == VoteChangeResult.Success ? Ok(response) : VoteChangeErrors.ToResult(this, result);
     }
 
     // GET api/groups/{groupId}/flash/{flashId}

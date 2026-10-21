@@ -341,6 +341,7 @@
           <app-today-voters
             [groupId]="numericGroupId()"
             [members]="members()"
+            [flashId]="flash.id"
             [voterIds]="flash.voterIds"
             [memberCount]="members().length"
           />
@@ -349,6 +350,14 @@
         @if (flash.userHasVoted && flash.results) {
           <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
           <app-results [question]="flash.question" [result]="flash.results" />
+          <app-change-vote
+            [groupId]="numericGroupId()"
+            [question]="flash.question"
+            [members]="members()"
+            [flashId]="flash.id"
+            [canChange]="flash.canChangeVote"
+            (changed)="onVoteChanged($event)"
+          />
         } @else {
           <app-vote
             [groupId]="numericGroupId()"
@@ -401,6 +410,13 @@
           }
 
           <app-results [question]="daily()!.today.question!" [result]="daily()!.today.results!" />
+          <app-change-vote
+            [groupId]="numericGroupId()"
+            [question]="daily()!.today.question!"
+            [members]="members()"
+            [canChange]="daily()!.today.canChangeVote"
+            (changed)="onVoteChanged($event)"
+          />
         </section>
       }
       @case ('no_question') {

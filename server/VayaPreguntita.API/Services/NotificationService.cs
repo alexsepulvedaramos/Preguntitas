@@ -173,6 +173,42 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendNudgeAsync(
+        int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl) =>
+        RunLoggedAsync("nudge", groupId, async context =>
+        {
+            var recipients = await context.DevicePushSubscriptions
+                .Where(s => s.UserId == targetUserId)
+                .Select(s => new Recipient(s, s.User.PreferredLanguage))
+                .ToListAsync();
+            await SendLocalizedAsync(context, recipients, ttl < TimeSpan.FromMinutes(5) ? TimeSpan.FromMinutes(5) : ttl, lang =>
+                BuildPayload(
+                    ServerText.Push.NudgeTitle(lang, groupName),
+                    message is null
+                        ? ServerText.Push.NudgeBody(lang, senderUsername)
+                        : ServerText.Push.NudgeBodyWithMessage(lang, senderUsername, message),
+                    groupId, groupName, "nudge", lang, actor: senderUsername
+                ));
+        });
+
+    public Task SendReactionAsync(
+        int groupId, int authorUserId, string groupName, string reactorUsername, string emoji,
+        bool isAnswer, string preview, string url) =>
+        RunLoggedAsync("reaction", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.Reaction);
+            recipients = recipients.Where(r => r.Subscription.UserId == authorUserId).ToList();
+            var text = Shorten(preview);
+            await SendLocalizedAsync(context, recipients, MessageTtl, lang =>
+                BuildPayload(
+                    ServerText.Push.ReactionTitle(lang, emoji, groupName),
+                    isAnswer
+                        ? ServerText.Push.ReactionToAnswerBody(lang, reactorUsername, emoji, text)
+                        : ServerText.Push.ReactionToMessageBody(lang, reactorUsername, emoji, text),
+                    groupId, groupName, "reaction", lang, actor: reactorUsername, url: url
+                ));
+        });
+
     private sealed record Recipient(DevicePushSubscription Subscription, string Language);
 
     private static string Shorten(string text) => text.Length > 80 ? text[..77] + "…" : text;

@@ -190,6 +190,9 @@ public class FlashService(
         return openIds.Count == 0 ? [] : await BuildStatesAsync(openIds, userId);
     }
 
+    public async Task<FlashStateDto> GetStateAsync(int flashId, int userId) =>
+        (await BuildStatesAsync([flashId], userId)).Single();
+
     // ==========================================
     // HISTORY DETAIL (§17.7 gating)
     // Without your vote: the question and the vote count, not the results. Once closed it
@@ -241,6 +244,11 @@ public class FlashService(
             .Distinct()
             .ToListAsync();
 
+        var changedQuestionIds = await context
+            .VoteChanges.Where(c => c.UserId == userId && questionIds.Contains(c.QuestionId))
+            .Select(c => c.QuestionId)
+            .ToListAsync();
+
         var states = new List<FlashStateDto>();
         foreach (var flash in flashes)
         {
@@ -257,6 +265,7 @@ public class FlashService(
                     UserHasVoted = hasVoted,
                     Results = hasVoted ? await CalculateResultsAsync(flash.Question) : null,
                     VoterIds = voterIds,
+                    CanChangeVote = hasVoted && !changedQuestionIds.Contains(flash.QuestionId),
                 }
             );
         }
@@ -270,8 +279,7 @@ public class FlashService(
             .Include(v => v.SelectedTargetUser)
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, question);
-        return ResultsBuilder.Build(question, votes, mapper, usersById);
+        return await ResultsBuilder.BuildAsync(context, question, votes, mapper);
     }
 
     private static VoterDto ToVoter(User user) =>

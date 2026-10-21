@@ -75,6 +75,7 @@ const TEXT = {
     summary: 'Ya está el resumen del mes',
     voted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} votado`,
     messages: (count, names) => `${count} mensajes nuevos de ${names}`,
+    reacted: (names, count) => `${names} ${count === 1 ? 'ha' : 'han'} reaccionado a lo tuyo`,
     and: 'y',
     more: (count) => `${count} más`,
   },
@@ -85,6 +86,7 @@ const TEXT = {
     summary: 'Your monthly summary is here',
     voted: (names) => `${names} voted`,
     messages: (count, names) => `${count} new messages from ${names}`,
+    reacted: (names) => `${names} reacted to yours`,
     and: 'and',
     more: (count) => `${count} more`,
   },
@@ -95,6 +97,7 @@ const TEXT = {
     summary: 'Dein Monatsrückblick ist da',
     voted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} abgestimmt`,
     messages: (count, names) => `${count} neue Nachrichten von ${names}`,
+    reacted: (names, count) => `${names} ${count === 1 ? 'hat' : 'haben'} auf deine Beiträge reagiert`,
     and: 'und',
     more: (count) => `${count} weitere`,
   },
@@ -109,6 +112,10 @@ function summarize(events, text) {
 
   if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
   if (latest('race_to_select')) lines.push(`⏱️ ${text.raceToSelect}`);
+
+  // A nudge (rama 43) carries its sender's own words, so it's kept as it came.
+  const nudge = latest('nudge');
+  if (nudge) lines.push(`👉 ${nudge.body}`);
 
   // Monthly summary (rama 41): sent with the 1st's question, so it usually merges with it.
   if (latest('monthly_summary')) lines.push(`🎉 ${text.summary}`);
@@ -133,6 +140,16 @@ function summarize(events, text) {
   } else if (messages.length > 1) {
     const senders = unique(messages.map((e) => e.actor));
     lines.push(`💬 ${text.messages(messages.length, listNames(senders, text))}`);
+  }
+
+  // Reactions (rama 48): one keeps its own text (who, which emoji, on what); several are
+  // summed up by who reacted.
+  const reactions = events.filter((e) => e.kind === 'reaction');
+  if (reactions.length === 1) {
+    lines.push(reactions[0].body);
+  } else if (reactions.length > 1) {
+    const reactors = unique(reactions.map((e) => e.actor));
+    lines.push(`😊 ${text.reacted(listNames(reactors, text), reactors.length)}`);
   }
 
   return lines.join('\n');

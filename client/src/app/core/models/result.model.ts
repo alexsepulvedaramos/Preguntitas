@@ -1,6 +1,7 @@
 import { User } from './user.model';
 import { QuestionType } from '../enums/question-type.enum';
 import { QuestionToVote } from './question.model';
+import { Reaction } from './reaction.model';
 
 export interface Voter {
     id: number;
@@ -20,11 +21,13 @@ export interface OptionResult {
 }
 
 export interface FreeTextResponse {
+    voteId: number; // what a reaction points at (rama 48)
     userId: number;
     username: string;
     avatarUrl: string | null;
     frameColor: string | null;
     text: string;
+    reactions: Reaction[];
 }
 
 // Mirrors backend QuestionResultDto.

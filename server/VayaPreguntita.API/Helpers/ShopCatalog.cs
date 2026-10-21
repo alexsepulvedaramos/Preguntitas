@@ -20,14 +20,6 @@ public static class ShopCatalog
         new(3, "ring-ice", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(4, "ring-flames", CosmeticKind.RingSkin, 1000, CosmeticRarity.Legendary),
 
-        // Avatar accessories: over the image, never over the ring.
-        new(11, "acc-sunglasses", CosmeticKind.Accessory, 200, CosmeticRarity.Common),
-        new(12, "acc-party-hat", CosmeticKind.Accessory, 200, CosmeticRarity.Common),
-        new(13, "acc-moustache", CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
-        new(14, "acc-headphones", CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
-        new(15, "acc-paper-crown", CosmeticKind.Accessory, 400, CosmeticRarity.Epic),
-        new(16, "acc-halo", CosmeticKind.Accessory, 500, CosmeticRarity.Legendary),
-
         // Name colours: a curated palette with light/dark variants (WCAG AA).
         new(21, "color-coral", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
         new(22, "color-tangerine", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
@@ -46,10 +38,19 @@ public static class ShopCatalog
     ];
 
     // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners by the
-    // RetireBadgesAndShopTitles migration. Kept only so the ledger can still name them; their
-    // ids are never reused.
+    // RetireBadgesAndShopTitles and RetireAvatarAccessories migrations. Kept only so the ledger
+    // can still name them; their ids are never reused.
     public static readonly CosmeticItem[] Retired =
     [
+        // Avatar accessories (rama 43): drawn over the photo, so anyone could fake one by
+        // uploading a picture with the sticker already on it.
+        new(11, "acc-sunglasses", CosmeticKind.Accessory, 200, CosmeticRarity.Common),
+        new(12, "acc-party-hat", CosmeticKind.Accessory, 200, CosmeticRarity.Common),
+        new(13, "acc-moustache", CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
+        new(14, "acc-headphones", CosmeticKind.Accessory, 300, CosmeticRarity.Rare),
+        new(15, "acc-paper-crown", CosmeticKind.Accessory, 400, CosmeticRarity.Epic),
+        new(16, "acc-halo", CosmeticKind.Accessory, 500, CosmeticRarity.Legendary),
+
         // Badge emoji next to the name: a name can already hold emojis.
         new(31, "badge-fire", CosmeticKind.Badge, 150, CosmeticRarity.Common),
         new(32, "badge-eyes", CosmeticKind.Badge, 150, CosmeticRarity.Common),

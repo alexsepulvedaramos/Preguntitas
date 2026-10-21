@@ -16,7 +16,6 @@ public class UpdateProfileRequestDto
     // Equipped shop cosmetics (rama 42): an owned ShopCatalog key of that kind, "" to take it
     // off, null = unchanged.
     public string? RingSkinKey { get; set; }
-    public string? AccessoryKey { get; set; }
     public string? NameColorKey { get; set; }
     public string? ThemeKey { get; set; }
 }

@@ -32,6 +32,9 @@
                 <time class="shrink-0 text-2xs text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
               </div>
             </div>
+            @if (msg.reactions.length) {
+              <app-reactions [groupId]="groupId()" [target]="{ kind: 'messages', id: msg.id }" [authorId]="msg.userId" [reactions]="msg.reactions" (changed)="setReactions(msg.id, $event)" />
+            }
           </div>
         } @else {
           <!-- Others: their avatar (ring and cosmetics) on the first message of a run -->
@@ -55,12 +58,20 @@
             @if (showLabel) {
               <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" [look]="groupStreaks.lookFor(msg.userId)" />
             }
-            <div class="rounded-default bg-muted px-3 py-2 text-foreground">
-              <div class="flex items-end gap-2">
-                <p class="flex-1 text-sm break-words whitespace-pre-wrap leading-snug">{{ msg.body }}</p>
-                <time class="shrink-0 text-2xs text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
+            <div class="flex items-center gap-1">
+              <div class="min-w-0 rounded-default bg-muted px-3 py-2 text-foreground">
+                <div class="flex items-end gap-2">
+                  <p class="flex-1 text-sm break-words whitespace-pre-wrap leading-snug">{{ msg.body }}</p>
+                  <time class="shrink-0 text-2xs text-muted-foreground/60 mb-0.5">{{ msg.createdAt | date:'HH:mm' }}</time>
+                </div>
               </div>
+              @if (!msg.reactions.length) {
+                <app-reactions [groupId]="groupId()" [target]="{ kind: 'messages', id: msg.id }" [authorId]="msg.userId" [reactions]="[]" (changed)="setReactions(msg.id, $event)" />
+              }
             </div>
+            @if (msg.reactions.length) {
+              <app-reactions [groupId]="groupId()" [target]="{ kind: 'messages', id: msg.id }" [authorId]="msg.userId" [reactions]="msg.reactions" (changed)="setReactions(msg.id, $event)" />
+            }
           </div>
           </div>
         }

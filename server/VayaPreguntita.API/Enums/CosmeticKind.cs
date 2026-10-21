@@ -4,7 +4,7 @@ namespace VayaPreguntita.API.Enums;
 public enum CosmeticKind
 {
     RingSkin = 0,
-    Accessory = 1,
+    Accessory = 1, // retired (rama 43, §17.15)
     NameColor = 2,
     Badge = 3, // retired (§17.15)
     Title = 4, // retired (§17.15)

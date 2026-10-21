@@ -13,6 +13,7 @@ const message = (id: number): ChatMessage => ({
   username: 'ana',
   isSystem: false,
   isCurrentUser: false,
+  reactions: [],
 });
 
 describe('GroupChatComponent live refresh', () => {
@@ -84,6 +85,14 @@ describe('GroupChatComponent live refresh', () => {
     vi.advanceTimersByTime(CHAT_POLL_INTERVAL_MS);
     expect(chat.messages().length).toBe(2);
     expect(chat.messageText).toBe('draft');
+    fixture.destroy();
+  });
+  it('picks up reactions that arrive without new messages', () => {
+    const fixture = create();
+    const chat = fixture.componentInstance as any;
+    getChat.mockReturnValue(of([{ ...message(1), reactions: [{ emoji: 'fire', userId: 2, username: 'bea' }] }]));
+    vi.advanceTimersByTime(CHAT_POLL_INTERVAL_MS);
+    expect(chat.messages()[0].reactions).toEqual([{ emoji: 'fire', userId: 2, username: 'bea' }]);
     fixture.destroy();
   });
 });

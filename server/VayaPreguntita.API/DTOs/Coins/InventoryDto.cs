@@ -9,6 +9,8 @@ public class InventoryDto
     public int StreakFreeze { get; set; }
     public int AuthorHint { get; set; }
     public int StreakRepair { get; set; }
+    public int VoteChange { get; set; }
+    public int Nudge { get; set; }
 }
 
 // POST api/shop/inventory: buys one item into the inventory.

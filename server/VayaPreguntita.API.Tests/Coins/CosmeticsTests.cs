@@ -74,29 +74,30 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
-        await BuyAsync(group["ana"], "acc-halo");
+        await BuyAsync(group["ana"], "ring-neon");
 
-        (await UpdateAsync(group["ana"], new() { AccessoryKey = "acc-sunglasses" }))
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-pixel" }))
             .Error.Should().Be("COSMETIC_NOT_OWNED");
-        (await UpdateAsync(group["ana"], new() { RingSkinKey = "acc-halo" }))
+        (await UpdateAsync(group["ana"], new() { NameColorKey = "ring-neon" }))
             .Error.Should().Be("COSMETIC_NOT_OWNED");
-        (await UpdateAsync(group["ana"], new() { AccessoryKey = "acc-halo" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-neon" })).Success.Should().BeTrue();
 
         await using (var db = NewContext())
-            (await db.Users.SingleAsync(u => u.Id == group["ana"])).AccessoryKey.Should().Be("acc-halo");
+            (await db.Users.SingleAsync(u => u.Id == group["ana"])).RingSkinKey.Should().Be("ring-neon");
 
-        (await UpdateAsync(group["ana"], new() { AccessoryKey = "" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "" })).Success.Should().BeTrue();
         await using (var db = NewContext())
-            (await db.Users.SingleAsync(u => u.Id == group["ana"])).AccessoryKey.Should().BeNull();
+            (await db.Users.SingleAsync(u => u.Id == group["ana"])).RingSkinKey.Should().BeNull();
     }
 
     [Fact]
-    public async Task RetiredBadgesAndShopTitles_CanNoLongerBeBoughtOrWorn()
+    public async Task RetiredCosmetics_CanNoLongerBeBoughtOrWorn()
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
 
         (await BuyAsync(group["ana"], "badge-frog")).Should().Be(CosmeticPurchaseResult.UnknownItem);
+        (await BuyAsync(group["ana"], "acc-halo")).Should().Be(CosmeticPurchaseResult.UnknownItem);
         (await BuyAsync(group["ana"], "title-oracle")).Should().Be(CosmeticPurchaseResult.UnknownItem);
         (await UpdateAsync(group["ana"], new() { TitleKey = "title-oracle" })).Error.Should().Be("TITLE_NOT_UNLOCKED");
         (await CoinsAsync(group["ana"])).Should().Be(1000);
@@ -135,7 +136,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         var ana = members.Single(m => m.Id == group["ana"]);
         ana.Look!.RingSkin.Should().Be("ring-pixel");
-        ana.Look.Accessory.Should().BeNull();
+        ana.Look.NameColor.Should().BeNull();
         members.Single(m => m.Id == group["bea"]).Look.Should().BeNull();
     }
 

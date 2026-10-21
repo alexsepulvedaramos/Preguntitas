@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
-// Hints shown once to point at a new feature (§17.15: the flash button, later "change my
-// vote"). Tracked per device in localStorage — no backend, like the release notes.
-export type OneTimeHint = 'flashButton';
+// Hints shown once to point at a new feature (§17.15: the flash button and "change my vote").
+// Tracked per device in localStorage — no backend, like the release notes.
+export type OneTimeHint = 'flashButton' | 'changeVote';
 
 const STORAGE_KEY = 'vp_hints_seen';
 

@@ -12,6 +12,8 @@ export interface NotificationPreferences {
   raceToSelect: boolean; // "¡Elige tú!" — nobody chose 10 minutes before T (§17.5)
   flashQuestion: boolean; // "Pregunta flash" — a member launched one (§17.11)
   monthlySummary: boolean; // "Resumen del mes" — last month's summary is ready (§17.12)
+  nudge: boolean; // "Toque" — a member reminds you to vote (rama 43); off = nobody can nudge you
+  reaction: boolean; // someone reacted to your chat message or answer (rama 48)
 }
 
 export const STREAK_DANGER_HOURS = [1, 2, 3, 4, 6, 8] as const;

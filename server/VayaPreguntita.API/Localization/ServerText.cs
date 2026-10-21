@@ -283,6 +283,67 @@ public static class ServerText
         "You don't have any left in your inventory.",
         "Du hast keins mehr in deinem Inventar.");
 
+    // ── Change my vote & nudge (rama 43) ────────────────────────────────────────────────
+    public static string VoteChangeNotVoted => Pick(
+        "Todavía no has votado esta pregunta.",
+        "You haven't voted on this question yet.",
+        "Du hast bei dieser Frage noch nicht abgestimmt.");
+
+    public static string VoteAlreadyChanged => Pick(
+        "Ya has cambiado tu voto en esta pregunta.",
+        "You've already changed your vote on this question.",
+        "Du hast deine Stimme bei dieser Frage schon geändert.");
+
+    public static string FlashClosed => Pick(
+        "Esta pregunta flash ya se ha cerrado.",
+        "This flash question has already closed.",
+        "Diese Blitzfrage ist schon geschlossen.");
+
+    public static string NudgeInvalidTarget => Pick(
+        "No puedes avisar a esa persona.",
+        "You can't remind that person.",
+        "Diese Person kannst du nicht erinnern.");
+
+    public static string NudgeAlreadyVoted => Pick(
+        "Ya ha votado esta pregunta.",
+        "They've already voted on this question.",
+        "Diese Person hat schon abgestimmt.");
+
+    public static string NudgeUnreachable => Pick(
+        "Ahora mismo no le llegan los avisos.",
+        "Reminders can't reach them right now.",
+        "Erinnerungen erreichen diese Person gerade nicht.");
+
+    public static string NudgeRecent => Pick(
+        "Ya le han avisado en las últimas 24 horas.",
+        "Someone already reminded them in the last 24 hours.",
+        "Diese Person wurde in den letzten 24 Stunden schon erinnert.");
+
+    public static string NudgeMessageTooLong(int max) => Pick(
+        $"El mensaje no puede superar {max} caracteres.",
+        $"The message can't be longer than {max} characters.",
+        $"Die Nachricht darf höchstens {max} Zeichen lang sein.");
+
+    public static string ReactionTargetNotFound => Pick(
+        "Ese mensaje o respuesta ya no está.",
+        "That message or answer is no longer there.",
+        "Diese Nachricht oder Antwort gibt es nicht mehr.");
+
+    public static string ReactionInvalidEmoji => Pick(
+        "Esa reacción no existe.",
+        "That reaction doesn't exist.",
+        "Diese Reaktion gibt es nicht.");
+
+    public static string ReactionOwnContent => Pick(
+        "No puedes reaccionar a lo tuyo.",
+        "You can't react to your own.",
+        "Auf eigene Beiträge kannst du nicht reagieren.");
+
+    public static string ReactionLocked => Pick(
+        "Vota primero para ver las respuestas.",
+        "Vote first to see the answers.",
+        "Stimm zuerst ab, um die Antworten zu sehen.");
+
     public static string FreezeLimitReached => Pick(
         "Ya tienes el máximo de congelaciones en este grupo.",
         "You already hold the maximum number of freezes in this group.",
@@ -410,6 +471,37 @@ public static class ServerText
             $"{launcher} pregunta: {text}",
             $"{launcher} asks: {text}",
             $"{launcher} fragt: {text}");
+
+        // Toque / nudge (rama 43, §17.10), with the sender's optional message.
+        public static string ReactionTitle(string lang, string emoji, string groupName) => Pick(lang,
+            $"{emoji} {groupName}",
+            $"{emoji} {groupName}",
+            $"{emoji} {groupName}");
+
+        public static string ReactionToMessageBody(string lang, string reactor, string emoji, string preview) => Pick(lang,
+            $"{reactor} ha reaccionado {emoji} a tu mensaje: «{preview}»",
+            $"{reactor} reacted {emoji} to your message: “{preview}”",
+            $"{reactor} hat mit {emoji} auf deine Nachricht reagiert: „{preview}“");
+
+        public static string ReactionToAnswerBody(string lang, string reactor, string emoji, string preview) => Pick(lang,
+            $"{reactor} ha reaccionado {emoji} a tu respuesta: «{preview}»",
+            $"{reactor} reacted {emoji} to your answer: “{preview}”",
+            $"{reactor} hat mit {emoji} auf deine Antwort reagiert: „{preview}“");
+
+        public static string NudgeTitle(string lang, string groupName) => Pick(lang,
+            $"👉 {groupName}",
+            $"👉 {groupName}",
+            $"👉 {groupName}");
+
+        public static string NudgeBody(string lang, string sender) => Pick(lang,
+            $"{sender} te recuerda que no has votado.",
+            $"{sender} is reminding you that you haven't voted.",
+            $"{sender} erinnert dich daran, dass du noch nicht abgestimmt hast.");
+
+        public static string NudgeBodyWithMessage(string lang, string sender, string message) => Pick(lang,
+            $"{sender} te recuerda que no has votado: «{message}»",
+            $"{sender} is reminding you that you haven't voted: “{message}”",
+            $"{sender} erinnert dich daran, dass du noch nicht abgestimmt hast: „{message}“");
 
         // Duel (§17.15 item 6): replaces the flash or new-question push for the two duelists.
         public static string DuelTitle(string lang, string groupName) => Pick(lang,

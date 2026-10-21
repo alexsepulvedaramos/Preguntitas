@@ -29,6 +29,9 @@ public interface IFlashService
     // The group's open flashes, oldest first (the `flashes` block of daily/current).
     Task<List<FlashStateDto>> GetOpenAsync(int groupId, int userId);
 
+    // One flash as the current user sees it (after changing a vote, rama 43).
+    Task<FlashStateDto> GetStateAsync(int flashId, int userId);
+
     // History detail, gated like a daily question (§17.7). null when it doesn't exist.
     Task<QuestionResultDto?> GetDetailAsync(int groupId, int userId, int flashId);
 }

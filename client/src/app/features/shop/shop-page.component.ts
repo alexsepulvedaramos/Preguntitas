@@ -42,8 +42,10 @@ import {
   FLASH_QUESTION_PRICE,
   Inventory,
   InventoryItem,
+  NUDGE_PRICE,
   STREAK_FREEZE_PRICE,
   STREAK_REPAIR_PRICE,
+  VOTE_CHANGE_PRICE,
 } from '../../core/models/coin.model';
 import { GlyphComponent } from '../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../shared/components/glyph/glyphs';
@@ -69,6 +71,8 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Cosmetic]: 'coins.reasons.cosmetic',
   [CoinReason.StreakBonus]: 'coins.reasons.streakBonus',
   [CoinReason.CosmeticRefund]: 'coins.reasons.cosmeticRefund',
+  [CoinReason.VoteChange]: 'coins.reasons.voteChange',
+  [CoinReason.Nudge]: 'coins.reasons.nudge',
 };
 
 const REASON_GLYPH: Record<CoinReason, GlyphName> = {
@@ -88,6 +92,8 @@ const REASON_GLYPH: Record<CoinReason, GlyphName> = {
   [CoinReason.Cosmetic]: 'shop',
   [CoinReason.StreakBonus]: 'streak',
   [CoinReason.CosmeticRefund]: 'wallet',
+  [CoinReason.VoteChange]: 'changeVote',
+  [CoinReason.Nudge]: 'nudge',
 };
 
 type Slot = keyof Look | 'theme';
@@ -96,11 +102,10 @@ type Slot = keyof Look | 'theme';
 const KIND_SECTIONS: readonly {
   kind: CosmeticKind;
   id: string;
-  field: 'ringSkinKey' | 'accessoryKey' | 'nameColorKey' | 'themeKey';
+  field: 'ringSkinKey' | 'nameColorKey' | 'themeKey';
   slot: Slot;
 }[] = [
   { kind: CosmeticKind.RingSkin, id: 'ringSkin', field: 'ringSkinKey', slot: 'ringSkin' },
-  { kind: CosmeticKind.Accessory, id: 'accessory', field: 'accessoryKey', slot: 'accessory' },
   { kind: CosmeticKind.NameColor, id: 'nameColor', field: 'nameColorKey', slot: 'nameColor' },
   { kind: CosmeticKind.Theme, id: 'theme', field: 'themeKey', slot: 'theme' },
 ];
@@ -116,7 +121,8 @@ const RARITY_KEYS: Record<CosmeticRarity, TranslationKey> = {
 const PREVIEW_STREAK = STREAK_TIERS[3].minDays;
 
 // The game items sold ahead (rama 45, §17.10), cheapest first. Each is used later from its own
-// spot in a group: the streak panel, a member's card, the guess step or the create form.
+// spot in a group: the streak panel, a member's card, the guess step, the create form, the
+// results card (change my vote) or the list of who has voted (nudge).
 const SHOP_ITEMS: readonly {
   item: InventoryItem;
   slot: keyof Inventory;
@@ -126,12 +132,28 @@ const SHOP_ITEMS: readonly {
   text: TranslationKey;
 }[] = [
   {
+    item: InventoryItem.Nudge,
+    slot: 'nudge',
+    glyph: 'nudge',
+    price: NUDGE_PRICE,
+    name: 'inventory.items.nudge.name',
+    text: 'inventory.items.nudge.text',
+  },
+  {
     item: InventoryItem.AuthorHint,
     slot: 'authorHint',
     glyph: 'hint',
     price: AUTHOR_HINT_PRICE,
     name: 'inventory.items.authorHint.name',
     text: 'inventory.items.authorHint.text',
+  },
+  {
+    item: InventoryItem.VoteChange,
+    slot: 'voteChange',
+    glyph: 'changeVote',
+    price: VOTE_CHANGE_PRICE,
+    name: 'inventory.items.voteChange.name',
+    text: 'inventory.items.voteChange.text',
   },
   {
     item: InventoryItem.FlashQuestion,
@@ -213,7 +235,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const look = this.user()?.look;
     return {
       ringSkin: look?.ringSkin ?? null,
-      accessory: look?.accessory ?? null,
       nameColor: look?.nameColor ?? null,
       theme: this.user()?.themeKey ?? null,
     };
@@ -224,7 +245,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const merged = { ...this.equipped(), ...this.trying() };
     return {
       ringSkin: merged.ringSkin ?? null,
-      accessory: merged.accessory ?? null,
       nameColor: merged.nameColor ?? null,
     };
   });
@@ -276,7 +296,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
         swatch: THEME_SWATCHES[c.key] ?? null,
         look: {
           ringSkin: c.kind === CosmeticKind.RingSkin ? c.key : null,
-          accessory: c.kind === CosmeticKind.Accessory ? c.key : null,
           nameColor: null,
         } as Look,
       })),

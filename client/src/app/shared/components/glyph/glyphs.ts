@@ -1,6 +1,7 @@
 import {
   lucideBackpack,
   lucideBell,
+  lucideBellRing,
   lucideBookOpen,
   lucideCalendarDays,
   lucideChartBar,
@@ -46,6 +47,7 @@ import {
   lucideSearch,
   lucideShoppingBag,
   lucideSmartphone,
+  lucideSmilePlus,
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,
@@ -100,6 +102,9 @@ export const GLYPHS = {
   eye: { icon: 'lucideEye', tone: 'sage' },
   poll: { icon: 'lucideListChecks', tone: 'sage' },
   versus: { icon: 'lucideSwords', tone: 'sand' },
+  changeVote: { icon: 'lucideRepeat', tone: 'sage' },
+  nudge: { icon: 'lucideBellRing', tone: 'lime' },
+  reaction: { icon: 'lucideSmilePlus', tone: 'sand' },
   // Release notes
   sparkles: { icon: 'lucideSparkles', tone: 'lime' },
   lock: { icon: 'lucideLock', tone: 'sage' },
@@ -140,6 +145,7 @@ export type GlyphName = keyof typeof GLYPHS;
 export const GLYPH_ICONS = {
   lucideBackpack,
   lucideBell,
+  lucideBellRing,
   lucideBookOpen,
   lucideCalendarDays,
   lucideChartBar,
@@ -185,6 +191,7 @@ export const GLYPH_ICONS = {
   lucideSearch,
   lucideShoppingBag,
   lucideSmartphone,
+  lucideSmilePlus,
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,

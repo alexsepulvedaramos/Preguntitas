@@ -22,6 +22,9 @@ public class FlashStateDto
 
     // Members who have voted it (no answers).
     public List<int> VoterIds { get; set; } = [];
+
+    // You voted and haven't changed your vote yet (rama 43, §17.10).
+    public bool CanChangeVote { get; set; }
 }
 
 // POST flash: the new flash and the buyer's balance after paying.

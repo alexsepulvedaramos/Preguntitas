@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Localization;
 
 namespace VayaPreguntita.API.Data;
@@ -31,6 +32,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MonthlySummary> MonthlySummaries { get; set; }
     public DbSet<UserInventoryItem> UserInventory { get; set; }
     public DbSet<UserItem> UserItems { get; set; }
+    public DbSet<VoteChange> VoteChanges { get; set; }
+    public DbSet<Nudge> Nudges { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -297,6 +301,80 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         });
 
         // ==========================================
+        // CHANGE MY VOTE AND NUDGE (rama 43, §17.10)
+        // ==========================================
+        modelBuilder.Entity<VoteChange>(e =>
+        {
+            // Once per member and question.
+            e.HasKey(c => new { c.QuestionId, c.UserId });
+            e.HasOne(c => c.Question)
+             .WithMany()
+             .HasForeignKey(c => c.QuestionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(c => c.User)
+             .WithMany()
+             .HasForeignKey(c => c.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Nudge>(e =>
+        {
+            e.Property(n => n.Message).HasMaxLength(NudgeRules.MaxMessageLength);
+            // "No other nudge for this member in this group in the last 24 h".
+            e.HasIndex(n => new { n.GroupId, n.TargetUserId, n.SentAt });
+            e.HasOne(n => n.Group)
+             .WithMany()
+             .HasForeignKey(n => n.GroupId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(n => n.Question)
+             .WithMany()
+             .HasForeignKey(n => n.QuestionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(n => n.Sender)
+             .WithMany()
+             .HasForeignKey(n => n.SenderUserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(n => n.Target)
+             .WithMany()
+             .HasForeignKey(n => n.TargetUserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
+        // REACTIONS (rama 48, §17.15 item 6)
+        // ==========================================
+        modelBuilder.Entity<Reaction>(e =>
+        {
+            e.Property(r => r.Emoji).HasMaxLength(ReactionRules.MaxKeyLength);
+            // One per person and target. Rows of the other kind have a null key, and nulls
+            // never collide in a unique index.
+            e.HasIndex(r => new { r.ChatMessageId, r.UserId }).IsUnique();
+            e.HasIndex(r => new { r.VoteId, r.UserId }).IsUnique();
+            // "Did this author get a reaction push in the last ReactionRules.PushCooldown?"
+            e.HasIndex(r => new { r.AuthorUserId, r.NotifiedAt });
+            e.ToTable(t => t.HasCheckConstraint(
+                "CK_Reactions_OneTarget",
+                "(\"ChatMessageId\" IS NULL) <> (\"VoteId\" IS NULL)"));
+            e.HasOne(r => r.ChatMessage)
+             .WithMany()
+             .HasForeignKey(r => r.ChatMessageId)
+             .OnDelete(DeleteBehavior.Cascade);
+            // Changing your vote (rama 43) replaces the Vote rows: reactions to the old text go.
+            e.HasOne(r => r.Vote)
+             .WithMany()
+             .HasForeignKey(r => r.VoteId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.User)
+             .WithMany()
+             .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.Author)
+             .WithMany()
+             .HasForeignKey(r => r.AuthorUserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
         // ITEM INVENTORY (rama 45, §17.10)
         // ==========================================
         modelBuilder.Entity<UserInventoryItem>(e =>
@@ -325,7 +403,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<User>(e =>
         {
             e.Property(u => u.RingSkinKey).HasMaxLength(40);
-            e.Property(u => u.AccessoryKey).HasMaxLength(40);
             e.Property(u => u.NameColorKey).HasMaxLength(40);
             e.Property(u => u.ThemeKey).HasMaxLength(40);
         });

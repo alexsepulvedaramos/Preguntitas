@@ -95,6 +95,9 @@ public class DailyService(
             state.Status = "results";
             state.Results = await CalculateResultsAsync(openEntry.Question);
             state.Guess = await authorGuessService.GetStateAsync(openEntry, userId);
+            state.CanChangeVote = !await context.VoteChanges.AnyAsync(c =>
+                c.QuestionId == openEntry.QuestionId && c.UserId == userId
+            );
         }
         else
         {
@@ -765,8 +768,6 @@ public class DailyService(
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
 
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, question);
-
-        return ResultsBuilder.Build(question, allVotes, mapper, usersById);
+        return await ResultsBuilder.BuildAsync(context, question, allVotes, mapper);
     }
 }

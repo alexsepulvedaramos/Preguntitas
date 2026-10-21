@@ -890,12 +890,6 @@
    * The app's own glyph set (GlyphComponent): a Lucide icon on a soft tile, in one of four
    * tones built from the palette tokens so every shop theme recolours them. Replaces emoji.
    */
-  /* Shop accessories on avatars: a thin light outline in dark mode so dark art (sunglasses,
-     moustache) doesn't vanish into the dark card. */
-  .dark .vp-accessory svg {
-    filter: drop-shadow(0 0 0.75px rgb(255 255 255 / 0.85));
-  }
-
   .vp-glyph {
     display: inline-grid;
     place-items: center;

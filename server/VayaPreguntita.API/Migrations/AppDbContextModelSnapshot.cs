@@ -423,7 +423,13 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<bool>("NewQuestion")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("Nudge")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("RaceToSelect")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Reaction")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("SelectorTurn")
@@ -441,6 +447,46 @@ namespace VayaPreguntita.API.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("NotificationPreferences");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Nudge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SenderUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TargetUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SenderUserId");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.HasIndex("GroupId", "TargetUserId", "SentAt");
+
+                    b.ToTable("Nudges");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.Option", b =>
@@ -631,7 +677,7 @@ namespace VayaPreguntita.API.Migrations
                     b.ToTable("QuestionTemplateOption");
                 });
 
-            modelBuilder.Entity("VayaPreguntita.API.Entities.User", b =>
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Reaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -639,9 +685,54 @@ namespace VayaPreguntita.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AccessoryKey")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
+                    b.Property<int>("AuthorUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ChatMessageId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Emoji")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime?>("NotifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("VoteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("AuthorUserId", "NotifiedAt");
+
+                    b.HasIndex("ChatMessageId", "UserId")
+                        .IsUnique();
+
+                    b.HasIndex("VoteId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Reactions", t =>
+                        {
+                            t.HasCheckConstraint("CK_Reactions_OneTarget", "(\"ChatMessageId\" IS NULL) <> (\"VoteId\" IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
@@ -818,6 +909,24 @@ namespace VayaPreguntita.API.Migrations
                     b.HasIndex("QuestionId", "UserId");
 
                     b.ToTable("Votes");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.VoteChange", b =>
+                {
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("QuestionId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("VoteChanges");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.AuthorGuess", b =>
@@ -1018,6 +1127,41 @@ namespace VayaPreguntita.API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Nudge", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("Target");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.Option", b =>
                 {
                     b.HasOne("VayaPreguntita.API.Entities.Question", "Question")
@@ -1153,6 +1297,39 @@ namespace VayaPreguntita.API.Migrations
                     b.Navigation("QuestionTemplate");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Reaction", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.ChatMessage", "ChatMessage")
+                        .WithMany()
+                        .HasForeignKey("ChatMessageId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.Vote", "Vote")
+                        .WithMany()
+                        .HasForeignKey("VoteId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("ChatMessage");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Vote");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserInventoryItem", b =>
                 {
                     b.HasOne("VayaPreguntita.API.Entities.User", "User")
@@ -1214,6 +1391,25 @@ namespace VayaPreguntita.API.Migrations
                     b.Navigation("SelectedOption");
 
                     b.Navigation("SelectedTargetUser");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.VoteChange", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
 
                     b.Navigation("User");
                 });
