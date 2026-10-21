@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.28.2',
+    date: '2026-10-21',
+    title: {
+      es: 'Quitar tu reacción',
+      en: 'Removing your reaction',
+      de: 'Deine Reaktion entfernen',
+    },
+    items: [
+      {
+        glyph: 'reaction',
+        title: {
+          es: 'Ya puedes quitar tu reacción',
+          en: 'You can remove your reaction again',
+          de: 'Du kannst deine Reaktion wieder entfernen',
+        },
+        text: {
+          es: 'Tu reacción no salía marcada en el panel de emojis y, al tocarla, no se quitaba. Ahora aparece resaltada y, si la vuelves a tocar, desaparece. Además, el botón para reaccionar ya no sale en tus propios mensajes.',
+          en: 'Your reaction wasn’t highlighted in the emoji panel and tapping it didn’t remove it. Now it’s highlighted, and tapping it again takes it away. The react button also no longer shows on your own messages.',
+          de: 'Deine Reaktion war in der Emoji-Auswahl nicht markiert und ließ sich durch Antippen nicht entfernen. Jetzt ist sie hervorgehoben, und erneutes Antippen nimmt sie weg. Außerdem erscheint der Reagieren-Knopf nicht mehr bei deinen eigenen Nachrichten.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.28.1',
     date: '2026-10-21',
     title: {
