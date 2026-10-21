@@ -1,0 +1,9 @@
+# Only the public pages are meant for search engines; everything else needs an account.
+User-agent: *
+Disallow: /groups
+Disallow: /profile
+Disallow: /shop
+Disallow: /join/
+Disallow: /auth/
+
+Sitemap: https://vayapreguntita.vercel.app/sitemap.xml
