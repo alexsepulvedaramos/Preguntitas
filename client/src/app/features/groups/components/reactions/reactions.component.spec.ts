@@ -15,7 +15,8 @@ describe('ReactionsComponent', () => {
       imports: [ReactionsComponent],
       providers: [
         { provide: DailyService, useValue: { setReaction } },
-        { provide: AuthService, useValue: { currentUser: signal({ id: 1, username: 'ana' }) } },
+        // The id comes from the JWT claims as a string, as in production
+        { provide: AuthService, useValue: { currentUser: signal({ id: '1', username: 'ana' }) } },
       ],
     });
     const fixture = TestBed.createComponent(ReactionsComponent);

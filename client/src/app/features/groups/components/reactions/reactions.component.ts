@@ -62,7 +62,11 @@ export class ReactionsComponent {
   protected readonly keys = REACTION_KEYS;
   protected readonly emojis = REACTION_EMOJIS;
 
-  private readonly userId = computed(() => this.authService.currentUser()?.id ?? null);
+  // The id is read from the JWT claims, so it arrives as a string: compare it as a number.
+  private readonly userId = computed(() => {
+    const id = this.authService.currentUser()?.id;
+    return id == null ? null : Number(id);
+  });
   protected readonly canReact = computed(() => this.userId() != null && this.authorId() !== this.userId());
   protected readonly mine = computed(() => this.current().find((r) => r.userId === this.userId())?.emoji ?? null);
 
