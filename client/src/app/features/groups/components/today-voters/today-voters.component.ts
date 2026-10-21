@@ -23,8 +23,8 @@ const STACKED_AVATARS = 4;
 
 // "3/6 han votado" (rama 36): who has voted today's question — never what they answered.
 // A small avatar stack; tapping it lists who voted and who is still missing. Rama 43: next to
-// each member still missing, a "Toque" reminds them by push (when it can reach them), with an
-// optional message.
+// each member still missing, "Avisar" reminds them by push (shown only when it can reach them),
+// with an optional message.
 @Component({
   selector: 'app-today-voters',
   imports: [
@@ -85,26 +85,19 @@ const STACKED_AVATARS = 4;
                   <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" size="xs" />
                   <span class="truncate">{{ m.username }}</span>
                 </button>
-                @switch (statusOf(m.id)) {
-                  @case ('available') {
-                    <button
-                      hlmBtn
-                      size="sm"
-                      variant="outline"
-                      class="h-8 shrink-0 gap-1 px-2.5 focus-visible:ring-2 focus-visible:ring-ring"
-                      [attr.aria-label]="t('nudge.actionAria', { name: m.username })"
-                      (click)="openNudge(m); ctx.close()"
-                    >
-                      <app-glyph name="nudge" size="xs" bare />
-                      {{ t('nudge.action') }}
-                    </button>
-                  }
-                  @case ('recent') {
-                    <span class="shrink-0 text-2xs text-muted-foreground">{{ t('nudge.recent') }}</span>
-                  }
-                  @case ('unreachable') {
-                    <span class="shrink-0 text-2xs text-muted-foreground">{{ t('nudge.unreachable') }}</span>
-                  }
+                <!-- Only where a nudge can go out now; nothing otherwise, to keep the list calm -->
+                @if (statusOf(m.id) === 'available') {
+                  <button
+                    hlmBtn
+                    size="sm"
+                    variant="outline"
+                    class="h-8 shrink-0 gap-1 px-2.5 focus-visible:ring-2 focus-visible:ring-ring"
+                    [attr.aria-label]="t('nudge.actionAria', { name: m.username })"
+                    (click)="openNudge(m); ctx.close()"
+                  >
+                    <app-glyph name="nudge" size="xs" bare />
+                    {{ t('nudge.action') }}
+                  </button>
                 }
               </div>
             }

@@ -53,9 +53,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Stups sie an',
         },
         text: {
-          es: 'Toca «3/6 han votado» y, junto a quien falta, pulsa «Toque» (10 🪙): le llega una notificación recordándole que vote, con un mensaje tuyo si quieres. Solo a quien tiene las notificaciones activadas y el grupo sin silenciar, y como mucho un toque cada 24 horas por persona. Si no quieres recibirlos, apágalos en tu perfil.',
-          en: 'Tap “3/6 voted” and, next to whoever is missing, press “Nudge” (10 🪙): they get a notification reminding them to vote, with your own message if you like. Only for people with notifications on and the group not muted, and at most one nudge every 24 hours per person. Don’t want them? Turn them off in your profile.',
-          de: 'Tipp auf „3/6 haben abgestimmt“ und neben den Fehlenden auf „Anstupsen“ (10 🪙): Die Person bekommt eine Benachrichtigung, dass sie noch abstimmen soll, auf Wunsch mit deiner Nachricht. Nur bei eingeschalteten Benachrichtigungen und nicht stummgeschalteter Gruppe, und höchstens einmal alle 24 Stunden pro Person. Willst du keine? Schalt sie in deinem Profil aus.',
+          es: 'Toca «3/6 han votado» y, junto a quien falta, pulsa «Avisar» (10 🪙): le llega una notificación recordándole que vote, con un mensaje tuyo si quieres. Solo a quien tiene las notificaciones activadas y el grupo sin silenciar, y como mucho un toque cada 24 horas por persona. Si no quieres recibirlos, apágalos en tu perfil.',
+          en: 'Tap “3/6 voted” and, next to whoever is missing, press “Remind” (10 🪙): they get a notification reminding them to vote, with your own message if you like. Only for people with notifications on and the group not muted, and at most one nudge every 24 hours per person. Don’t want them? Turn them off in your profile.',
+          de: 'Tipp auf „3/6 haben abgestimmt“ und neben den Fehlenden auf „Erinnern“ (10 🪙): Die Person bekommt eine Benachrichtigung, dass sie noch abstimmen soll, auf Wunsch mit deiner Nachricht. Nur bei eingeschalteten Benachrichtigungen und nicht stummgeschalteter Gruppe, und höchstens einmal alle 24 Stunden pro Person. Willst du keine? Schalt sie in deinem Profil aus.',
         },
       },
       {
