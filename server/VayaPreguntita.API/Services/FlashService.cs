@@ -23,6 +23,13 @@ public class FlashService(
 {
     public static readonly TimeSpan OpenFor = TimeSpan.FromHours(24);
 
+    // Extension (rama 50): +24 h, once per flash, by any member while it's open.
+    public static readonly TimeSpan ExtendBy = TimeSpan.FromHours(24);
+
+    // Time capsule (rama 50): the buyer picks the opening day, 1 day to 1 year after launch.
+    public const int CapsuleMinDays = 1;
+    public const int CapsuleMaxDays = 365;
+
     // ==========================================
     // LAUNCH
     // Same validation as POST /questions (§9). The question, the flash and the charge commit
@@ -32,9 +39,11 @@ public class FlashService(
         int groupId,
         int userId,
         CreateQuestionDto dto,
-        bool useOwned = false
+        bool useOwned = false,
+        FlashOptions? options = null
     )
     {
+        options ??= new FlashOptions();
         var group =
             await context.Groups.Include(g => g.Members).FirstOrDefaultAsync(g => g.Id == groupId)
             ?? throw new KeyNotFoundException("Group not found.");
@@ -49,6 +58,27 @@ public class FlashService(
 
         var nowUtc = DailyClock.UtcNow(clock);
         var today = DailyClock.Today(clock);
+
+        // The capsule opens on the chosen local day, at the same time of day it was launched.
+        DateTime? hiddenUntil = null;
+        if (options.CapsuleOpensOn is DateOnly opensOn)
+        {
+            var days = opensOn.DayNumber - today.DayNumber;
+            if (days < CapsuleMinDays || days > CapsuleMaxDays)
+                return (FlashResult.InvalidCapsuleDate, null);
+            hiddenUntil = nowUtc.AddDays(days);
+        }
+
+        // The add-ons are always paid in coins, so check the whole bill before charging.
+        var addOns = new List<(CoinReason Reason, int Price)>();
+        if (options.Anonymous)
+            addOns.Add((CoinReason.FlashAnonymous, CoinRewards.FlashAnonymousPrice));
+        if (hiddenUntil != null)
+            addOns.Add((CoinReason.FlashCapsule, CoinRewards.FlashCapsulePrice));
+        var coinsNeeded = addOns.Sum(a => a.Price) + (useOwned ? 0 : CoinRewards.FlashQuestionPrice);
+        if (await coinService.GetBalanceAsync(userId) < coinsNeeded)
+            return (FlashResult.NotEnoughCoins, null);
+
         if (
             await context.FlashEntries.AnyAsync(f =>
                 f.GroupId == groupId && f.LaunchedByUserId == userId && f.LocalDate == today
@@ -81,6 +111,8 @@ public class FlashService(
             ActivatedAt = nowUtc,
             ClosesAt = nowUtc + OpenFor,
             LocalDate = today,
+            IsAnonymous = options.Anonymous,
+            ResultsHiddenUntil = hiddenUntil,
         };
         context.FlashEntries.Add(flash);
         try
@@ -110,6 +142,11 @@ public class FlashService(
         )
             return (FlashResult.NotEnoughCoins, null);
 
+        // One ledger row per add-on, so "Movimientos" names each charge.
+        foreach (var (reason, price) in addOns)
+            if (!await coinService.SpendAsync(userId, reason, price, groupId, flash.Id))
+                return (FlashResult.NotEnoughCoins, null);
+
         await transaction.CommitAsync();
 
         var launcher = await context.Users.FindAsync(userId);
@@ -122,7 +159,10 @@ public class FlashService(
             group.Name,
             launcherName,
             question.Text,
-            duelists is (int first, int second) ? new DuelPush(userId, launcherName, first, second) : null
+            duelists is (int first, int second)
+                ? new DuelPush(userId, launcherName, first, second, Anonymous: flash.IsAnonymous)
+                : null,
+            flash.IsAnonymous
         );
 
         return (
@@ -178,6 +218,93 @@ public class FlashService(
     }
 
     // ==========================================
+    // EXTEND (rama 50)
+    // +24 h on an open flash, once, by any member. The conditional update makes the first
+    // buyer win a race; the charge commits with it, so a failure refunds.
+    // ==========================================
+    public async Task<(FlashResult Result, ExtendFlashResponseDto? Response)> ExtendAsync(
+        int groupId,
+        int userId,
+        int flashId
+    )
+    {
+        var flash = await context.FlashEntries.AsNoTracking().FirstOrDefaultAsync(f => f.Id == flashId && f.GroupId == groupId);
+        if (flash == null)
+            return (FlashResult.NotFound, null);
+
+        var nowUtc = DailyClock.UtcNow(clock);
+        if (flash.ClosesAt <= nowUtc)
+            return (FlashResult.Closed, null);
+        if (flash.ExtendedByUserId != null)
+            return (FlashResult.AlreadyExtended, null);
+
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        var extended = await context
+            .FlashEntries.Where(f => f.Id == flashId && f.ExtendedByUserId == null && f.ClosesAt > nowUtc)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(f => f.ExtendedByUserId, userId).SetProperty(f => f.ClosesAt, f => f.ClosesAt + ExtendBy)
+            );
+        if (extended == 0)
+            return (FlashResult.AlreadyExtended, null);
+
+        if (
+            !await coinService.SpendAsync(
+                userId,
+                CoinReason.FlashExtension,
+                CoinRewards.FlashExtensionPrice,
+                groupId,
+                flashId
+            )
+        )
+            return (FlashResult.NotEnoughCoins, null);
+
+        await transaction.CommitAsync();
+
+        return (
+            FlashResult.Success,
+            new ExtendFlashResponseDto
+            {
+                Flash = (await BuildStatesAsync([flashId], userId)).Single(),
+                Balance = await coinService.GetBalanceAsync(userId),
+            }
+        );
+    }
+
+    // ==========================================
+    // TIME CAPSULES (rama 50)
+    // Run by the minute tick: every capsule whose day has come gets its push, once.
+    // ==========================================
+    public async Task OpenDueCapsulesAsync()
+    {
+        var nowUtc = DailyClock.UtcNow(clock);
+        var due = await context
+            .FlashEntries.Include(f => f.Group)
+            .Include(f => f.Question)
+            .Include(f => f.LaunchedBy)
+            .Where(f => f.ResultsHiddenUntil != null && f.CapsuleOpenedAt == null && f.ResultsHiddenUntil <= nowUtc)
+            .OrderBy(f => f.ResultsHiddenUntil)
+            .Take(50)
+            .ToListAsync();
+        if (due.Count == 0)
+            return;
+
+        foreach (var flash in due)
+            flash.CapsuleOpenedAt = nowUtc;
+        await context.SaveChangesAsync();
+
+        foreach (var flash in due)
+            _ = notificationService.SendCapsuleOpenedAsync(
+                flash.GroupId,
+                flash.Id,
+                flash.Group.Name,
+                flash.IsAnonymous ? null : flash.LaunchedBy.Username,
+                flash.LocalDate,
+                flash.Question.Text
+            );
+    }
+
+    // ==========================================
     // OPEN FLASHES (daily/current)
     // ==========================================
     public async Task<List<FlashStateDto>> GetOpenAsync(int groupId, int userId)
@@ -208,8 +335,20 @@ public class FlashService(
         if (flash == null)
             return null;
 
+        var nowUtc = DailyClock.UtcNow(clock);
         var result = await CalculateResultsAsync(flash.Question);
         result.Author = ToVoter(flash.LaunchedBy);
+        if (flash.IsAnonymous)
+            ResultsBuilder.Anonymize(result, userId);
+        result.CapsuleOpensAt = flash.ResultsHiddenUntil;
+
+        // A sealed capsule shows only its vote count, to everyone (its voters too).
+        if (flash.IsSealed(nowUtc))
+        {
+            result.Sealed = true;
+            result.Results = [];
+            result.FreeTextResponses = [];
+        }
 
         var voted = await context.Votes.AnyAsync(v => v.QuestionId == flash.QuestionId && v.UserId == userId);
         if (!voted)
@@ -217,7 +356,7 @@ public class FlashService(
             result.Locked = true;
             result.Results = [];
             result.FreeTextResponses = [];
-            if (flash.ClosesAt <= DailyClock.UtcNow(clock))
+            if (flash.ClosesAt <= nowUtc)
                 result.LateVoteQuestion = mapper.Map<QuestionToVoteDto>(flash.Question);
         }
 
@@ -231,6 +370,7 @@ public class FlashService(
     {
         var flashes = await context
             .FlashEntries.Include(f => f.LaunchedBy)
+            .Include(f => f.ExtendedBy)
             .Include(f => f.Question)
                 .ThenInclude(q => q.Options)
             .Where(f => flashIds.Contains(f.Id))
@@ -249,23 +389,41 @@ public class FlashService(
             .Select(c => c.QuestionId)
             .ToListAsync();
 
+        var nowUtc = DailyClock.UtcNow(clock);
         var states = new List<FlashStateDto>();
         foreach (var flash in flashes)
         {
             var voterIds = voters.Where(v => v.QuestionId == flash.QuestionId).Select(v => v.UserId).ToList();
             var hasVoted = voterIds.Contains(userId);
+            var isSealed = flash.IsSealed(nowUtc);
+
+            QuestionResultDto? results = null;
+            if (hasVoted && !isSealed)
+            {
+                results = await CalculateResultsAsync(flash.Question);
+                if (flash.IsAnonymous)
+                    ResultsBuilder.Anonymize(results, userId);
+            }
+
             states.Add(
                 new FlashStateDto
                 {
                     Id = flash.Id,
                     Question = mapper.Map<QuestionToVoteDto>(flash.Question),
-                    LaunchedBy = ToVoter(flash.LaunchedBy),
+                    // An anonymous flash names nobody: not who launched it, extended it or voted.
+                    LaunchedBy = flash.IsAnonymous ? null : ToVoter(flash.LaunchedBy),
                     ActivatedAt = flash.ActivatedAt,
                     ClosesAt = flash.ClosesAt,
                     UserHasVoted = hasVoted,
-                    Results = hasVoted ? await CalculateResultsAsync(flash.Question) : null,
-                    VoterIds = voterIds,
+                    Results = results,
+                    VoteCount = voterIds.Count,
+                    VoterIds = flash.IsAnonymous ? [] : voterIds,
                     CanChangeVote = hasVoted && !changedQuestionIds.Contains(flash.QuestionId),
+                    IsAnonymous = flash.IsAnonymous,
+                    CapsuleOpensAt = flash.ResultsHiddenUntil,
+                    Sealed = isSealed,
+                    Extended = flash.ExtendedByUserId != null,
+                    ExtendedBy = flash.IsAnonymous || flash.ExtendedBy == null ? null : ToVoter(flash.ExtendedBy),
                 }
             );
         }

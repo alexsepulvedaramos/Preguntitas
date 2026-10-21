@@ -14,8 +14,15 @@ public interface IFlashService
         int groupId,
         int userId,
         CreateQuestionDto dto,
-        bool useOwned = false
+        bool useOwned = false,
+        FlashOptions? options = null
     );
+
+    // +24 h on an open flash (rama 50): once per flash, by any member, paid in coins.
+    Task<(FlashResult Result, ExtendFlashResponseDto? Response)> ExtendAsync(int groupId, int userId, int flashId);
+
+    // Minute tick (rama 50): pushes every time capsule whose results just opened, once.
+    Task OpenDueCapsulesAsync();
 
     // Open flash → on-time vote, returns the fresh state. Closed flash → late vote from the
     // history (§17.7), returns null state. Neither earns anything nor pushes.

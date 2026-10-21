@@ -26,6 +26,15 @@ public class QuestionResultDto
     // Locked and closed: the question to vote late from the history (null otherwise).
     public QuestionToVoteDto? LateVoteQuestion { get; set; }
 
+    // Anonymous flash (rama 50): no voters on the options and no names on the answers (the
+    // caller's own answer keeps its UserId, so only they know it's theirs).
+    public bool Anonymous { get; set; }
+
+    // Time capsule flash (rama 50): when it opens, and whether it's still sealed (then Results
+    // and FreeTextResponses stay empty for everyone and only TotalVotes is shown).
+    public DateTime? CapsuleOpensAt { get; set; }
+    public bool Sealed { get; set; }
+
     // Scale only — needed by the frontend to render the full distribution range.
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }

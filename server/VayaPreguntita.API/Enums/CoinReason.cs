@@ -39,4 +39,9 @@ public enum CoinReason
 
     // Toque / nudge (rama 43); RefId = the Nudge row
     Nudge = 17,
+
+    // Flash variants (rama 50); RefId = the flash
+    FlashAnonymous = 18,
+    FlashCapsule = 19,
+    FlashExtension = 20,
 }

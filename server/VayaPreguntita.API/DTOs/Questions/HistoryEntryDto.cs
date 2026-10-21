@@ -17,6 +17,11 @@ public class HistoryEntryDto
     // Set on a closed flash question (§17.11, marked ⚡): open it by this id, not by date.
     // AuthorUsername is then the member who launched it.
     public int? FlashId { get; set; }
+
+    // Flash variants (rama 50): an anonymous flash has no AuthorUsername; a time capsule
+    // carries when it opens.
+    public bool IsAnonymous { get; set; }
+    public DateTime? CapsuleOpensAt { get; set; }
 }
 
 public class HistoryPageDto

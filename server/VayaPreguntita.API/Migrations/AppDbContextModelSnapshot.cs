@@ -222,11 +222,20 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<DateTime>("ActivatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("CapsuleOpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("ClosesAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("ExtendedByUserId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("LaunchedByUserId")
                         .HasColumnType("integer");
@@ -237,11 +246,19 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("QuestionId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("ResultsHiddenUntil")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ExtendedByUserId");
 
                     b.HasIndex("LaunchedByUserId");
 
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("ResultsHiddenUntil")
+                        .HasFilter("\"ResultsHiddenUntil\" IS NOT NULL AND \"CapsuleOpenedAt\" IS NULL");
 
                     b.HasIndex("GroupId", "ClosesAt");
 
@@ -1031,6 +1048,11 @@ namespace VayaPreguntita.API.Migrations
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.FlashEntry", b =>
                 {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "ExtendedBy")
+                        .WithMany()
+                        .HasForeignKey("ExtendedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("VayaPreguntita.API.Entities.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
@@ -1048,6 +1070,8 @@ namespace VayaPreguntita.API.Migrations
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ExtendedBy");
 
                     b.Navigation("Group");
 

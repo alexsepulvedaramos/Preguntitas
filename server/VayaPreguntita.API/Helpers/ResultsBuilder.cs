@@ -41,6 +41,23 @@ public static class ResultsBuilder
         return result;
     }
 
+    // Anonymous flash (rama 50): strip who voted what before it leaves the server. The viewer's
+    // own answer keeps its UserId, so only they can tell it is theirs (and can't react to it).
+    public static void Anonymize(QuestionResultDto result, int viewerUserId)
+    {
+        result.Anonymous = true;
+        result.Author = null;
+        foreach (var option in result.Results)
+            option.Voters = [];
+        foreach (var response in result.FreeTextResponses.Where(r => r.UserId != viewerUserId))
+        {
+            response.UserId = 0;
+            response.Username = string.Empty;
+            response.AvatarUrl = null;
+            response.FrameColor = null;
+        }
+    }
+
     public static async Task AttachReactionsAsync(AppDbContext context, List<FreeTextResponseDto> responses)
     {
         if (responses.Count == 0)

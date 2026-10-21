@@ -18,6 +18,7 @@ public class DailyCycleRunner(
     IStreakService streakService,
     ICoinService coinService,
     IMonthlySummaryService monthlySummaryService,
+    IFlashService flashService,
     TimeProvider clock,
     ILogger<DailyCycleRunner> logger
 )
@@ -136,6 +137,9 @@ public class DailyCycleRunner(
 
         // ── MONTHLY SUMMARY (§17.12): a few groups per tick ────────────────────
         await monthlySummaryService.BuildPendingAsync();
+
+        // ── TIME CAPSULES (rama 50): push the ones whose results just opened ──
+        await flashService.OpenDueCapsulesAsync();
     }
 
     // A 1-vs-1 Deathmatch the selector actively chose is a duel (§17.15 item 6); a pure

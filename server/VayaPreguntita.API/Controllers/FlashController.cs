@@ -31,12 +31,15 @@ public class FlashController(
     // POST api/groups/{groupId}/flash
     // Buys and launches a flash question at once (CoinRewards.FlashQuestionPrice). 409 when coins are short or the
     // member already launched one today in this group. ?useOwned=true launches it with one from
-    // the inventory instead of paying (rama 45); 409 when none is left.
+    // the inventory instead of paying (rama 45); 409 when none is left. Add-ons (rama 50), paid
+    // in coins on top: ?anonymous=true and ?capsuleOpensOn=yyyy-MM-dd (1 day to 1 year ahead).
     [HttpPost]
     public async Task<ActionResult<LaunchFlashResponseDto>> Launch(
         int groupId,
         CreateQuestionDto dto,
-        [FromQuery] bool useOwned = false
+        [FromQuery] bool useOwned = false,
+        [FromQuery] bool anonymous = false,
+        [FromQuery] DateOnly? capsuleOpensOn = null
     )
     {
         if (!TryGetCurrentUserId(out var userId))
@@ -44,7 +47,23 @@ public class FlashController(
         if (!await groupsService.IsUserInGroupAsync(userId, groupId))
             return Forbid();
 
-        var (result, response) = await flashService.LaunchAsync(groupId, userId, dto, useOwned);
+        var (result, response) = await flashService.LaunchAsync(
+            groupId, userId, dto, useOwned, new FlashOptions(anonymous, capsuleOpensOn));
+        return result == FlashResult.Success ? Ok(response) : Error(result);
+    }
+
+    // POST api/groups/{groupId}/flash/{flashId}/extend
+    // +24 h on an open flash (rama 50), once, by any member. 409 when it was already extended
+    // or coins are short, 400 once it has closed.
+    [HttpPost("{flashId:int}/extend")]
+    public async Task<ActionResult<ExtendFlashResponseDto>> Extend(int groupId, int flashId)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var (result, response) = await flashService.ExtendAsync(groupId, userId, flashId);
         return result == FlashResult.Success ? Ok(response) : Error(result);
     }
 
@@ -110,6 +129,9 @@ public class FlashController(
             FlashResult.NotFound => NotFound(ServerText.FlashNotFound),
             FlashResult.AlreadyVoted => BadRequest(ServerText.AlreadyVotedThis),
             FlashResult.InvalidVote => BadRequest(ServerText.InvalidVote),
+            FlashResult.InvalidCapsuleDate => BadRequest(ServerText.FlashCapsuleDateInvalid),
+            FlashResult.Closed => BadRequest(ServerText.FlashClosed),
+            FlashResult.AlreadyExtended => Conflict(ServerText.FlashAlreadyExtended),
             _ => StatusCode(500),
         };
 }

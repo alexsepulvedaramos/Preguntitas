@@ -18,7 +18,25 @@ public class FlashEntry
     public int QuestionId { get; set; }
     public Question Question { get; set; } = null!;
 
-    // Public: the buyer is the author, so there is no "guess the author".
+    // Public: the buyer is the author, so there is no "guess the author" — unless the flash is
+    // anonymous (rama 50), then the API never names them.
     public int LaunchedByUserId { get; set; }
     public User LaunchedBy { get; set; } = null!;
+
+    // Anonymous flash (rama 50, §17.15 item 6): nobody is told who launched it, who has voted
+    // or who voted what; only the tallies are shown.
+    public bool IsAnonymous { get; set; }
+
+    // Time capsule (rama 50): the results stay hidden from everyone until this instant (1 day
+    // to 1 year after launch). null on a normal flash.
+    public DateTime? ResultsHiddenUntil { get; set; }
+
+    // When the "capsule opened" push went out (once, from the minute tick).
+    public DateTime? CapsuleOpenedAt { get; set; }
+
+    // Extension (rama 50): any member may add 24 h once while it's open.
+    public int? ExtendedByUserId { get; set; }
+    public User? ExtendedBy { get; set; }
+
+    public bool IsSealed(DateTime nowUtc) => ResultsHiddenUntil is DateTime until && until > nowUtc;
 }

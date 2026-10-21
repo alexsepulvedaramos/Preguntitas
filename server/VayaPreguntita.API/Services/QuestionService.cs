@@ -183,6 +183,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
                 f.Question.Type,
                 TotalVotes = f.Question.Votes.Select(v => v.UserId).Distinct().Count(),
                 f.LaunchedBy.Username,
+                f.IsAnonymous,
+                f.ResultsHiddenUntil,
             })
             .ToListAsync();
         items.AddRange(
@@ -194,8 +196,11 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
                     QuestionText = f.Text,
                     Type = f.Type,
                     TotalVotes = f.TotalVotes,
-                    AuthorUsername = f.Username,
+                    // An anonymous flash (rama 50) never names who launched it.
+                    AuthorUsername = f.IsAnonymous ? null : f.Username,
                     FlashId = f.Id,
+                    IsAnonymous = f.IsAnonymous,
+                    CapsuleOpensAt = f.ResultsHiddenUntil,
                 }
             ))
         );
