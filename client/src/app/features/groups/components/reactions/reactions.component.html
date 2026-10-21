@@ -34,9 +34,9 @@
         <ng-icon hlm name="lucideSmilePlus" class="size-4!" />
       </button>
     }
-    <hlm-popover-content *hlmPopoverPortal="let ctx" class="flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 p-3">
+    <hlm-popover-content *hlmPopoverPortal="let ctx" class="flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 p-3">
       @if (canReact()) {
-        <div class="flex justify-between gap-1" role="group" [attr.aria-label]="t('reactions.pick')">
+        <div class="flex justify-between gap-0.5" role="group" [attr.aria-label]="t('reactions.pick')">
           @for (key of keys; track key) {
             <button
               hlmBtn

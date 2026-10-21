@@ -5,6 +5,7 @@ export const REACTION_EMOJIS = {
   laugh: '😂',
   skull: '💀',
   wow: '😮',
+  sad: '😢',
   fire: '🔥',
   upside: '🙃',
 } as const;

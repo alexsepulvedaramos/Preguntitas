@@ -40,9 +40,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Reagiere auf Nachrichten und Antworten',
         },
         text: {
-          es: 'Junto a cada mensaje del chat y bajo cada respuesta escrita (las de respuesta libre y los «Otro» de las encuestas) tienes un botón para reaccionar: ❤️ 😂 💀 😮 🔥 🙃. Una reacción por persona, como en WhatsApp: si eliges otra, cambia; si tocas la tuya, se quita. Toca las reacciones para ver quién ha puesto cada una. A lo tuyo no puedes reaccionar.',
-          en: 'Next to every chat message and under every written answer (open answers and a poll’s “Other”) there’s a button to react: ❤️ 😂 💀 😮 🔥 🙃. One reaction per person, like on WhatsApp: pick another and it changes; tap yours and it’s gone. Tap the reactions to see who left each one. You can’t react to your own.',
-          de: 'Neben jeder Chatnachricht und unter jeder geschriebenen Antwort (freie Antworten und „Andere“ bei Umfragen) gibt es einen Knopf zum Reagieren: ❤️ 😂 💀 😮 🔥 🙃. Eine Reaktion pro Person, wie bei WhatsApp: Wählst du eine andere, wird sie ersetzt; tippst du auf deine, ist sie weg. Tipp auf die Reaktionen, um zu sehen, wer was gewählt hat. Auf eigene Beiträge kannst du nicht reagieren.',
+          es: 'Junto a cada mensaje del chat y bajo cada respuesta escrita (las de respuesta libre y los «Otro» de las encuestas) tienes un botón para reaccionar: ❤️ 😂 💀 😮 😢 🔥 🙃. Una reacción por persona, como en WhatsApp: si eliges otra, cambia; si tocas la tuya, se quita. Toca las reacciones para ver quién ha puesto cada una. A lo tuyo no puedes reaccionar.',
+          en: 'Next to every chat message and under every written answer (open answers and a poll’s “Other”) there’s a button to react: ❤️ 😂 💀 😮 😢 🔥 🙃. One reaction per person, like on WhatsApp: pick another and it changes; tap yours and it’s gone. Tap the reactions to see who left each one. You can’t react to your own.',
+          de: 'Neben jeder Chatnachricht und unter jeder geschriebenen Antwort (freie Antworten und „Andere“ bei Umfragen) gibt es einen Knopf zum Reagieren: ❤️ 😂 💀 😮 😢 🔥 🙃. Eine Reaktion pro Person, wie bei WhatsApp: Wählst du eine andere, wird sie ersetzt; tippst du auf deine, ist sie weg. Tipp auf die Reaktionen, um zu sehen, wer was gewählt hat. Auf eigene Beiträge kannst du nicht reagieren.',
         },
       },
       {

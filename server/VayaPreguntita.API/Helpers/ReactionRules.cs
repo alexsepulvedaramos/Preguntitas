@@ -15,6 +15,7 @@ public static class ReactionRules
         ["laugh"] = "😂",
         ["skull"] = "💀",
         ["wow"] = "😮",
+        ["sad"] = "😢",
         ["fire"] = "🔥",
         ["upside"] = "🙃",
     };

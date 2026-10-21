@@ -29,7 +29,7 @@ interface ReactionGroup {
 
 // Reactions under a chat message or a player-written answer (rama 48, §17.15 item 6). One
 // button shows the emoji counts (or a "react" icon when there are none) and opens a popover
-// with the six emojis — picking another replaces yours, picking yours removes it — and who
+// with the seven emojis — picking another replaces yours, picking yours removes it — and who
 // reacted with what, with their avatar and name as everywhere else in the group (§14). Never
 // on your own message or answer: there it only lists them.
 @Component({
