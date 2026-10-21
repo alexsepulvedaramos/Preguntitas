@@ -1,5 +1,5 @@
 @if (canReact() || current().length > 0) {
-  <hlm-popover [sideOffset]="4" align="start">
+  <hlm-popover [sideOffset]="4" [align]="align()">
     @if (groups().length) {
       <button
         hlmPopoverTrigger

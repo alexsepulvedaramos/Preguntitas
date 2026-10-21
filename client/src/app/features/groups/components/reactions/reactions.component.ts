@@ -49,6 +49,9 @@ export class ReactionsComponent {
   // Who wrote the message or answer.
   public readonly authorId = input.required<number | null>();
   public readonly reactions = input.required<Reaction[]>();
+  // Which edge of the trigger the popover lines up with: 'end' when the trigger sits on the
+  // right of the screen, so the popover opens leftwards instead of running off the edge.
+  public readonly align = input<'start' | 'center' | 'end'>('start');
   // The target's reactions after a change of ours, for a parent that lays them out itself.
   public readonly changed = output<Reaction[]>();
 

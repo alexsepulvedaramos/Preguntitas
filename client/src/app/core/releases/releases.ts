@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.28.1',
+    date: '2026-10-21',
+    title: {
+      es: 'Reacciones bien colocadas',
+      en: 'Reactions, properly placed',
+      de: 'Reaktionen am richtigen Platz',
+    },
+    items: [
+      {
+        glyph: 'reaction',
+        title: {
+          es: 'El selector de emojis ya se ve entero',
+          en: 'The emoji picker fits on screen',
+          de: 'Die Emoji-Auswahl passt auf den Bildschirm',
+        },
+        text: {
+          es: 'Al reaccionar a un mensaje del chat, el panel de emojis se salía por el borde de la pantalla en el móvil. Ahora se abre hacia dentro y se ve completo.',
+          en: 'When reacting to a chat message, the emoji panel ran off the edge of the screen on phones. It now opens inwards and shows in full.',
+          de: 'Beim Reagieren auf eine Chatnachricht ragte die Emoji-Auswahl auf dem Handy über den Bildschirmrand hinaus. Jetzt öffnet sie sich nach innen und ist ganz zu sehen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.28.0',
     date: '2026-10-21',
     title: {
