@@ -1,9 +1,9 @@
 // Reactions (rama 48): one member's emoji on a chat message or a player-written answer.
 // Mirrors backend ReactionDto; the keys and their order mirror ReactionRules.Emojis.
 export const REACTION_EMOJIS = {
-  like: '👍',
   love: '❤️',
   laugh: '😂',
+  skull: '💀',
   wow: '😮',
   fire: '🔥',
   upside: '🙃',

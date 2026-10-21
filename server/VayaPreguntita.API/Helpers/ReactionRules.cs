@@ -11,9 +11,9 @@ public static class ReactionRules
 
     public static readonly IReadOnlyDictionary<string, string> Emojis = new Dictionary<string, string>
     {
-        ["like"] = "👍",
         ["love"] = "❤️",
         ["laugh"] = "😂",
+        ["skull"] = "💀",
         ["wow"] = "😮",
         ["fire"] = "🔥",
         ["upside"] = "🙃",
