@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.29.0',
+    date: '2026-10-21',
+    title: {
+      es: 'El chat, después de votar',
+      en: 'The chat, after you vote',
+      de: 'Der Chat, nachdem du abgestimmt hast',
+    },
+    items: [
+      {
+        glyph: 'chat',
+        title: {
+          es: 'Sin spoilers en el chat',
+          en: 'No spoilers in the chat',
+          de: 'Keine Spoiler im Chat',
+        },
+        text: {
+          es: 'El chat de la pregunta del día se abre cuando la votas. Hasta entonces solo ves cuántos mensajes hay, y no te llegan avisos de mensajes nuevos: así nadie te condiciona el voto.',
+          en: 'The daily question’s chat opens once you vote. Until then you only see how many messages there are, and you get no new-message notifications — so nobody sways your vote.',
+          de: 'Der Chat zur Tagesfrage öffnet sich, sobald du abstimmst. Bis dahin siehst du nur, wie viele Nachrichten es gibt, und bekommst keine Benachrichtigungen über neue Nachrichten – so beeinflusst niemand deine Stimme.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.28.2',
     date: '2026-10-21',
     title: {

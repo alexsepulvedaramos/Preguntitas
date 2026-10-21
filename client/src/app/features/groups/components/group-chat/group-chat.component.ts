@@ -5,14 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { Subject, of } from 'rxjs';
 import { catchError, exhaustMap, map } from 'rxjs/operators';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSend } from '@ng-icons/lucide';
+import { lucideLock, lucideSend } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { DailyService } from '../../../../core/services/daily.service';
-import { ChatMessage } from '../../../../core/models/chat-message.model';
+import { Chat, ChatMessage } from '../../../../core/models/chat-message.model';
 import { Reaction } from '../../../../core/models/reaction.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { visiblePolling } from '../../../../shared/utils/visible-polling';
@@ -30,7 +30,7 @@ const AT_BOTTOM_THRESHOLD_PX = 80;
 @Component({
   selector: 'app-group-chat',
   imports: [ReactionsComponent, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
-  providers: [provideIcons({ lucideSend })],
+  providers: [provideIcons({ lucideLock, lucideSend })],
   templateUrl: './group-chat.component.html',
 })
 export class GroupChatComponent implements OnInit {
@@ -43,6 +43,9 @@ export class GroupChatComponent implements OnInit {
   public readonly groupId = input.required<number>();
 
   protected messages = signal<ChatMessage[]>([]);
+  // Rama 49: until you've voted the open question the chat only says how many messages it has.
+  public readonly locked = signal(false);
+  protected lockedCount = signal(0);
   protected loading = signal(false);
   protected sending = signal(false);
   protected messageText = '';
@@ -58,14 +61,14 @@ export class GroupChatComponent implements OnInit {
         exhaustMap((silent) => {
           if (!silent) this.loading.set(true);
           return this.dailyService.getChat(this.groupId()).pipe(
-            map((messages) => ({ messages })),
+            map((chat) => ({ chat })),
             catchError(() => of(null)),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((res) => {
-        if (res) this.applyMessages(res.messages);
+        if (res) this.applyChat(res.chat);
         this.loading.set(false);
       });
 
@@ -109,6 +112,12 @@ export class GroupChatComponent implements OnInit {
   // Our own reaction moves the row under the bubble at once (rama 48).
   setReactions(messageId: number, reactions: Reaction[]) {
     this.messages.update((messages) => messages.map((m) => (m.id === messageId ? { ...m, reactions } : m)));
+  }
+
+  private applyChat(chat: Chat) {
+    this.locked.set(chat.locked);
+    this.lockedCount.set(chat.messageCount);
+    this.applyMessages(chat.messages);
   }
 
   private loadMessages(silent = false) {

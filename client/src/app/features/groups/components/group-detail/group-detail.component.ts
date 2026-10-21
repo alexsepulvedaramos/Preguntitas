@@ -336,8 +336,8 @@ export class GroupDetailComponent implements OnInit {
     // A newly unlocked title may become the one shown (automatic selection).
     if (streak.titleUnlocked)
       this.userService.getProfile().subscribe({ next: (p) => this.authService.patchCurrentUser({ title: p.title }) });
-    // A tier change or milestone posts an automatic chat message — show it right away.
-    if (streak.isTierUp || streak.milestoneLabel) this.chat()?.reload();
+    // Voting unlocks the chat (rama 49); a tier change or milestone also posts a message in it.
+    this.chat()?.reload();
 
     // If this user is the selector for the next question, auto-open the picker —
     // after the celebration when one is shown.

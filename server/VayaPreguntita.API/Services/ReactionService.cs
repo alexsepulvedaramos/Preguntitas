@@ -23,10 +23,15 @@ public class ReactionService(
     {
         var message = await context
             .ChatMessages.Where(m => m.Id == messageId && m.DailyEntry.GroupId == groupId && m.UserId != null)
-            .Select(m => new { AuthorUserId = m.UserId!.Value, m.Body })
+            .Select(m => new { AuthorUserId = m.UserId!.Value, m.Body, m.DailyEntry.QuestionId })
             .FirstOrDefaultAsync();
         if (message == null)
             return (ReactionResult.NotFound, null);
+
+        // The day's chat is only readable once you've voted its question (rama 49).
+        if (message.AuthorUserId != userId
+            && !await context.Votes.AnyAsync(v => v.QuestionId == message.QuestionId && v.UserId == userId))
+            return (ReactionResult.Locked, null);
 
         var target = new Target(message.AuthorUserId, message.Body, $"/groups/{groupId}");
         var result = await SetAsync(groupId, userId, target, emoji, isAnswer: false,

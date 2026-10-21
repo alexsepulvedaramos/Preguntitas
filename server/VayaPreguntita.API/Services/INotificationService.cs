@@ -19,7 +19,8 @@ public interface INotificationService
     // "Resumen del mes" (§17.12): every member, when last month's summary is ready.
     Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month);
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
-    Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview);
+    // Only to members who have voted the question (rama 49): the chat is locked for the rest.
+    Task SendNewMessageAsync(int groupId, int questionId, int senderUserId, string groupName, string senderUsername, string messagePreview);
     // Caller has already checked the user's StreakDanger preference, lead time and group mute.
     // freezeCovers: a held freeze (§17.9) will save the streak if the member misses the cycle.
     Task SendStreakDangerAsync(

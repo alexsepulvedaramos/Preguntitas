@@ -20,7 +20,7 @@ import { CreateVote } from '../models/vote.model';
 import { CreateQuestion } from '../models/question.model';
 import { QuestionResult } from '../models/result.model';
 import { VoteResponse } from '../models/streak.model';
-import { ChatMessage } from '../models/chat-message.model';
+import { Chat, ChatMessage } from '../models/chat-message.model';
 import { Reaction, ReactionKey, ReactionTarget } from '../models/reaction.model';
 import { environment } from '../../../environments/environment';
 
@@ -130,8 +130,8 @@ export class DailyService {
     }
 
     // Chat messages for the currently-open daily question
-    getChat(groupId: number): Observable<ChatMessage[]> {
-        return this.http.get<ChatMessage[]>(`${this.baseUrl}/${groupId}/daily/chat`);
+    getChat(groupId: number): Observable<Chat> {
+        return this.http.get<Chat>(`${this.baseUrl}/${groupId}/daily/chat`);
     }
 
     // Send a message; returns the updated message list

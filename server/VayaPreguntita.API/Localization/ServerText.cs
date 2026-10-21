@@ -247,6 +247,11 @@ public static class ServerText
         "There's no live question in this group.",
         "In dieser Gruppe gibt es keine aktive Frage.");
 
+    public static string ChatVoteFirst => Pick(
+        "Vota la pregunta para entrar en el chat.",
+        "Vote on the question to join the chat.",
+        "Stimm bei der Frage ab, um in den Chat zu kommen.");
+
     public static string ChatLimitReached(int max) => Pick(
         $"Has alcanzado el límite de {max} mensajes por pregunta.",
         $"You've reached the limit of {max} messages per question.",

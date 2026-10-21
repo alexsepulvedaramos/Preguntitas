@@ -421,6 +421,9 @@ export const en: Translation = {
     placeholder: 'Write a message…',
     send: 'Send message',
     sendError: 'Couldn’t send the message.',
+    lockedTitle: { one: '{count} message in the chat', other: '{count} messages in the chat' },
+    lockedHint: 'Vote on the question to read them and join in.',
+    lockedEmpty: 'Vote on the question to join the chat.',
   },
   reactions: {
     add: 'React',

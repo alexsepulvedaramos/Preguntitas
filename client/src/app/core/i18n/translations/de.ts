@@ -421,6 +421,9 @@ export const de: Translation = {
     placeholder: 'Schreib eine Nachricht…',
     send: 'Nachricht senden',
     sendError: 'Die Nachricht konnte nicht gesendet werden.',
+    lockedTitle: { one: '{count} Nachricht im Chat', other: '{count} Nachrichten im Chat' },
+    lockedHint: 'Stimm bei der Frage ab, um sie zu lesen und mitzureden.',
+    lockedEmpty: 'Stimm bei der Frage ab, um in den Chat zu kommen.',
   },
   reactions: {
     add: 'Reagieren',

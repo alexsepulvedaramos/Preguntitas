@@ -15,9 +15,9 @@ public class ChatController(IChatService chatService) : ControllerBase
     public async Task<IActionResult> GetMessages(int groupId)
     {
         var userId = User.GetUserId();
-        var messages = await chatService.GetMessagesAsync(groupId, userId);
-        if (messages == null) return Forbid();
-        return Ok(messages);
+        var chat = await chatService.GetMessagesAsync(groupId, userId);
+        if (chat == null) return Forbid();
+        return Ok(chat);
     }
 
     [HttpPost]

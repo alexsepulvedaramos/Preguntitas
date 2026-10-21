@@ -3,6 +3,17 @@
     <div class="flex justify-center py-4">
       <hlm-spinner />
     </div>
+  } @else if (locked()) {
+    <!-- Rama 49: locked until you vote, so the chat can't spoil the answers -->
+    <div class="flex flex-col items-center gap-1 rounded-default bg-muted px-4 py-5 text-center">
+      <ng-icon hlm name="lucideLock" class="text-muted-foreground" />
+      @if (lockedCount() > 0) {
+        <p class="text-sm font-medium text-foreground">{{ t('chat.lockedTitle', { count: lockedCount() }) }}</p>
+        <p class="text-xs text-muted-foreground">{{ t('chat.lockedHint') }}</p>
+      } @else {
+        <p class="text-sm text-muted-foreground">{{ t('chat.lockedEmpty') }}</p>
+      }
+    </div>
   } @else if (messages().length === 0) {
     <p class="text-sm text-muted-foreground text-center py-3 italic">
       {{ t('chat.empty') }}
@@ -81,6 +92,7 @@
 </div>
 
 <!-- Input bar: fixed at bottom on mobile, inline on desktop -->
+@if (!locked()) {
 <div class="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/80 backdrop-blur-sm px-4 py-3 sm:relative sm:bottom-auto sm:left-auto sm:right-auto sm:z-auto sm:border-t-0 sm:bg-transparent sm:backdrop-blur-none sm:px-0 sm:py-0 sm:mt-3">
   @if (sendError()) {
     <p class="text-xs text-destructive mb-2 max-w-lg mx-auto sm:max-w-none sm:mx-0">{{ sendError() }}</p>
@@ -112,3 +124,4 @@
     </button>
   </div>
 </div>
+}

@@ -131,6 +131,8 @@ public class ReactionTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         (await OnAnswerAsync(s, "ana", s.BeaAnswerId, "🔥")).Result.Should().Be(ReactionResult.InvalidEmoji);
         // carlos hasn't voted, so he can't see the answers yet (§17.7).
         (await OnAnswerAsync(s, "carlos", s.BeaAnswerId, "fire")).Result.Should().Be(ReactionResult.Locked);
+        // ...nor read the chat (rama 49).
+        (await OnMessageAsync(s, "carlos", s.BeaMessageId, "fire")).Result.Should().Be(ReactionResult.Locked);
         VerifyPushes(Times.Never());
     }
 
@@ -168,13 +170,18 @@ public class ReactionTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     public async Task ChatMessages_CarryTheirReactions()
     {
         var s = await SeedAsync();
+        await using (var seed = NewContext())
+        {
+            seed.Votes.Add(new Vote { QuestionId = s.QuestionId, UserId = s.Group["carlos"], FreeText = "Todo" });
+            await seed.SaveChangesAsync();
+        }
 
         await OnMessageAsync(s, "ana", s.BeaMessageId, "laugh");
         await OnMessageAsync(s, "carlos", s.BeaMessageId, "laugh");
 
         await using var db = NewContext();
         var messages = await new ChatService(db, Notifications.Object).GetMessagesAsync(s.Group.Id, s.Group["bea"]);
-        messages!.Single().Reactions.Select(r => r.Username).Should().Equal("ana", "carlos");
+        messages!.Messages.Single().Reactions.Select(r => r.Username).Should().Equal("ana", "carlos");
         Notifications.Verify(
             n => n.SendReactionAsync(
                 s.Group.Id, s.Group["bea"], "Los de siempre", "ana", "😂", false, "Qué risa lo de ayer", $"/groups/{s.Group.Id}"),
