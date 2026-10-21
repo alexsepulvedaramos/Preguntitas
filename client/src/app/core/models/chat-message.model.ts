@@ -12,3 +12,10 @@ export interface ChatMessage {
   isCurrentUser: boolean;
   reactions: Reaction[]; // rama 48; never on system messages
 }
+
+// The open question's chat (rama 49): locked — only the message count — until you've voted it.
+export interface Chat {
+  locked: boolean;
+  messageCount: number;
+  messages: ChatMessage[]; // empty while locked
+}

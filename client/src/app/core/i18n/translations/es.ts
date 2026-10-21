@@ -422,6 +422,9 @@ export const es = {
     placeholder: 'Escribe un mensaje...',
     send: 'Enviar mensaje',
     sendError: 'No se ha podido enviar el mensaje.',
+    lockedTitle: { one: '{count} mensaje en el chat', other: '{count} mensajes en el chat' },
+    lockedHint: 'Vota la pregunta para leerlos y escribir.',
+    lockedEmpty: 'Vota la pregunta para entrar en el chat.',
   },
   reactions: {
     add: 'Reaccionar',

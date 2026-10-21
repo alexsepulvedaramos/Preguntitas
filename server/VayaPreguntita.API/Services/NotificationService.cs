@@ -145,10 +145,18 @@ public class NotificationService(
                 ));
         });
 
-    public Task SendNewMessageAsync(int groupId, int senderUserId, string groupName, string senderUsername, string messagePreview) =>
+    public Task SendNewMessageAsync(
+        int groupId, int questionId, int senderUserId, string groupName, string senderUsername, string messagePreview) =>
         RunLoggedAsync("new_message", groupId, async context =>
         {
-            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: senderUserId, pref => pref.NewMessage);
+            var eligible = await GetEligibleMembersAsync(context, groupId, excludeUserId: senderUserId, pref => pref.NewMessage);
+            // Rama 49: members who haven't voted can't read the chat yet; their pushes are dropped.
+            var voterIds = await context.Votes
+                .Where(v => v.QuestionId == questionId)
+                .Select(v => v.UserId)
+                .Distinct()
+                .ToListAsync();
+            var recipients = eligible.Where(r => voterIds.Contains(r.Subscription.UserId)).ToList();
             var preview = messagePreview.Length > 80 ? messagePreview[..77] + "…" : messagePreview;
             await SendLocalizedAsync(context, recipients, MessageTtl, lang =>
                 BuildPayload($"💬 {groupName}", $"{senderUsername}: {preview}", groupId, groupName, "new_message", lang, actor: senderUsername));

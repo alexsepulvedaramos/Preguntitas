@@ -200,10 +200,12 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
     public async Task StreakChatMessages_ReadInTheReadersLanguage_OldOnesAsWritten()
     {
         var group = await SeedGroupAsync("ana", "bea");
-        var (entryId, _) = await AddActivatedDayAsync(group.Id, Today, group["ana"]);
+        var (entryId, questionId) = await AddActivatedDayAsync(group.Id, Today, group["ana"]);
         Clock.SetLocal(Today, new TimeOnly(22, 0));
         await using (var db = NewContext())
         {
+            // The chat only opens once you've voted (rama 49).
+            db.Votes.Add(new Vote { QuestionId = questionId, UserId = group["bea"], SelectedTargetUserId = group["ana"] });
             db.ChatMessages.AddRange(
                 new ChatMessage { DailyEntryId = entryId, Body = "🔥 ana lleva 7 días seguidos · ¡Fuente anónima!", StreakUsername = "ana", StreakDays = 7 },
                 new ChatMessage { DailyEntryId = entryId, Body = "Mensaje de sistema antiguo", CreatedAt = DateTime.UtcNow.AddSeconds(1) }
@@ -221,7 +223,7 @@ public class ContentTranslationTests(DatabaseFixture fixture) : DomainTestBase(f
         CultureInfo.CurrentUICulture = new CultureInfo(language);
         await using var db = NewContext();
         var messages = await new ChatService(db, Notifications.Object).GetMessagesAsync(groupId, userId);
-        return messages!.Select(m => m.Body).ToList();
+        return messages!.Messages.Select(m => m.Body).ToList();
     }
 
     private async Task<int> CloneIdAsync(int templateId)

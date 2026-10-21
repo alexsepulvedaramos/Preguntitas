@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 
 import { GroupChatComponent, CHAT_POLL_INTERVAL_MS } from './group-chat.component';
 import { DailyService } from '../../../../core/services/daily.service';
-import { ChatMessage } from '../../../../core/models/chat-message.model';
+import { Chat, ChatMessage } from '../../../../core/models/chat-message.model';
 
 const message = (id: number): ChatMessage => ({
   id,
@@ -15,6 +15,8 @@ const message = (id: number): ChatMessage => ({
   isCurrentUser: false,
   reactions: [],
 });
+
+const chatOf = (messages: ChatMessage[]): Chat => ({ locked: false, messageCount: messages.length, messages });
 
 describe('GroupChatComponent live refresh', () => {
   let visibility: DocumentVisibilityState;
@@ -42,7 +44,7 @@ describe('GroupChatComponent live refresh', () => {
     vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibility);
     vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
     getChat.mockReset();
-    getChat.mockReturnValue(of([message(1)]));
+    getChat.mockReturnValue(of(chatOf([message(1)])));
   });
 
   afterEach(() => {
@@ -81,7 +83,7 @@ describe('GroupChatComponent live refresh', () => {
     const fixture = create();
     const chat = fixture.componentInstance as any;
     chat.messageText = 'draft';
-    getChat.mockReturnValue(of([message(1), message(2)]));
+    getChat.mockReturnValue(of(chatOf([message(1), message(2)])));
     vi.advanceTimersByTime(CHAT_POLL_INTERVAL_MS);
     expect(chat.messages().length).toBe(2);
     expect(chat.messageText).toBe('draft');
@@ -90,9 +92,24 @@ describe('GroupChatComponent live refresh', () => {
   it('picks up reactions that arrive without new messages', () => {
     const fixture = create();
     const chat = fixture.componentInstance as any;
-    getChat.mockReturnValue(of([{ ...message(1), reactions: [{ emoji: 'fire', userId: 2, username: 'bea' }] }]));
+    getChat.mockReturnValue(of(chatOf([{ ...message(1), reactions: [{ emoji: 'fire', userId: 2, username: 'bea' }] }])));
     vi.advanceTimersByTime(CHAT_POLL_INTERVAL_MS);
     expect(chat.messages()[0].reactions).toEqual([{ emoji: 'fire', userId: 2, username: 'bea' }]);
+    fixture.destroy();
+  });
+
+  it('shows only the message count and no input while locked, and opens once voted', () => {
+    getChat.mockReturnValue(of({ locked: true, messageCount: 3, messages: [] }));
+    const fixture = create();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('chat.lockedTitle');
+    expect(el.querySelector('input')).toBeNull();
+
+    getChat.mockReturnValue(of(chatOf([message(1)])));
+    fixture.componentInstance.reload();
+    fixture.detectChanges();
+    expect(el.querySelector('input')).not.toBeNull();
+    expect(el.textContent).toContain('m1');
     fixture.destroy();
   });
 });

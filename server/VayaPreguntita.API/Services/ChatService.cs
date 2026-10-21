@@ -12,16 +12,27 @@ public class ChatService(AppDbContext context, INotificationService notification
 {
     private const int MaxMessagesPerUserPerDay = 10;
 
-    public async Task<IEnumerable<ChatMessageDto>?> GetMessagesAsync(int groupId, int userId)
+    public async Task<ChatDto?> GetMessagesAsync(int groupId, int userId)
     {
         var isMember = await context.GroupMembers
             .AnyAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
         if (!isMember) return null;
 
         var entry = await GetOpenEntryAsync(groupId);
-        if (entry == null) return [];
+        if (entry == null) return new ChatDto();
 
-        return await BuildMessageDtosAsync(entry.Id, userId);
+        // Rama 49: the chat stays locked until you've voted, so it can't spoil the answers.
+        if (!await HasVotedAsync(entry.QuestionId, userId))
+        {
+            return new ChatDto
+            {
+                Locked = true,
+                MessageCount = await context.ChatMessages.CountAsync(m => m.DailyEntryId == entry.Id),
+            };
+        }
+
+        var messages = (await BuildMessageDtosAsync(entry.Id, userId)).ToList();
+        return new ChatDto { MessageCount = messages.Count, Messages = messages };
     }
 
     public async Task<(bool success, string? error, IEnumerable<ChatMessageDto>? messages)> SendMessageAsync(
@@ -36,6 +47,7 @@ public class ChatService(AppDbContext context, INotificationService notification
 
         var entry = await GetOpenEntryAsync(groupId);
         if (entry == null) return (false, ServerText.NoActiveQuestionInGroup, null);
+        if (!await HasVotedAsync(entry.QuestionId, userId)) return (false, ServerText.ChatVoteFirst, null);
 
         var count = await context.ChatMessages
             .CountAsync(m => m.DailyEntryId == entry.Id && m.UserId == userId);
@@ -57,7 +69,7 @@ public class ChatService(AppDbContext context, INotificationService notification
         {
             var sender = await context.Users.FindAsync(userId);
             _ = notificationService.SendNewMessageAsync(
-                groupId, userId, group.Name, sender?.Username ?? "Alguien", dto.Body.Trim());
+                groupId, entry.QuestionId, userId, group.Name, sender?.Username ?? "Alguien", dto.Body.Trim());
         }
 
         return (true, null, await BuildMessageDtosAsync(entry.Id, userId));
@@ -68,6 +80,9 @@ public class ChatService(AppDbContext context, INotificationService notification
             .Where(d => d.GroupId == groupId && d.ActivatedAt != null)
             .OrderByDescending(d => d.Date)
             .FirstOrDefaultAsync();
+
+    private Task<bool> HasVotedAsync(int questionId, int userId) =>
+        context.Votes.AnyAsync(v => v.QuestionId == questionId && v.UserId == userId);
 
     private static readonly (string Emoji, string Glyph)[] LegacyEmojiGlyphs = [("🔥 ", "streak"), ("🎉 ", "celebrate")];
 
