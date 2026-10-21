@@ -1003,6 +1003,7 @@ Read this document before writing code. If a behavior is **not** covered here, a
 - Generate a descriptively-named migration for every schema change.
 - English only in code; Spanish only in UI copy.
 - Use the Spartan skill for frontend work.
+- **Check every UI change against §14 "Frontend Design System & Style Guide"** — read it before writing a template and re-check the diff rule by rule before committing (developer, 2026-10-21, after rama 48 first shipped a component that broke several of its rules).
 
 ### Don't
 - Don't store member names in question metadata at creation (dynamic types resolve at vote time).
