@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Chat;
+using VayaPreguntita.API.DTOs.Reactions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.Localization;
@@ -111,6 +112,20 @@ public class ChatService(AppDbContext context, INotificationService notification
                 break;
             }
         }
+
+        // Reactions (rama 48), oldest first.
+        var messageIds = messages.Select(m => m.Dto.Id).ToList();
+        var reactions = await context
+            .Reactions.Where(r => r.ChatMessageId != null && messageIds.Contains(r.ChatMessageId.Value))
+            .OrderBy(r => r.CreatedAt)
+            .Select(r => new
+            {
+                MessageId = r.ChatMessageId!.Value,
+                Dto = new ReactionDto { Emoji = r.Emoji, UserId = r.UserId, Username = r.User.Username },
+            })
+            .ToListAsync();
+        foreach (var m in messages)
+            m.Dto.Reactions = reactions.Where(r => r.MessageId == m.Dto.Id).Select(r => r.Dto).ToList();
 
         return messages.Select(m => m.Dto);
     }

@@ -279,8 +279,7 @@ public class FlashService(
             .Include(v => v.SelectedTargetUser)
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, question);
-        return ResultsBuilder.Build(question, votes, mapper, usersById);
+        return await ResultsBuilder.BuildAsync(context, question, votes, mapper);
     }
 
     private static VoterDto ToVoter(User user) =>

@@ -21,6 +21,7 @@ import { CreateQuestion } from '../models/question.model';
 import { QuestionResult } from '../models/result.model';
 import { VoteResponse } from '../models/streak.model';
 import { ChatMessage } from '../models/chat-message.model';
+import { Reaction, ReactionKey, ReactionTarget } from '../models/reaction.model';
 import { environment } from '../../../environments/environment';
 
 // Daily flow within a group: current state ({ today, selection }), selection sources,
@@ -120,6 +121,12 @@ export class DailyService {
     // History detail of a flash question, gated like a daily one (§17.7)
     getFlash(groupId: number, flashId: number): Observable<QuestionResult> {
         return this.http.get<QuestionResult>(`${this.baseUrl}/${groupId}/flash/${flashId}`);
+    }
+
+    // Reactions (rama 48): set yours (another emoji replaces it) or remove it with null.
+    // Returns the target's reactions after the change.
+    setReaction(groupId: number, target: ReactionTarget, emoji: ReactionKey | null): Observable<Reaction[]> {
+        return this.http.put<Reaction[]>(`${this.baseUrl}/${groupId}/reactions/${target.kind}/${target.id}`, { emoji });
     }
 
     // Chat messages for the currently-open daily question

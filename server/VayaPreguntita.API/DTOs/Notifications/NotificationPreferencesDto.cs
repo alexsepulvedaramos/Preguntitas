@@ -15,7 +15,9 @@ public record NotificationPreferencesDto(
     // "Resumen del mes" (§17.12).
     bool MonthlySummary = true,
     // "👉 Toque" (§17.10).
-    bool Nudge = true
+    bool Nudge = true,
+    // "😂 Reacción" (§17.15 item 6).
+    bool Reaction = true
 )
 {
     public static readonly int[] AllowedStreakDangerHours = [1, 2, 3, 4, 6, 8];

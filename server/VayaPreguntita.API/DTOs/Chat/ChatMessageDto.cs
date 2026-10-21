@@ -1,3 +1,5 @@
+using VayaPreguntita.API.DTOs.Reactions;
+
 namespace VayaPreguntita.API.DTOs.Chat;
 
 public class ChatMessageDto
@@ -12,4 +14,6 @@ public class ChatMessageDto
     // System messages only: the app glyph drawn before the text ("streak", "celebrate").
     public string? Glyph { get; set; }
     public bool IsCurrentUser { get; set; }
+    // Rama 48: who reacted with what (never on system messages).
+    public List<ReactionDto> Reactions { get; set; } = [];
 }

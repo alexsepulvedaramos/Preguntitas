@@ -23,4 +23,7 @@ public class NotificationPreferences
 
     // "👉 Toque" — a member reminds you to vote (§17.10). Off = nobody can nudge you.
     public bool Nudge { get; set; } = true;
+
+    // "😂 Reacción" — someone reacted to your chat message or answer (§17.15 item 6).
+    public bool Reaction { get; set; } = true;
 }

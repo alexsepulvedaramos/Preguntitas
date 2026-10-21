@@ -324,6 +324,26 @@ public static class ServerText
         $"The message can't be longer than {max} characters.",
         $"Die Nachricht darf höchstens {max} Zeichen lang sein.");
 
+    public static string ReactionTargetNotFound => Pick(
+        "Ese mensaje o respuesta ya no está.",
+        "That message or answer is no longer there.",
+        "Diese Nachricht oder Antwort gibt es nicht mehr.");
+
+    public static string ReactionInvalidEmoji => Pick(
+        "Esa reacción no existe.",
+        "That reaction doesn't exist.",
+        "Diese Reaktion gibt es nicht.");
+
+    public static string ReactionOwnContent => Pick(
+        "No puedes reaccionar a lo tuyo.",
+        "You can't react to your own.",
+        "Auf eigene Beiträge kannst du nicht reagieren.");
+
+    public static string ReactionLocked => Pick(
+        "Vota primero para ver las respuestas.",
+        "Vote first to see the answers.",
+        "Stimm zuerst ab, um die Antworten zu sehen.");
+
     public static string FreezeLimitReached => Pick(
         "Ya tienes el máximo de congelaciones en este grupo.",
         "You already hold the maximum number of freezes in this group.",
@@ -453,6 +473,21 @@ public static class ServerText
             $"{launcher} fragt: {text}");
 
         // Toque / nudge (rama 43, §17.10), with the sender's optional message.
+        public static string ReactionTitle(string lang, string emoji, string groupName) => Pick(lang,
+            $"{emoji} {groupName}",
+            $"{emoji} {groupName}",
+            $"{emoji} {groupName}");
+
+        public static string ReactionToMessageBody(string lang, string reactor, string emoji, string preview) => Pick(lang,
+            $"{reactor} ha reaccionado {emoji} a tu mensaje: «{preview}»",
+            $"{reactor} reacted {emoji} to your message: “{preview}”",
+            $"{reactor} hat mit {emoji} auf deine Nachricht reagiert: „{preview}“");
+
+        public static string ReactionToAnswerBody(string lang, string reactor, string emoji, string preview) => Pick(lang,
+            $"{reactor} ha reaccionado {emoji} a tu respuesta: «{preview}»",
+            $"{reactor} reacted {emoji} to your answer: “{preview}”",
+            $"{reactor} hat mit {emoji} auf deine Antwort reagiert: „{preview}“");
+
         public static string NudgeTitle(string lang, string groupName) => Pick(lang,
             $"👉 {groupName}",
             $"👉 {groupName}",

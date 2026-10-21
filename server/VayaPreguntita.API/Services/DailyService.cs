@@ -768,8 +768,6 @@ public class DailyService(
             .Where(v => v.QuestionId == question.Id)
             .ToListAsync();
 
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, question);
-
-        return ResultsBuilder.Build(question, allVotes, mapper, usersById);
+        return await ResultsBuilder.BuildAsync(context, question, allVotes, mapper);
     }
 }

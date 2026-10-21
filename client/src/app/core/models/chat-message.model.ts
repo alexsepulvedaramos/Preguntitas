@@ -1,4 +1,5 @@
 import { GlyphName } from '../../shared/components/glyph/glyphs';
+import { Reaction } from './reaction.model';
 
 export interface ChatMessage {
   id: number;
@@ -9,4 +10,5 @@ export interface ChatMessage {
   isSystem: boolean;
   glyph?: GlyphName | null; // system messages: the app glyph drawn before the text
   isCurrentUser: boolean;
+  reactions: Reaction[]; // rama 48; never on system messages
 }

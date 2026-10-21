@@ -34,6 +34,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserItem> UserItems { get; set; }
     public DbSet<VoteChange> VoteChanges { get; set; }
     public DbSet<Nudge> Nudges { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -336,6 +337,40 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(n => n.Target)
              .WithMany()
              .HasForeignKey(n => n.TargetUserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
+        // REACTIONS (rama 48, §17.15 item 6)
+        // ==========================================
+        modelBuilder.Entity<Reaction>(e =>
+        {
+            e.Property(r => r.Emoji).HasMaxLength(ReactionRules.MaxKeyLength);
+            // One per person and target. Rows of the other kind have a null key, and nulls
+            // never collide in a unique index.
+            e.HasIndex(r => new { r.ChatMessageId, r.UserId }).IsUnique();
+            e.HasIndex(r => new { r.VoteId, r.UserId }).IsUnique();
+            // "Did this author get a reaction push in the last ReactionRules.PushCooldown?"
+            e.HasIndex(r => new { r.AuthorUserId, r.NotifiedAt });
+            e.ToTable(t => t.HasCheckConstraint(
+                "CK_Reactions_OneTarget",
+                "(\"ChatMessageId\" IS NULL) <> (\"VoteId\" IS NULL)"));
+            e.HasOne(r => r.ChatMessage)
+             .WithMany()
+             .HasForeignKey(r => r.ChatMessageId)
+             .OnDelete(DeleteBehavior.Cascade);
+            // Changing your vote (rama 43) replaces the Vote rows: reactions to the old text go.
+            e.HasOne(r => r.Vote)
+             .WithMany()
+             .HasForeignKey(r => r.VoteId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.User)
+             .WithMany()
+             .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.Author)
+             .WithMany()
+             .HasForeignKey(r => r.AuthorUserId)
              .OnDelete(DeleteBehavior.Cascade);
         });
 

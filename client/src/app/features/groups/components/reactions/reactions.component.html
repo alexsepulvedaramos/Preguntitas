@@ -1,0 +1,80 @@
+@if (canReact() || current().length > 0) {
+  <hlm-popover [sideOffset]="4" align="start">
+    @if (groups().length) {
+      <button
+        hlmPopoverTrigger
+        hlmBtn
+        variant="ghost"
+        size="sm"
+        class="h-auto min-h-8 gap-1 rounded-full px-0.5 py-0.5 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="saving()"
+        [attr.aria-label]="t('reactions.open', { summary: summary() })"
+      >
+        @for (group of groups(); track group.key) {
+          <span
+            class="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs leading-none"
+            [class]="group.mine ? 'border-accent bg-accent/15 text-foreground' : 'border-border bg-card text-muted-foreground'"
+            aria-hidden="true"
+          >
+            <span>{{ group.emoji }}</span>
+            <span class="tabular-nums">{{ group.count }}</span>
+          </span>
+        }
+      </button>
+    } @else {
+      <button
+        hlmPopoverTrigger
+        hlmBtn
+        variant="ghost"
+        size="icon-sm"
+        class="rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="saving()"
+        [attr.aria-label]="t('reactions.add')"
+      >
+        <ng-icon hlm name="lucideSmilePlus" class="size-4!" />
+      </button>
+    }
+    <hlm-popover-content *hlmPopoverPortal="let ctx" class="flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3 p-3">
+      @if (canReact()) {
+        <div class="flex justify-between gap-1" role="group" [attr.aria-label]="t('reactions.pick')">
+          @for (key of keys; track key) {
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="rounded-full border text-xl transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+              [class]="mine() === key ? 'border-accent bg-accent/15' : 'border-transparent hover:bg-muted'"
+              [disabled]="saving()"
+              [attr.aria-pressed]="mine() === key"
+              [attr.aria-label]="mine() === key ? t('reactions.removeMine', { emoji: emojis[key] }) : t('reactions.pickOne', { emoji: emojis[key] })"
+              (click)="pick(key); ctx.close()"
+            >
+              <span aria-hidden="true">{{ emojis[key] }}</span>
+            </button>
+          }
+        </div>
+      }
+      <div class="flex flex-col gap-2">
+        <p class="text-xs font-medium text-muted-foreground">{{ t('reactions.who') }}</p>
+        @for (reaction of current(); track reaction.userId) {
+          <div class="flex items-center gap-2">
+            <app-user-avatar
+              [avatarUrl]="groupStreaks.faceFor(reaction.userId)?.avatarUrl"
+              [username]="reaction.username"
+              [frameColor]="groupStreaks.faceFor(reaction.userId)?.frameColor"
+              [streak]="groupStreaks.streakFor(reaction.userId)"
+              [crown]="groupStreaks.hasCrown(reaction.userId)"
+              [look]="groupStreaks.lookFor(reaction.userId)"
+              [memberSince]="groupStreaks.joinedAtFor(reaction.userId)"
+              size="xs"
+            />
+            <app-user-name class="min-w-0 flex-1 truncate text-sm text-foreground" [name]="reaction.username" [look]="groupStreaks.lookFor(reaction.userId)" />
+            <span class="text-base">{{ emojis[reaction.emoji] }}</span>
+          </div>
+        } @empty {
+          <p class="text-sm text-muted-foreground">{{ t('reactions.none') }}</p>
+        }
+      </div>
+    </hlm-popover-content>
+  </hlm-popover>
+}
