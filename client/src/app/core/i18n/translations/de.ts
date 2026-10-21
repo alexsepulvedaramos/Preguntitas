@@ -733,7 +733,7 @@ export const de: Translation = {
     prefFlashQuestionHint: 'Wenn jemand in deiner Gruppe eine Blitzfrage startet',
     prefMonthlySummary: 'Monatsrückblick',
     prefMonthlySummaryHint: 'Am 1., wenn der Rückblick auf den Vormonat fertig ist',
-    prefNudge: 'Anstupser',
+    prefNudge: 'Erinnerungen zum Abstimmen',
     prefNudgeHint: 'Wenn dich jemand daran erinnert, dass du noch nicht abgestimmt hast',
     prefUserVoted: 'Jemand hat abgestimmt',
     prefNewMessage: 'Neue Chatnachricht',
@@ -845,7 +845,7 @@ export const de: Translation = {
       streakBonus: 'Serienbonus',
       cosmeticRefund: 'Erstattung für {name}',
       voteChange: 'Du hast deine Stimme geändert',
-      nudge: 'Du hast jemanden angestupst',
+      nudge: 'Du hast jemanden erinnert',
     },
   },
   inventory: {
@@ -883,7 +883,7 @@ export const de: Translation = {
         text: 'Ändere deine Stimme einmal bei einer offenen Frage, direkt auf der Ergebniskarte.',
       },
       nudge: {
-        name: 'Anstupser',
+        name: 'Erinnerung',
         text: 'Erinnere jemanden, der noch nicht abgestimmt hat – über die Liste, wer schon abgestimmt hat. Einmal alle 24 Std. pro Person.',
       },
     },

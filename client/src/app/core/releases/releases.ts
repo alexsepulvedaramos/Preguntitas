@@ -27,9 +27,9 @@ export const RELEASES: readonly Release[] = [
     version: '1.27.0',
     date: '2026-10-21',
     title: {
-      es: 'Cambia tu voto y da un toque',
-      en: 'Change your vote and nudge your friends',
-      de: 'Stimme ändern und anstupsen',
+      es: 'Cambia tu voto y avisa a quien falta',
+      en: 'Change your vote and remind whoever’s missing',
+      de: 'Stimme ändern und die Fehlenden erinnern',
     },
     items: [
       {
@@ -48,13 +48,13 @@ export const RELEASES: readonly Release[] = [
       {
         glyph: 'nudge',
         title: {
-          es: 'Dale un toque',
-          en: 'Give them a nudge',
-          de: 'Stups sie an',
+          es: 'Avisa a quien falta',
+          en: 'Remind whoever’s missing',
+          de: 'Erinnere die Fehlenden',
         },
         text: {
-          es: 'Toca «3/6 han votado» y, junto a quien falta, pulsa «Avisar» (10 🪙): le llega una notificación recordándole que vote, con un mensaje tuyo si quieres. Solo a quien tiene las notificaciones activadas y el grupo sin silenciar, y como mucho un toque cada 24 horas por persona. Si no quieres recibirlos, apágalos en tu perfil.',
-          en: 'Tap “3/6 voted” and, next to whoever is missing, press “Remind” (10 🪙): they get a notification reminding them to vote, with your own message if you like. Only for people with notifications on and the group not muted, and at most one nudge every 24 hours per person. Don’t want them? Turn them off in your profile.',
+          es: 'Toca «3/6 han votado» y, junto a quien falta, pulsa «Avisar» (10 🪙): le llega una notificación recordándole que vote, con un mensaje tuyo si quieres. Solo a quien tiene las notificaciones activadas y el grupo sin silenciar, y como mucho un aviso cada 24 horas por persona. Si no quieres recibirlos, apágalos en tu perfil.',
+          en: 'Tap “3/6 voted” and, next to whoever is missing, press “Remind” (10 🪙): they get a notification reminding them to vote, with your own message if you like. Only for people with notifications on and the group not muted, and at most one reminder every 24 hours per person. Don’t want them? Turn them off in your profile.',
           de: 'Tipp auf „3/6 haben abgestimmt“ und neben den Fehlenden auf „Erinnern“ (10 🪙): Die Person bekommt eine Benachrichtigung, dass sie noch abstimmen soll, auf Wunsch mit deiner Nachricht. Nur bei eingeschalteten Benachrichtigungen und nicht stummgeschalteter Gruppe, und höchstens einmal alle 24 Stunden pro Person. Willst du keine? Schalt sie in deinem Profil aus.',
         },
       },
@@ -66,9 +66,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Tschüss, Avatar-Accessoires',
         },
         text: {
-          es: 'Las gafas, el gorro, el bigote y compañía salen de la tienda: cualquiera podía falsificarlos subiendo una foto con el adorno ya puesto. Si compraste alguno, te hemos devuelto sus monedas. El cambio de voto y el toque también se pueden comprar por adelantado en la tienda.',
-          en: 'The sunglasses, hat, moustache and friends leave the shop: anyone could fake them by uploading a photo with the sticker already on. If you bought one, you’ve got its coins back. Vote changes and nudges can also be bought ahead in the shop.',
-          de: 'Sonnenbrille, Hut, Schnurrbart und Co. verlassen den Shop: Jede und jeder konnte sie mit einem Foto samt Aufkleber fälschen. Hast du eins gekauft, hast du die Münzen zurückbekommen. Stimmänderungen und Anstupser kannst du auch im Voraus im Shop kaufen.',
+          es: 'Las gafas, el gorro, el bigote y compañía salen de la tienda: cualquiera podía falsificarlos subiendo una foto con el adorno ya puesto. Si compraste alguno, te hemos devuelto sus monedas. El cambio de voto y el aviso también se pueden comprar por adelantado en la tienda.',
+          en: 'The sunglasses, hat, moustache and friends leave the shop: anyone could fake them by uploading a photo with the sticker already on. If you bought one, you’ve got its coins back. Vote changes and reminders can also be bought ahead in the shop.',
+          de: 'Sonnenbrille, Hut, Schnurrbart und Co. verlassen den Shop: Jede und jeder konnte sie mit einem Foto samt Aufkleber fälschen. Hast du eins gekauft, hast du die Münzen zurückbekommen. Stimmänderungen und Erinnerungen kannst du auch im Voraus im Shop kaufen.',
         },
       },
     ],

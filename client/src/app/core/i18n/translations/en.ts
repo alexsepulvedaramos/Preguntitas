@@ -733,7 +733,7 @@ export const en: Translation = {
     prefFlashQuestionHint: 'When someone launches a flash question in your group',
     prefMonthlySummary: 'Monthly summary',
     prefMonthlySummaryHint: "On the 1st, when last month's summary is ready",
-    prefNudge: 'Nudges',
+    prefNudge: 'Reminders to vote',
     prefNudgeHint: "When someone reminds you that you haven't voted",
     prefUserVoted: 'Someone voted',
     prefNewMessage: 'New chat message',
@@ -845,7 +845,7 @@ export const en: Translation = {
       streakBonus: 'Streak bonus',
       cosmeticRefund: 'Refund for {name}',
       voteChange: 'You changed your vote',
-      nudge: 'You nudged someone',
+      nudge: 'You reminded someone',
     },
   },
   inventory: {
@@ -883,7 +883,7 @@ export const en: Translation = {
         text: 'Change your vote once on an open question, from the results card.',
       },
       nudge: {
-        name: 'Nudge',
+        name: 'Reminder',
         text: "Remind someone who hasn't voted yet, from the list of who has voted. Once every 24 h per person.",
       },
     },

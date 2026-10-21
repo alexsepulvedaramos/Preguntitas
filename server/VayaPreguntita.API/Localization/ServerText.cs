@@ -300,9 +300,9 @@ public static class ServerText
         "Diese Blitzfrage ist schon geschlossen.");
 
     public static string NudgeInvalidTarget => Pick(
-        "No puedes darle un toque a esa persona.",
-        "You can't nudge that person.",
-        "Diese Person kannst du nicht anstupsen.");
+        "No puedes avisar a esa persona.",
+        "You can't remind that person.",
+        "Diese Person kannst du nicht erinnern.");
 
     public static string NudgeAlreadyVoted => Pick(
         "Ya ha votado esta pregunta.",
@@ -310,14 +310,14 @@ public static class ServerText
         "Diese Person hat schon abgestimmt.");
 
     public static string NudgeUnreachable => Pick(
-        "Ahora mismo no le llegan los toques.",
-        "Nudges can't reach them right now.",
-        "Anstupser erreichen diese Person gerade nicht.");
+        "Ahora mismo no le llegan los avisos.",
+        "Reminders can't reach them right now.",
+        "Erinnerungen erreichen diese Person gerade nicht.");
 
     public static string NudgeRecent => Pick(
-        "Ya le han dado un toque en las últimas 24 horas.",
-        "Someone already nudged them in the last 24 hours.",
-        "Diese Person wurde in den letzten 24 Stunden schon angestupst.");
+        "Ya le han avisado en las últimas 24 horas.",
+        "Someone already reminded them in the last 24 hours.",
+        "Diese Person wurde in den letzten 24 Stunden schon erinnert.");
 
     public static string NudgeMessageTooLong(int max) => Pick(
         $"El mensaje no puede superar {max} caracteres.",

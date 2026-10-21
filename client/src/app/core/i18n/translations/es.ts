@@ -734,7 +734,7 @@ export const es = {
     prefFlashQuestionHint: 'Cuando alguien lanza una pregunta flash en tu grupo',
     prefMonthlySummary: 'Resumen del mes',
     prefMonthlySummaryHint: 'El día 1, cuando está listo el resumen del mes anterior',
-    prefNudge: 'Toques',
+    prefNudge: 'Avisos para votar',
     prefNudgeHint: 'Cuando alguien te recuerda que no has votado',
     prefUserVoted: 'Alguien ha votado',
     prefNewMessage: 'Nuevo mensaje en el chat',
@@ -848,7 +848,7 @@ export const es = {
       streakBonus: 'Bonus de racha',
       cosmeticRefund: 'Te devolvimos {name}',
       voteChange: 'Cambiaste tu voto',
-      nudge: 'Diste un toque',
+      nudge: 'Avisaste a alguien',
     },
   },
   inventory: {
@@ -886,7 +886,7 @@ export const es = {
         text: 'Cambia tu voto una vez en una pregunta abierta, desde la tarjeta de resultados.',
       },
       nudge: {
-        name: 'Toque',
+        name: 'Aviso',
         text: 'Recuérdale a alguien que le falta votar, desde la lista de quién ha votado. Una vez cada 24 h por persona.',
       },
     },
