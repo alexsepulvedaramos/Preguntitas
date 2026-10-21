@@ -69,8 +69,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
         if (entry == null)
             return null;
 
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, entry.Question);
-        var result = ResultsBuilder.Build(entry.Question, entry.Question.Votes, mapper, usersById);
+        var result = await ResultsBuilder.BuildAsync(context, entry.Question, entry.Question.Votes, mapper);
 
         // The author shows only once the question has closed (a newer one activated): while
         // it's open, members are still guessing (§17.6).

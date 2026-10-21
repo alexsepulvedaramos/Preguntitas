@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.DTOs.Auth;
 using VayaPreguntita.API.DTOs.Questions;
+using VayaPreguntita.API.DTOs.Reactions;
 using VayaPreguntita.API.Entities;
 using VayaPreguntita.API.Enums;
 
@@ -13,7 +14,7 @@ public static class ResultsBuilder
 {
     // Deathmatch results need each team member's User entity (for DisplayText/TeamMembers) —
     // shared by the live-results path and the history-detail path so both render names.
-    public static async Task<Dictionary<int, User>?> BuildDeathmatchUsersById(
+    private static async Task<Dictionary<int, User>?> BuildDeathmatchUsersById(
         AppDbContext context,
         Question question
     )
@@ -23,6 +24,36 @@ public static class ResultsBuilder
 
         var teamMemberIds = question.Metadata.Teams.SelectMany(t => t).Distinct().ToList();
         return await context.Users.Where(u => teamMemberIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id);
+    }
+
+    // Build plus what it needs from the database: the Deathmatch team members and the
+    // reactions on the free-text answers (rama 48).
+    public static async Task<QuestionResultDto> BuildAsync(
+        AppDbContext context,
+        Question question,
+        List<Vote> votes,
+        IMapper mapper
+    )
+    {
+        var usersById = await BuildDeathmatchUsersById(context, question);
+        var result = Build(question, votes, mapper, usersById);
+        await AttachReactionsAsync(context, result.FreeTextResponses);
+        return result;
+    }
+
+    public static async Task AttachReactionsAsync(AppDbContext context, List<FreeTextResponseDto> responses)
+    {
+        if (responses.Count == 0)
+            return;
+
+        var voteIds = responses.Select(r => r.VoteId).ToList();
+        var reactions = await context
+            .Reactions.Where(r => r.VoteId != null && voteIds.Contains(r.VoteId.Value))
+            .OrderBy(r => r.CreatedAt)
+            .Select(r => new { VoteId = r.VoteId!.Value, Dto = new ReactionDto { Emoji = r.Emoji, UserId = r.UserId, Username = r.User.Username } })
+            .ToListAsync();
+        foreach (var response in responses)
+            response.Reactions = reactions.Where(r => r.VoteId == response.VoteId).Select(r => r.Dto).ToList();
     }
 
     public static QuestionResultDto Build(
@@ -184,6 +215,7 @@ public static class ResultsBuilder
             .Where(v => !string.IsNullOrWhiteSpace(v.FreeText))
             .Select(v => new FreeTextResponseDto
             {
+                VoteId = v.Id,
                 UserId = v.UserId,
                 Username = v.User?.Username ?? "Unknown",
                 AvatarUrl = v.User?.AvatarUrl,

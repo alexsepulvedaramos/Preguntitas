@@ -191,6 +191,24 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendReactionAsync(
+        int groupId, int authorUserId, string groupName, string reactorUsername, string emoji,
+        bool isAnswer, string preview, string url) =>
+        RunLoggedAsync("reaction", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.Reaction);
+            recipients = recipients.Where(r => r.Subscription.UserId == authorUserId).ToList();
+            var text = Shorten(preview);
+            await SendLocalizedAsync(context, recipients, MessageTtl, lang =>
+                BuildPayload(
+                    ServerText.Push.ReactionTitle(lang, emoji, groupName),
+                    isAnswer
+                        ? ServerText.Push.ReactionToAnswerBody(lang, reactorUsername, emoji, text)
+                        : ServerText.Push.ReactionToMessageBody(lang, reactorUsername, emoji, text),
+                    groupId, groupName, "reaction", lang, actor: reactorUsername, url: url
+                ));
+        });
+
     private sealed record Recipient(DevicePushSubscription Subscription, string Language);
 
     private static string Shorten(string text) => text.Length > 80 ? text[..77] + "…" : text;

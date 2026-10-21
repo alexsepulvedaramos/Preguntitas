@@ -13,12 +13,14 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { DailyService } from '../../../../core/services/daily.service';
 import { ChatMessage } from '../../../../core/models/chat-message.model';
+import { Reaction } from '../../../../core/models/reaction.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { visiblePolling } from '../../../../shared/utils/visible-polling';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { ReactionsComponent } from '../reactions/reactions.component';
 
 export const CHAT_POLL_INTERVAL_MS = 15_000;
 
@@ -27,7 +29,7 @@ const AT_BOTTOM_THRESHOLD_PX = 80;
 
 @Component({
   selector: 'app-group-chat',
-  imports: [GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
+  imports: [ReactionsComponent, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
   providers: [provideIcons({ lucideSend })],
   templateUrl: './group-chat.component.html',
 })
@@ -104,6 +106,11 @@ export class GroupChatComponent implements OnInit {
     });
   }
 
+  // Our own reaction moves the row under the bubble at once (rama 48).
+  setReactions(messageId: number, reactions: Reaction[]) {
+    this.messages.update((messages) => messages.map((m) => (m.id === messageId ? { ...m, reactions } : m)));
+  }
+
   private loadMessages(silent = false) {
     this.fetchRequests.next(silent);
   }
@@ -113,9 +120,10 @@ export class GroupChatComponent implements OnInit {
   // never touched.
   private applyMessages(messages: ChatMessage[]) {
     const current = this.messages();
-    const unchanged =
+    const sameMessages =
       current.length === messages.length && current[current.length - 1]?.id === messages[messages.length - 1]?.id;
-    if (unchanged) return;
+    // Reactions (rama 48) change without new messages: only then is the list compared in full.
+    if (sameMessages && JSON.stringify(current) === JSON.stringify(messages)) return;
 
     const wasAtBottom = this.isAtBottom();
     this.messages.set(messages);

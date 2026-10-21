@@ -47,6 +47,7 @@ import {
   lucideSearch,
   lucideShoppingBag,
   lucideSmartphone,
+  lucideSmilePlus,
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,
@@ -103,6 +104,7 @@ export const GLYPHS = {
   versus: { icon: 'lucideSwords', tone: 'sand' },
   changeVote: { icon: 'lucideRepeat', tone: 'sage' },
   nudge: { icon: 'lucideBellRing', tone: 'lime' },
+  reaction: { icon: 'lucideSmilePlus', tone: 'sand' },
   // Release notes
   sparkles: { icon: 'lucideSparkles', tone: 'lime' },
   lock: { icon: 'lucideLock', tone: 'sage' },
@@ -189,6 +191,7 @@ export const GLYPH_ICONS = {
   lucideSearch,
   lucideShoppingBag,
   lucideSmartphone,
+  lucideSmilePlus,
   lucideSnowflake,
   lucideSparkles,
   lucideSunMoon,

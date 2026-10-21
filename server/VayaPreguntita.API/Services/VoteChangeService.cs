@@ -46,12 +46,11 @@ public class VoteChangeService(
             .Include(v => v.SelectedTargetUser)
             .Where(v => v.QuestionId == openEntry.QuestionId)
             .ToListAsync();
-        var usersById = await ResultsBuilder.BuildDeathmatchUsersById(context, openEntry.Question);
         return (
             result,
             new ChangeVoteResponseDto
             {
-                Results = ResultsBuilder.Build(openEntry.Question, votes, mapper, usersById),
+                Results = await ResultsBuilder.BuildAsync(context, openEntry.Question, votes, mapper),
                 Balance = await coinService.GetBalanceAsync(userId),
                 Inventory = await inventoryService.GetAsync(userId),
             }

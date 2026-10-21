@@ -429,6 +429,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<bool>("RaceToSelect")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("Reaction")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("SelectorTurn")
                         .HasColumnType("boolean");
 
@@ -672,6 +675,55 @@ namespace VayaPreguntita.API.Migrations
                     b.HasIndex("QuestionTemplateId");
 
                     b.ToTable("QuestionTemplateOption");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Reaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthorUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ChatMessageId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Emoji")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime?>("NotifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("VoteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("AuthorUserId", "NotifiedAt");
+
+                    b.HasIndex("ChatMessageId", "UserId")
+                        .IsUnique();
+
+                    b.HasIndex("VoteId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("Reactions", t =>
+                        {
+                            t.HasCheckConstraint("CK_Reactions_OneTarget", "(\"ChatMessageId\" IS NULL) <> (\"VoteId\" IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.User", b =>
@@ -1243,6 +1295,39 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired();
 
                     b.Navigation("QuestionTemplate");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Reaction", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.ChatMessage", "ChatMessage")
+                        .WithMany()
+                        .HasForeignKey("ChatMessageId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.Vote", "Vote")
+                        .WithMany()
+                        .HasForeignKey("VoteId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("ChatMessage");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Vote");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserInventoryItem", b =>

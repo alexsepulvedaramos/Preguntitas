@@ -107,7 +107,7 @@ export class ProfilePageComponent implements OnInit {
   protected readonly notifPrefs = signal<NotificationPreferences>({
     newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
     streakDanger: true, streakDangerHoursBefore: 3, raceToSelect: true, flashQuestion: true, monthlySummary: true,
-    nudge: true,
+    nudge: true, reaction: true,
   });
 
   protected readonly user = computed(() => this.authService.currentUser());
@@ -185,6 +185,7 @@ export class ProfilePageComponent implements OnInit {
       | 'flashQuestion'
       | 'monthlySummary'
       | 'nudge'
+      | 'reaction'
       | 'userVoted'
       | 'newMessage'
       | 'streakDanger',

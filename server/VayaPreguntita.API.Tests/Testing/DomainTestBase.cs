@@ -85,6 +85,8 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
     protected NudgeService NewNudgeService(AppDbContext db) =>
         new(db, NewCoinService(db), NewInventoryService(db), Notifications.Object, Clock);
 
+    protected ReactionService NewReactionService(AppDbContext db) => new(db, Notifications.Object, Clock);
+
     protected DailyService NewDailyService(AppDbContext db) =>
         new(
             db,

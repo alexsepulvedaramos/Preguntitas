@@ -105,6 +105,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
         prefs.FlashQuestion = dto.FlashQuestion;
         prefs.MonthlySummary = dto.MonthlySummary;
         prefs.Nudge = dto.Nudge;
+        prefs.Reaction = dto.Reaction;
 
         await context.SaveChangesAsync();
         return Ok(ToDto(prefs));
@@ -121,6 +122,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
             prefs.RaceToSelect,
             prefs.FlashQuestion,
             prefs.MonthlySummary,
-            prefs.Nudge
+            prefs.Nudge,
+            prefs.Reaction
         );
 }

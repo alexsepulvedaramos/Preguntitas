@@ -1,4 +1,5 @@
 // QuestionResultDto.cs
+using VayaPreguntita.API.DTOs.Reactions;
 using VayaPreguntita.API.Enums;
 
 namespace VayaPreguntita.API.DTOs.Questions;
@@ -32,10 +33,14 @@ public class QuestionResultDto
 
 public class FreeTextResponseDto
 {
+    // The Vote row carrying the text: what a reaction points at (rama 48).
+    public int VoteId { get; set; }
     // Author, so the answer bubble can show their avatar and streak frame (rama 19).
     public int UserId { get; set; }
     public string Username { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public string? FrameColor { get; set; }
     public string Text { get; set; } = string.Empty;
+    // Rama 48: who reacted with what.
+    public List<ReactionDto> Reactions { get; set; } = [];
 }

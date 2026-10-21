@@ -28,6 +28,11 @@ public interface INotificationService
     // the Nudge preference, the group not muted). ttl = until the question closes.
     Task SendNudgeAsync(
         int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl);
+    // Reaction (rama 48): to the author of the message or answer, if their Reaction preference
+    // is on and the group isn't muted. The caller applies ReactionRules.PushCooldown.
+    Task SendReactionAsync(
+        int groupId, int authorUserId, string groupName, string reactorUsername, string emoji,
+        bool isAnswer, string preview, string url);
 }
 
 // A duel (§17.15 item 6) replaces the normal question push for its two sides, except the one
