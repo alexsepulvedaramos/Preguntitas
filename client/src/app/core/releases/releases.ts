@@ -25,7 +25,7 @@ export interface Release {
 export const RELEASES: readonly Release[] = [
   {
     version: '1.30.0',
-    date: '2026-10-21',
+    date: '2026-10-22',
     title: {
       es: 'Extras para tus flash',
       en: 'Extras for your flashes',
@@ -95,6 +95,30 @@ export const RELEASES: readonly Release[] = [
           es: 'Las opciones secundarias, como «Nadie» o excluir a alguien, se pliegan en «Más opciones». Y las flash recuerdan que no cuentan para la racha: vótalas solo si quieres ver qué han votado los demás.',
           en: 'Secondary settings, like “Nobody” or excluding someone, fold under “More options”. And flashes remind you they don’t count for your streak: vote only if you want to see what the others voted.',
           de: 'Nebeneinstellungen wie „Niemand“ oder jemanden ausschließen sind jetzt unter „Weitere Optionen“ eingeklappt. Und Blitzfragen erinnern daran, dass sie nicht für die Serie zählen: Stimm nur ab, wenn du sehen willst, was die anderen gewählt haben.',
+        },
+      },
+    ],
+  },
+  {
+    version: '1.29.1',
+    date: '2026-10-22',
+    title: {
+      es: 'Una pantalla que no se mueve',
+      en: 'A screen that stays put',
+      de: 'Ein Bildschirm, der stillhält',
+    },
+    items: [
+      {
+        glyph: 'phone',
+        title: {
+          es: 'Adiós a los saltos y desplazamientos raros',
+          en: 'No more jumps or odd scrolling',
+          de: 'Schluss mit Sprüngen und seltsamem Scrollen',
+        },
+        text: {
+          es: 'En el ordenador la pantalla daba pequeños saltos y en el móvil el contenido a veces salía descentrado o se podía arrastrar hacia los lados. Ahora todo se queda en su sitio. Además, la app ya no hace zoom al pellizcar ni al tocar dos veces.',
+          en: 'On computers the screen gave small jumps, and on phones the content sometimes sat off-centre or could be dragged sideways. Now everything stays in place. The app also no longer zooms when you pinch or double-tap.',
+          de: 'Am Computer machte der Bildschirm kleine Sprünge, und am Handy war der Inhalt manchmal verrutscht oder ließ sich zur Seite ziehen. Jetzt bleibt alles an seinem Platz. Außerdem zoomt die App nicht mehr beim Aufziehen mit zwei Fingern oder beim Doppeltippen.',
         },
       },
     ],

@@ -975,6 +975,7 @@ Source of truth for tokens: `client/src/styles-lime.css` (`:root` / `:root.dark`
 - **Forms:** the save button is full width at the end. Pick-one-of-few choices (question type) are glyph tiles, not a select. Text that may run long on a phone uses a 2-row `hlmTextarea`. Every password field has a show/hide toggle.
 - **News banners:** full width, dismissible with ✕; opening or dismissing counts as seen, and the item stays reachable from its menu.
 - **Empty states:** `hlm-empty` with a glyph, a short display title and a one-line explanation (see `group-list.component.html`).
+- **Page shells (fix 1.29.1):** full-height shells use `min-h-svh` (never `min-h-screen`/`100vh`, which overflows under the phone URL bar, nor `dvh`, which resizes while scrolling); a page inside `MainLayout` sets no min-height of its own. `html` reserves the scrollbar (`scrollbar-gutter: stable`) so pages don't shift sideways on desktop, and `app-root` has `overflow-x: clip` so decorative bleed (streak-frame rays/sheen) can never widen the page. Nothing real may rely on overflowing the screen width — use a scroll container (`overflow-x-auto`).
 - **Unread dots:** a small `bg-accent` dot with `ring-2 ring-card`, as on the user-menu avatar and the group cards (§16 unread activity); always with `sr-only` text.
 
 **Interactive states — every interactive element:**
@@ -994,7 +995,7 @@ Source of truth for tokens: `client/src/styles-lime.css` (`:root` / `:root.dark`
 
 **Logo and app icons:** `LogoComponent` / `LogoWordmarkComponent` (one line, `whitespace-nowrap`; colours via `--logo-*`). PWA icons are full-bleed opaque squares (`android-chrome-*`, `apple-touch-icon`, purpose `any`) plus `maskable-*` with the mark inside the 80 % safe zone (purpose `maskable`). Manifest colours are hex (`#051b0e`), never `oklch`.
 
-**Accessibility:** icon-only controls need an `aria-label` or `sr-only` text; decorative elements get `aria-hidden`. Meaning carried by an icon or colour (✓/✗, dots, the streak chip) also needs `sr-only` text — `aria-label` on a plain `<span>` isn't read. Don't render interactive-looking elements without an action. Pinch zoom stays enabled (developer's call, 2026-10-20).
+**Accessibility:** icon-only controls need an `aria-label` or `sr-only` text; decorative elements get `aria-hidden`. Meaning carried by an icon or colour (✓/✗, dots, the streak chip) also needs `sr-only` text — `aria-label` on a plain `<span>` isn't read. Don't render interactive-looking elements without an action. Zoom is blocked (developer's call, 2026-10-22, reversing 2026-10-20): the viewport meta sets `maximum-scale=1, user-scalable=no`, `html` has `touch-action: manipulation` (no double-tap zoom) and `main.ts` cancels iOS Safari's `gesturestart` (iOS ignores `user-scalable=no`). Trade-off accepted: players with low vision can't pinch-zoom; text sizes and contrast must stay readable without it.
 
 ---
 
