@@ -445,7 +445,8 @@ public class StreakService(
 
     // How each closed duel (§17.15 item 6) the member fought in the group ended. A daily duel
     // is closed once the next question opened; a flash one once its 24 h are over. Open duels
-    // stay out so the record doesn't move with every vote, and votes cast late still count.
+    // stay out so the record doesn't move with every vote, and votes cast late still count. A
+    // time capsule (rama 50) counts only once it has opened, or the record would give it away.
     private async Task<List<DuelOutcome>> GetDuelRecordAsync(int groupId, int userId, int? openEntryId)
     {
         var nowUtc = DailyClock.UtcNow(clock);
@@ -461,7 +462,10 @@ public class StreakService(
             .ToListAsync();
         var flashQuestions = await context
             .FlashEntries.Where(f =>
-                f.GroupId == groupId && f.ClosesAt <= nowUtc && f.Question.Type == QuestionType.Deathmatch
+                f.GroupId == groupId
+                && f.ClosesAt <= nowUtc
+                && (f.ResultsHiddenUntil == null || f.ResultsHiddenUntil <= nowUtc)
+                && f.Question.Type == QuestionType.Deathmatch
             )
             .Select(f => f.Question)
             .ToListAsync();

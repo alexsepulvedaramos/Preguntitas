@@ -12,7 +12,13 @@ import { DailyService } from '../../../../core/services/daily.service';
 import { QuestionsService } from '../../../../core/services/questions.service';
 import { CreateQuestion, QuestionToVote } from '../../../../core/models/question.model';
 import { LaunchFlashResponse, SelectResponse } from '../../../../core/models/daily.model';
-import { EMPTY_INVENTORY, FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
+import {
+  EMPTY_INVENTORY,
+  FLASH_ANONYMOUS_AUTHOR_PRICE,
+  FLASH_ANONYMOUS_VOTES_PRICE,
+  FLASH_CAPSULE_PRICE,
+  FLASH_QUESTION_PRICE,
+} from '../../../../core/models/coin.model';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_GLYPH, QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -27,6 +33,8 @@ import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-creat
 import { ScaleCreateComponent } from '../scale-create/scale-create.component';
 import { CustomPollCreateComponent } from '../custom-poll-create/custom-poll-create.component';
 import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
+import { FlashOptionsComponent } from '../flash-options/flash-options.component';
+import { FoldSectionComponent } from '../fold-section/fold-section.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
@@ -64,6 +72,8 @@ const TEXT_MAX_LENGTH = 200;
     ScaleCreateComponent,
     CustomPollCreateComponent,
     DuelNoticeComponent,
+    FlashOptionsComponent,
+    FoldSectionComponent,
   ],
   providers: [provideIcons({ lucideZap })],
   templateUrl: './create-question.component.html',
@@ -72,8 +82,8 @@ export class CreateQuestionComponent {
   private readonly dailyService = inject(DailyService);
   private readonly questionsService = inject(QuestionsService);
   private readonly authService = inject(AuthService);
-  protected readonly t = inject(I18nService).t;
-  protected readonly flashPrice = FLASH_QUESTION_PRICE;
+  private readonly i18n = inject(I18nService);
+  protected readonly t = this.i18n.t;
 
   public readonly groupId = input.required<number>();
   public readonly members = input.required<GroupMember[]>();
@@ -97,13 +107,53 @@ export class CreateQuestionComponent {
   public readonly savedToPool = output<void>();
   public readonly flashLaunched = output<LaunchFlashResponse>();
 
+  // Flash extras (rama 50), offered in the flash-only form: combinable, always paid in coins.
+  protected readonly anonymousAuthor = signal(false);
+  protected readonly anonymousVotes = signal(false);
+  protected readonly capsuleOpensOn = signal<string | null>(null);
+  protected readonly addOnsPrice = computed(
+    () =>
+      (this.anonymousAuthor() ? FLASH_ANONYMOUS_AUTHOR_PRICE : 0) +
+      (this.anonymousVotes() ? FLASH_ANONYMOUS_VOTES_PRICE : 0) +
+      (this.capsuleOpensOn() ? FLASH_CAPSULE_PRICE : 0),
+  );
+
+  // "Más opciones" (rama 50): only the types with secondary settings get the fold, and its
+  // summary says which are on.
+  protected readonly hasMoreOptions = computed(
+    () => this.type() === QuestionType.Superlative || this.type() === QuestionType.CustomPoll,
+  );
+  protected readonly moreOptionsSummary = computed(() => {
+    const on: string[] = [];
+    if (this.type() === QuestionType.Superlative) {
+      if (this.allowNobody()) on.push(this.t('createQuestion.allowNobodyShort'));
+      if (this.blacklistedUserIds().length)
+        on.push(this.t('createQuestion.excludedCount', { count: this.blacklistedUserIds().length }));
+    } else if (this.type() === QuestionType.CustomPoll) {
+      if (this.minSelections() !== 1 || this.maxSelections() !== 1)
+        on.push(this.t('createQuestion.selectionsShort', { min: this.minSelections(), max: this.maxSelections() }));
+      if (this.allowOther()) on.push(this.t('createQuestion.allowOtherShort'));
+    }
+    return on.join(', ');
+  });
+  protected readonly capsuleOpeningLabel = computed(() => {
+    const value = this.capsuleOpensOn();
+    if (!value) return '';
+    const [y, m, d] = value.split('-').map(Number);
+    return this.i18n.formatDate(new Date(y, m - 1, d, 12), { day: 'numeric', month: 'long', year: 'numeric' });
+  });
+
   // "Enviar ahora" (§17.11): disabled, saying how much is missing, when you can't afford it.
-  // Flash questions bought ahead in the shop (rama 45) launch without charging.
+  // Flash questions bought ahead in the shop (rama 45) launch without charging the base price;
+  // the add-ons are paid on top either way.
   protected readonly ownedFlashes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion,
   );
+  protected readonly flashPrice = computed(
+    () => (this.ownedFlashes() > 0 ? 0 : FLASH_QUESTION_PRICE) + this.addOnsPrice(),
+  );
   protected readonly flashMissing = computed(() =>
-    Math.max(0, FLASH_QUESTION_PRICE - (this.authService.currentUser()?.coins ?? 0)),
+    Math.max(0, this.flashPrice() - (this.authService.currentUser()?.coins ?? 0)),
   );
 
   protected readonly QuestionType = QuestionType;
@@ -253,7 +303,13 @@ export class CreateQuestionComponent {
 
   launchFlash() {
     this.submit((dto) =>
-      this.dailyService.launchFlash(this.groupId(), dto, this.ownedFlashes() > 0).subscribe({
+      this.dailyService
+        .launchFlash(this.groupId(), dto, this.ownedFlashes() > 0, {
+          anonymousAuthor: this.anonymousAuthor(),
+          anonymousVotes: this.anonymousVotes(),
+          capsuleOpensOn: this.capsuleOpensOn(),
+        })
+        .subscribe({
         next: (res) => {
           this.submitting.set(false);
           this.authService.patchCurrentUser({ coins: res.balance, inventory: res.inventory });

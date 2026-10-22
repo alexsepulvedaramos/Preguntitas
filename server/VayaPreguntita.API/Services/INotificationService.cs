@@ -15,7 +15,12 @@ public interface INotificationService
     // "⚡ Pregunta flash" (§17.11): every member but the buyer. A duel's two sides get the duel
     // push instead (§17.15 item 6).
     Task SendFlashQuestionAsync(
-        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel);
+        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel,
+        bool anonymous = false);
+    // Time capsule (rama 50): every member, once its results open. launcherUsername is null on
+    // an anonymous flash.
+    Task SendCapsuleOpenedAsync(
+        int groupId, int flashId, string groupName, string? launcherUsername, DateOnly launchedOn, string questionText);
     // "Resumen del mes" (§17.12): every member, when last month's summary is ready.
     Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month);
     Task SendUserVotedAsync(int groupId, int voterUserId, string groupName, string voterUsername);
@@ -39,7 +44,8 @@ public interface INotificationService
 // A duel (§17.15 item 6) replaces the normal question push for its two sides, except the one
 // who set it up: "Ana te ha retado a un duelo" / "Ana os ha puesto a pelear". It follows the
 // preference of the push it replaces and the group mute.
-public sealed record DuelPush(int ChooserUserId, string ChooserUsername, int FirstUserId, int SecondUserId)
+public sealed record DuelPush(
+    int ChooserUserId, string ChooserUsername, int FirstUserId, int SecondUserId, bool Anonymous = false)
 {
     public bool Involves(int userId) => userId == FirstUserId || userId == SecondUserId;
 

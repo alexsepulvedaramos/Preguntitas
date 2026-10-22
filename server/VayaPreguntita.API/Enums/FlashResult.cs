@@ -15,4 +15,9 @@ public enum FlashResult
     NotFound,
     AlreadyVoted,
     InvalidVote,
+
+    // Flash variants (rama 50)
+    InvalidCapsuleDate,
+    Closed,
+    AlreadyExtended,
 }

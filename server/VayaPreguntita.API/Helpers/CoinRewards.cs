@@ -24,6 +24,14 @@ public static class CoinRewards
     // drives the group dynamic, so it should be used often.
     public const int FlashQuestionPrice = 100;
 
+    // Flash variants (rama 50, §17.15 item 6): add-ons on top of the flash, combinable and
+    // always paid in coins (an owned flash covers only the base price), plus the +24 h extension.
+    // Hiding the author never costs less than hiding the votes, so trolling isn't the cheap option.
+    public const int FlashAnonymousAuthorPrice = 50;
+    public const int FlashAnonymousVotesPrice = 50;
+    public const int FlashCapsulePrice = 50;
+    public const int FlashExtensionPrice = 30;
+
     // Change my vote and toque / nudge (§17.10, rama 43).
     public const int VoteChangePrice = 50;
     public const int NudgePrice = 10;

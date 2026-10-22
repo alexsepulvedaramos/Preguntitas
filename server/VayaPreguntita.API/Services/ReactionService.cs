@@ -50,9 +50,13 @@ public class ReactionService(
         if (vote == null)
             return (ReactionResult.NotFound, null);
 
-        // Answers are only visible once you've voted the question (§17.7).
+        // Answers are only visible once you've voted the question (§17.7), and not at all while
+        // a time capsule is sealed (rama 50).
         if (vote.UserId != userId
             && !await context.Votes.AnyAsync(v => v.QuestionId == vote.QuestionId && v.UserId == userId))
+            return (ReactionResult.Locked, null);
+        var now = DailyClock.UtcNow(clock);
+        if (await context.FlashEntries.AnyAsync(f => f.QuestionId == vote.QuestionId && f.ResultsHiddenUntil > now))
             return (ReactionResult.Locked, null);
 
         var target = new Target(vote.UserId, vote.FreeText!, await AnswerUrlAsync(groupId, vote.QuestionId));

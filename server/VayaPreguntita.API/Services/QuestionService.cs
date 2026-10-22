@@ -183,6 +183,8 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
                 f.Question.Type,
                 TotalVotes = f.Question.Votes.Select(v => v.UserId).Distinct().Count(),
                 f.LaunchedBy.Username,
+                f.AnonymousAuthor,
+                f.ResultsHiddenUntil,
             })
             .ToListAsync();
         items.AddRange(
@@ -194,8 +196,11 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
                     QuestionText = f.Text,
                     Type = f.Type,
                     TotalVotes = f.TotalVotes,
-                    AuthorUsername = f.Username,
+                    // An anonymous author (rama 50) is never named.
+                    AuthorUsername = f.AnonymousAuthor ? null : f.Username,
                     FlashId = f.Id,
+                    AnonymousAuthor = f.AnonymousAuthor,
+                    CapsuleOpensAt = f.ResultsHiddenUntil,
                 }
             ))
         );

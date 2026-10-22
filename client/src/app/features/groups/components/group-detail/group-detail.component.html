@@ -278,7 +278,7 @@
             >
               @if (card.flash; as flash) {
                 <app-glyph name="flash" size="xs" untinted />
-                <span class="truncate">{{ flash.launchedBy.username }}</span>
+                <span class="truncate">{{ flash.launchedBy?.username ?? t('flash.anonymousTab') }}</span>
               } @else {
                 {{ t('flash.dailyTab') }}
               }
@@ -324,30 +324,67 @@
             <ng-icon hlm name="lucideZap" class="size-3.5!" />
             {{ t('flash.badge') }}
           </span>
-          <app-user-avatar
-            [avatarUrl]="flash.launchedBy.avatarUrl"
-            [username]="flash.launchedBy.username"
-            [frameColor]="flash.launchedBy.frameColor"
-            [look]="groupStreaks.lookFor(flash.launchedBy.id)"
-            [memberSince]="groupStreaks.joinedAtFor(flash.launchedBy.id)"
-            size="xs"
-          />
-          <span class="min-w-0 truncate text-xs text-muted-foreground">
-            {{ t('flash.launchedBy', { name: flash.launchedBy.username }) }}
-          </span>
+          @if (flash.launchedBy; as launcher) {
+            <app-user-avatar
+              [avatarUrl]="launcher.avatarUrl"
+              [username]="launcher.username"
+              [frameColor]="launcher.frameColor"
+              [look]="groupStreaks.lookFor(launcher.id)"
+              [memberSince]="groupStreaks.joinedAtFor(launcher.id)"
+              size="xs"
+            />
+            <span class="min-w-0 truncate text-xs text-muted-foreground">
+              {{ t('flash.launchedBy', { name: launcher.username }) }}
+            </span>
+          } @else {
+            <span class="inline-flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
+              <app-glyph name="anonymous" size="xs" bare />
+              {{ t('flash.anonymousLaunched') }}
+            </span>
+          }
         </div>
 
+        @if (flash.capsuleOpensAt) {
+          <p class="flex items-center gap-2 text-xs text-muted-foreground">
+            <app-glyph name="capsule" size="xs" />
+            {{ t('flash.capsuleOpensOn', { date: formatCapsuleDate(flash.capsuleOpensAt) }) }}
+          </p>
+        }
+
         <app-countdown [target]="flash.closesAt" [line]="true" (reachedZero)="refresh()">
-          <app-today-voters
-            [groupId]="numericGroupId()"
-            [members]="members()"
-            [flashId]="flash.id"
-            [voterIds]="flash.voterIds"
-            [memberCount]="members().length"
-          />
+          <app-flash-extend [groupId]="numericGroupId()" [flash]="flash" (extended)="onFlashVoted($event)" />
+          <!-- Anonymous votes show no one's name, not even who has voted (rama 50) -->
+          @if (flash.anonymousVotes) {
+            <span class="text-xs text-muted-foreground">{{ t('flash.voteCount', { count: flash.voteCount }) }}</span>
+          } @else {
+            <app-today-voters
+              [groupId]="numericGroupId()"
+              [members]="members()"
+              [flashId]="flash.id"
+              [voterIds]="flash.voterIds"
+              [memberCount]="members().length"
+            />
+          }
         </app-countdown>
 
-        @if (flash.userHasVoted && flash.results) {
+        @if (flash.userHasVoted && flash.sealed) {
+          <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
+          <div class="flex items-start gap-3 rounded-default border border-flash-border bg-flash/10 p-3">
+            <app-glyph name="capsule" size="sm" />
+            <p class="text-sm text-foreground text-balance">
+              <span class="font-semibold">{{ t('flash.sealedTitle') }}</span>
+              {{ t('flash.sealedText', { count: flash.voteCount, date: formatCapsuleDate(flash.capsuleOpensAt!) }) }}
+            </p>
+          </div>
+          <app-change-vote
+            [groupId]="numericGroupId()"
+            [question]="flash.question"
+            [members]="members()"
+            [flashId]="flash.id"
+            [canChange]="flash.canChangeVote"
+            (changed)="onVoteChanged($event)"
+          />
+        } @else if (flash.userHasVoted && flash.results) {
           <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
           <app-results [question]="flash.question" [result]="flash.results" />
           <app-change-vote
@@ -359,6 +396,16 @@
             (changed)="onVoteChanged($event)"
           />
         } @else {
+          <!-- Nobody has to answer a flash (rama 50): it never counts for the streak -->
+          <ul class="flex flex-col gap-1 text-xs text-muted-foreground">
+            <li>{{ t('flash.noStreakNote') }}</li>
+            @if (flash.anonymousVotes) {
+              <li class="flex items-center gap-1.5 font-medium text-foreground">
+                <app-glyph name="secretVotes" size="xs" bare />
+                {{ t('flash.anonymousVoteNote') }}
+              </li>
+            }
+          </ul>
           <app-vote
             [groupId]="numericGroupId()"
             [question]="flash.question"

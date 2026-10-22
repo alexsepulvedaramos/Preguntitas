@@ -298,6 +298,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(f => f.LaunchedByUserId)
              .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(f => f.ExtendedBy)
+             .WithMany()
+             .HasForeignKey(f => f.ExtendedByUserId)
+             .OnDelete(DeleteBehavior.SetNull);
+            // The minute tick looks for time capsules due to open (rama 50).
+            e.HasIndex(f => f.ResultsHiddenUntil)
+             .HasFilter("\"ResultsHiddenUntil\" IS NOT NULL AND \"CapsuleOpenedAt\" IS NULL");
         });
 
         // ==========================================

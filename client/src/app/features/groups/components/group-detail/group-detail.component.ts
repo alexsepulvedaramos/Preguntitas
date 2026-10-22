@@ -44,6 +44,7 @@ import { MyStreakComponent } from '../my-streak/my-streak.component';
 import { TodayVotersComponent } from '../today-voters/today-voters.component';
 import { AuthorGuessComponent } from '../author-guess/author-guess.component';
 import { ChangeVoteComponent } from '../change-vote/change-vote.component';
+import { FlashExtendComponent } from '../flash-extend/flash-extend.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { MonthlySummaryViewerComponent } from '../monthly-summary/monthly-summary-viewer.component';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
@@ -106,6 +107,7 @@ export interface DeckCard {
     TodayVotersComponent,
     AuthorGuessComponent,
     ChangeVoteComponent,
+    FlashExtendComponent,
     UserAvatarComponent,
     MonthlySummaryViewerComponent,
   ],
@@ -125,7 +127,8 @@ export class GroupDetailComponent implements OnInit {
   private readonly hints = inject(OneTimeHintsService);
   private readonly summaryService = inject(MonthlySummaryService);
   protected readonly router = inject(Router);
-  protected readonly t = inject(I18nService).t;
+  private readonly i18n = inject(I18nService);
+  protected readonly t = this.i18n.t;
   protected readonly raceReward = RACE_WON_REWARD;
 
   public readonly groupId = input.required<string>();
@@ -250,7 +253,9 @@ export class GroupDetailComponent implements OnInit {
 
   deckTabLabel(card: DeckCard): string {
     const label = card.flash
-      ? this.t('flash.tabLabel', { name: card.flash.launchedBy.username })
+      ? card.flash.launchedBy
+        ? this.t('flash.tabLabel', { name: card.flash.launchedBy.username })
+        : this.t('flash.tabLabelAnonymous')
       : this.t('flash.dailyTabLabel');
     return card.pending ? `${label} · ${this.t('flash.unanswered')}` : label;
   }
@@ -271,6 +276,11 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (daily) this.daily.set({ ...daily, flashes: [...(daily.flashes ?? []), res.flash] });
     this.goTo(`flash-${res.flash.id}`);
+  }
+
+  // Time capsule (rama 50): the day its results open, in the app's language.
+  formatCapsuleDate(iso: string): string {
+    return this.i18n.formatDate(iso, { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   onFlashVoted(state: FlashState) {

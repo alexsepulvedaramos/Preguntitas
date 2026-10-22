@@ -427,6 +427,17 @@ public static class ServerText
         "That flash question doesn't exist.",
         "Diese Blitzfrage gibt es nicht.");
 
+    // ── Flash variants (rama 50) ────────────────────────────────────────────────────────
+    public static string FlashCapsuleDateInvalid => Pick(
+        "La cápsula del tiempo se abre entre mañana y dentro de un año.",
+        "A time capsule opens between tomorrow and one year from now.",
+        "Eine Zeitkapsel öffnet sich frühestens morgen und spätestens in einem Jahr.");
+
+    public static string FlashAlreadyExtended => Pick(
+        "Esta pregunta flash ya se ha ampliado.",
+        "This flash question has already been extended.",
+        "Diese Blitzfrage wurde schon verlängert.");
+
     public static string MonthlySummaryNotFound => Pick(
         "No hay resumen de ese mes.",
         "There's no summary for that month.",
@@ -477,6 +488,28 @@ public static class ServerText
             $"{launcher} asks: {text}",
             $"{launcher} fragt: {text}");
 
+        // Anonymous-author flash (rama 50): the launcher is never named.
+        public static string FlashQuestionAnonymousBody(string lang, string text) => Pick(lang,
+            $"Pregunta anónima: {text}",
+            $"Anonymous question: {text}",
+            $"Anonyme Frage: {text}");
+
+        // Time capsule (rama 50): to every member when its results open.
+        public static string CapsuleOpenedTitle(string lang, string groupName) => Pick(lang,
+            $"⏳ Se ha abierto una cápsula del tiempo en {groupName}",
+            $"⏳ A time capsule opened in {groupName}",
+            $"⏳ Eine Zeitkapsel in {groupName} ist offen");
+
+        public static string CapsuleOpenedBody(string lang, string launcher, string date, string text) => Pick(lang,
+            $"{launcher} preguntó el {date}: {text}",
+            $"{launcher} asked on {date}: {text}",
+            $"{launcher} fragte am {date}: {text}");
+
+        public static string CapsuleOpenedAnonymousBody(string lang, string date, string text) => Pick(lang,
+            $"Alguien preguntó el {date}: {text}",
+            $"Someone asked on {date}: {text}",
+            $"Jemand fragte am {date}: {text}");
+
         // Toque / nudge (rama 43, §17.10), with the sender's optional message.
         public static string ReactionTitle(string lang, string emoji, string groupName) => Pick(lang,
             $"{emoji} {groupName}",
@@ -525,6 +558,12 @@ public static class ServerText
             $"{chooser} os ha puesto a pelear: {text}",
             $"{chooser} has pitted you against each other: {text}",
             $"{chooser} lässt euch gegeneinander antreten: {text}");
+
+        // An anonymous flash duel (rama 50) names nobody.
+        public static string DuelAnonymousBody(string lang, string text) => Pick(lang,
+            $"Alguien te ha metido en un duelo: {text}",
+            $"Someone has put you in a duel: {text}",
+            $"Jemand hat dich in ein Duell geschickt: {text}");
 
         // Race to select (§17.5): to everyone but the selector, 10 minutes before T.
         public static string RaceToSelectTitle(string lang, string groupName) => Pick(lang,

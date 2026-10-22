@@ -71,7 +71,7 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
 
         result.Should().Be(FlashResult.Success);
         response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice);
-        response.Flash.LaunchedBy.Username.Should().Be("ana");
+        response.Flash.LaunchedBy!.Username.Should().Be("ana");
         (response.Flash.ClosesAt - response.Flash.ActivatedAt).Should().Be(TimeSpan.FromHours(24));
 
         await using var db = NewContext();

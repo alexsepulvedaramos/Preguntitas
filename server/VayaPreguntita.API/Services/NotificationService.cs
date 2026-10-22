@@ -103,7 +103,8 @@ public class NotificationService(
         });
 
     public Task SendFlashQuestionAsync(
-        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel) =>
+        int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel,
+        bool anonymous = false) =>
         RunLoggedAsync("flash_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: launcherUserId, pref => pref.FlashQuestion);
@@ -112,11 +113,32 @@ public class NotificationService(
             await SendLocalizedAsync(context, others, FlashService.OpenFor, lang =>
                 BuildPayload(
                     ServerText.Push.FlashQuestionTitle(lang, groupName),
-                    ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
-                    groupId, groupName, "flash_question", lang, actor: launcherUsername
+                    anonymous
+                        ? ServerText.Push.FlashQuestionAnonymousBody(lang, text)
+                        : ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
+                    groupId, groupName, "flash_question", lang, actor: anonymous ? null : launcherUsername
                 ));
             if (duel != null)
                 await SendDuelAsync(context, duelists, duel, FlashService.OpenFor, groupId, groupName, "flash_duel", _ => questionText);
+        });
+
+    // Opens the history straight on the capsule. Follows the "Preguntas flash" preference.
+    public Task SendCapsuleOpenedAsync(
+        int groupId, int flashId, string groupName, string? launcherUsername, DateOnly launchedOn, string questionText) =>
+        RunLoggedAsync("flash_capsule_opened", groupId, async context =>
+        {
+            var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: null, pref => pref.FlashQuestion);
+            var text = Shorten(questionText);
+            var date = launchedOn.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+            await SendLocalizedAsync(context, recipients, SummaryTtl, lang =>
+                BuildPayload(
+                    ServerText.Push.CapsuleOpenedTitle(lang, groupName),
+                    launcherUsername == null
+                        ? ServerText.Push.CapsuleOpenedAnonymousBody(lang, date, text)
+                        : ServerText.Push.CapsuleOpenedBody(lang, launcherUsername, date, text),
+                    groupId, groupName, "flash_capsule_opened", lang,
+                    url: $"/groups/{groupId}/history?flash={flashId}"
+                ));
         });
 
     // Opens the group page straight on that month's story.
@@ -250,10 +272,11 @@ public class NotificationService(
             var text = Shorten(questionTextFor(lang));
             return BuildPayload(
                 ServerText.Push.DuelTitle(lang, groupName),
-                duel.ChooserIsDuelist
-                    ? ServerText.Push.DuelChallengedBody(lang, duel.ChooserUsername, text)
-                    : ServerText.Push.DuelPittedBody(lang, duel.ChooserUsername, text),
-                groupId, groupName, kind, lang, actor: duel.ChooserUsername
+                duel.Anonymous ? ServerText.Push.DuelAnonymousBody(lang, text)
+                    : duel.ChooserIsDuelist
+                        ? ServerText.Push.DuelChallengedBody(lang, duel.ChooserUsername, text)
+                        : ServerText.Push.DuelPittedBody(lang, duel.ChooserUsername, text),
+                groupId, groupName, kind, lang, actor: duel.Anonymous ? null : duel.ChooserUsername
             );
         });
     }

@@ -150,7 +150,15 @@ describe('GroupDetailComponent live refresh', () => {
     closesAt: new Date(Date.now() + 23 * 60 * 60_000).toISOString(),
     userHasVoted,
     results: userHasVoted ? { id: 100 + id, text: `flash ${id}`, type: 0, totalVotes: 1, results: [], freeTextResponses: [] } : null,
+    voteCount: userHasVoted ? 1 : 0,
     voterIds: [],
+    canChangeVote: false,
+    anonymousAuthor: false,
+    anonymousVotes: false,
+    capsuleOpensAt: null as string | null,
+    sealed: false,
+    extended: false,
+    extendedBy: null,
   });
 
   const flushWithFlashes = (status: 'voting' | 'results', flashes: unknown[]) => {
@@ -189,5 +197,38 @@ describe('GroupDetailComponent live refresh', () => {
     vi.advanceTimersByTime(DAILY_POLL_INTERVAL_MS);
     currentRequests()[0].flush({ ...daily('no_question'), flashes: [flash(1)] });
     expect(fixture.componentInstance.daily()?.flashes[0].userHasVoted).toBe(true);
+  });
+
+  // ── Flash variants (rama 50) ──
+
+  const showFlash = (state: unknown) => {
+    fixture.detectChanges();
+    http.expectOne((r) => r.url.endsWith('/daily/current')).flush({ ...daily('no_question'), flashes: [state] });
+    http.expectOne((r) => r.url.endsWith('/members')).flush([]);
+    http.expectOne((r) => /\/groups\/1$/.test(r.url)).flush({ id: 1, name: 'g' });
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  };
+
+  it('an anonymous flash names nobody and lists no voters', () => {
+    const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true, anonymousVotes: true, voteCount: 2 });
+
+    expect(page.querySelector('app-today-voters')).toBeNull();
+    expect(page.querySelector('app-flash-extend')).not.toBeNull();
+    expect(page.textContent).not.toContain('ana');
+  });
+
+  it('anonymous author alone keeps the voters row', () => {
+    const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true });
+
+    expect(page.querySelector('app-today-voters')).not.toBeNull();
+  });
+
+  it('a sealed capsule you voted shows no results and no vote form', () => {
+    const opensAt = new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString();
+    const page = showFlash({ ...flash(1), userHasVoted: true, results: null, voteCount: 1, sealed: true, capsuleOpensAt: opensAt });
+
+    expect(page.querySelector('app-results')).toBeNull();
+    expect(page.querySelector('app-vote')).toBeNull();
   });
 });

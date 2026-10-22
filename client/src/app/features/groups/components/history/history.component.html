@@ -80,6 +80,16 @@
                   {{ t('flash.badge') }}
                 </span>
               }
+              <!-- Flash variants (rama 50): anonymous author, and a capsule still sealed -->
+              @if (entry.anonymousAuthor) {
+                <span class="text-xs text-muted-foreground">{{ t('flash.anonymousBadge') }}</span>
+              }
+              @if (entry.capsuleOpensAt && isSealed(entry.capsuleOpensAt)) {
+                <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <ng-icon hlm name="lucideLock" class="size-3!" aria-hidden="true" />
+                  {{ t('flash.capsuleOpensOn', { date: formatCapsuleDate(entry.capsuleOpensAt) }) }}
+                </span>
+              }
               <app-question-type-chip [type]="entry.type" />
               <!-- Who wrote it, and how your guess went (rama 36); who launched a flash -->
               @if (entry.flashId != null && entry.authorUsername) {
@@ -132,7 +142,13 @@
                     <span>· {{ entry.flashId != null ? t('flash.launchedBy', { name: author.username }) : t('history.writtenBy', { name: author.username }) }}</span>
                   }
                 </div>
-                @if (!selectedResult()!.locked) {
+                @if (selectedResult()!.sealed && !selectedResult()!.locked) {
+                  <!-- A sealed time capsule (rama 50): nobody sees its results yet -->
+                  <p class="flex items-center justify-center gap-1.5 py-2 text-center text-sm text-muted-foreground text-balance">
+                    <ng-icon hlm name="lucideLock" aria-hidden="true" />
+                    {{ t('flash.sealedHistory', { date: formatCapsuleDate(selectedResult()!.capsuleOpensAt!) }) }}
+                  </p>
+                } @else if (!selectedResult()!.locked) {
                   <app-results
                     [question]="syntheticQuestion(selectedResult()!)"
                     [result]="selectedResult()!"
