@@ -15,7 +15,7 @@ import { I18nService } from '../i18n/i18n.service';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, HlmToasterImports, TopLayerDirective, MemberCardComponent],
   template: `
-<div class="flex flex-col min-h-screen">
+<div class="flex flex-col min-h-svh">
       <app-header></app-header>
 
       <main class="grow">
