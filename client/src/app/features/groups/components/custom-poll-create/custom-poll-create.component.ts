@@ -25,6 +25,9 @@ export class CustomPollCreateComponent {
   public readonly minSelections = model(1);
   public readonly maxSelections = model(1);
   public readonly allowOther = model(false);
+  // Which part to render (rama 50): the options stay in view, the settings fold under
+  // "Más opciones".
+  public readonly part = input<'all' | 'options' | 'settings'>('all');
   protected readonly t = inject(I18nService).t;
 
   protected readonly canAddOption = computed(() => this.options().length < MAX_OPTIONS);

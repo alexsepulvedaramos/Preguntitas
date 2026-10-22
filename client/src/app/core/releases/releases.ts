@@ -27,22 +27,35 @@ export const RELEASES: readonly Release[] = [
     version: '1.30.0',
     date: '2026-10-21',
     title: {
-      es: 'Flash anónimas, cápsulas del tiempo y +24 h',
-      en: 'Anonymous flashes, time capsules and +24 h',
-      de: 'Anonyme Blitzfragen, Zeitkapseln und +24 Std.',
+      es: 'Extras para tus flash',
+      en: 'Extras for your flashes',
+      de: 'Extras für deine Blitzfragen',
     },
     items: [
       {
         glyph: 'anonymous',
         title: {
-          es: 'Pregunta flash anónima',
-          en: 'Anonymous flash question',
-          de: 'Anonyme Blitzfrage',
+          es: 'Autor anónimo',
+          en: 'Anonymous author',
+          de: 'Anonymer Autor',
         },
         text: {
-          es: 'Al lanzar una flash puedes hacerla anónima por 50 🪙 más: nadie sabrá quién la lanzó, quién ha votado ni qué ha votado cada uno. Solo se ven los resultados. Para las preguntas que nadie contestaría en público.',
-          en: 'When you launch a flash you can make it anonymous for 50 more 🪙: nobody will know who launched it, who has voted or what anyone voted. Only the results show. For the questions nobody would answer in public.',
-          de: 'Beim Starten einer Blitzfrage kannst du sie für 50 🪙 mehr anonym machen: Niemand erfährt, wer sie gestartet hat, wer abgestimmt hat oder wer was gewählt hat. Nur die Ergebnisse sind zu sehen. Für die Fragen, die niemand öffentlich beantworten würde.',
+          es: 'Al lanzar una flash, por 50 🪙 más nadie sabrá que la has lanzado tú.',
+          en: 'When you launch a flash, for 50 more 🪙 nobody will know it was you.',
+          de: 'Beim Starten einer Blitzfrage erfährt für 50 🪙 mehr niemand, dass sie von dir ist.',
+        },
+      },
+      {
+        glyph: 'secretVotes',
+        title: {
+          es: 'Votos anónimos',
+          en: 'Anonymous votes',
+          de: 'Anonyme Stimmen',
+        },
+        text: {
+          es: 'Por 50 🪙 más, nadie verá quién votó qué ni quién ha votado: solo los resultados. Para las preguntas que nadie contestaría en público.',
+          en: 'For 50 more 🪙, nobody sees who voted what or who has voted: only the results. For the questions nobody would answer in public.',
+          de: 'Für 50 🪙 mehr sieht niemand, wer was gewählt oder wer abgestimmt hat – nur die Ergebnisse. Für die Fragen, die niemand öffentlich beantworten würde.',
         },
       },
       {
@@ -69,6 +82,19 @@ export const RELEASES: readonly Release[] = [
           es: 'Cualquiera puede ampliar una pregunta flash abierta 24 h más por 30 🪙, una vez por pregunta. También sirve para alargar un duelo flash.',
           en: 'Anyone can keep an open flash question going 24 h longer for 30 🪙, once per question. It works on flash duels too.',
           de: 'Alle können eine offene Blitzfrage für 30 🪙 um 24 Std. verlängern, einmal pro Frage. Das geht auch bei Blitz-Duellen.',
+        },
+      },
+      {
+        glyph: 'write',
+        title: {
+          es: 'Crear preguntas, más sencillo',
+          en: 'Simpler question form',
+          de: 'Fragen erstellen, einfacher',
+        },
+        text: {
+          es: 'Las opciones secundarias, como «Nadie» o excluir a alguien, se pliegan en «Más opciones». Y las flash recuerdan que no cuentan para la racha: vótalas solo si quieres ver qué han votado los demás.',
+          en: 'Secondary settings, like “Nobody” or excluding someone, fold under “More options”. And flashes remind you they don’t count for your streak: vote only if you want to see what the others voted.',
+          de: 'Nebeneinstellungen wie „Niemand“ oder jemanden ausschließen sind jetzt unter „Weitere Optionen“ eingeklappt. Und Blitzfragen erinnern daran, dass sie nicht für die Serie zählen: Stimm nur ab, wenn du sehen willst, was die anderen gewählt haben.',
         },
       },
     ],

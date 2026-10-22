@@ -83,25 +83,27 @@ export interface DailyStatus {
 export interface FlashState {
     id: number;
     question: QuestionToVote;
-    launchedBy: Voter | null; // public: the buyer is the author — null on an anonymous flash
+    launchedBy: Voter | null; // public: the buyer is the author — null with anonymousAuthor
     activatedAt: string;
     closesAt: string; // ISO UTC, 24 h after launch (48 h once extended)
     userHasVoted: boolean;
     results: QuestionResult | null; // present when userHasVoted, unless it's a sealed capsule
     voteCount: number;
-    voterIds: number[]; // always empty on an anonymous flash
+    voterIds: number[]; // always empty with anonymousVotes
     canChangeVote: boolean; // you voted and haven't changed it yet (rama 43)
     // Flash variants (rama 50, §17.15 item 6)
-    isAnonymous: boolean; // nobody is told who launched it, who voted or who voted what
+    anonymousAuthor: boolean; // nobody is told who launched it
+    anonymousVotes: boolean; // nobody is told who has voted or who voted what
     capsuleOpensAt: string | null; // time capsule: when its results open
     sealed: boolean; // a capsule whose results are still hidden from everyone
     extended: boolean; // +24 h already bought (once per flash)
-    extendedBy: Voter | null; // null on an anonymous flash
+    extendedBy: Voter | null; // null on an anonymous (author or votes) flash
 }
 
 // Launch add-ons (rama 50): paid in coins on top of the flash, combinable.
 export interface FlashOptions {
-    anonymous: boolean;
+    anonymousAuthor: boolean;
+    anonymousVotes: boolean;
     capsuleOpensOn: string | null; // local YYYY-MM-DD, 1 day to 1 year ahead
 }
 

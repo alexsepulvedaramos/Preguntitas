@@ -23,9 +23,13 @@ public class FlashEntry
     public int LaunchedByUserId { get; set; }
     public User LaunchedBy { get; set; } = null!;
 
-    // Anonymous flash (rama 50, §17.15 item 6): nobody is told who launched it, who has voted
-    // or who voted what; only the tallies are shown.
-    public bool IsAnonymous { get; set; }
+    // Anonymous author (rama 50, §17.15 item 6): nobody is told who launched it. Its votes stay
+    // public unless AnonymousVotes is on too.
+    public bool AnonymousAuthor { get; set; }
+
+    // Anonymous votes (rama 50): nobody is told who has voted or who voted what; only the
+    // tallies and the vote count are shown.
+    public bool AnonymousVotes { get; set; }
 
     // Time capsule (rama 50): the results stay hidden from everyone until this instant (1 day
     // to 1 year after launch). null on a normal flash.

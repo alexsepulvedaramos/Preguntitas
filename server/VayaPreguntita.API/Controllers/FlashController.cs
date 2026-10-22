@@ -32,13 +32,15 @@ public class FlashController(
     // Buys and launches a flash question at once (CoinRewards.FlashQuestionPrice). 409 when coins are short or the
     // member already launched one today in this group. ?useOwned=true launches it with one from
     // the inventory instead of paying (rama 45); 409 when none is left. Add-ons (rama 50), paid
-    // in coins on top: ?anonymous=true and ?capsuleOpensOn=yyyy-MM-dd (1 day to 1 year ahead).
+    // in coins on top: ?anonymousAuthor=true, ?anonymousVotes=true and ?capsuleOpensOn=yyyy-MM-dd
+    // (1 day to 1 year ahead).
     [HttpPost]
     public async Task<ActionResult<LaunchFlashResponseDto>> Launch(
         int groupId,
         CreateQuestionDto dto,
         [FromQuery] bool useOwned = false,
-        [FromQuery] bool anonymous = false,
+        [FromQuery] bool anonymousAuthor = false,
+        [FromQuery] bool anonymousVotes = false,
         [FromQuery] DateOnly? capsuleOpensOn = null
     )
     {
@@ -48,7 +50,7 @@ public class FlashController(
             return Forbid();
 
         var (result, response) = await flashService.LaunchAsync(
-            groupId, userId, dto, useOwned, new FlashOptions(anonymous, capsuleOpensOn));
+            groupId, userId, dto, useOwned, new FlashOptions(anonymousAuthor, anonymousVotes, capsuleOpensOn));
         return result == FlashResult.Success ? Ok(response) : Error(result);
     }
 

@@ -26,7 +26,9 @@ public static class CoinRewards
 
     // Flash variants (rama 50, §17.15 item 6): add-ons on top of the flash, combinable and
     // always paid in coins (an owned flash covers only the base price), plus the +24 h extension.
-    public const int FlashAnonymousPrice = 50;
+    // Hiding the author never costs less than hiding the votes, so trolling isn't the cheap option.
+    public const int FlashAnonymousAuthorPrice = 50;
+    public const int FlashAnonymousVotesPrice = 50;
     public const int FlashCapsulePrice = 50;
     public const int FlashExtensionPrice = 30;
 

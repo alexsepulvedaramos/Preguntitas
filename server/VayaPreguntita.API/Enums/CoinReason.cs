@@ -41,7 +41,8 @@ public enum CoinReason
     Nudge = 17,
 
     // Flash variants (rama 50); RefId = the flash
-    FlashAnonymous = 18,
+    FlashAnonymousVotes = 18,
     FlashCapsule = 19,
     FlashExtension = 20,
+    FlashAnonymousAuthor = 21,
 }

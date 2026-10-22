@@ -44,8 +44,9 @@ export interface QuestionResult {
     // carries what's needed to vote it late from the history.
     locked?: boolean;
     lateVoteQuestion?: QuestionToVote | null;
-    // Anonymous flash (rama 50): no voters and no names on others' answers (yours keeps your id).
-    anonymous?: boolean;
+    // Flash with anonymous votes (rama 50): no voters and no names on others' answers (yours
+    // keeps your id).
+    anonymousVotes?: boolean;
     // Time capsule (rama 50): sealed until capsuleOpensAt, then results stay empty for everyone.
     capsuleOpensAt?: string | null;
     sealed?: boolean;

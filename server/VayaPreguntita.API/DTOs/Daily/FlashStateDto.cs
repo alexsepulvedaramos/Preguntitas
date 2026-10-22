@@ -31,7 +31,10 @@ public class FlashStateDto
     public bool CanChangeVote { get; set; }
 
     // Flash variants (rama 50, §17.15 item 6).
-    public bool IsAnonymous { get; set; }
+    // launchedBy is null with AnonymousAuthor; VoterIds is empty and the results name no
+    // voters with AnonymousVotes.
+    public bool AnonymousAuthor { get; set; }
+    public bool AnonymousVotes { get; set; }
 
     // Time capsule: when its results open (null on a normal flash); Sealed until then.
     public DateTime? CapsuleOpensAt { get; set; }
@@ -50,7 +53,7 @@ public class ExtendFlashResponseDto
 }
 
 // Launch add-ons (rama 50), sent as query parameters next to ?useOwned.
-public record FlashOptions(bool Anonymous = false, DateOnly? CapsuleOpensOn = null);
+public record FlashOptions(bool AnonymousAuthor = false, bool AnonymousVotes = false, DateOnly? CapsuleOpensOn = null);
 
 // POST flash: the new flash and the buyer's balance after paying.
 public class LaunchFlashResponseDto

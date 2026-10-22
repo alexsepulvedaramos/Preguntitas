@@ -45,11 +45,14 @@
 
   @switch (type()) {
     @case (QuestionType.Superlative) {
-      <app-superlative-create
-        [members]="members()"
-        [(allowNobody)]="allowNobody"
-        [(blacklistedUserIds)]="blacklistedUserIds"
-      />
+      <!-- Secondary settings fold away (rama 50) -->
+      <app-fold-section [title]="t('createQuestion.moreOptions')" [summary]="moreOptionsSummary()">
+        <app-superlative-create
+          [members]="members()"
+          [(allowNobody)]="allowNobody"
+          [(blacklistedUserIds)]="blacklistedUserIds"
+        />
+      </app-fold-section>
     }
     @case (QuestionType.Deathmatch) {
       <app-deathmatch-create [members]="members()" [(teams)]="teams" [showErrors]="typeTouched()" />
@@ -66,11 +69,21 @@
     }
     @case (QuestionType.CustomPoll) {
       <app-custom-poll-create
+        part="options"
         [(options)]="options"
         [(minSelections)]="minSelections"
         [(maxSelections)]="maxSelections"
         [(allowOther)]="allowOther"
       />
+      <app-fold-section [title]="t('createQuestion.moreOptions')" [summary]="moreOptionsSummary()">
+        <app-custom-poll-create
+          part="settings"
+          [(options)]="options"
+          [(minSelections)]="minSelections"
+          [(maxSelections)]="maxSelections"
+          [(allowOther)]="allowOther"
+        />
+      </app-fold-section>
     }
     @case (QuestionType.OpenText) {
       <p class="text-sm text-muted-foreground">
@@ -144,7 +157,12 @@
       <div class="flex flex-col gap-1.5" [class]="flashOnly() ? '' : 'mt-2 border-t border-border pt-3'">
         <!-- Anonymous and time-capsule add-ons (rama 50), in the form opened from "Lanzar flash" -->
         @if (flashOnly()) {
-          <app-flash-options class="mb-2" [(anonymous)]="anonymous" [(capsuleOpensOn)]="capsuleOpensOn" />
+          <app-flash-options
+            class="mb-2"
+            [(anonymousAuthor)]="anonymousAuthor"
+            [(anonymousVotes)]="anonymousVotes"
+            [(capsuleOpensOn)]="capsuleOpensOn"
+          />
         }
         <hlm-alert-dialog #flashDlg="hlmAlertDialog">
           <button
@@ -173,12 +191,18 @@
                 </h3>
                 <p hlmAlertDialogDescription>{{ t('flash.confirmText') }}</p>
               </hlm-alert-dialog-header>
-              @if (anonymous() || capsuleOpensOn()) {
+              @if (anonymousAuthor() || anonymousVotes() || capsuleOpensOn()) {
                 <ul class="flex flex-col gap-1.5 text-sm text-foreground">
-                  @if (anonymous()) {
+                  @if (anonymousAuthor()) {
                     <li class="flex items-center gap-2">
                       <app-glyph name="anonymous" size="xs" />
-                      {{ t('flash.confirmAnonymous') }}
+                      {{ t('flash.confirmAnonymousAuthor') }}
+                    </li>
+                  }
+                  @if (anonymousVotes()) {
+                    <li class="flex items-center gap-2">
+                      <app-glyph name="secretVotes" size="xs" />
+                      {{ t('flash.confirmAnonymousVotes') }}
                     </li>
                   }
                   @if (capsuleOpensOn()) {
@@ -205,7 +229,7 @@
         <p class="text-center text-xs text-muted-foreground">
           @if (flashMissing() > 0) {
             <app-coin-text [text]="t('flash.missing', { count: flashMissing() })" />
-          } @else {
+          } @else if (!flashOnly()) {
             {{ t('flash.sendNowHint') }}
           }
         </p>

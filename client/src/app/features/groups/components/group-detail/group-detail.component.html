@@ -353,8 +353,8 @@
 
         <app-countdown [target]="flash.closesAt" [line]="true" (reachedZero)="refresh()">
           <app-flash-extend [groupId]="numericGroupId()" [flash]="flash" (extended)="onFlashVoted($event)" />
-          <!-- An anonymous flash shows no one's name, not even who has voted (rama 50) -->
-          @if (flash.isAnonymous) {
+          <!-- Anonymous votes show no one's name, not even who has voted (rama 50) -->
+          @if (flash.anonymousVotes) {
             <span class="text-xs text-muted-foreground">{{ t('flash.voteCount', { count: flash.voteCount }) }}</span>
           } @else {
             <app-today-voters
@@ -396,6 +396,16 @@
             (changed)="onVoteChanged($event)"
           />
         } @else {
+          <!-- Nobody has to answer a flash (rama 50): it never counts for the streak -->
+          <ul class="flex flex-col gap-1 text-xs text-muted-foreground">
+            <li>{{ t('flash.noStreakNote') }}</li>
+            @if (flash.anonymousVotes) {
+              <li class="flex items-center gap-1.5 font-medium text-foreground">
+                <app-glyph name="secretVotes" size="xs" bare />
+                {{ t('flash.anonymousVoteNote') }}
+              </li>
+            }
+          </ul>
           <app-vote
             [groupId]="numericGroupId()"
             [question]="flash.question"

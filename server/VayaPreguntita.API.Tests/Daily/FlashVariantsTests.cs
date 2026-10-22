@@ -10,8 +10,9 @@ using VayaPreguntita.API.Tests.Testing;
 
 namespace VayaPreguntita.API.Tests.Daily;
 
-// Flash variants (rama 50, §17.15 item 6): the anonymous and time-capsule add-ons on top of a
-// flash, combinable and paid in coins, and the +24 h extension any member can buy once.
+// Flash variants (rama 50, §17.15 item 6): the anonymous-author, anonymous-votes and
+// time-capsule add-ons on top of a flash, combinable and paid in coins, and the +24 h extension
+// any member can buy once.
 [Collection(PostgresCollection.Name)]
 public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 {
@@ -70,15 +71,16 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     // ── Anonymous ────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnAnonymousFlash_CostsTheAddOn_AndNamesNobody()
+    public async Task AnAnonymousAuthor_IsNeverNamed_ButTheVotesStayPublic()
     {
         var group = await SeedAsync();
 
-        var (result, response) = await LaunchAsync(group, "ana", new FlashOptions(Anonymous: true));
+        var (result, response) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousAuthor: true));
 
         result.Should().Be(FlashResult.Success);
-        response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice - CoinRewards.FlashAnonymousPrice);
-        response.Flash.IsAnonymous.Should().BeTrue();
+        response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice - CoinRewards.FlashAnonymousAuthorPrice);
+        response.Flash.AnonymousAuthor.Should().BeTrue();
+        response.Flash.AnonymousVotes.Should().BeFalse();
         response.Flash.LaunchedBy.Should().BeNull();
         Notifications.Verify(
             n => n.SendFlashQuestionAsync(group.Id, group["ana"], It.IsAny<string>(), It.IsAny<string>(),
@@ -86,10 +88,37 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
             Times.Once
         );
 
+        var flashId = response.Flash.Id;
+        var state = await VoteTextAsync(group, "bea", flashId, "Que es majo");
+        state.VoterIds.Should().Equal(group["bea"]);
+        state.Results!.AnonymousVotes.Should().BeFalse();
+        state.Results.FreeTextResponses.Single().Username.Should().Be("bea");
+
+        Clock.SetLocal(Today.AddDays(1), Morning.AddMinutes(1));
+        await using var db = NewContext();
+        var history = await new QuestionsService(db, TestMapper.Instance, Clock).GetHistoryAsync(group.Id, group["bea"], null);
+        var item = history.Items.Single(i => i.FlashId == flashId);
+        item.AuthorUsername.Should().BeNull();
+        item.AnonymousAuthor.Should().BeTrue();
+        (await NewFlashService(db).GetDetailAsync(group.Id, group["bea"], flashId))!.Author.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task AnonymousVotes_NameNoVoter_ButTheLauncherStaysPublic()
+    {
+        var group = await SeedAsync();
+
+        var (result, response) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousVotes: true));
+
+        result.Should().Be(FlashResult.Success);
+        response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice - CoinRewards.FlashAnonymousVotesPrice);
+        response.Flash.AnonymousVotes.Should().BeTrue();
+        response.Flash.LaunchedBy!.Username.Should().Be("ana");
+
         await using (var db = NewContext())
         {
             var reasons = await db.CoinTransactions.Where(c => c.UserId == group["ana"]).Select(c => c.Reason).ToListAsync();
-            reasons.Should().BeEquivalentTo([CoinReason.FlashQuestion, CoinReason.FlashAnonymous]);
+            reasons.Should().BeEquivalentTo([CoinReason.FlashQuestion, CoinReason.FlashAnonymousVotes]);
         }
 
         var flashId = response.Flash.Id;
@@ -98,7 +127,7 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
 
         state.VoterIds.Should().BeEmpty("nobody may see who has voted");
         state.VoteCount.Should().Be(2);
-        state.Results!.Anonymous.Should().BeTrue();
+        state.Results!.AnonymousVotes.Should().BeTrue();
         var answers = state.Results.FreeTextResponses;
         answers.Should().HaveCount(2);
         answers.Single(a => a.Text == "Que es majo").UserId.Should().Be(0);
@@ -116,10 +145,10 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         {
             var history = await new QuestionsService(db, TestMapper.Instance, Clock).GetHistoryAsync(group.Id, group["bea"], null);
             var item = history.Items.Single(i => i.FlashId == flashId);
-            item.AuthorUsername.Should().BeNull();
-            item.IsAnonymous.Should().BeTrue();
+            item.AuthorUsername.Should().Be("ana");
+            item.AnonymousAuthor.Should().BeFalse();
             var detail = await NewFlashService(db).GetDetailAsync(group.Id, group["bea"], flashId);
-            detail!.Author.Should().BeNull();
+            detail!.Author!.Username.Should().Be("ana");
             detail.FreeTextResponses.Should().OnlyContain(a => a.UserId == 0 || a.UserId == group["bea"]);
         }
     }
@@ -128,7 +157,7 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     public async Task AnAnonymousSuperlative_KeepsTheTallies_ButNoVoters()
     {
         var group = await SeedAsync();
-        var (_, response) = await LaunchAsync(group, "ana", new FlashOptions(Anonymous: true), QuestionType.Superlative);
+        var (_, response) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousVotes: true), QuestionType.Superlative);
 
         await using var db = NewContext();
         var (_, state) = await NewFlashService(db)
@@ -210,22 +239,23 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     }
 
     [Fact]
-    public async Task BothAddOns_Combine_AndAreCheckedBeforeCharging()
+    public async Task AllAddOns_Combine_AndAreCheckedBeforeCharging()
     {
-        var group = await SeedAsync(coins: 150);
-        var both = new FlashOptions(Anonymous: true, CapsuleOpensOn: Today.AddDays(1));
+        var group = await SeedAsync(coins: 200);
+        var all = new FlashOptions(AnonymousAuthor: true, AnonymousVotes: true, CapsuleOpensOn: Today.AddDays(1));
 
-        var (poor, _) = await LaunchAsync(group, "ana", both);
+        var (poor, _) = await LaunchAsync(group, "ana", all);
         poor.Should().Be(FlashResult.NotEnoughCoins);
-        (await CoinsAsync(group, "ana")).Should().Be(150);
+        (await CoinsAsync(group, "ana")).Should().Be(200);
 
         await using (var db = NewContext())
-            await db.Users.Where(u => u.Id == group["ana"]).ExecuteUpdateAsync(s => s.SetProperty(u => u.Coins, 200));
-        var (result, response) = await LaunchAsync(group, "ana", both);
+            await db.Users.Where(u => u.Id == group["ana"]).ExecuteUpdateAsync(s => s.SetProperty(u => u.Coins, 250));
+        var (result, response) = await LaunchAsync(group, "ana", all);
 
         result.Should().Be(FlashResult.Success);
         response!.Balance.Should().Be(0);
-        response.Flash.IsAnonymous.Should().BeTrue();
+        response.Flash.AnonymousAuthor.Should().BeTrue();
+        response.Flash.AnonymousVotes.Should().BeTrue();
         response.Flash.Sealed.Should().BeTrue();
     }
 
@@ -291,7 +321,7 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     public async Task AnAnonymousFlash_HidesWhoExtendedIt()
     {
         var group = await SeedAsync();
-        var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions(Anonymous: true));
+        var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousAuthor: true));
 
         var (_, response) = await ExtendAsync(group, "bea", launched!.Flash.Id);
 

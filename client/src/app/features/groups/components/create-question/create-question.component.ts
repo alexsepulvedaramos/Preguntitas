@@ -14,7 +14,8 @@ import { CreateQuestion, QuestionToVote } from '../../../../core/models/question
 import { LaunchFlashResponse, SelectResponse } from '../../../../core/models/daily.model';
 import {
   EMPTY_INVENTORY,
-  FLASH_ANONYMOUS_PRICE,
+  FLASH_ANONYMOUS_AUTHOR_PRICE,
+  FLASH_ANONYMOUS_VOTES_PRICE,
   FLASH_CAPSULE_PRICE,
   FLASH_QUESTION_PRICE,
 } from '../../../../core/models/coin.model';
@@ -33,6 +34,7 @@ import { ScaleCreateComponent } from '../scale-create/scale-create.component';
 import { CustomPollCreateComponent } from '../custom-poll-create/custom-poll-create.component';
 import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
 import { FlashOptionsComponent } from '../flash-options/flash-options.component';
+import { FoldSectionComponent } from '../fold-section/fold-section.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
@@ -71,6 +73,7 @@ const TEXT_MAX_LENGTH = 200;
     CustomPollCreateComponent,
     DuelNoticeComponent,
     FlashOptionsComponent,
+    FoldSectionComponent,
   ],
   providers: [provideIcons({ lucideZap })],
   templateUrl: './create-question.component.html',
@@ -104,12 +107,35 @@ export class CreateQuestionComponent {
   public readonly savedToPool = output<void>();
   public readonly flashLaunched = output<LaunchFlashResponse>();
 
-  // Flash add-ons (rama 50), offered in the flash-only form: combinable, always paid in coins.
-  protected readonly anonymous = signal(false);
+  // Flash extras (rama 50), offered in the flash-only form: combinable, always paid in coins.
+  protected readonly anonymousAuthor = signal(false);
+  protected readonly anonymousVotes = signal(false);
   protected readonly capsuleOpensOn = signal<string | null>(null);
   protected readonly addOnsPrice = computed(
-    () => (this.anonymous() ? FLASH_ANONYMOUS_PRICE : 0) + (this.capsuleOpensOn() ? FLASH_CAPSULE_PRICE : 0),
+    () =>
+      (this.anonymousAuthor() ? FLASH_ANONYMOUS_AUTHOR_PRICE : 0) +
+      (this.anonymousVotes() ? FLASH_ANONYMOUS_VOTES_PRICE : 0) +
+      (this.capsuleOpensOn() ? FLASH_CAPSULE_PRICE : 0),
   );
+
+  // "Más opciones" (rama 50): only the types with secondary settings get the fold, and its
+  // summary says which are on.
+  protected readonly hasMoreOptions = computed(
+    () => this.type() === QuestionType.Superlative || this.type() === QuestionType.CustomPoll,
+  );
+  protected readonly moreOptionsSummary = computed(() => {
+    const on: string[] = [];
+    if (this.type() === QuestionType.Superlative) {
+      if (this.allowNobody()) on.push(this.t('createQuestion.allowNobodyShort'));
+      if (this.blacklistedUserIds().length)
+        on.push(this.t('createQuestion.excludedCount', { count: this.blacklistedUserIds().length }));
+    } else if (this.type() === QuestionType.CustomPoll) {
+      if (this.minSelections() !== 1 || this.maxSelections() !== 1)
+        on.push(this.t('createQuestion.selectionsShort', { min: this.minSelections(), max: this.maxSelections() }));
+      if (this.allowOther()) on.push(this.t('createQuestion.allowOtherShort'));
+    }
+    return on.join(', ');
+  });
   protected readonly capsuleOpeningLabel = computed(() => {
     const value = this.capsuleOpensOn();
     if (!value) return '';
@@ -279,7 +305,8 @@ export class CreateQuestionComponent {
     this.submit((dto) =>
       this.dailyService
         .launchFlash(this.groupId(), dto, this.ownedFlashes() > 0, {
-          anonymous: this.anonymous(),
+          anonymousAuthor: this.anonymousAuthor(),
+          anonymousVotes: this.anonymousVotes(),
           capsuleOpensOn: this.capsuleOpensOn(),
         })
         .subscribe({

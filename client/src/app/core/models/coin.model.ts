@@ -28,9 +28,10 @@ export enum CoinReason {
   VoteChange = 16,
   Nudge = 17,
   // Flash variants (rama 50)
-  FlashAnonymous = 18,
+  FlashAnonymousVotes = 18,
   FlashCapsule = 19,
   FlashExtension = 20,
+  FlashAnonymousAuthor = 21,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -141,7 +142,9 @@ export const FLASH_QUESTION_PRICE = 100;
 
 // Flash variants (rama 50, §17.15 item 6): combinable add-ons paid in coins on top of the
 // flash, and the +24 h extension any member can buy once per flash.
-export const FLASH_ANONYMOUS_PRICE = 50;
+// Hiding the author never costs less than hiding the votes, so trolling isn't the cheap option.
+export const FLASH_ANONYMOUS_AUTHOR_PRICE = 50;
+export const FLASH_ANONYMOUS_VOTES_PRICE = 50;
 export const FLASH_CAPSULE_PRICE = 50;
 export const FLASH_EXTENSION_PRICE = 30;
 export const FLASH_CAPSULE_MIN_DAYS = 1;

@@ -18,9 +18,9 @@ public class HistoryEntryDto
     // AuthorUsername is then the member who launched it.
     public int? FlashId { get; set; }
 
-    // Flash variants (rama 50): an anonymous flash has no AuthorUsername; a time capsule
+    // Flash variants (rama 50): an anonymous-author flash has no AuthorUsername; a time capsule
     // carries when it opens.
-    public bool IsAnonymous { get; set; }
+    public bool AnonymousAuthor { get; set; }
     public DateTime? CapsuleOpensAt { get; set; }
 }
 

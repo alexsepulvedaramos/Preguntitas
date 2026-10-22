@@ -130,14 +130,14 @@ public class NudgeService(
     }
 
     // Today's open question (the latest activated entry, closing at the next T) or an open flash.
-    // Never an anonymous flash (rama 50): its targets would tell who hasn't voted.
+    // Never a flash with anonymous votes (rama 50): its targets would tell who hasn't voted.
     private async Task<OpenQuestion?> FindOpenQuestionAsync(int groupId, int? flashId)
     {
         if (flashId is int id)
         {
             var nowUtc = DailyClock.UtcNow(clock);
             return await context
-                .FlashEntries.Where(f => f.Id == id && f.GroupId == groupId && f.ClosesAt > nowUtc && !f.IsAnonymous)
+                .FlashEntries.Where(f => f.Id == id && f.GroupId == groupId && f.ClosesAt > nowUtc && !f.AnonymousVotes)
                 .Select(f => new OpenQuestion(f.QuestionId, f.ClosesAt))
                 .FirstOrDefaultAsync();
         }

@@ -222,6 +222,12 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<DateTime>("ActivatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("AnonymousAuthor")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AnonymousVotes")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("CapsuleOpenedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -233,9 +239,6 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsAnonymous")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("LaunchedByUserId")
                         .HasColumnType("integer");

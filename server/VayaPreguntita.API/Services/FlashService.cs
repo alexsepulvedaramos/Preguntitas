@@ -71,8 +71,10 @@ public class FlashService(
 
         // The add-ons are always paid in coins, so check the whole bill before charging.
         var addOns = new List<(CoinReason Reason, int Price)>();
-        if (options.Anonymous)
-            addOns.Add((CoinReason.FlashAnonymous, CoinRewards.FlashAnonymousPrice));
+        if (options.AnonymousAuthor)
+            addOns.Add((CoinReason.FlashAnonymousAuthor, CoinRewards.FlashAnonymousAuthorPrice));
+        if (options.AnonymousVotes)
+            addOns.Add((CoinReason.FlashAnonymousVotes, CoinRewards.FlashAnonymousVotesPrice));
         if (hiddenUntil != null)
             addOns.Add((CoinReason.FlashCapsule, CoinRewards.FlashCapsulePrice));
         var coinsNeeded = addOns.Sum(a => a.Price) + (useOwned ? 0 : CoinRewards.FlashQuestionPrice);
@@ -111,7 +113,8 @@ public class FlashService(
             ActivatedAt = nowUtc,
             ClosesAt = nowUtc + OpenFor,
             LocalDate = today,
-            IsAnonymous = options.Anonymous,
+            AnonymousAuthor = options.AnonymousAuthor,
+            AnonymousVotes = options.AnonymousVotes,
             ResultsHiddenUntil = hiddenUntil,
         };
         context.FlashEntries.Add(flash);
@@ -160,9 +163,9 @@ public class FlashService(
             launcherName,
             question.Text,
             duelists is (int first, int second)
-                ? new DuelPush(userId, launcherName, first, second, Anonymous: flash.IsAnonymous)
+                ? new DuelPush(userId, launcherName, first, second, Anonymous: flash.AnonymousAuthor)
                 : null,
-            flash.IsAnonymous
+            flash.AnonymousAuthor
         );
 
         return (
@@ -298,7 +301,7 @@ public class FlashService(
                 flash.GroupId,
                 flash.Id,
                 flash.Group.Name,
-                flash.IsAnonymous ? null : flash.LaunchedBy.Username,
+                flash.AnonymousAuthor ? null : flash.LaunchedBy.Username,
                 flash.LocalDate,
                 flash.Question.Text
             );
@@ -337,8 +340,8 @@ public class FlashService(
 
         var nowUtc = DailyClock.UtcNow(clock);
         var result = await CalculateResultsAsync(flash.Question);
-        result.Author = ToVoter(flash.LaunchedBy);
-        if (flash.IsAnonymous)
+        result.Author = flash.AnonymousAuthor ? null : ToVoter(flash.LaunchedBy);
+        if (flash.AnonymousVotes)
             ResultsBuilder.Anonymize(result, userId);
         result.CapsuleOpensAt = flash.ResultsHiddenUntil;
 
@@ -401,7 +404,7 @@ public class FlashService(
             if (hasVoted && !isSealed)
             {
                 results = await CalculateResultsAsync(flash.Question);
-                if (flash.IsAnonymous)
+                if (flash.AnonymousVotes)
                     ResultsBuilder.Anonymize(results, userId);
             }
 
@@ -410,20 +413,24 @@ public class FlashService(
                 {
                     Id = flash.Id,
                     Question = mapper.Map<QuestionToVoteDto>(flash.Question),
-                    // An anonymous flash names nobody: not who launched it, extended it or voted.
-                    LaunchedBy = flash.IsAnonymous ? null : ToVoter(flash.LaunchedBy),
+                    // An anonymous author is never named; anonymous votes name no voter.
+                    LaunchedBy = flash.AnonymousAuthor ? null : ToVoter(flash.LaunchedBy),
                     ActivatedAt = flash.ActivatedAt,
                     ClosesAt = flash.ClosesAt,
                     UserHasVoted = hasVoted,
                     Results = results,
                     VoteCount = voterIds.Count,
-                    VoterIds = flash.IsAnonymous ? [] : voterIds,
+                    VoterIds = flash.AnonymousVotes ? [] : voterIds,
                     CanChangeVote = hasVoted && !changedQuestionIds.Contains(flash.QuestionId),
-                    IsAnonymous = flash.IsAnonymous,
+                    AnonymousAuthor = flash.AnonymousAuthor,
+                    AnonymousVotes = flash.AnonymousVotes,
                     CapsuleOpensAt = flash.ResultsHiddenUntil,
                     Sealed = isSealed,
                     Extended = flash.ExtendedByUserId != null,
-                    ExtendedBy = flash.IsAnonymous || flash.ExtendedBy == null ? null : ToVoter(flash.ExtendedBy),
+                    // On an anonymous flash the extender isn't named either (it may be its author).
+                    ExtendedBy = flash.AnonymousAuthor || flash.AnonymousVotes || flash.ExtendedBy == null
+                        ? null
+                        : ToVoter(flash.ExtendedBy),
                 }
             );
         }

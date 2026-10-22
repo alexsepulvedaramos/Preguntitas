@@ -109,7 +109,8 @@ export const GLYPHS = {
   nudge: { icon: 'lucideBellRing', tone: 'lime' },
   reaction: { icon: 'lucideSmilePlus', tone: 'sand' },
   // Flash variants (rama 50)
-  anonymous: { icon: 'lucideEyeOff', tone: 'honey' },
+  anonymous: { icon: 'lucideVenetianMask', tone: 'honey' },
+  secretVotes: { icon: 'lucideEyeOff', tone: 'honey' },
   capsule: { icon: 'lucideHourglass', tone: 'honey' },
   extend: { icon: 'lucideClockPlus', tone: 'honey' },
   // Release notes

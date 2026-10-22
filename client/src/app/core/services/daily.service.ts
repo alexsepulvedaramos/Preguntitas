@@ -93,11 +93,12 @@ export class DailyService {
         groupId: number,
         dto: CreateQuestion,
         useOwned = false,
-        options: FlashOptions = { anonymous: false, capsuleOpensOn: null },
+        options: FlashOptions = { anonymousAuthor: false, anonymousVotes: false, capsuleOpensOn: null },
     ): Observable<LaunchFlashResponse> {
         const params: Record<string, string | boolean> = {};
         if (useOwned) params['useOwned'] = true;
-        if (options.anonymous) params['anonymous'] = true;
+        if (options.anonymousAuthor) params['anonymousAuthor'] = true;
+        if (options.anonymousVotes) params['anonymousVotes'] = true;
         if (options.capsuleOpensOn) params['capsuleOpensOn'] = options.capsuleOpensOn;
         return this.http.post<LaunchFlashResponse>(`${this.baseUrl}/${groupId}/flash`, dto, { params });
     }

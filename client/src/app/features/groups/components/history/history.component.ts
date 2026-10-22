@@ -148,7 +148,7 @@ export class HistoryComponent implements OnInit {
           authorUsername: result.author?.username ?? null,
           myGuessCorrect: null,
           flashId,
-          isAnonymous: result.anonymous ?? false,
+          anonymousAuthor: result.author == null,
           capsuleOpensAt: result.capsuleOpensAt ?? null,
         };
         this.entries.update((prev) => [entry, ...prev]);

@@ -153,7 +153,8 @@ describe('GroupDetailComponent live refresh', () => {
     voteCount: userHasVoted ? 1 : 0,
     voterIds: [],
     canChangeVote: false,
-    isAnonymous: false,
+    anonymousAuthor: false,
+    anonymousVotes: false,
     capsuleOpensAt: null as string | null,
     sealed: false,
     extended: false,
@@ -210,11 +211,17 @@ describe('GroupDetailComponent live refresh', () => {
   };
 
   it('an anonymous flash names nobody and lists no voters', () => {
-    const page = showFlash({ ...flash(1), launchedBy: null, isAnonymous: true, voteCount: 2 });
+    const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true, anonymousVotes: true, voteCount: 2 });
 
     expect(page.querySelector('app-today-voters')).toBeNull();
     expect(page.querySelector('app-flash-extend')).not.toBeNull();
     expect(page.textContent).not.toContain('ana');
+  });
+
+  it('anonymous author alone keeps the voters row', () => {
+    const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true });
+
+    expect(page.querySelector('app-today-voters')).not.toBeNull();
   });
 
   it('a sealed capsule you voted shows no results and no vote form', () => {

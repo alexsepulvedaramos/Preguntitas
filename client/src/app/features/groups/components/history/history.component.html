@@ -80,8 +80,8 @@
                   {{ t('flash.badge') }}
                 </span>
               }
-              <!-- Flash variants (rama 50): anonymous, and a capsule still sealed -->
-              @if (entry.isAnonymous) {
+              <!-- Flash variants (rama 50): anonymous author, and a capsule still sealed -->
+              @if (entry.anonymousAuthor) {
                 <span class="text-xs text-muted-foreground">{{ t('flash.anonymousBadge') }}</span>
               }
               @if (entry.capsuleOpensAt && isSealed(entry.capsuleOpensAt)) {

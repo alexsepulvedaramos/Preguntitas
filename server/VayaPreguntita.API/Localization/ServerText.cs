@@ -488,7 +488,7 @@ public static class ServerText
             $"{launcher} asks: {text}",
             $"{launcher} fragt: {text}");
 
-        // Anonymous flash (rama 50): the launcher is never named.
+        // Anonymous-author flash (rama 50): the launcher is never named.
         public static string FlashQuestionAnonymousBody(string lang, string text) => Pick(lang,
             $"Pregunta anónima: {text}",
             $"Anonymous question: {text}",
