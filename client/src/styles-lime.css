@@ -538,8 +538,25 @@
     @apply border-border outline-ring/60 focus-visible:outline-2 focus-visible:outline-offset-2;
   }
 
+  /* The page scrollbar's space is always reserved, so going from a short page to a long one
+     (or content loading in) doesn't shift everything sideways on desktop. No double-tap zoom. */
+  html {
+    scrollbar-gutter: stable;
+    touch-action: manipulation;
+  }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground;
+  }
+
+  /* Decorations bleed past their box on purpose (the streak frames' rays and spinning sheen,
+     avatars that stick out of bars). Near the screen edge that bleed — changing as it spins —
+     made the page wider than the screen: a sideways scroll on phones and a flickering
+     scrollbar on desktop. `clip` (not `hidden`) keeps sticky headers working and leaves
+     vertical overflow alone. */
+  app-root {
+    display: block;
+    overflow-x: clip;
   }
 
   /* Slim, rounded scrollbars that sit inside the content (so they don't clash with

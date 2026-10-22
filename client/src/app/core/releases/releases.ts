@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.29.1',
+    date: '2026-10-22',
+    title: {
+      es: 'Una pantalla que no se mueve',
+      en: 'A screen that stays put',
+      de: 'Ein Bildschirm, der stillhält',
+    },
+    items: [
+      {
+        glyph: 'phone',
+        title: {
+          es: 'Adiós a los saltos y desplazamientos raros',
+          en: 'No more jumps or odd scrolling',
+          de: 'Schluss mit Sprüngen und seltsamem Scrollen',
+        },
+        text: {
+          es: 'En el ordenador la pantalla daba pequeños saltos y en el móvil el contenido a veces salía descentrado o se podía arrastrar hacia los lados. Ahora todo se queda en su sitio. Además, la app ya no hace zoom al pellizcar ni al tocar dos veces.',
+          en: 'On computers the screen gave small jumps, and on phones the content sometimes sat off-centre or could be dragged sideways. Now everything stays in place. The app also no longer zooms when you pinch or double-tap.',
+          de: 'Am Computer machte der Bildschirm kleine Sprünge, und am Handy war der Inhalt manchmal verrutscht oder ließ sich zur Seite ziehen. Jetzt bleibt alles an seinem Platz. Außerdem zoomt die App nicht mehr beim Aufziehen mit zwei Fingern oder beim Doppeltippen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.29.0',
     date: '2026-10-21',
     title: {
