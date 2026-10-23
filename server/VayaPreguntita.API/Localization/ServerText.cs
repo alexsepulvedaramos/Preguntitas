@@ -438,6 +438,11 @@ public static class ServerText
         "This flash question has already been extended.",
         "Diese Blitzfrage wurde schon verlängert.");
 
+    public static string FlashExtendOwnOnly => Pick(
+        "Solo quien lanzó la pregunta flash puede ampliarla.",
+        "Only whoever launched the flash question can extend it.",
+        "Nur wer die Blitzfrage gestartet hat, kann sie verlängern.");
+
     public static string MonthlySummaryNotFound => Pick(
         "No hay resumen de ese mes.",
         "There's no summary for that month.",

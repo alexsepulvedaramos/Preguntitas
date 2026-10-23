@@ -111,7 +111,7 @@ export const GLYPHS = {
   // Flash variants (rama 50)
   anonymous: { icon: 'lucideVenetianMask', tone: 'honey' },
   secretVotes: { icon: 'lucideEyeOff', tone: 'honey' },
-  capsule: { icon: 'lucideHourglass', tone: 'honey' },
+  capsule: { icon: 'lucideHourglass', tone: 'frost' },
   extend: { icon: 'lucideClockPlus', tone: 'honey' },
   // Release notes
   sparkles: { icon: 'lucideSparkles', tone: 'lime' },

@@ -159,6 +159,7 @@ describe('GroupDetailComponent live refresh', () => {
     sealed: false,
     extended: false,
     extendedBy: null,
+    isMine: false,
   });
 
   const flushWithFlashes = (status: 'voting' | 'results', flashes: unknown[]) => {
@@ -214,7 +215,8 @@ describe('GroupDetailComponent live refresh', () => {
     const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true, anonymousVotes: true, voteCount: 2 });
 
     expect(page.querySelector('app-today-voters')).toBeNull();
-    expect(page.querySelector('app-flash-extend')).not.toBeNull();
+    // Not yours and not extended: no «+24 h» (only its author can extend it)
+    expect(page.querySelector('app-flash-extend')).toBeNull();
     expect(page.textContent).not.toContain('ana');
   });
 

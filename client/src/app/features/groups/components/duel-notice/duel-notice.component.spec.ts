@@ -37,9 +37,7 @@ describe('DuelNoticeComponent', () => {
   });
 
   it('tells you who you are challenging when you are one side', async () => {
-    expect(await renderText([[2], [1]])).toBe(
-      'Esto iniciará un duelo contra Bea y le avisaremos de que le has retado.',
-    );
+    expect(await renderText([[2], [1]])).toBe('Retas a Bea y le avisamos.');
   });
 
   it('names both sides when you put two others to fight', async () => {

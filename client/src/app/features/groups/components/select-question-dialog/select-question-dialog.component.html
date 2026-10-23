@@ -3,19 +3,21 @@
     #triggerBtn
     hlmDialogTrigger
     hlmBtn
-    [variant]="flash() ? 'outline' : 'default'"
+    [variant]="isSelector() && pendingQuestion() ? 'outline' : 'default'"
     [class]="
-      'w-fit gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
+      (fill() ? 'w-full' : 'w-fit') + ' gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
       (flash()
-        ? 'border-flash-border bg-flash/10 text-foreground hover:bg-flash/20'
+        ? 'bg-flash text-flash-foreground hover:bg-flash/85'
         : isSelector()
-          ? 'bg-accent text-accent-foreground hover:bg-accent-hover'
+          ? pendingQuestion()
+            ? ''
+            : 'bg-accent text-accent-foreground hover:bg-accent-hover'
           : 'bg-primary text-primary-foreground hover:bg-primary-hover')
     "
     (click)="resetDialog()"
   >
     @if (flash()) {
-      <ng-icon hlm name="lucideZap" class="text-flash-foreground" />
+      <ng-icon hlm name="lucideZap" />
       @if (ownedFlashes() > 0) {
         {{ t('flash.launchOwned', { count: ownedFlashes() }) }}
       } @else {
@@ -64,7 +66,9 @@
           {{ t('picker.teamsText', { text: teamAssignmentItem()?.text ?? '' }) }}
         </p>
       } @else if (step() === 'create') {
-        <p hlmDialogDescription>{{ flash() ? t('flash.launchText') : t('picker.createText') }}</p>
+        @if (flash()) {
+          <p hlmDialogDescription>{{ t('flash.launchText') }}</p>
+        }
       }
     </hlm-dialog-header>
 

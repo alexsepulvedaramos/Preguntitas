@@ -24,6 +24,69 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.31.0',
+    date: '2026-10-23',
+    title: {
+      es: 'Preguntas más limpias',
+      en: 'Cleaner questions',
+      de: 'Aufgeräumtere Fragen',
+    },
+    items: [
+      {
+        glyph: 'question',
+        title: {
+          es: 'Todas las preguntas, en el mismo orden',
+          en: 'Every question in the same order',
+          de: 'Jede Frage in derselben Reihenfolge',
+        },
+        text: {
+          es: 'Arriba, cuánto queda y quién ha votado; luego la pregunta, quién la creó y las respuestas. Las pestañas de arriba muestran la cara de quien lanzó cada flash.',
+          en: 'At the top, time left and who has voted; then the question, who wrote it and the answers. The tabs at the top show the face of whoever launched each flash.',
+          de: 'Oben die verbleibende Zeit und wer abgestimmt hat; dann die Frage, wer sie geschrieben hat, und die Antworten. Die Tabs oben zeigen per Gesicht, von wem jede Blitzfrage kommt.',
+        },
+      },
+      {
+        glyph: 'guess',
+        title: {
+          es: '¿Quién la escribió?, en su propia ventana',
+          en: 'Who wrote it?, in its own window',
+          de: 'Wer war’s?, im eigenen Fenster',
+        },
+        text: {
+          es: 'Tras votar, un botón abre el juego con la lista de la gente, cómoda aunque seáis muchos. Y «Cambiar voto» también se abre en una ventana.',
+          en: 'After voting, a button opens the game with a list of everyone, easy to use even in a big group. “Change vote” opens in a window too.',
+          de: 'Nach der Abstimmung öffnet ein Button das Spiel mit einer Liste aller, auch in großen Gruppen bequem. Und „Stimme ändern“ öffnet sich ebenfalls in einem Fenster.',
+        },
+      },
+      {
+        glyph: 'extend',
+        title: {
+          es: '+24 h, solo para quien lanzó la flash',
+          en: '+24 h, only for whoever launched the flash',
+          de: '+24 Std., nur für die Person, die die Blitzfrage gestartet hat',
+        },
+        text: {
+          es: 'Aparece en sus últimas 6 horas. Si se amplía, el reloj de la pregunta lleva un «+».',
+          en: 'It shows up in its last 6 hours. Once extended, the question’s clock carries a “+”.',
+          de: 'Er erscheint in den letzten 6 Stunden. Nach der Verlängerung trägt die Uhr der Frage ein „+“.',
+        },
+      },
+      {
+        glyph: 'flash',
+        title: {
+          es: 'El color de las flash sigue a tu tema',
+          en: 'Flash colour follows your theme',
+          de: 'Die Blitzfarbe folgt deinem Thema',
+        },
+        text: {
+          es: '«Lanzar flash» es ahora un botón de color, a la par que «Sugerir pregunta», y cambia con el tema de la app. Las monedas tienen una sombra suave para verse bien sobre cualquier fondo.',
+          en: '“Launch flash” is now a coloured button, on a par with “Suggest a question”, and changes with the app theme. Coins have a soft shadow so they stand out on any background.',
+          de: '„Blitzfrage starten“ ist jetzt ein farbiger Button wie „Frage vorschlagen“ und wechselt mit dem App-Thema. Münzen haben einen sanften Schatten und heben sich von jedem Hintergrund ab.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.30.0',
     date: '2026-10-22',
     title: {

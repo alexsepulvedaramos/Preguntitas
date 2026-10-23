@@ -270,20 +270,30 @@
           @for (card of deck(); track card.key; let i = $index) {
             <button
               type="button"
-              class="relative inline-flex h-7 max-w-[9rem] shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              class="relative inline-flex h-8 shrink-0 items-center gap-1 rounded-full px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               [class]="deckTabClass(card, i === activeIndex())"
               [attr.aria-current]="i === activeIndex() ? 'true' : null"
               [attr.aria-label]="deckTabLabel(card)"
               (click)="goTo(card.key)"
             >
+              <!-- Faces, not names: five or six still fit on a phone -->
               @if (card.flash; as flash) {
-                <app-glyph name="flash" size="xs" untinted />
-                <span class="truncate">{{ flash.launchedBy?.username ?? t('flash.anonymousTab') }}</span>
+                <ng-icon hlm name="lucideZap" class="size-3.5!" />
+                @if (flash.launchedBy; as launcher) {
+                  <app-user-avatar
+                    [avatarUrl]="launcher.avatarUrl"
+                    [username]="launcher.username"
+                    [frameColor]="launcher.frameColor"
+                    size="xs"
+                  />
+                } @else {
+                  <app-glyph name="anonymous" size="xs" bare />
+                }
               } @else {
                 {{ t('flash.dailyTab') }}
               }
               @if (card.pending) {
-                <span class="absolute -right-0.5 -top-0.5 size-2.5 animate-pulse rounded-full bg-destructive ring-2 ring-background"></span>
+                <span class="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-accent ring-2 ring-card" aria-hidden="true"></span>
               }
             </button>
           }
@@ -315,45 +325,32 @@
       }
     }
 
+    <!-- Every question card has one layout (rama 50 review): time left and who has voted on
+         top, the title, who wrote it, then the answers. No frame: the tabs tell questions apart. -->
     @for (flash of activeFlashList(); track flash.id) {
-      <section
-        class="flex flex-col gap-4 rounded-default border-2 border-flash-border bg-flash/5 p-4 animate-in fade-in slide-in-from-right-4 duration-300"
-      >
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1 rounded-full bg-flash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-flash-foreground">
-            <ng-icon hlm name="lucideZap" class="size-3.5!" />
-            {{ t('flash.badge') }}
-          </span>
-          @if (flash.launchedBy; as launcher) {
-            <app-user-avatar
-              [avatarUrl]="launcher.avatarUrl"
-              [username]="launcher.username"
-              [frameColor]="launcher.frameColor"
-              [look]="groupStreaks.lookFor(launcher.id)"
-              [memberSince]="groupStreaks.joinedAtFor(launcher.id)"
-              size="xs"
-            />
-            <span class="min-w-0 truncate text-xs text-muted-foreground">
-              {{ t('flash.launchedBy', { name: launcher.username }) }}
-            </span>
-          } @else {
-            <span class="inline-flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
-              <app-glyph name="anonymous" size="xs" bare />
-              {{ t('flash.anonymousLaunched') }}
-            </span>
-          }
-        </div>
-
-        @if (flash.capsuleOpensAt) {
-          <p class="flex items-center gap-2 text-xs text-muted-foreground">
-            <app-glyph name="capsule" size="xs" />
-            {{ t('flash.capsuleOpensOn', { date: formatCapsuleDate(flash.capsuleOpensAt) }) }}
-          </p>
+      <section class="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+        <!-- Only what changes how you answer: the tab already says it's a flash, and a capsule
+             explains itself once you've voted -->
+        @if (!flash.userHasVoted || flash.anonymousVotes) {
+          <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            @if (!flash.userHasVoted) {
+              <!-- Nobody has to answer a flash: it never counts for the streak -->
+              <span class="inline-flex items-center gap-1">
+                <ng-icon hlm name="lucideFlame" class="size-3.5!" aria-hidden="true" />
+                {{ t('flash.noStreakNote') }}
+              </span>
+            }
+            @if (flash.anonymousVotes) {
+              <span class="inline-flex items-center gap-1">
+                <app-glyph name="secretVotes" size="xs" bare />
+                {{ flash.userHasVoted ? t('flash.anonymousVotesLabel') : t('flash.anonymousVoteNote') }}
+              </span>
+            }
+          </div>
         }
 
-        <app-countdown [target]="flash.closesAt" [line]="true" (reachedZero)="refresh()">
-          <app-flash-extend [groupId]="numericGroupId()" [flash]="flash" (extended)="onFlashVoted($event)" />
-          <!-- Anonymous votes show no one's name, not even who has voted (rama 50) -->
+        <app-countdown [target]="flash.closesAt" [line]="true" [extended]="flash.extended" (reachedZero)="refresh()">
+          <!-- Anonymous votes show no one's name, not even who has voted -->
           @if (flash.anonymousVotes) {
             <span class="text-xs text-muted-foreground">{{ t('flash.voteCount', { count: flash.voteCount }) }}</span>
           } @else {
@@ -367,26 +364,52 @@
           }
         </app-countdown>
 
-        @if (flash.userHasVoted && flash.sealed) {
+        <div class="flex flex-col gap-2">
           <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
-          <div class="flex items-start gap-3 rounded-default border border-flash-border bg-flash/10 p-3">
+          <div class="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+            @if (flash.launchedBy; as launcher) {
+              <app-user-avatar
+                [avatarUrl]="launcher.avatarUrl"
+                [username]="launcher.username"
+                [frameColor]="launcher.frameColor"
+                [look]="groupStreaks.lookFor(launcher.id)"
+                [memberSince]="groupStreaks.joinedAtFor(launcher.id)"
+                size="xs"
+              />
+              <span class="min-w-0 truncate">{{ t('guess.createdBy', { name: launcher.username }) }}</span>
+            } @else {
+              <app-glyph name="anonymous" size="xs" bare />
+              <span class="min-w-0 truncate">{{ t('flash.anonymousLaunched') }}</span>
+            }
+          </div>
+        </div>
+
+        @if (!flash.userHasVoted) {
+          <app-question-type-chip [type]="flash.question.type" />
+          <app-vote
+            [groupId]="numericGroupId()"
+            [question]="flash.question"
+            [members]="members()"
+            [flashId]="flash.id"
+            [showQuestion]="false"
+            (flashVoted)="onFlashVoted($event)"
+          />
+        } @else if (flash.sealed) {
+          <div class="vp-glyph--frost flex items-start gap-3 rounded-default border border-(--vp-glyph-fg)/30 bg-(--vp-glyph-bg) p-3">
             <app-glyph name="capsule" size="sm" />
             <p class="text-sm text-foreground text-balance">
               <span class="font-semibold">{{ t('flash.sealedTitle') }}</span>
               {{ t('flash.sealedText', { count: flash.voteCount, date: formatCapsuleDate(flash.capsuleOpensAt!) }) }}
             </p>
           </div>
-          <app-change-vote
-            [groupId]="numericGroupId()"
-            [question]="flash.question"
-            [members]="members()"
-            [flashId]="flash.id"
-            [canChange]="flash.canChangeVote"
-            (changed)="onVoteChanged($event)"
-          />
-        } @else if (flash.userHasVoted && flash.results) {
-          <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
+        } @else if (flash.results) {
           <app-results [question]="flash.question" [result]="flash.results" />
+        }
+
+        @if (showExtend(flash)) {
+          <app-flash-extend class="self-center" [groupId]="numericGroupId()" [flash]="flash" (extended)="onFlashVoted($event)" />
+        }
+        @if (flash.userHasVoted) {
           <app-change-vote
             [groupId]="numericGroupId()"
             [question]="flash.question"
@@ -394,68 +417,45 @@
             [flashId]="flash.id"
             [canChange]="flash.canChangeVote"
             (changed)="onVoteChanged($event)"
-          />
-        } @else {
-          <!-- Nobody has to answer a flash (rama 50): it never counts for the streak -->
-          <ul class="flex flex-col gap-1 text-xs text-muted-foreground">
-            <li>{{ t('flash.noStreakNote') }}</li>
-            @if (flash.anonymousVotes) {
-              <li class="flex items-center gap-1.5 font-medium text-foreground">
-                <app-glyph name="secretVotes" size="xs" bare />
-                {{ t('flash.anonymousVoteNote') }}
-              </li>
-            }
-          </ul>
-          <app-vote
-            [groupId]="numericGroupId()"
-            [question]="flash.question"
-            [members]="members()"
-            [flashId]="flash.id"
-            (flashVoted)="onFlashVoted($event)"
           />
         }
       </section>
     }
 
-    @if (!activeFlashList().length && daily()?.today?.status !== 'no_question') {
-      <!-- Time left as a thin line, with who has voted on the same row -->
-      <app-countdown
-        [target]="daily()?.today?.closesAt ?? null"
-        [line]="true"
-        (reachedZero)="refresh()"
-      >
-        <app-today-voters
-          [groupId]="numericGroupId()"
-          [members]="members()"
-          [voterIds]="daily()?.today?.voterIds ?? []"
-          [memberCount]="daily()?.today?.memberCount ?? 0"
-        />
-      </app-countdown>
-    }
+    @if (dailyFramed()) {
+      <section class="flex flex-col gap-4 animate-in fade-in slide-in-from-left-4 duration-300">
+        <app-countdown [target]="daily()?.today?.closesAt ?? null" [line]="true" (reachedZero)="refresh()">
+          <app-today-voters
+            [groupId]="numericGroupId()"
+            [members]="members()"
+            [voterIds]="daily()?.today?.voterIds ?? []"
+            [memberCount]="daily()?.today?.memberCount ?? 0"
+          />
+        </app-countdown>
 
-    @switch (activeFlashList().length ? 'flash' : daily()?.today?.status) {
-      @case ('voting') {
-        <app-vote
-          [groupId]="numericGroupId()"
-          [question]="daily()!.today.question!"
-          [members]="members()"
-          (voted)="onVoted($event)"
-        />
-      }
-      @case ('results') {
-        <section class="flex flex-col gap-4">
-          <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
+        <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
 
-          @if (daily()!.today.guess; as guess) {
-            <app-author-guess
-              [groupId]="numericGroupId()"
-              [guess]="guess"
-              [members]="members()"
-              (changed)="onGuessChanged($event)"
-              (coinsEarned)="announceCoins($event)"
-            />
-          }
+        <!-- "¿Quién la escribió?" (§17.6) under the question, once you've voted -->
+        @if (daily()!.today.guess; as guess) {
+          <app-author-guess
+            [groupId]="numericGroupId()"
+            [guess]="guess"
+            [members]="members()"
+            (changed)="onGuessChanged($event)"
+            (coinsEarned)="announceCoins($event)"
+          />
+        }
 
+        @if (daily()!.today.status === 'voting') {
+          <app-question-type-chip [type]="daily()!.today.question!.type" />
+          <app-vote
+            [groupId]="numericGroupId()"
+            [question]="daily()!.today.question!"
+            [members]="members()"
+            [showQuestion]="false"
+            (voted)="onVoted($event)"
+          />
+        } @else {
           <app-results [question]="daily()!.today.question!" [result]="daily()!.today.results!" />
           <app-change-vote
             [groupId]="numericGroupId()"
@@ -464,8 +464,13 @@
             [canChange]="daily()!.today.canChangeVote"
             (changed)="onVoteChanged($event)"
           />
-        </section>
-      }
+        }
+      </section>
+    } @else if (!activeFlashList().length && daily()?.today?.status !== 'no_question') {
+      <app-countdown [target]="daily()?.today?.closesAt ?? null" [line]="true" (reachedZero)="refresh()" />
+    }
+
+    @switch (activeFlashList().length ? 'flash' : daily()?.today?.status) {
       @case ('no_question') {
         <!-- Pre-start state: the group has fewer than 2 members (§4.3, §4.5) -->
         <div class="flex flex-col items-center gap-4 py-8 text-center">
@@ -497,48 +502,55 @@
     }
 
     @if (daily()?.today?.status !== 'no_question') {
-      <!-- Quiet secondary actions under the question: suggest one for the pool (everyone but
-           the selector) and launch a flash question (everyone, §17.15) -->
-      @if (flashHintPending()) {
-        <div class="relative flex w-full items-center gap-3 rounded-default border border-flash-border bg-flash/10 py-2.5 pl-3 pr-11">
-          <app-glyph name="flash" size="sm" />
-          <p class="text-sm text-foreground text-balance">
-            <span class="font-semibold">{{ t('flash.hintTitle') }}</span>
-            <app-coin-text [text]="t('flash.hintText', { price: flashPrice })" />
-          </p>
-          <button
-            hlmBtn
-            variant="ghost"
-            size="icon"
-            class="absolute right-1.5 top-1/2 size-8 -translate-y-1/2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
-            (click)="dismissFlashHint()"
-            [attr.aria-label]="t('groupDetail.dismissAlert')"
-          >
-            <ng-icon hlm name="lucideX" class="size-4!" />
-          </button>
-        </div>
-      }
-      <div class="flex flex-wrap justify-center gap-2">
-        @if (!daily()?.selection?.isCurrentUserSelector) {
+      <!-- The group's own actions, apart from the card (they act on the group, not on this
+           question): suggest one for the pool (everyone but the selector) and launch a flash
+           question (everyone, §17.15) -->
+      <div class="flex flex-col gap-3 pt-2">
+        @if (flashHintPending()) {
+          <div class="relative flex w-full items-center gap-3 rounded-default border border-flash-border bg-flash/10 py-2.5 pl-3 pr-11">
+            <app-glyph name="flash" size="sm" />
+            <p class="text-sm text-foreground text-balance">
+              <span class="font-semibold">{{ t('flash.hintTitle') }}</span>
+              <app-coin-text [text]="t('flash.hintText', { price: flashPrice })" />
+            </p>
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="absolute right-1.5 top-1/2 size-8 -translate-y-1/2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
+              (click)="dismissFlashHint()"
+              [attr.aria-label]="t('groupDetail.dismissAlert')"
+            >
+              <ng-icon hlm name="lucideX" class="size-4!" />
+            </button>
+          </div>
+        }
+        <div class="flex gap-2">
+          @if (!daily()?.selection?.isCurrentUserSelector) {
+            <app-select-question-dialog
+              class="min-w-0 flex-1"
+              [groupId]="numericGroupId()"
+              [members]="members()"
+              [isSelector]="false"
+              [pendingQuestion]="null"
+              [isAutoSelected]="false"
+              [fill]="true"
+              (selected)="refresh()"
+              (flashLaunched)="onFlashLaunched($event)"
+            />
+          }
           <app-select-question-dialog
+            class="min-w-0 flex-1"
             [groupId]="numericGroupId()"
             [members]="members()"
             [isSelector]="false"
             [pendingQuestion]="null"
             [isAutoSelected]="false"
-            (selected)="refresh()"
+            [flash]="true"
+            [fill]="true"
             (flashLaunched)="onFlashLaunched($event)"
           />
-        }
-        <app-select-question-dialog
-          [groupId]="numericGroupId()"
-          [members]="members()"
-          [isSelector]="false"
-          [pendingQuestion]="null"
-          [isAutoSelected]="false"
-          [flash]="true"
-          (flashLaunched)="onFlashLaunched($event)"
-        />
+        </div>
       </div>
 
       <div class="flex items-center gap-3 pt-2">

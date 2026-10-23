@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
@@ -22,38 +23,43 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
 // "Cambiar voto" (rama 43, §17.10): under the results of an open question you voted, once per
 // question, for VOTE_CHANGE_PRICE or one from the inventory. A one-off hint points at it the
-// first time (§17.15: it must be easy to find). Tapping it opens the same vote form inline;
-// sending the new vote is the confirmation.
+// first time (§17.15: it must be easy to find). Tapping it opens the same vote form in a
+// window; sending the new vote is the confirmation.
 @Component({
   selector: 'app-change-vote',
-  imports: [HlmButtonImports, HlmSpinnerImports, NgIcon, VoteFormComponent, GlyphComponent, CoinTextComponent],
+  host: { class: 'flex flex-col gap-3' },
+  imports: [HlmButtonImports, HlmDialogImports, HlmSpinnerImports, NgIcon, VoteFormComponent, GlyphComponent, CoinTextComponent],
   providers: [provideIcons({ lucideX })],
   template: `
     @if (canChange()) {
-      @if (!editing()) {
-        @if (hintPending()) {
-          <div class="relative flex w-full items-center gap-3 rounded-default border border-border bg-muted/50 py-2.5 pl-3 pr-11">
-            <app-glyph name="changeVote" size="sm" />
-            <p class="text-sm text-foreground text-balance">
-              <span class="font-semibold">{{ t('changeVote.hintTitle') }}</span>
-              <app-coin-text [text]="t('changeVote.hintText', { price })" />
-            </p>
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              class="absolute right-1.5 top-1/2 size-8 -translate-y-1/2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
-              (click)="dismissHint()"
-              [attr.aria-label]="t('groupDetail.dismissAlert')"
-            >
-              <ng-icon hlm name="lucideX" class="size-4!" />
-            </button>
-          </div>
-        }
+      @if (hintPending()) {
+        <div class="relative flex w-full items-center gap-3 rounded-default border border-border bg-muted/50 py-2.5 pl-3 pr-11">
+          <app-glyph name="changeVote" size="sm" />
+          <p class="text-sm text-foreground text-balance">
+            <span class="font-semibold">{{ t('changeVote.hintTitle') }}</span>
+            <app-coin-text [text]="t('changeVote.hintText', { price })" />
+          </p>
+          <button
+            hlmBtn
+            variant="ghost"
+            size="icon"
+            class="absolute right-1.5 top-1/2 size-8 -translate-y-1/2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
+            (click)="dismissHint()"
+            [attr.aria-label]="t('groupDetail.dismissAlert')"
+          >
+            <ng-icon hlm name="lucideX" class="size-4!" />
+          </button>
+        </div>
+      }
+      <hlm-dialog class="contents" [state]="editing() ? 'open' : 'closed'" (stateChanged)="onStateChanged($event)">
+        <!-- Small and grey under the results, so it reads as part of this question; outline
+             because it is a purchase (§14) -->
         <button
           hlmBtn
+          hlmDialogTrigger
           variant="outline"
-          class="w-full gap-2 focus-visible:ring-2 focus-visible:ring-ring"
+          size="sm"
+          class="-mt-1 mb-1 h-8 w-fit gap-1.5 self-end rounded-full px-3 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
           (click)="start()"
         >
           <app-glyph name="changeVote" size="xs" bare />
@@ -63,12 +69,12 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
             <app-coin-text [text]="t('changeVote.action', { price })" />
           }
         </button>
-      } @else {
-        <section class="flex flex-col gap-4 rounded-default border border-border bg-card p-4">
-          <div class="flex flex-col gap-1">
-            <p class="font-display text-lg italic text-foreground">{{ t('changeVote.title') }}</p>
-            <p class="text-xs text-muted-foreground">{{ t('changeVote.text') }}</p>
-          </div>
+
+        <hlm-dialog-content *hlmDialogPortal="let ctx" class="flex max-h-[85dvh] w-[95vw] max-w-md flex-col gap-4 overflow-y-auto">
+          <hlm-dialog-header>
+            <h3 hlmDialogTitle class="font-display text-xl italic text-foreground">{{ t('changeVote.title') }}</h3>
+            <p hlmDialogDescription>{{ t('changeVote.text') }}</p>
+          </hlm-dialog-header>
 
           <app-vote-form class="contents" [question]="question()" [members]="members()" [showQuestion]="false" (vote)="submit($event)" />
 
@@ -96,8 +102,8 @@ import { apiErrorMessage } from '../../../../shared/utils/api-error';
           >
             {{ t('changeVote.cancel') }}
           </button>
-        </section>
-      }
+        </hlm-dialog-content>
+      </hlm-dialog>
     }
   `,
 })
@@ -139,6 +145,11 @@ export class ChangeVoteComponent {
     this.dismissHint();
     this.error.set(null);
     this.editing.set(true);
+  }
+
+  onStateChanged(state: string): void {
+    // Closing the window (outside tap, Esc) is the same as cancelling.
+    if (state !== 'open') this.cancel();
   }
 
   cancel(): void {

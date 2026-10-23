@@ -80,6 +80,8 @@ export class SelectQuestionDialogComponent {
   public readonly compact = input(false);
   // The group's "Lanzar flash" entry point (§17.15): straight to writing a flash question.
   public readonly flash = input(false);
+  // Stretch the trigger to its slot, for the group's row of actions under the question.
+  public readonly fill = input(false);
   protected readonly flashPrice = FLASH_QUESTION_PRICE;
   protected readonly ownedFlashes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion

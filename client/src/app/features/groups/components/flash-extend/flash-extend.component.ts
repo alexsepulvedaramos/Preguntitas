@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -6,7 +6,7 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 
 import { FlashState } from '../../../../core/models/daily.model';
-import { FLASH_EXTENSION_PRICE } from '../../../../core/models/coin.model';
+import { FLASH_EXTEND_WINDOW_MS, FLASH_EXTENSION_PRICE } from '../../../../core/models/coin.model';
 import { DailyService } from '../../../../core/services/daily.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -14,19 +14,15 @@ import { GlyphComponent } from '../../../../shared/components/glyph/glyph.compon
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 
-// "+24 h" on an open flash (rama 50, §17.15 item 6): any member, once per flash, for
-// FLASH_EXTENSION_PRICE. Sits on the flash card's time-left line; once bought it says who
-// extended it (just "Ampliada" on an anonymous flash).
+
+// "+24 h" on an open flash (rama 50, §17.15 item 6): only whoever launched it, once per flash,
+// for FLASH_EXTENSION_PRICE, and only in its last FLASH_EXTEND_WINDOW_MS, when it's worth it. Sits
+// under the flash card; once bought it goes, and the countdown's clock-plus says so.
 @Component({
   selector: 'app-flash-extend',
   imports: [HlmButtonImports, HlmSpinnerImports, HlmAlertDialogImports, GlyphComponent, CoinTextComponent],
   template: `
-    @if (flash().extended) {
-      <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
-        <app-glyph name="extend" size="xs" bare />
-        {{ flash().extendedBy ? t('flash.extendedBy', { name: flash().extendedBy!.username }) : t('flash.extended') }}
-      </span>
-    } @else {
+    @if (!flash().extended && offered()) {
       <hlm-alert-dialog #dlg="hlmAlertDialog">
         <button
           type="button"
@@ -81,6 +77,15 @@ export class FlashExtendComponent {
   public readonly extended = output<FlashState>();
 
   protected readonly busy = signal(false);
+  private readonly now = signal(Date.now());
+  protected readonly offered = computed(
+    () => this.flash().isMine && new Date(this.flash().closesAt).getTime() - this.now() <= FLASH_EXTEND_WINDOW_MS,
+  );
+
+  constructor() {
+    const id = setInterval(() => this.now.set(Date.now()), 30_000);
+    inject(DestroyRef).onDestroy(() => clearInterval(id));
+  }
   protected readonly missing = computed(() =>
     Math.max(0, FLASH_EXTENSION_PRICE - (this.authService.currentUser()?.coins ?? 0)),
   );

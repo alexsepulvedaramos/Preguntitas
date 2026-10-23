@@ -12,6 +12,10 @@ public class FlashStateDto
     // Who bought it: the author is public on a flash question — null on an anonymous one.
     public VoterDto? LaunchedBy { get; set; }
 
+    // The caller launched it — also on an anonymous one, where only its author is told. Only
+    // its author can extend it.
+    public bool IsMine { get; set; }
+
     public DateTime ActivatedAt { get; set; }
     public DateTime ClosesAt { get; set; }
 

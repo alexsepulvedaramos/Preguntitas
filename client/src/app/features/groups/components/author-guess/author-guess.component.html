@@ -1,96 +1,106 @@
 @switch (guess().state) {
   @case ('pending') {
-    <section
-      class="flex flex-col gap-3 rounded-default border border-primary/30 bg-primary/5 p-3"
-      [attr.aria-label]="t('guess.title')"
-    >
-      <div class="flex flex-col gap-0.5">
-        <p class="flex items-center gap-2 font-display text-lg italic text-foreground">
-          <app-glyph name="guess" size="sm" />{{ t('guess.title') }}
-        </p>
-        <p class="text-xs text-muted-foreground"><app-coin-text [text]="t('guess.subtitle', { coins: reward })" /></p>
-      </div>
+    <!-- Only the button sits under the question; the game opens in a window, so a big group
+         (13 candidates) gets a scrolling list instead of a wall of avatars on the card. -->
+    <hlm-dialog [state]="open() ? 'open' : 'closed'" (stateChanged)="open.set($event === 'open')">
+      <button
+        hlmBtn
+        hlmDialogTrigger
+        class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <app-glyph name="guess" size="xs" untinted />
+        <app-coin-text [text]="t('guess.button', { coins: reward })" />
+      </button>
 
-      <div class="flex flex-wrap gap-2" role="radiogroup" [attr.aria-label]="t('guess.title')">
-        @for (m of candidates(); track m.id) {
-          <button
-            type="button"
-            role="radio"
-            class="flex w-16 flex-col items-center gap-1 rounded-default p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            [class]="selectedId() === m.id ? 'bg-primary/15 ring-2 ring-primary text-foreground' : 'text-muted-foreground hover:bg-muted'"
-            [attr.aria-checked]="selectedId() === m.id"
-            (click)="select(m.id)"
-          >
-            <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" size="sm" />
-            <span class="line-clamp-2 w-full break-words text-center leading-tight" [attr.title]="m.username">{{ m.username }}</span>
-          </button>
-        }
-      </div>
+      <hlm-dialog-content *hlmDialogPortal="let ctx" class="flex max-h-[85dvh] w-[95vw] max-w-md flex-col gap-4">
+        <hlm-dialog-header>
+          <h3 hlmDialogTitle class="flex items-center gap-2 font-display text-xl italic text-foreground">
+            <app-glyph name="guess" size="sm" />{{ t('guess.title') }}
+          </h3>
+          <p hlmDialogDescription><app-coin-text [text]="t('guess.subtitle', { coins: reward })" /></p>
+        </hlm-dialog-header>
 
-      <!-- One clear order (UX audit): guess (the action), hint (paid help), skip (a way out) -->
-      <div class="flex items-center gap-2">
-        <button
-          hlmBtn
-          class="flex-1 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="selectedId() === null || !!busy()"
-          (click)="confirm()"
-        >
-          @if (busy() === 'guess') {
-            <hlm-spinner class="size-4" />
+        <div class="-mx-1 flex min-h-0 flex-col gap-2 overflow-y-auto px-1 py-1" role="radiogroup" [attr.aria-label]="t('guess.title')">
+          @for (m of candidates(); track m.id) {
+            <button
+              type="button"
+              role="radio"
+              [class]="optionClass(m.id) + ' py-2.5'"
+              [attr.aria-checked]="selectedId() === m.id"
+              (click)="select(m.id)"
+            >
+              <span class="flex items-center gap-3">
+                <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" [showRibbon]="false" size="sm" />
+                <app-user-name class="min-w-0 flex-1 truncate font-semibold" [name]="m.username" [look]="groupStreaks.lookFor(m.id)" />
+                @if (selectedId() === m.id) {
+                  <ng-icon hlm name="lucideCheck" class="shrink-0 text-primary-text" aria-hidden="true" />
+                }
+              </span>
+            </button>
           }
-          {{ t('guess.confirm') }}
-        </button>
-        @if (guess().hintAvailable) {
+        </div>
+
+        @if (guess().hintUsed) {
+          <p class="text-center text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</p>
+        }
+        @if (hintError(); as message) {
+          <p class="text-center text-xs text-destructive" aria-live="polite">
+            {{ message }}
+            @if (missingCoins() > 0) {
+              · <app-coin-text [text]="t('streakFreeze.notEnough', { count: missingCoins() })" />
+            }
+          </p>
+        }
+
+        <!-- One clear order (UX audit): guess (the action), hint (paid help), skip (a way out) -->
+        <div class="flex flex-col items-center gap-2">
           <button
             hlmBtn
-            variant="outline"
-            class="gap-1 focus-visible:ring-2 focus-visible:ring-ring"
-            [disabled]="!!busy()"
-            (click)="buyHint()"
+            class="w-full bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
+            [disabled]="selectedId() === null || !!busy()"
+            (click)="confirm()"
           >
-            @if (busy() === 'hint') {
+            @if (busy() === 'guess') {
               <hlm-spinner class="size-4" />
-            } @else {
-              <ng-icon hlm name="lucideLightbulb" class="size-4!" />
             }
-            @if (ownedHints() > 0) {
-              {{ t('inventory.use', { count: ownedHints() }) }}
-            } @else {
-              <app-coin-text [text]="t('guess.hint', { price: guess().hintPrice })" />
-            }
+            {{ t('guess.confirm') }}
           </button>
-        }
-      </div>
-      <div class="flex items-center justify-between gap-2">
-        @if (guess().hintUsed) {
-          <span class="text-xs text-muted-foreground">{{ t('guess.hintUsed') }}</span>
-        } @else {
-          <span></span>
-        }
-        <button
-          hlmBtn
-          size="sm"
-          variant="link"
-          class="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="!!busy()"
-          (click)="skip()"
-        >
-          @if (busy() === 'skip') {
-            <hlm-spinner class="size-4" />
+          @if (guess().hintAvailable) {
+            <button
+              hlmBtn
+              variant="outline"
+              class="w-full gap-1 focus-visible:ring-2 focus-visible:ring-ring"
+              [disabled]="!!busy()"
+              (click)="buyHint()"
+            >
+              @if (busy() === 'hint') {
+                <hlm-spinner class="size-4" />
+              } @else {
+                <ng-icon hlm name="lucideLightbulb" class="size-4!" />
+              }
+              @if (ownedHints() > 0) {
+                {{ t('inventory.use', { count: ownedHints() }) }}
+              } @else {
+                <app-coin-text [text]="t('guess.hint', { price: guess().hintPrice })" />
+              }
+            </button>
           }
-          {{ t('guess.skip') }}
-        </button>
-      </div>
-
-      @if (hintError(); as message) {
-        <p class="text-xs text-destructive" aria-live="polite">
-          {{ message }}
-          @if (missingCoins() > 0) {
-            · <app-coin-text [text]="t('streakFreeze.notEnough', { count: missingCoins() })" />
-          }
-        </p>
-      }
-    </section>
+          <button
+            hlmBtn
+            size="sm"
+            variant="link"
+            class="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            [disabled]="!!busy()"
+            (click)="skip()"
+          >
+            @if (busy() === 'skip') {
+              <hlm-spinner class="size-4" />
+            }
+            {{ t('guess.skip') }}
+          </button>
+        </div>
+      </hlm-dialog-content>
+    </hlm-dialog>
   }
 
   @case ('mine') {

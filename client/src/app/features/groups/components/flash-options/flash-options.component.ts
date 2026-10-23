@@ -3,8 +3,6 @@ import { Component, computed, inject, model } from '@angular/core';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmSwitchImports } from '@spartan-ng/helm/switch';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCalendar } from '@ng-icons/lucide';
 
 import {
   FLASH_ANONYMOUS_AUTHOR_PRICE,
@@ -44,43 +42,51 @@ function addMonths(months: number): Date {
 const DATE_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
 
 // Flash extras (rama 50, §17.15 item 6), folded under «Extras» in the flash form: anonymous
-// author, anonymous votes and time capsule, combinable, each with its price. The fold's
-// summary lists what's on. The capsule opens on any day from tomorrow to a year ahead: three
+// author, anonymous votes and time capsule, combinable, each with its price. The folded row
+// shows the icons of what's on. The capsule opens on any day from tomorrow to a year ahead: three
 // shortcuts plus a date picker.
 @Component({
   selector: 'app-flash-options',
+  host: { class: 'block min-w-0' },
   imports: [
     HlmButtonImports,
     HlmSwitchImports,
     HlmDatePickerImports,
-    NgIcon,
     GlyphComponent,
     CoinTextComponent,
     FoldSectionComponent,
   ],
-  providers: [provideIcons({ lucideCalendar }), provideCalendarI18n()],
+  providers: [provideCalendarI18n()],
   template: `
-    <app-fold-section [title]="t('flash.extrasTitle')" [summary]="summary()">
+    <app-fold-section [title]="t('flash.extrasTitle')" [summaryGlyphs]="summaryGlyphs()">
       @for (extra of extras; track extra.glyph) {
         <div class="flex items-start gap-3">
           <app-glyph [name]="extra.glyph" size="sm" />
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
             <app-coin-text class="text-sm font-semibold text-foreground" [text]="t(extra.title, { price: extra.price })" />
-            <span class="text-xs text-muted-foreground">{{ t(extra.text) }}</span>
+            <!-- With the capsule on, its line says when it opens instead -->
+            <span class="text-xs text-muted-foreground">
+              @if (extra.glyph === 'capsule' && capsuleOpensOn()) {
+                {{ t('flash.capsuleOpensOn', { date: openingLabel() }) }}
+              } @else {
+                {{ t(extra.text) }}
+              }
+            </span>
           </span>
           <hlm-switch [checked]="isOn(extra.glyph)" (checkedChange)="set(extra.glyph, $event)" [aria-label]="t(extra.label)" />
         </div>
       }
 
       @if (capsuleOpensOn() !== null) {
-        <div class="flex flex-wrap gap-2 pl-11">
+        <!-- Four chips of one size on one row: three shortcuts and «Otra», which opens the calendar -->
+        <div class="grid grid-cols-4 gap-2">
           @for (shortcut of shortcuts; track shortcut.label) {
             <button
               type="button"
               hlmBtn
               variant="outline"
               size="sm"
-              class="rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+              class="w-full rounded-full px-2 transition-colors focus-visible:ring-2 focus-visible:ring-ring"
               [class]="capsuleOpensOn() === shortcut.date ? 'border-accent bg-accent/15' : ''"
               [attr.aria-pressed]="capsuleOpensOn() === shortcut.date"
               (click)="capsuleOpensOn.set(shortcut.date)"
@@ -93,13 +99,18 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short'
             [autoCloseOnSelect]="true"
             [min]="minDate"
             [max]="maxDate"
-            [formatDate]="formatPicked"
+            [formatDate]="formatChip"
             captionLayout="dropdown"
+            align="end"
             (dateChange)="onPick($event)"
           >
-            <hlm-date-picker-trigger class="w-full" variant="outline">
-              <ng-icon hlm name="lucideCalendar" size="sm" class="mr-2 shrink-0" />
-              {{ openingLabel() }}
+            <hlm-date-picker-trigger
+              class="h-8 w-full justify-center gap-1 rounded-full px-2 font-normal transition-colors"
+              [class]="isCustomDate() ? 'border-accent bg-accent/15' : ''"
+              variant="outline"
+              [showTrigger]="false"
+            >
+              {{ t('flash.capsuleOther') }}
             </hlm-date-picker-trigger>
           </hlm-date-picker>
         </div>
@@ -140,6 +151,16 @@ export class FlashOptionsComponent {
   // The picker's own label follows the app language, not the browser's (rama 50 fix).
   protected readonly formatPicked = (date: Date) => this.i18n.formatDate(date, DATE_FORMAT);
 
+  // The «Otra» chip shows a picked day itself («22 nov»), but not one a shortcut already marks.
+  protected readonly isCustomDate = computed(() => {
+    const value = this.capsuleOpensOn();
+    return !!value && !this.shortcuts.some((s) => s.date === value);
+  });
+  protected readonly formatChip = (date: Date) =>
+    this.shortcuts.some((s) => s.date === toLocalDateString(date))
+      ? this.t('flash.capsuleOther')
+      : this.i18n.formatDate(date, { day: 'numeric', month: 'short' });
+
   protected readonly pickerDate = computed(() => {
     const value = this.capsuleOpensOn();
     if (!value) return undefined;
@@ -152,14 +173,8 @@ export class FlashOptionsComponent {
     return date ? this.formatPicked(date) : '';
   });
 
-  // What's on, for the folded row: «Autor anónimo, Cápsula 22 nov 2026».
-  protected readonly summary = computed(() => {
-    const on: string[] = [];
-    if (this.anonymousAuthor()) on.push(this.t('flash.anonymousAuthorLabel'));
-    if (this.anonymousVotes()) on.push(this.t('flash.anonymousVotesLabel'));
-    if (this.capsuleOpensOn()) on.push(`${this.t('flash.capsuleLabel')} ${this.openingLabel()}`);
-    return on.join(', ');
-  });
+  // What's on, for the folded row: just the extras' icons.
+  protected readonly summaryGlyphs = computed(() => this.extras.map((e) => e.glyph).filter((g) => this.isOn(g)));
 
   isOn(extra: GlyphName): boolean {
     if (extra === 'anonymous') return this.anonymousAuthor();
