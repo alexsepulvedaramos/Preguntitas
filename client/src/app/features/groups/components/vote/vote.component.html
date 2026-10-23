@@ -1,5 +1,5 @@
 <section class="flex flex-col gap-4">
-  <app-vote-form class="contents" [question]="question()" [members]="members()" (vote)="submit($event)" />
+  <app-vote-form class="contents" [question]="question()" [members]="members()" [showQuestion]="showQuestion()" (vote)="submit($event)" />
 
   @if (submitting()) {
     <div class="flex items-center gap-2 text-sm text-muted-foreground">

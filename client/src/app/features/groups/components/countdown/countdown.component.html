@@ -3,7 +3,7 @@
     <div class="flex items-center gap-2">
       <ng-icon
         hlm
-        name="lucideClock"
+        [name]="extended() ? 'lucideClockPlus' : 'lucideClock'"
         size="14"
         aria-hidden="true"
         [class]="urgent() || due() ? 'shrink-0 text-destructive' : 'shrink-0 text-muted-foreground'"
@@ -22,6 +22,9 @@
           {{ t('countdown.soon') }}
         } @else if (shortLabel(); as text) {
           {{ t('countdown.timeLeft', { time: text }) }}
+        }
+        @if (extended()) {
+          <span class="sr-only">· {{ t('flash.extended') }}</span>
         }
       </span>
       <span class="flex-1"></span>

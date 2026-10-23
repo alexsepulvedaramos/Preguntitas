@@ -262,26 +262,27 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     // ── Extension ────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnyMember_CanExtendAnOpenFlash_Once()
+    public async Task TheLauncher_CanExtendTheirOpenFlash_Once()
     {
         var group = await SeedAsync();
         var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions());
         var flashId = launched!.Flash.Id;
+        launched.Flash.IsMine.Should().BeTrue();
 
-        var (result, response) = await ExtendAsync(group, "bea", flashId);
+        var (result, response) = await ExtendAsync(group, "ana", flashId);
 
         result.Should().Be(FlashResult.Success);
-        response!.Balance.Should().Be(600 - CoinRewards.FlashExtensionPrice);
+        response!.Balance.Should().Be(600 - CoinRewards.FlashQuestionPrice - CoinRewards.FlashExtensionPrice);
         response.Flash.ClosesAt.Should().Be(launched.Flash.ClosesAt + TimeSpan.FromHours(24));
         response.Flash.Extended.Should().BeTrue();
-        response.Flash.ExtendedBy!.Username.Should().Be("bea");
+        response.Flash.ExtendedBy!.Username.Should().Be("ana");
 
         var (again, _) = await ExtendAsync(group, "ana", flashId);
         again.Should().Be(FlashResult.AlreadyExtended);
-        (await CoinsAsync(group, "ana")).Should().Be(600 - CoinRewards.FlashQuestionPrice);
+        (await CoinsAsync(group, "ana")).Should().Be(600 - CoinRewards.FlashQuestionPrice - CoinRewards.FlashExtensionPrice);
 
         await using var db = NewContext();
-        var charge = await db.CoinTransactions.SingleAsync(c => c.UserId == group["bea"]);
+        var charge = await db.CoinTransactions.SingleAsync(c => c.UserId == group["ana"] && c.Reason == CoinReason.FlashExtension);
         charge.Reason.Should().Be(CoinReason.FlashExtension);
         charge.RefId.Should().Be(flashId);
 
@@ -291,12 +292,34 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
     }
 
     [Fact]
+    public async Task AnotherMember_CannotExtendSomeoneElsesFlash()
+    {
+        var group = await SeedAsync();
+        var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousAuthor: true));
+
+        var (result, _) = await ExtendAsync(group, "bea", launched!.Flash.Id);
+
+        result.Should().Be(FlashResult.NotLauncher);
+        (await CoinsAsync(group, "bea")).Should().Be(600);
+        await using var db = NewContext();
+        (await db.FlashEntries.SingleAsync()).ExtendedByUserId.Should().BeNull();
+        // Only its author is told an anonymous flash is theirs.
+        (await NewFlashService(db).GetOpenAsync(group.Id, group["bea"])).Single().IsMine.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task WithoutCoins_TheExtensionRollsBack()
     {
         var group = await SeedAsync();
         var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions());
+        await using (var drain = NewContext())
+        {
+            var ana = await drain.Users.SingleAsync(u => u.Id == group["ana"]);
+            ana.Coins = 0;
+            await drain.SaveChangesAsync();
+        }
 
-        var (result, _) = await ExtendAsync(group, "carlos", launched!.Flash.Id);
+        var (result, _) = await ExtendAsync(group, "ana", launched!.Flash.Id);
 
         result.Should().Be(FlashResult.NotEnoughCoins);
         await using var db = NewContext();
@@ -312,7 +335,7 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions());
         Clock.SetLocal(Today.AddDays(1), Morning.AddMinutes(1));
 
-        var (result, _) = await ExtendAsync(group, "bea", launched!.Flash.Id);
+        var (result, _) = await ExtendAsync(group, "ana", launched!.Flash.Id);
 
         result.Should().Be(FlashResult.Closed);
     }
@@ -323,7 +346,7 @@ public class FlashVariantsTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         var group = await SeedAsync();
         var (_, launched) = await LaunchAsync(group, "ana", new FlashOptions(AnonymousAuthor: true));
 
-        var (_, response) = await ExtendAsync(group, "bea", launched!.Flash.Id);
+        var (_, response) = await ExtendAsync(group, "ana", launched!.Flash.Id);
 
         response!.Flash.Extended.Should().BeTrue();
         response.Flash.ExtendedBy.Should().BeNull();

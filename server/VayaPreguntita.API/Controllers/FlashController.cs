@@ -55,8 +55,8 @@ public class FlashController(
     }
 
     // POST api/groups/{groupId}/flash/{flashId}/extend
-    // +24 h on an open flash (rama 50), once, by any member. 409 when it was already extended
-    // or coins are short, 400 once it has closed.
+    // +24 h on an open flash (rama 50), once, by whoever launched it (403 for anyone else). 409
+    // when it was already extended or coins are short, 400 once it has closed.
     [HttpPost("{flashId:int}/extend")]
     public async Task<ActionResult<ExtendFlashResponseDto>> Extend(int groupId, int flashId)
     {
@@ -134,6 +134,7 @@ public class FlashController(
             FlashResult.InvalidCapsuleDate => BadRequest(ServerText.FlashCapsuleDateInvalid),
             FlashResult.Closed => BadRequest(ServerText.FlashClosed),
             FlashResult.AlreadyExtended => Conflict(ServerText.FlashAlreadyExtended),
+            FlashResult.NotLauncher => StatusCode(StatusCodes.Status403Forbidden, ServerText.FlashExtendOwnOnly),
             _ => StatusCode(500),
         };
 }

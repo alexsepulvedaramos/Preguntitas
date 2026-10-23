@@ -2,9 +2,11 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideLightbulb } from '@ng-icons/lucide';
+import { lucideCheck, lucideLightbulb } from '@ng-icons/lucide';
 
 import { AuthorGuess } from '../../../../core/models/daily.model';
 import { AUTHOR_GUESS_REWARD, CoinsEarned, EMPTY_INVENTORY } from '../../../../core/models/coin.model';
@@ -13,19 +15,31 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { GroupMember } from '../../models/group.models';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { voteOptionClass } from '../vote/vote-option.util';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 
 // "¿Quién la escribió?" (rama 36, §17.6): shown under today's question once you have voted on
-// a member-written one. Pick a member and confirm, or skip to see the author; the answer is
-// revealed at once. Leaving it alone keeps it pending until the question closes. The author
+// a member-written one. A button opens the game in a window: pick a member from the list and
+// confirm, or skip to see the author; the answer is revealed at once on the card. Leaving it alone keeps it pending until the question closes. The author
 // sees how many people caught them instead.
 @Component({
   selector: 'app-author-guess',
-  imports: [HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent, GlyphComponent, CoinTextComponent],
-  providers: [provideIcons({ lucideLightbulb })],
+  imports: [
+    HlmButtonImports,
+    HlmDialogImports,
+    HlmIconImports,
+    HlmSpinnerImports,
+    NgIcon,
+    UserAvatarComponent,
+    UserNameComponent,
+    GlyphComponent,
+    CoinTextComponent,
+  ],
+  providers: [provideIcons({ lucideCheck, lucideLightbulb })],
   templateUrl: './author-guess.component.html',
 })
 export class AuthorGuessComponent {
@@ -44,6 +58,7 @@ export class AuthorGuessComponent {
   readonly coinsEarned = output<CoinsEarned>();
 
   protected readonly reward = AUTHOR_GUESS_REWARD;
+  protected readonly open = signal(false);
   protected readonly selectedId = signal<number | null>(null);
   protected readonly busy = signal<'guess' | 'skip' | 'hint' | null>(null);
   protected readonly hintError = signal<string | null>(null);
@@ -62,6 +77,10 @@ export class AuthorGuessComponent {
     const id = this.guess().guessedUserId;
     return this.members().find((m) => m.id === id)?.username ?? '';
   });
+
+  protected optionClass(id: number): string {
+    return voteOptionClass(this.selectedId() === id);
+  }
 
   select(id: number): void {
     if (this.busy()) return;
@@ -103,6 +122,8 @@ export class AuthorGuessComponent {
     this.dailyService.guessAuthor(this.groupId(), dto).subscribe({
       next: (res) => {
         this.busy.set(null);
+        // Close first: the window lives in the pending state the answer replaces.
+        this.open.set(false);
         this.changed.emit(res.guess);
         this.coinsEarned.emit(res.coins);
       },

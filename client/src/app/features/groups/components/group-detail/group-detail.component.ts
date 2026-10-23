@@ -13,7 +13,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight,
   lucideEllipsis, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
-import { COIN_DAILY_CAP, CoinsEarned, FLASH_QUESTION_PRICE, RACE_WON_REWARD } from '../../../../core/models/coin.model';
+import { COIN_DAILY_CAP, CoinsEarned, FLASH_EXTEND_WINDOW_MS, FLASH_QUESTION_PRICE, RACE_WON_REWARD } from '../../../../core/models/coin.model';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -52,6 +52,7 @@ import { MonthlySummaryListItem } from '../../../../core/models/monthly-summary.
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinComponent } from '../../../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
+import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -86,6 +87,7 @@ export interface DeckCard {
   imports: [
     GlyphComponent,
     CoinTextComponent,
+    QuestionTypeChipComponent,
     RouterLink,
     HlmButtonImports,
     HlmDropdownMenuImports,
@@ -199,6 +201,11 @@ export class GroupDetailComponent implements OnInit {
     const flash = this.activeCard()?.flash;
     return flash ? [flash] : [];
   });
+  // Today's question card shows while it's open (voting or results) and no flash is in front.
+  protected readonly dailyFramed = computed(() => {
+    const status = this.daily()?.today?.status;
+    return !this.activeFlashList().length && (status === 'voting' || status === 'results');
+  });
   protected readonly pendingCount = computed(() => this.deck().filter((c) => c.pending).length);
   protected readonly nextPending = computed(() => this.findNextPending());
 
@@ -244,8 +251,8 @@ export class GroupDetailComponent implements OnInit {
   }
 
   deckTabClass(card: DeckCard, active: boolean): string {
-    if (active)
-      return card.flash ? 'bg-flash text-flash-foreground' : 'bg-primary text-primary-foreground';
+    // Selected = primary, like every segmented control (§14); flashes keep a honey tint at rest.
+    if (active) return 'bg-primary text-primary-foreground';
     return card.flash
       ? 'bg-flash/15 text-foreground hover:bg-flash/25'
       : 'bg-muted text-muted-foreground hover:bg-muted/70';
@@ -364,6 +371,13 @@ export class GroupDetailComponent implements OnInit {
   }
 
   // "¿Quién la escribió?" answered, skipped or narrowed down by the hint (rama 36).
+  // «+24 h» only for whoever launched it, in its last hours (flash-extend repeats the rule
+  // live); once bought, the countdown's clock-plus tells everyone.
+  showExtend(flash: FlashState): boolean {
+    // Once extended, the clock-plus in the countdown says so; nothing else shows.
+    return !flash.extended && flash.isMine && new Date(flash.closesAt).getTime() - Date.now() <= FLASH_EXTEND_WINDOW_MS;
+  }
+
   onGuessChanged(guess: AuthorGuess) {
     const daily = this.daily();
     if (!daily) return;

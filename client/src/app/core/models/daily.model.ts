@@ -84,6 +84,7 @@ export interface FlashState {
     id: number;
     question: QuestionToVote;
     launchedBy: Voter | null; // public: the buyer is the author — null with anonymousAuthor
+    isMine: boolean; // you launched it (also on an anonymous one); only you can extend it
     activatedAt: string;
     closesAt: string; // ISO UTC, 24 h after launch (48 h once extended)
     userHasVoted: boolean;

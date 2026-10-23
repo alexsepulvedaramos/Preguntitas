@@ -240,6 +240,8 @@ public class FlashService(
             return (FlashResult.Closed, null);
         if (flash.ExtendedByUserId != null)
             return (FlashResult.AlreadyExtended, null);
+        if (flash.LaunchedByUserId != userId)
+            return (FlashResult.NotLauncher, null);
 
         await using var transaction = await context.Database.BeginTransactionAsync();
 
@@ -415,6 +417,7 @@ public class FlashService(
                     Question = mapper.Map<QuestionToVoteDto>(flash.Question),
                     // An anonymous author is never named; anonymous votes name no voter.
                     LaunchedBy = flash.AnonymousAuthor ? null : ToVoter(flash.LaunchedBy),
+                    IsMine = flash.LaunchedByUserId == userId,
                     ActivatedAt = flash.ActivatedAt,
                     ClosesAt = flash.ClosesAt,
                     UserHasVoted = hasVoted,

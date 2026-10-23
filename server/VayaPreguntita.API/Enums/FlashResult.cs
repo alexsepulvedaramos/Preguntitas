@@ -20,4 +20,7 @@ public enum FlashResult
     InvalidCapsuleDate,
     Closed,
     AlreadyExtended,
+
+    // Only whoever launched a flash can extend it (developer, 2026-10-22).
+    NotLauncher,
 }

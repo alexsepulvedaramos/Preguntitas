@@ -147,6 +147,8 @@ export const FLASH_ANONYMOUS_AUTHOR_PRICE = 50;
 export const FLASH_ANONYMOUS_VOTES_PRICE = 50;
 export const FLASH_CAPSULE_PRICE = 50;
 export const FLASH_EXTENSION_PRICE = 30;
+// «+24 h» is offered to the launcher only in a flash's last 6 h (rama 50 review).
+export const FLASH_EXTEND_WINDOW_MS = 6 * 60 * 60 * 1000;
 export const FLASH_CAPSULE_MIN_DAYS = 1;
 export const FLASH_CAPSULE_MAX_DAYS = 365;
 

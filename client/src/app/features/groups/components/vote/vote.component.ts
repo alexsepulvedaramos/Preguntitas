@@ -30,6 +30,8 @@ export class VoteComponent {
   public readonly question = input.required<QuestionToVote>();
   public readonly members = input.required<GroupMember[]>();
   public readonly flashId = input<number | null>(null);
+  // The group screen draws the title itself, in the card's header (rama 50 card layout).
+  public readonly showQuestion = input(true);
 
   public readonly voted = output<VoteResponse>();
   public readonly flashVoted = output<FlashState>();

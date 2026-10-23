@@ -38,6 +38,7 @@ export const HLM_DATE_PICKER_VALUE_ACCESSOR = {
 	template: `
 		<hlm-popover
 			sideOffset="5"
+			[align]="align()"
 			autoFocus="first-heading"
 			[state]="_popoverState()"
 			(stateChanged)="_popoverState.set($event)"
@@ -70,6 +71,9 @@ export class HlmDatePicker<T> implements HlmDatePickerBase<T>, ControlValueAcces
 	private readonly _trigger = contentChild(HlmDatePickerTriggerToken);
 
 	/** Show dropdowns to navigate between months or years. */
+	/** Which edge of the trigger the calendar lines up with, so it can stay inside a narrow dialog. */
+	public readonly align = input<'start' | 'center' | 'end'>('center');
+
 	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
 
 	/** The minimum date that can be selected.*/

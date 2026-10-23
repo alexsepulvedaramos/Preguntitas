@@ -81,8 +81,9 @@
     --logo-dot-3: oklch(0.83 0.22 128);
     --logo-bg: oklch(0.2 0.04 155);
 
-    /* Honey — flash questions. Fixed on every shop theme, like sand: a flash is an event,
-       not part of the personal palette. */
+    /* Honey — flash questions. Each shop palette sets its own flash tone (developer,
+       2026-10-23) so «Lanzar flash» moves with «Sugerir pregunta»: a bright hue apart from
+       that palette's primary and accent. */
     --flash: oklch(0.8 0.14 78);
     --flash-foreground: oklch(0.3 0.07 60);
     --flash-border: oklch(0.78 0.13 75);
@@ -225,6 +226,9 @@
     --primary-foreground: oklch(0.98 0.005 235);
     --primary-hover: oklch(0.44 0.13 245);
     --accent: oklch(0.83 0.13 205);
+    --flash: oklch(0.8 0.14 65);
+    --flash-foreground: oklch(0.3 0.07 65);
+    --flash-border: oklch(0.78 0.13 65);
     --accent-text: oklch(0.5 0.13 245);
     --accent-foreground: oklch(0.15 0.05 205);
     --accent-hover: oklch(0.88 0.13 205);
@@ -266,6 +270,9 @@
     --primary-foreground: oklch(0.98 0.005 235);
     --primary-hover: oklch(0.52 0.11 245);
     --accent: oklch(0.83 0.13 205);
+    --flash: oklch(0.78 0.13 65);
+    --flash-foreground: oklch(0.25 0.06 65);
+    --flash-border: oklch(0.6 0.11 65);
     --accent-text: oklch(0.83 0.13 205);
     --accent-foreground: oklch(0.15 0.05 205);
     --accent-hover: oklch(0.75 0.13 205);
@@ -306,6 +313,9 @@
     --primary-foreground: oklch(0.98 0.005 10);
     --primary-hover: oklch(0.44 0.13 15);
     --accent: oklch(0.83 0.15 355);
+    --flash: oklch(0.8 0.14 95);
+    --flash-foreground: oklch(0.3 0.07 95);
+    --flash-border: oklch(0.78 0.13 95);
     --accent-text: oklch(0.5 0.13 15);
     --accent-foreground: oklch(0.15 0.05 355);
     --accent-hover: oklch(0.88 0.15 355);
@@ -347,6 +357,9 @@
     --primary-foreground: oklch(0.98 0.005 10);
     --primary-hover: oklch(0.52 0.11 15);
     --accent: oklch(0.83 0.15 355);
+    --flash: oklch(0.78 0.13 95);
+    --flash-foreground: oklch(0.25 0.06 95);
+    --flash-border: oklch(0.6 0.11 95);
     --accent-text: oklch(0.83 0.15 355);
     --accent-foreground: oklch(0.15 0.05 355);
     --accent-hover: oklch(0.75 0.15 355);
@@ -387,6 +400,9 @@
     --primary-foreground: oklch(0.98 0.005 300);
     --primary-hover: oklch(0.44 0.13 295);
     --accent: oklch(0.83 0.15 325);
+    --flash: oklch(0.8 0.14 110);
+    --flash-foreground: oklch(0.3 0.07 110);
+    --flash-border: oklch(0.78 0.13 110);
     --accent-text: oklch(0.5 0.13 295);
     --accent-foreground: oklch(0.15 0.05 325);
     --accent-hover: oklch(0.88 0.15 325);
@@ -428,6 +444,9 @@
     --primary-foreground: oklch(0.98 0.005 300);
     --primary-hover: oklch(0.52 0.11 295);
     --accent: oklch(0.83 0.15 325);
+    --flash: oklch(0.78 0.13 110);
+    --flash-foreground: oklch(0.25 0.06 110);
+    --flash-border: oklch(0.6 0.11 110);
     --accent-text: oklch(0.83 0.15 325);
     --accent-foreground: oklch(0.15 0.05 325);
     --accent-hover: oklch(0.75 0.15 325);
@@ -468,6 +487,9 @@
     --primary-foreground: oklch(0.98 0.005 55);
     --primary-hover: oklch(0.44 0.13 45);
     --accent: oklch(0.83 0.16 80);
+    --flash: oklch(0.8 0.14 215);
+    --flash-foreground: oklch(0.3 0.07 215);
+    --flash-border: oklch(0.78 0.13 215);
     --accent-text: oklch(0.5 0.13 45);
     --accent-foreground: oklch(0.15 0.05 80);
     --accent-hover: oklch(0.88 0.16 80);
@@ -509,6 +531,9 @@
     --primary-foreground: oklch(0.98 0.005 55);
     --primary-hover: oklch(0.52 0.11 45);
     --accent: oklch(0.83 0.16 80);
+    --flash: oklch(0.78 0.13 215);
+    --flash-foreground: oklch(0.25 0.06 215);
+    --flash-border: oklch(0.6 0.11 215);
     --accent-text: oklch(0.83 0.16 80);
     --accent-foreground: oklch(0.15 0.05 80);
     --accent-hover: oklch(0.75 0.16 80);
@@ -957,6 +982,8 @@
     width: 1em;
     height: 1em;
     vertical-align: -0.14em;
+    /* Lifts it off any gold-ish surface (the flash button, amber chips) */
+    filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.45));
   }
   .vp-coin__face { fill: oklch(0.86 0.12 88); }
   .vp-coin__rim { fill: none; stroke: oklch(0.62 0.12 75); stroke-width: 1.5; }

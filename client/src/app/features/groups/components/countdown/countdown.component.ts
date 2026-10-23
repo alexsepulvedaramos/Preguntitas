@@ -2,7 +2,7 @@ import { Component, DestroyRef, computed, effect, inject, input, output, signal 
 
 import { HlmProgressImports } from '@spartan-ng/helm/progress';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClock } from '@ng-icons/lucide';
+import { lucideClock, lucideClockPlus } from '@ng-icons/lucide';
 
 import { I18nService } from '../../../../core/i18n/i18n.service';
 
@@ -15,17 +15,19 @@ const CYCLE_MS = 24 * 60 * 60 * 1000;
 // Emits `reachedZero` once per target when the countdown hits 0, so the parent can refetch
 // without waiting for a manual reload. The `line` layout (group screen, rama 36) is a thin
 // bar led by a clock icon, with "Quedan 5 h 12 min" under it; projected content sits at the
-// right of that row.
+// right of that row. An extended flash (+24 h) swaps the clock for a clock-plus.
 @Component({
   selector: 'app-countdown',
   imports: [HlmProgressImports, NgIcon],
-  providers: [provideIcons({ lucideClock })],
+  providers: [provideIcons({ lucideClock, lucideClockPlus })],
   templateUrl: './countdown.component.html',
 })
 export class CountdownComponent {
   public readonly target = input<string | null>(null);
   public readonly compact = input(false);
   public readonly line = input(false);
+  // A flash given +24 h: a longer cycle for the bar and the clock-plus icon.
+  public readonly extended = input(false);
   public readonly reachedZero = output<void>();
   protected readonly t = inject(I18nService).t;
 
@@ -73,7 +75,8 @@ export class CountdownComponent {
   protected readonly remainingPercent = computed(() => {
     const diffMs = this.diffMs();
     if (diffMs === null) return 0;
-    return Math.round(Math.min(100, Math.max(0, (diffMs / CYCLE_MS) * 100)));
+    const cycleMs = this.extended() ? CYCLE_MS * 2 : CYCLE_MS;
+    return Math.round(Math.min(100, Math.max(0, (diffMs / cycleMs) * 100)));
   });
 
   // Calmer label for the `line` layout: hours and minutes, seconds only in the last minute.
