@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.31.1',
+    date: '2026-10-24',
+    title: {
+      es: 'Las reglas de cada pregunta, a la vista',
+      en: 'Each question’s rules, in plain sight',
+      de: 'Die Regeln jeder Frage, gut sichtbar',
+    },
+    items: [
+      {
+        glyph: 'secretVotes',
+        title: {
+          es: 'Se ve bien cuándo tu respuesta es anónima',
+          en: 'You can clearly see when your answer is anonymous',
+          de: 'Gut zu sehen, wann deine Antwort anonym ist',
+        },
+        text: {
+          es: 'Justo antes de responder, junto al tipo de pregunta, verás sus reglas con su color: si tu respuesta será anónima, cuándo se abre una cápsula del tiempo y que la flash no cuenta para la racha.',
+          en: 'Right before answering, next to the question type, you’ll see its rules in their own colour: whether your answer will be anonymous, when a time capsule opens and that a flash doesn’t count towards your streak.',
+          de: 'Direkt vor dem Antworten siehst du neben dem Fragetyp ihre Regeln in eigener Farbe: ob deine Antwort anonym ist, wann sich eine Zeitkapsel öffnet und dass eine Blitzfrage nicht für die Serie zählt.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.31.0',
     date: '2026-10-23',
     title: {
