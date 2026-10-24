@@ -53,6 +53,7 @@ import { GlyphComponent } from '../../../../shared/components/glyph/glyph.compon
 import { CoinComponent } from '../../../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
+import { RuleChipComponent } from '../../../../shared/components/rule-chip/rule-chip.component';
 
 export const DAILY_POLL_INTERVAL_MS = 30_000;
 
@@ -88,6 +89,7 @@ export interface DeckCard {
     GlyphComponent,
     CoinTextComponent,
     QuestionTypeChipComponent,
+    RuleChipComponent,
     RouterLink,
     HlmButtonImports,
     HlmDropdownMenuImports,

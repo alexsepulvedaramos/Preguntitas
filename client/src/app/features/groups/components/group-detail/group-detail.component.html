@@ -329,26 +329,6 @@
          top, the title, who wrote it, then the answers. No frame: the tabs tell questions apart. -->
     @for (flash of activeFlashList(); track flash.id) {
       <section class="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
-        <!-- Only what changes how you answer: the tab already says it's a flash, and a capsule
-             explains itself once you've voted -->
-        @if (!flash.userHasVoted || flash.anonymousVotes) {
-          <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            @if (!flash.userHasVoted) {
-              <!-- Nobody has to answer a flash: it never counts for the streak -->
-              <span class="inline-flex items-center gap-1">
-                <ng-icon hlm name="lucideFlame" class="size-3.5!" aria-hidden="true" />
-                {{ t('flash.noStreakNote') }}
-              </span>
-            }
-            @if (flash.anonymousVotes) {
-              <span class="inline-flex items-center gap-1">
-                <app-glyph name="secretVotes" size="xs" bare />
-                {{ flash.userHasVoted ? t('flash.anonymousVotesLabel') : t('flash.anonymousVoteNote') }}
-              </span>
-            }
-          </div>
-        }
-
         <app-countdown [target]="flash.closesAt" [line]="true" [extended]="flash.extended" (reachedZero)="refresh()">
           <!-- Anonymous votes show no one's name, not even who has voted -->
           @if (flash.anonymousVotes) {
@@ -382,10 +362,29 @@
               <span class="min-w-0 truncate">{{ t('flash.anonymousLaunched') }}</span>
             }
           </div>
+          <!-- Once answered, anonymity stays as a quiet reminder; the other rules no longer matter -->
+          @if (flash.userHasVoted && flash.anonymousVotes) {
+            <span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <app-glyph name="secretVotes" size="xs" bare />
+              {{ t('flash.anonymousVotesLabel') }}
+            </span>
+          }
         </div>
 
         @if (!flash.userHasVoted) {
-          <app-question-type-chip [type]="flash.question.type" />
+          <!-- The rules of this question, right before answering: each in its glyph's tone, and
+               anonymity stands out because someone paid for it and it changes what people write -->
+          <div class="flex min-w-0 flex-wrap items-center gap-2">
+            <app-question-type-chip [type]="flash.question.type" />
+            @if (flash.anonymousVotes) {
+              <app-rule-chip glyph="secretVotes" strong>{{ t('flash.anonymousVoteNote') }}</app-rule-chip>
+            }
+            @if (flash.capsuleOpensAt) {
+              <app-rule-chip glyph="capsule">{{ t('flash.capsuleOpensOn', { date: formatCapsuleDate(flash.capsuleOpensAt) }) }}</app-rule-chip>
+            }
+            <!-- Nobody has to answer a flash: it never counts for the streak -->
+            <app-rule-chip glyph="streak">{{ t('flash.noStreakNote') }}</app-rule-chip>
+          </div>
           <app-vote
             [groupId]="numericGroupId()"
             [question]="flash.question"
