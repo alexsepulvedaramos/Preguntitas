@@ -1095,7 +1095,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 Collected here until the polish pass (§13 rama 56) starts: the developer's own list plus what a sweep of the app and code finds; the developer approves the final list before the branch. *(Empty so far.)*
 
 ### Infra / ops
-- 🔵 **Free domain** *(rama 54, 2026-10-21)* via name.com + GitHub; then update Issuer/Audience, CORS `AllowedOrigins`, and frontend API base URL.
+- 🔵 **Free domain** *(rama 54, 2026-10-21)* via name.com + GitHub; then update Issuer/Audience, CORS `AllowedOrigins`, and frontend API base URL. *CORS also accepts `AllowedOriginPatterns` (developer, 2026-10-25): `*` = one run of letters, digits and dashes; set to our Vercel previews (`https://preguntitas-*-alexsepulvedaramos-5307s-projects.vercel.app`) so every PR preview can call the production API. Update it too if the Vercel team or project slug changes.*
 
 ---
 

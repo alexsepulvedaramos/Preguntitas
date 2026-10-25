@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using VayaPreguntita.API.Helpers;
 using VayaPreguntita.API.BackgroundServices;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
@@ -32,11 +33,15 @@ builder.Services.AddCors(options =>
         "DynamicCorsPolicy",
         policy =>
         {
-            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+            // Exact origins (production) plus wildcard patterns for our own Vercel previews
+            var origins = new CorsOriginMatcher(
+                builder.Configuration.GetSection("AllowedOrigins").Get<string[]>(),
+                builder.Configuration.GetSection("AllowedOriginPatterns").Get<string[]>()
+            );
 
-            if (allowedOrigins != null && allowedOrigins.Length > 0)
+            if (origins.HasAny)
             {
-                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+                policy.SetIsOriginAllowed(origins.IsAllowed).AllowAnyHeader().AllowAnyMethod();
             }
         }
     );
