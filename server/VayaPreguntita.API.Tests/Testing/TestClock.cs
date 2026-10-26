@@ -13,7 +13,7 @@ public sealed class TestClock : TimeProvider
     public DateTime UtcNow => _utcNow.UtcDateTime;
 
     public void SetLocal(DateOnly date, TimeOnly time) =>
-        _utcNow = new DateTimeOffset(date.ToDateTime(time), DailyClock.UtcOffset).ToUniversalTime();
+        _utcNow = new DateTimeOffset(DailyClock.ToUtc(date, time), TimeSpan.Zero);
 
     public void Advance(TimeSpan by) => _utcNow += by;
 }

@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.31.1',
+    date: '2026-10-26',
+    title: {
+      es: 'Adiós al desfase del cambio de hora',
+      en: 'No more clock-change mix-up',
+      de: 'Schluss mit dem Zeitumstellungs-Durcheinander',
+    },
+    items: [
+      {
+        glyph: 'clock',
+        title: {
+          es: 'La hora de la pregunta ya es la correcta',
+          en: 'The question time is now right',
+          de: 'Die Uhrzeit der Frage stimmt wieder',
+        },
+        text: {
+          es: 'Tras el cambio de hora, la pregunta del día salía una hora antes de la que mostraba el grupo. Ahora sale a la hora que ves, también en invierno.',
+          en: 'After the clock change, the daily question appeared an hour earlier than the time the group showed. It now comes out at the time you see, in winter too.',
+          de: 'Nach der Zeitumstellung erschien die Tagesfrage eine Stunde früher als die in der Gruppe angezeigte Uhrzeit. Jetzt erscheint sie zur angezeigten Zeit, auch im Winter.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.31.0',
     date: '2026-10-23',
     title: {
