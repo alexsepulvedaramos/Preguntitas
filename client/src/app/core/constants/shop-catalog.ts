@@ -62,11 +62,11 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   item('ring-volt', CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
   item('ring-flare', CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
   item('ring-blizzard', CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
-  item('ring-doodle', CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
   item('ring-orbit', CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
   item('ring-aurora', CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
   item('ring-neon', CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
   item('ring-arcade', CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
+  item('ring-doodle', CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
 
   // Seasonal (Halloween 2026): only on sale for a week; the catalog from the server says when.
   { ...item('ring-witch', CosmeticKind.RingSkin, 50), seasonal: true },

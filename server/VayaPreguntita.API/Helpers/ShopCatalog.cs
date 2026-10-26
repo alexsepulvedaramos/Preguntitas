@@ -43,11 +43,11 @@ public static class ShopCatalog
         new(5, "ring-volt", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
         new(4, "ring-flare", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
         new(3, "ring-blizzard", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
-        new(6, "ring-doodle", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(7, "ring-orbit", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(8, "ring-aurora", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(1, "ring-neon", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
         new(2, "ring-arcade", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
+        new(6, "ring-doodle", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
 
         // Seasonal finishes.
         new(101, "ring-witch", CosmeticKind.RingSkin, 50, CosmeticRarity.Common, HalloweenFrom, HalloweenUntil),
