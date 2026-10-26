@@ -30,8 +30,8 @@
               (click)="select(m.id)"
             >
               <span class="flex items-center gap-3">
-                <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [memberSince]="groupStreaks.joinedAtFor(m.id)" [showRibbon]="false" size="sm" />
-                <app-user-name class="min-w-0 flex-1 truncate font-semibold" [name]="m.username" [look]="groupStreaks.lookFor(m.id)" />
+                <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [look]="groupStreaks.lookFor(m.id)" [showRibbon]="false" size="sm" />
+                <app-user-name class="min-w-0 flex-1 truncate font-semibold" [name]="m.username" />
                 @if (selectedId() === m.id) {
                   <ng-icon hlm name="lucideCheck" class="shrink-0 text-primary-text" aria-hidden="true" />
                 }
@@ -127,7 +127,7 @@
         [class]="guess().correct ? 'border-primary/40 bg-primary/10' : 'border-border bg-card'"
         aria-live="polite"
       >
-        <app-user-avatar [avatarUrl]="author.avatarUrl" [username]="author.username" [frameColor]="author.frameColor" [look]="groupStreaks.lookFor(author.id)" [memberSince]="groupStreaks.joinedAtFor(author.id)" size="sm" />
+        <app-user-avatar [avatarUrl]="author.avatarUrl" [username]="author.username" [frameColor]="author.frameColor" [look]="groupStreaks.lookFor(author.id)" size="sm" />
         <p class="min-w-0 flex-1 text-foreground">
           @if (guess().state === 'skipped') {
             {{ t('guess.wroteIt', { name: author.username }) }}

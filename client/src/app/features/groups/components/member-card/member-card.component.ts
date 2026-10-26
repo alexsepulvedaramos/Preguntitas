@@ -75,12 +75,6 @@ export class MemberCardComponent {
     return list.reduce((best, s) => (s.currentStreak > best.currentStreak ? s : best), list[0]);
   });
 
-  // Seniority frame: time in this group, or in the oldest group on the all-groups card.
-  protected readonly memberSince = computed(() => {
-    const dates = this.stats().map((s) => s.joinedAt).filter(Boolean).sort();
-    return this.allGroups() ? (dates[0] ?? null) : (this.headline()?.joinedAt ?? null);
-  });
-
   protected readonly firstRingDays = FIRST_RING_DAYS;
 
   // Gift a streak freeze (rama 35): on someone else's card inside a group.

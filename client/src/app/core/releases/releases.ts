@@ -24,6 +24,69 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.0',
+    date: '2026-10-27',
+    title: {
+      es: 'Acabados para tu anillo y Halloween',
+      en: 'Ring finishes and Halloween',
+      de: 'Veredelungen für deinen Ring und Halloween',
+    },
+    items: [
+      {
+        glyph: 'sparkles',
+        title: {
+          es: 'Acabados para tu anillo de racha',
+          en: 'Finishes for your streak ring',
+          de: 'Veredelungen für deinen Serienring',
+        },
+        text: {
+          es: 'Ocho acabados nuevos en la tienda: Rayos, Llamarada, Ventisca, Garabato, Órbita, Aurora, Neón y Arcade. Se dibujan encima de tu anillo, así tu nivel se sigue viendo, y ganan efectos según subes de nivel. Si llevas la corona del grupo, cada uno la luce a su estilo.',
+          en: 'Eight new finishes in the shop: Lightning, Blaze, Blizzard, Doodle, Orbit, Aurora, Neon and Arcade. They sit on top of your ring, so your level still shows, and gain effects as you level up. If you wear the group’s crown, each one shows it off in its own style.',
+          de: 'Acht neue Veredelungen im Shop: Blitze, Flammenmeer, Schneesturm, Gekritzel, Umlaufbahn, Polarlicht, Neon und Arcade. Sie liegen über deinem Ring, damit deine Stufe sichtbar bleibt, und bekommen mit jeder Stufe mehr Effekte. Trägst du die Krone der Gruppe, zeigt jede sie in ihrem eigenen Stil.',
+        },
+      },
+      {
+        glyph: 'celebrate',
+        title: {
+          es: 'Noche de brujas, solo esta semana',
+          en: 'Witching night, this week only',
+          de: 'Hexennacht, nur diese Woche',
+        },
+        text: {
+          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 50 monedas y solo durante una semana. Si lo compras, te lo puedes poner siempre que quieras.',
+          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 50 coins and for one week only. Buy it and you can wear it whenever you like.',
+          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 50 Münzen und nur eine Woche lang. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
+        },
+      },
+      {
+        glyph: 'shop',
+        title: {
+          es: 'Una tienda más clara',
+          en: 'A clearer shop',
+          de: 'Ein übersichtlicherer Shop',
+        },
+        text: {
+          es: 'Ahora tiene dos pestañas, Objetos y Estilo, y tus movimientos se abren tocando tu saldo. Los colores del marco pasan a la tienda: el que llevabas puesto es tuyo, de regalo.',
+          en: 'It now has two tabs, Items and Style, and your coin activity opens when you tap your balance. Frame colours move to the shop: the one you were wearing is yours, as a gift.',
+          de: 'Er hat jetzt zwei Tabs, Gegenstände und Stil, und dein Münzverlauf öffnet sich mit einem Tipp auf dein Guthaben. Die Rahmenfarben gibt es jetzt im Shop: Die, die du getragen hast, gehört dir als Geschenk.',
+        },
+      },
+      {
+        glyph: 'wallet',
+        title: {
+          es: 'Te devolvemos lo gastado',
+          en: 'Your coins back',
+          de: 'Deine Münzen zurück',
+        },
+        text: {
+          es: 'Los temas de la app y los colores de nombre se retiran: si compraste alguno, te devolvemos lo que pagaste. El marco de antigüedad también se va y vuelves a tu anillo de racha.',
+          en: 'App themes and name colours are retired: if you bought any, you get back what you paid. The seniority frame goes too, and you’re back on your streak ring.',
+          de: 'App-Themes und Namensfarben fallen weg: Wenn du welche gekauft hast, bekommst du zurück, was du bezahlt hast. Auch der Dabeisein-Rahmen geht, und du trägst wieder deinen Serienring.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.31.1',
     date: '2026-10-26',
     title: {

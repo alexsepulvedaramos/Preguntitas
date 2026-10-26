@@ -111,7 +111,19 @@ export const EMPTY_INVENTORY: Inventory = {
 
 // GET shop (rama 42): the cosmetics catalog, with what you own.
 export interface ShopCatalog {
-  cosmetics: { key: string; kind: number; price: number; rarity: number; owned: boolean }[];
+  cosmetics: CatalogCosmetic[];
+}
+
+// GET shop (rama 42). Seasonal items (rama 57) carry the end of their sale window; once it is
+// over they are only listed to their owners, with onSale false.
+export interface CatalogCosmetic {
+  key: string;
+  kind: number;
+  price: number;
+  rarity: number;
+  owned: boolean;
+  onSaleUntil: string | null;
+  onSale: boolean;
 }
 
 // POST shop/cosmetics

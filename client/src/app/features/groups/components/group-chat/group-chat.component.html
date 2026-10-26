@@ -59,7 +59,6 @@
                 [streak]="groupStreaks.streakFor(msg.userId)"
                 [crown]="groupStreaks.hasCrown(msg.userId)"
                 [look]="groupStreaks.lookFor(msg.userId)"
-                [memberSince]="groupStreaks.joinedAtFor(msg.userId)"
                 size="sm"
               />
             } @else {
@@ -67,7 +66,7 @@
             }
           <div class="flex min-w-0 flex-col gap-0.5">
             @if (showLabel) {
-              <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" [look]="groupStreaks.lookFor(msg.userId)" />
+              <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" />
             }
             <div class="flex items-center gap-1">
               <div class="min-w-0 rounded-default bg-muted px-3 py-2 text-foreground">

@@ -103,14 +103,13 @@
               [streak]="member.currentStreak"
               [crown]="member.hasCrown"
               [look]="member.look"
-              [memberSince]="member.joinedAt"
               size="sm"
             />
 
             <!-- Name + badge -->
             <div class="flex flex-col min-w-0 flex-1">
               <span class="flex items-center gap-2 text-sm font-medium text-foreground">
-                <app-user-name [name]="member.username" [look]="member.look" />
+                <app-user-name [name]="member.username" />
                 @if (member.currentStreak > 0) {
                   <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="t('settings.streakLabel', { count: member.currentStreak })">
                     <app-glyph name="streak" size="xs" bare />{{ member.currentStreak }}

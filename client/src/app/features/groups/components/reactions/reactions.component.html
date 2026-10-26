@@ -65,10 +65,9 @@
               [streak]="groupStreaks.streakFor(reaction.userId)"
               [crown]="groupStreaks.hasCrown(reaction.userId)"
               [look]="groupStreaks.lookFor(reaction.userId)"
-              [memberSince]="groupStreaks.joinedAtFor(reaction.userId)"
               size="xs"
             />
-            <app-user-name class="min-w-0 flex-1 truncate text-sm text-foreground" [name]="reaction.username" [look]="groupStreaks.lookFor(reaction.userId)" />
+            <app-user-name class="min-w-0 flex-1 truncate text-sm text-foreground" [name]="reaction.username" />
             <span class="text-base">{{ emojis[reaction.emoji] }}</span>
           </div>
         } @empty {

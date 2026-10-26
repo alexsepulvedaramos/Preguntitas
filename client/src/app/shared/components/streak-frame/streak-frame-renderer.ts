@@ -1,14 +1,16 @@
-import { CROWN_LOOK, FRAME_LOOKS, FrameLook, StreakTierKey } from '../../../core/constants/streak-tiers';
+import { CROWN_LOOK, FRAME_LOOKS, NEUTRAL_RING_LOOK, STREAK_TIERS, StreakTierKey } from '../../../core/constants/streak-tiers';
+import { FinishKey, renderFinish } from './ring-finishes';
 
 // Builds the markup of a streak frame (rama 19). Coordinates: viewBox -100..100 over a box
 // twice the avatar's size, so the avatar's radius is 50 and the rim spans 49–59. Every value
 // comes from our own constants, never from user input, so the string is safe to trust.
-// Styling and animation live in styles-lime.css (.vp-frame*).
+// Styling and animation live in styles-lime.css (.vp-frame*, .vp-fx-*).
 
 export interface FrameOptions {
   tier: StreakTierKey | null;
-  // Replaces the tier's own material: a ring skin or a seniority frame (rama 42).
-  look?: FrameLook | null;
+  // A shop finish drawn on top of the tier's material (rama 57); with no tier yet it sits on a
+  // plain neutral ring. It brings its own effects and its own crown.
+  finish?: FinishKey | null;
   crown: boolean;
   // Light version for list sizes: rim, shine and gems only — no particles or ornaments.
   lite: boolean;
@@ -18,12 +20,6 @@ export interface FrameOptions {
 }
 
 const f = (n: number) => n.toFixed(2);
-
-// Whether a #rrggbb colour is light enough to need dark text on it.
-function isLight(hex: string): boolean {
-  const n = parseInt(hex.slice(1), 16);
-  return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) > 150;
-}
 
 function polar(deg: number, r: number): [number, number] {
   const rad = (deg * Math.PI) / 180;
@@ -56,34 +52,33 @@ function crownMarkup(id: string, lite: boolean): string {
 
 export function renderStreakFrame(o: FrameOptions): string {
   const { tier, crown, lite, uid: id } = o;
-  const look = o.look ?? (tier ? FRAME_LOOKS[tier] : null);
+  const finish = o.finish ?? null;
+  const look = tier ? FRAME_LOOKS[tier] : finish ? NEUTRAL_RING_LOOK : null;
   const rnd = seeded((tier?.length ?? 1) * 131 + (lite ? 7 : 3));
+  // A finish replaces the tier's own particles, ornaments and crown with its own effects.
+  const fx = finish
+    ? renderFinish(finish, tier ? STREAK_TIERS.findIndex((t) => t.key === tier) + 1 : 0, lite, crown, `url(#${id}blur)`)
+    : null;
+  const tierCrown = crown && !fx;
+  const tierEffects = !fx;
   let html = '';
 
-  if (look?.aura && !lite)
+  if (look?.aura && !lite && !fx?.hideAura)
     html += `<div class="vp-frame__aura" style="background:radial-gradient(circle, ${look.aura} 0%, transparent 70%)"></div>`;
-  if (look?.rays && !lite)
+  if (look?.rays && !lite && tierEffects)
     html += `<div class="vp-frame__rays" style="background:repeating-conic-gradient(from 0deg, ${look.b}66 0deg 3deg, transparent 3deg 12deg)"></div>`;
   if (look?.nebula)
     html += `<div class="vp-frame__band vp-frame__nebula" style="background:conic-gradient(${[...look.nebula, look.nebula[0]].join(',')})"></div>`;
+  if (fx) html += fx.layers;
 
   let svg = `<svg class="vp-frame__back" viewBox="-100 -100 200 200" aria-hidden="true"><defs>
     <filter id="${id}blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
     <radialGradient id="${id}gem" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="currentColor"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
     ${look?.stops ? gradient(`${id}m`, look.stops) : ''}
-    ${crown ? gradient(`${id}cr`, CROWN_LOOK.stops) : ''}
+    ${tierCrown ? gradient(`${id}cr`, CROWN_LOOK.stops) : ''}
   </defs>`;
 
-  if (look?.pixel) {
-    // 8-bit rim: square blocks round the ring, colours cycling, with a dark outline.
-    const n = lite ? 16 : 24;
-    svg += `<circle r="54" fill="none" stroke="#111" stroke-width="12" opacity=".55"/>`;
-    for (let k = 0; k < n; k++) {
-      const ang = (k / n) * 360;
-      const [x, y] = polar(ang, 54);
-      svg += `<rect x="${f(x - 4.6)}" y="${f(y - 4.6)}" width="9.2" height="9.2" fill="${look.pixel[k % look.pixel.length]}" stroke="#111" stroke-width=".8" transform="rotate(${ang.toFixed(0)} ${f(x)} ${f(y)})"/>`;
-    }
-  } else if (look?.facets && look.facet) {
+  if (look?.facets && look.facet) {
     // Cut stone: four triangles per facet, see-through so the nebula glows beneath.
     const n = lite ? Math.round(look.facets / 2) : look.facets;
     const sh = look.facet;
@@ -96,6 +91,10 @@ export function renderStreakFrame(o: FrameOptions): string {
         <path d="M${f(x3)} ${f(y3)} L${f(x0)} ${f(y0)} L${f(xm)} ${f(ym)} Z" fill="${sh[0]}" opacity=".55"/>`;
     }
     svg += `<circle r="59.2" fill="none" stroke="${sh[2]}" stroke-width=".9" opacity=".9"/><circle r="48.8" fill="none" stroke="${sh[0]}" stroke-width="1.2"/>`;
+  } else if (look?.thin && look.stops) {
+    // The neutral ring a finish sits on before the first tier: thin and plain.
+    svg += `<circle r="53.5" fill="none" stroke="#000" stroke-width="7" opacity=".22"/>
+      <circle r="53.5" fill="none" stroke="url(#${id}m)" stroke-width="5"/>`;
   } else if (look?.stops) {
     // Metal, wood or stone: shadow, gradient band, bevel lines, then the material's texture.
     svg += `<circle r="54" fill="none" stroke="#000" stroke-width="12" opacity=".4"/>
@@ -107,8 +106,6 @@ export function renderStreakFrame(o: FrameOptions): string {
         <circle r="51.4" fill="none" stroke="${look.stops[0]}" stroke-width=".6" opacity=".6"/><circle r="56.6" fill="none" stroke="${look.stops[0]}" stroke-width=".6" opacity=".6"/>`;
     if (look.hot && !lite)
       svg += `<circle class="vp-frame__pulse" r="54" fill="none" stroke="#ff7a1a" stroke-width="10" filter="url(#${id}blur)"/>`;
-    if (look.glow)
-      svg += `<circle class="vp-frame__pulse" r="54" fill="none" stroke="${look.glow}" stroke-width="${lite ? 6 : 9}" filter="url(#${id}blur)"/>`;
     if (look.grain) {
       for (const r of [51.2, 53, 55.2, 57])
         svg += `<circle r="${r}" fill="none" stroke="${look.grain}" stroke-width=".7" stroke-dasharray="${f(6 + rnd() * 10)} ${f(2 + rnd() * 4)} ${f(14 + rnd() * 12)} ${f(3 + rnd() * 3)}" opacity=".6" transform="rotate(${(rnd() * 360).toFixed(0)})"/>`;
@@ -144,17 +141,17 @@ export function renderStreakFrame(o: FrameOptions): string {
       svg += `<g style="color:${look.topGem}"><circle class="vp-frame__pulse" cx="0" cy="-55" r="11" fill="${look.topGem}" filter="url(#${id}blur)"/>
         <path d="M0 -64 L7 -57 L4 -48 L-4 -48 L-7 -57 Z" fill="url(#${id}gem)" stroke="#fff" stroke-opacity=".7" stroke-width=".7"/>
         <path d="M-7 -57 L7 -57 M0 -64 L-2.5 -57 L0 -48 M0 -64 L2.5 -57" stroke="#fff" stroke-opacity=".45" stroke-width=".5" fill="none"/></g>`;
-    for (let k = 0; k < (look.sparks ?? 0); k++) {
+    for (let k = 0; k < (tierEffects ? (look.sparks ?? 0) : 0); k++) {
       const [x, y] = polar(-60 + rnd() * 120, 58);
       svg += `<circle class="vp-frame__spark" cx="${f(x)}" cy="${f(y)}" r="${f(0.8 + rnd() * 1.4)}" fill="${rnd() > 0.5 ? look.b : look.core}"
         style="--d:${f(1.6 + rnd() * 1.8)}s;--dl:${f(-rnd() * 3)}s;--dx:${(rnd() * 24 - 12).toFixed(0)}px;--dy:${(-30 - rnd() * 40).toFixed(0)}px"/>`;
     }
-    for (let k = 0; k < (look.twinkles ?? 0); k++) {
+    for (let k = 0; k < (tierEffects ? (look.twinkles ?? 0) : 0); k++) {
       const [x, y] = polar(rnd() * 360, 55 + rnd() * 6);
       const s = 4 + rnd() * 4;
       svg += `<path class="vp-frame__twinkle" d="M${f(x)} ${f(y - s)} Q${f(x)} ${f(y)} ${f(x + s)} ${f(y)} Q${f(x)} ${f(y)} ${f(x)} ${f(y + s)} Q${f(x)} ${f(y)} ${f(x - s)} ${f(y)} Q${f(x)} ${f(y)} ${f(x)} ${f(y - s)} Z" fill="#fff" style="--d:${f(2 + rnd() * 1.6)}s;--dl:${f(-rnd() * 3)}s"/>`;
     }
-    if (look.motes) {
+    if (look.motes && tierEffects) {
       svg += `<g class="vp-frame__orbit" style="--d:${look.rays ? 22 : 16}s">`;
       for (let k = 0; k < look.motes; k++) {
         const [x, y] = polar((k / look.motes) * 360 + rnd() * 20, 70 + rnd() * 10);
@@ -165,9 +162,12 @@ export function renderStreakFrame(o: FrameOptions): string {
   } else if (look?.topGem && !crown) {
     svg += `<g style="color:${look.topGem}"><circle cx="0" cy="-54" r="6" fill="url(#${id}gem)" stroke="#fff" stroke-opacity=".6" stroke-width=".8"/></g>`;
   }
-  if (crown) svg += crownMarkup(id, lite);
+  if (tierCrown) svg += crownMarkup(id, lite);
   svg += `</svg>`;
   html += svg;
+
+  // The finish, above the face.
+  if (fx) html += `<svg class="vp-frame__fx" viewBox="-100 -100 200 200" aria-hidden="true">${fx.front}</svg>`;
 
   // Light sweeping round the rim — from bronze on.
   if (look?.sheen) {
@@ -178,11 +178,11 @@ export function renderStreakFrame(o: FrameOptions): string {
   // Ribbon with the day count.
   if (look && o.ribbon) {
     const fill = look.stops ? `url(#${id}rb)` : look.facet ? look.facet[1] : look.a;
-    // Light materials need dark digits; skins pick by their main colour's lightness.
+    // Light materials need dark digits.
     const grad = look.stops
       ? `<defs><linearGradient id="${id}rb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${look.stops[2]}"/><stop offset=".5" stop-color="${look.stops[1]}"/><stop offset="1" stop-color="${look.stops[0]}"/></linearGradient></defs>`
       : '';
-    const darkText = o.look ? isLight(look.a) : tier === 'silver' || tier === 'gold' || tier === 'stone';
+    const darkText = tier === 'silver' || tier === 'gold' || tier === 'stone';
     html += `<svg class="vp-frame__front" viewBox="-100 -100 200 200" aria-hidden="true">${grad}
       <path d="M-34 44 L-26 52 L-34 60 L-18 60 L-18 44 Z M34 44 L26 52 L34 60 L18 60 L18 44 Z" fill="${fill}" opacity=".75" stroke="#000" stroke-opacity=".35" stroke-width=".8"/>
       <path d="M-24 40 L24 40 L24 58 L-24 58 Z" fill="${fill}" stroke="#000" stroke-opacity=".4" stroke-width="1"/>

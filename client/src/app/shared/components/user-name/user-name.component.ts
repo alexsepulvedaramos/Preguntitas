@@ -1,17 +1,12 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
-import { Look, nameColorClass } from '../../../core/constants/shop-catalog';
-
-// A member's name in their shop name colour (rama 42, §17.10). Shown in the chat, the member
-// list, results/voters and the member card.
+// A member's name (rama 42). It carried the shop name colour until rama 57 retired it; kept as
+// the one place names are drawn, truncating to the space they get.
 @Component({
   selector: 'app-user-name',
   host: { class: 'inline-flex min-w-0 max-w-full items-baseline gap-1' },
-  template: `<span class="truncate" [class]="colorClass()">{{ name() }}</span>`,
+  template: `<span class="truncate">{{ name() }}</span>`,
 })
 export class UserNameComponent {
   readonly name = input<string | null | undefined>('');
-  readonly look = input<Look | null | undefined>(null);
-
-  protected readonly colorClass = computed(() => nameColorClass(this.look()?.nameColor));
 }

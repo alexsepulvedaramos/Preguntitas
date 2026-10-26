@@ -2,19 +2,24 @@ import { Component, input, computed } from '@angular/core';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 
 import {
-  FRAME_SENIORITY,
-  FrameLook,
   StreakTierKey,
   frameFollowsStreak,
   frameColorVar,
   isColorFrame,
   streakTierFor,
 } from '../../../core/constants/streak-tiers';
-import { Look, ringSkinLook, seniorityStage } from '../../../core/constants/shop-catalog';
+import { Look } from '../../../core/constants/shop-catalog';
 import { needsLightBackdrop } from '../../utils/avatar-backdrop';
 import { StreakFrameComponent } from '../streak-frame/streak-frame.component';
+import { FinishKey, isFinish } from '../streak-frame/ring-finishes';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+// How much of a ring finish shows (rama 57): 'auto' = the full one on lg/xl and a lighter one
+// (still animated, still growing with the tier) on smaller sizes; 'full' wherever the person
+// is the point (a voting option, a free-text answer); 'ring' = the tier ring only, for the
+// small "who has voted" dots.
+export type AvatarEffects = 'auto' | 'full' | 'ring';
 
 @Component({
   selector: 'app-user-avatar',
@@ -22,8 +27,8 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   imports: [HlmAvatarImports, StreakFrameComponent],
   template: `
     <div class="relative isolate rounded-full shrink-0" [class]="sizeClass()">
-      @if (tier() || frameLook() || crown()) {
-        <app-streak-frame [tier]="tier()" [look]="frameLook()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
+      @if (tier() || finish() || crown()) {
+        <app-streak-frame [tier]="tier()" [finish]="finish()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
       }
       <div
         class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
@@ -49,18 +54,16 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export class UserAvatarComponent {
   readonly avatarUrl = input<string | null | undefined>(null);
   readonly username = input<string>('');
-  // A palette colour key ('purple', …), 'streak' (or null: frame follows the streak tier), 'seniority' or 'none'.
+  // A palette colour key ('purple', …), 'streak' (or null: frame follows the streak tier) or 'none'.
   readonly frameColor = input<string | null | undefined>(null);
   // The member's streak in the current context (rama 19): their streak in the group
   // when shown inside one, their highest current streak outside. null = unknown.
   readonly streak = input<number | null | undefined>(null);
   // Crown for the group's best current streak — shown whatever the frame setting.
   readonly crown = input<boolean | null | undefined>(false);
-  // Equipped shop cosmetics (rama 42): the ring skin is drawn here.
+  // Equipped shop cosmetics (rama 42): the ring finish is drawn here (rama 57).
   readonly look = input<Look | null | undefined>(null);
-  // When the member joined the group in context (outside one: their oldest group) — drives
-  // the seniority frame.
-  readonly memberSince = input<string | null | undefined>(null);
+  readonly effects = input<AvatarEffects>('auto');
   // Day-count ribbon on the largest size (off where the count is already shown).
   readonly showRibbon = input(true);
   readonly size = input<AvatarSize>('md');
@@ -80,15 +83,17 @@ export class UserAvatarComponent {
     frameFollowsStreak(this.frameColor()) ? (streakTierFor(this.streak())?.key ?? null) : null
   );
 
-  // A ring skin restyles the streak ring; the seniority frame replaces it.
-  protected readonly frameLook = computed<FrameLook | null>(() => {
-    if (this.frameColor() === FRAME_SENIORITY) return seniorityStage(this.memberSince())?.look ?? null;
-    const tier = this.tier();
-    return tier ? ringSkinLook(this.look()?.ringSkin, tier) : null;
+  // A finish is drawn over the streak ring, so only while the frame follows the streak.
+  protected readonly finish = computed<FinishKey | null>(() => {
+    const key = this.look()?.ringSkin;
+    return this.effects() !== 'ring' && frameFollowsStreak(this.frameColor()) && isFinish(key) ? key : null;
   });
 
-  // Full frames (particles, ornaments) only where the avatar is big enough to show them.
-  protected readonly lite = computed(() => this.size() !== 'lg' && this.size() !== 'xl');
+  // Full frames (particles, ornaments, icons) only where the avatar is big enough to show
+  // them, or where it is the point of the screen.
+  protected readonly lite = computed(
+    () => this.effects() !== 'full' && this.size() !== 'lg' && this.size() !== 'xl'
+  );
 
   protected readonly ribbon = computed(() =>
     this.size() === 'xl' && this.showRibbon() && this.tier() ? (this.streak() ?? null) : null

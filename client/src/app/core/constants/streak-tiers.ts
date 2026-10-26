@@ -85,8 +85,6 @@ export function nextStreakBonusStep(streak: number): { fromDay: number; coins: n
 // Special User.frameColor values besides a palette colour key (FRAME_COLOR_KEYS).
 export const FRAME_STREAK = 'streak';
 export const FRAME_NONE = 'none';
-// Free seniority frame by time in the group (rama 42, §17.10).
-export const FRAME_SENIORITY = 'seniority';
 
 // Special title selections besides a tier key.
 export const TITLE_AUTO = 'auto';
@@ -97,8 +95,9 @@ export function frameFollowsStreak(frameColor: string | null | undefined): boole
   return frameColor == null || frameColor === FRAME_STREAK;
 }
 
-// Plain frame colours the player can pick (§14 visual rules): keys, not hex, so each one
-// has a light and a dark variant tuned to the palette (`--frame-<key>` in styles-lime.css).
+// Plain frame colours (§14 visual rules), sold in the shop since rama 57 as "frame-<key>": keys,
+// not hex, so each one has a light and a dark variant tuned to the palette (`--frame-<key>`
+// in styles-lime.css).
 export const FRAME_COLOR_KEYS = ['purple', 'blue', 'green', 'yellow', 'orange', 'red', 'pink'] as const;
 export type FrameColorKey = (typeof FRAME_COLOR_KEYS)[number];
 
@@ -139,11 +138,15 @@ export interface FrameLook {
   sideGems?: string;
   twinkles?: number;
   motes?: number;
-  // Ring skins (rama 42): a blurred glowing tube over the rim, and an 8-bit rim of square
-  // blocks in these colours instead of a gradient band.
-  glow?: string;
-  pixel?: string[];
+  // A thinner, plain band: the neutral ring a finish sits on before the first tier (rama 57).
+  thin?: boolean;
 }
+
+// The ring under a shop finish while the member has no tier yet (days 1–2).
+export const NEUTRAL_RING_LOOK: FrameLook = {
+  a: '#aab0b6', b: '#eef1f3', core: '#ffffff',
+  stops: ['#7d848b', '#b9bfc5', '#eef1f3', '#a3aab1', '#7d848b'], thin: true,
+};
 
 export const FRAME_LOOKS: Record<StreakTierKey, FrameLook> = {
   wood: {
