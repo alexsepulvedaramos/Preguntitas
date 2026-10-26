@@ -12,8 +12,8 @@ describe('shop catalog (rama 42, rama 57)', () => {
     for (const key of keys) expect((es.shop.items as Record<string, string>)[key]).toBeTruthy();
   });
 
-  it('has art for every ring finish', () => {
-    expect([...ofKind(CosmeticKind.RingSkin)].sort()).toEqual([...FINISH_KEYS].sort());
+  it('has art for every ring finish it sells', () => {
+    for (const key of ofKind(CosmeticKind.RingSkin)) expect(FINISH_KEYS as readonly string[]).toContain(key);
   });
 
   it('sells every frame colour, and maps it back to its key', () => {

@@ -35,6 +35,8 @@ export interface FinishMarkup {
   layers: string;
   // The finish replaces the tier's aura (its band layers take that place).
   hideAura: boolean;
+  // Rare finishes don't style the crown: the plain gold one is drawn.
+  plainCrown: boolean;
 }
 
 export const FINISH_KEYS = [
@@ -47,8 +49,25 @@ export const FINISH_KEYS = [
   'ring-neon',
   'ring-arcade',
   'ring-witch',
+  'ring-sparks',
+  'ring-bubbles',
+  'ring-glitter',
+  'ring-confetti',
 ] as const;
 export type FinishKey = (typeof FINISH_KEYS)[number];
+
+// Rare finishes are animated but look the same on every tier, and keep the plain gold crown.
+const FIXED_LEVEL: Partial<Record<FinishKey, number>> = {
+  'ring-volt': 6,
+  'ring-sparks': 0,
+  'ring-bubbles': 0,
+  'ring-glitter': 0,
+  'ring-confetti': 0,
+};
+
+export function finishEvolves(key: FinishKey): boolean {
+  return FIXED_LEVEL[key] === undefined;
+}
 
 export function isFinish(key: string | null | undefined): key is FinishKey {
   return !!key && (FINISH_KEYS as readonly string[]).includes(key);
@@ -247,10 +266,26 @@ function drawIcons(out: Group[], level: number, lite: boolean, style: IconStyle,
       g.shapes.push(path({ d, stroke: col, sw: 0.7, op: 0.9, cap: 'round' }));
       out.push(g);
     } else {
-      const d = iconPath(ic.kind, 0, -ICON_RADIUS, s);
+      // Garabato: each icon is a sticker — a wobbly paper blob with the icon inked on top and
+      // its colour printed a little off the line, like a cartoon.
+      const cy = -ICON_RADIUS;
+      const ink = '#2a2233';
+      const wig = { cls: 'vp-fx-wiggle', st: anim(1.6 + i * 0.2, -i * 0.3) };
       const g = group({ tr: `rotate(${ic.ang})` });
-      g.shapes.push(path({ d, fill: col, op: 0.35, cls: 'vp-fx-wiggle', st: anim(1.6 + i * 0.2, -i * 0.3) }));
-      g.shapes.push(path({ d, stroke: col, sw: 1.6, cap: 'round', cls: 'vp-fx-wiggle', st: anim(1.6 + i * 0.2, -i * 0.3) }));
+      g.shapes.push(path({ d: blob(0, cy, ic.big ? 8.8 : 7.6, seeded(i * 31 + 7)), fill: '#fffaf0', stroke: ink, sw: 1, ...wig }));
+      const k = ic.big ? 4.2 : 3.4;
+      if (ic.kind === 'question') {
+        g.shapes.push(path({ d: questionPath(0.9, cy + 0.9, k), stroke: col, sw: 2.6, cap: 'round', ...wig }));
+        g.shapes.push(path({ d: questionPath(0, cy, k), stroke: ink, sw: 1.3, cap: 'round', ...wig }));
+      } else if (ic.kind === 'coin') {
+        const r = F(1.15 * k);
+        g.shapes.push(path({ d: ellipse(0.9, F(cy + 0.9), r, r), fill: col, ...wig }));
+        g.shapes.push(path({ d: ellipse(0, cy, r, r), stroke: ink, sw: 1.1, ...wig }));
+        g.shapes.push(path({ d: questionPath(0, cy, k * 0.5), stroke: ink, sw: 0.9, cap: 'round', ...wig }));
+      } else {
+        g.shapes.push(path({ d: iconPath(ic.kind, 0.9, F(cy + 0.9), k), fill: col, ...wig }));
+        g.shapes.push(path({ d: iconPath(ic.kind, 0, cy, k), stroke: ink, sw: 1.1, cap: 'round', 'stroke-linejoin': 'round', ...wig }));
+      }
       out.push(g);
     }
   });
@@ -402,6 +437,19 @@ function arcade(out: Group[], lvl: number, lite: boolean, blur: string, crown: b
 
 // ── Garabato: a hand-drawn marker ring, plus the game's icons as doodles. It "boils" like a
 // cartoon only on the large sizes; on list sizes the lines stay still so it doesn't flicker ──
+
+// A closed wobbly circle, smoothed through the midpoints, for Garabato's stickers.
+function blob(cx: number, cy: number, r: number, rnd: () => number): string {
+  const n = 9;
+  const pts = Array.from({ length: n }, (_, k) => {
+    const [x, y] = polar((k / n) * 360, r + (rnd() - 0.5) * r * 0.22);
+    return [F(cx + x), F(cy + y)] as [number, number];
+  });
+  const mid = (a: [number, number], b: [number, number]) => `${F((a[0] + b[0]) / 2)} ${F((a[1] + b[1]) / 2)}`;
+  let d = `M${mid(pts[n - 1], pts[0])}`;
+  for (let k = 0; k < n; k++) d += ` Q${pts[k][0]} ${pts[k][1]} ${mid(pts[k], pts[(k + 1) % n])}`;
+  return d + ' Z';
+}
 
 function wobble(r: number, amp: number, rnd: () => number, n: number): string {
   let d = '';
@@ -795,11 +843,121 @@ function witch(out: Group[], lvl: number, lite: boolean, blur: string, crown: bo
   }
 }
 
+// ── Rare finishes: animated, the same on every tier ──────────────────────────
+
+// A rectangle turned by deg, as a path, so CSS can still animate its transform.
+function turnedRect(cx: number, cy: number, w: number, h: number, deg: number): string {
+  const a = (deg * Math.PI) / 180;
+  const c = Math.cos(a);
+  const sn = Math.sin(a);
+  const pts = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => `${F(cx + x * c - y * sn)} ${F(cy + x * sn + y * c)}`);
+  return `M${pts.join(' L')} Z`;
+}
+
+// Chispas: a warm rim that throws sparks outwards, like a sparkler.
+function sparks(out: Group[], lite: boolean, blur: string, rnd: () => number): void {
+  const rim = group({ cls: 'vp-fx-pulse' });
+  if (!lite) rim.shapes.push(circ({ r: 58, stroke: '#ff9a1f', sw: 7, op: 0.6, f: blur }));
+  rim.shapes.push(circ({ r: 59.5, stroke: '#ffd23f', sw: lite ? 2.6 : 1.4, op: 0.95 }));
+  rim.shapes.push(circ({ r: 48.6, stroke: '#ff9a1f', sw: lite ? 1.4 : 0.9, op: 0.8 }));
+  out.push(rim);
+  // The burning tip of the sparkler, running round the rim.
+  const tip = group({ cls: 'vp-fx-spin', st: { '--d': '3.2s' } });
+  if (!lite) tip.shapes.push(circ({ cy: -59.5, r: 6, fill: '#ffb300', op: 0.8, f: blur }));
+  tip.shapes.push(circ({ cy: -59.5, r: lite ? 4 : 2.6, fill: '#fff8d6' }));
+  out.push(tip);
+  const n = lite ? 10 : 22;
+  const cols = ['#fff3c4', '#ffd23f', '#ff9a1f'];
+  for (let k = 0; k < n; k++) {
+    const a = (k / n) * 360 + rnd() * 14;
+    const [x, y] = polar(a, 60);
+    const [dx, dy] = polar(a + (rnd() - 0.5) * 30, 10 + rnd() * 4);
+    const g = group({ cls: 'vp-fx-rise', st: anim(0.8 + rnd() * 0.6, -rnd() * 1.4, { '--dx': `${dx}px`, '--dy': `${dy}px` }) });
+    const [tx, ty] = polar(a, 55);
+    if (!lite) g.shapes.push(path({ d: `M${tx} ${ty} L${x} ${y}`, stroke: '#ffb300', sw: 1, cap: 'round', op: 0.8 }));
+    g.shapes.push(path({ d: sparkle(x, y, lite ? 5.2 : F(3 + rnd() * 1.8)), fill: cols[k % 3] }));
+    out.push(g);
+  }
+}
+
+// Burbujas: soap bubbles that float up off the ring and pop.
+function bubbles(out: Group[], lite: boolean, blur: string, rnd: () => number): void {
+  const rim = group({ cls: 'vp-fx-pulse' });
+  if (!lite) rim.shapes.push(circ({ r: 59, stroke: '#7fe0ff', sw: 6, op: 0.45, f: blur }));
+  rim.shapes.push(circ({ r: 59.5, stroke: '#bff2ff', sw: lite ? 2.2 : 1.2, op: 0.9 }));
+  out.push(rim);
+  // A few bubbles resting on the ring, so it reads even between the ones floating off.
+  const rest = group();
+  for (let k = 0; k < (lite ? 4 : 7); k++) {
+    const [x, y] = polar((k / (lite ? 4 : 7)) * 360 + 20, 61);
+    const r = lite ? 4.4 : F(2.4 + (k % 3));
+    rest.shapes.push(circ({ cx: x, cy: y, r, fill: '#bff2ff', op: 0.28 }));
+    rest.shapes.push(circ({ cx: x, cy: y, r, stroke: '#dff8ff', sw: lite ? 1.3 : 0.9 }));
+  }
+  out.push(rest);
+  const n = lite ? 8 : 16;
+  const cols = ['#9fe8ff', '#ffb3e6', '#c7b8ff'];
+  for (let k = 0; k < n; k++) {
+    const a = (k / n) * 360 + rnd() * 16;
+    const [x, y] = polar(a, 63 + rnd() * 4);
+    const r = lite ? F(4.8 + rnd() * 1.6) : F(2.8 + rnd() * 3.2);
+    const g = group({ cls: 'vp-fx-rise', st: anim(2.4 + rnd() * 1.6, -rnd() * 4, { '--dx': `${F((rnd() - 0.5) * 8)}px`, '--dy': `${F(-8 - rnd() * 8)}px` }) });
+    const col = cols[k % 3];
+    g.shapes.push(circ({ cx: x, cy: y, r, fill: col, op: 0.3 }));
+    g.shapes.push(circ({ cx: x, cy: y, r, stroke: col, sw: lite ? 1.5 : 1 }));
+    g.shapes.push(path({ d: `M${F(x - r * 0.55)} ${F(y - r * 0.15)} Q${F(x - r * 0.5)} ${F(y - r * 0.6)} ${F(x - r * 0.1)} ${F(y - r * 0.62)}`, stroke: '#ffffff', sw: lite ? 1 : 0.7, cap: 'round' }));
+    out.push(g);
+  }
+}
+
+// Purpurina: glitter dust that shimmers round the rim, with a few glints.
+function glitter(out: Group[], lite: boolean, blur: string, rnd: () => number): void {
+  if (!lite) {
+    const glow = group({ cls: 'vp-fx-pulse' });
+    glow.shapes.push(circ({ r: 61, stroke: '#ff8fd8', sw: 9, op: 0.35, f: blur }));
+    out.push(glow);
+  }
+  const dust: [string, number, string, string][] = [
+    ['#ff8fd8', 61, 'vp-fx-spin', '14s'],
+    ['#ffd23f', 58, 'vp-fx-spin-rev', '18s'],
+    ['#8fe9ff', 64, 'vp-fx-spin', '22s'],
+  ];
+  for (const [col, r, cls, d] of dust) {
+    const g = group({ cls, st: { '--d': d } });
+    g.shapes.push(circ({ r, stroke: col, sw: lite ? 3.4 : 2.4, da: lite ? '0.1 5.2' : '0.1 3.1', cap: 'round' }));
+    out.push(g);
+  }
+  const n = lite ? 5 : 11;
+  for (let k = 0; k < n; k++) {
+    const [x, y] = polar((k / n) * 360 + rnd() * 20, 56 + rnd() * 12);
+    const g = group();
+    g.shapes.push(path({ d: sparkle(x, y, lite ? 6 : F(3.6 + rnd() * 2.4)), fill: k % 2 ? '#ffffff' : '#fff3c4', cls: 'vp-fx-twinkle', st: anim(1.4 + rnd() * 1.2, -rnd() * 3) }));
+    out.push(g);
+  }
+}
+
+// Confeti: paper confetti tumbling slowly round the ring.
+function confetti(out: Group[], lite: boolean, rnd: () => number): void {
+  const cols = ['#ff4d6d', '#ffd23f', '#3ae374', '#17c0eb', '#c56cf0', '#ff9f1a'];
+  const n = lite ? 12 : 26;
+  const ring = group({ cls: 'vp-fx-spin', st: { '--d': '26s' } });
+  for (let k = 0; k < n; k++) {
+    const a = (k / n) * 360 + rnd() * 8;
+    const [x, y] = polar(a, 61 + rnd() * 8);
+    const col = cols[k % cols.length];
+    const st = anim(1.2 + rnd() * 1.2, -rnd() * 2);
+    if (k % 4 === 3) ring.shapes.push(circ({ cx: x, cy: y, r: lite ? 2.4 : 1.6, fill: col, cls: 'vp-fx-wiggle', st }));
+    else ring.shapes.push(path({ d: turnedRect(x, y, lite ? 3.4 : 2.4, lite ? 7 : 5.2, a + rnd() * 120), fill: col, cls: 'vp-fx-wiggle', st }));
+  }
+  out.push(ring);
+}
+
 // ── Entry point ──────────────────────────────────────────────────────────────
 
 // level: 0 = no tier yet (the finish sits on a plain neutral ring), 1–7 = wood … amethyst.
 export function renderFinish(key: FinishKey, level: number, lite: boolean, crown: boolean, blurUrl: string): FinishMarkup {
-  const lvl = Math.max(0, Math.min(7, level));
+  const fixed = FIXED_LEVEL[key];
+  const lvl = fixed ?? Math.max(0, Math.min(7, level));
   const rnd = seeded(lvl * 131 + key.length * 17 + (lite ? 7 : 3));
   const out: Group[] = [];
   let layers: Layer[] = [];
@@ -835,11 +993,25 @@ export function renderFinish(key: FinishKey, level: number, lite: boolean, crown
       layers = witchLayers(lvl, lite);
       witch(out, lvl, lite, blurUrl, crown);
       break;
+    case 'ring-sparks':
+      sparks(out, lite, blurUrl, rnd);
+      break;
+    case 'ring-bubbles':
+      bubbles(out, lite, blurUrl, rnd);
+      break;
+    case 'ring-glitter':
+      glitter(out, lite, blurUrl, rnd);
+      break;
+    case 'ring-confetti':
+      confetti(out, lite, rnd);
+      break;
   }
-  if (crown) drawCrown(out, key, lite, blurUrl);
+  const plainCrown = fixed !== undefined;
+  if (crown && !plainCrown) drawCrown(out, key, lite, blurUrl);
   return {
     front: out.map(groupText).join(''),
     layers: layers.map((l) => `<div class="${l.cls}" style="${styleText(l.st)}"></div>`).join(''),
     hideAura: layers.length > 0,
+    plainCrown,
   };
 }

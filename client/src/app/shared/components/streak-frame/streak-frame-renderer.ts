@@ -59,7 +59,7 @@ export function renderStreakFrame(o: FrameOptions): string {
   const fx = finish
     ? renderFinish(finish, tier ? STREAK_TIERS.findIndex((t) => t.key === tier) + 1 : 0, lite, crown, `url(#${id}blur)`)
     : null;
-  const tierCrown = crown && !fx;
+  const tierCrown = crown && (!fx || fx.plainCrown);
   const tierEffects = !fx;
   let html = '';
 

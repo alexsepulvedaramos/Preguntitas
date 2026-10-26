@@ -1,4 +1,4 @@
-import { FINISH_KEYS, iconList, renderFinish } from './ring-finishes';
+import { FINISH_KEYS, finishEvolves, iconList, renderFinish } from './ring-finishes';
 import { renderStreakFrame } from './streak-frame-renderer';
 
 describe('ring finishes (rama 57)', () => {
@@ -15,10 +15,12 @@ describe('ring finishes (rama 57)', () => {
           }
   });
 
-  it('grows with the tier', () => {
+  it('grows with the tier, except the rare finishes, which look the same on every tier', () => {
     for (const key of FINISH_KEYS) {
-      const size = (level: number) => renderFinish(key, level, false, false, blur).front.length + renderFinish(key, level, false, false, blur).layers.length;
-      expect(size(7)).toBeGreaterThan(size(0));
+      const markup = (level: number) => renderFinish(key, level, false, false, blur);
+      const size = (level: number) => markup(level).front.length + markup(level).layers.length;
+      if (finishEvolves(key)) expect(size(7)).toBeGreaterThan(size(0));
+      else expect(markup(7)).toEqual(markup(0));
     }
   });
 
@@ -44,9 +46,11 @@ describe('ring finishes (rama 57)', () => {
   it('draws one crown: the finish’s own instead of the plain gold one', () => {
     const plain = renderStreakFrame({ tier: 'gold', crown: true, lite: false, ribbon: null, uid: 'a' });
     expect(plain).toContain('url(#acr)');
-    const styled = renderStreakFrame({ tier: 'gold', finish: 'ring-volt', crown: true, lite: false, ribbon: null, uid: 'a' });
+    const styled = renderStreakFrame({ tier: 'gold', finish: 'ring-flare', crown: true, lite: false, ribbon: null, uid: 'a' });
     expect(styled).not.toContain('url(#acr)');
     expect(styled).toContain('vp-frame__fx');
+    const rare = renderStreakFrame({ tier: 'gold', finish: 'ring-volt', crown: true, lite: false, ribbon: null, uid: 'a' });
+    expect(rare).toContain('url(#acr)');
   });
 
   it('puts a finish on a neutral ring before the first tier', () => {
