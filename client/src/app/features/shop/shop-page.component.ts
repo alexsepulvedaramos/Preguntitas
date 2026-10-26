@@ -76,6 +76,7 @@ const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.FlashAnonymousAuthor]: 'coins.reasons.flashAnonymousAuthor',
   [CoinReason.FlashCapsule]: 'coins.reasons.flashCapsule',
   [CoinReason.FlashExtension]: 'coins.reasons.flashExtension',
+  [CoinReason.QuestionPlayed]: 'coins.reasons.questionPlayed',
 };
 
 const REASON_GLYPH: Record<CoinReason, GlyphName> = {
@@ -101,6 +102,7 @@ const REASON_GLYPH: Record<CoinReason, GlyphName> = {
   [CoinReason.FlashAnonymousAuthor]: 'anonymous',
   [CoinReason.FlashCapsule]: 'capsule',
   [CoinReason.FlashExtension]: 'extend',
+  [CoinReason.QuestionPlayed]: 'write',
 };
 
 const RARITY_KEYS: Record<CosmeticRarity, TranslationKey> = {

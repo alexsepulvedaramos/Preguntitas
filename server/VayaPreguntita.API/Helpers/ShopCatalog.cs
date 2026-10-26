@@ -27,10 +27,10 @@ public record CosmeticItem(
 // core/constants/shop-catalog.ts, keep both in sync.
 public static class ShopCatalog
 {
-    // Halloween 2026 (rama 57): one week from 27 Oct 20:00 Madrid (CET, UTC+1), when the
-    // "in the shop" push goes out. Priced so a week of daily votes in one group pays for it.
+    // Halloween 2026 (rama 57): two weeks from 27 Oct 20:00 Madrid (CET, UTC+1), when the
+    // "in the shop" push goes out. Priced so two weeks of daily play in one group pay for it.
     public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 19, 0, 0, DateTimeKind.Utc);
-    public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(7);
+    public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(14);
 
     // Frame colour key → catalog key ("purple" → "frame-purple").
     public static string FrameColorKey(string paletteKey) => $"frame-{paletteKey}";
@@ -50,7 +50,7 @@ public static class ShopCatalog
         new(6, "ring-doodle", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
 
         // Seasonal finishes.
-        new(101, "ring-witch", CosmeticKind.RingSkin, 50, CosmeticRarity.Common, HalloweenFrom, HalloweenUntil),
+        new(101, "ring-witch", CosmeticKind.RingSkin, 100, CosmeticRarity.Common, HalloweenFrom, HalloweenUntil),
 
         // Plain frame colours (free until rama 57): the colour drawn round the avatar instead
         // of the streak ring.

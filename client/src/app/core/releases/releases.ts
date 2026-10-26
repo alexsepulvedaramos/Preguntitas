@@ -48,14 +48,27 @@ export const RELEASES: readonly Release[] = [
       {
         glyph: 'celebrate',
         title: {
-          es: 'Noche de brujas, solo esta semana',
-          en: 'Witching night, this week only',
-          de: 'Hexennacht, nur diese Woche',
+          es: 'Noche de brujas, solo dos semanas',
+          en: 'Witching night, two weeks only',
+          de: 'Hexennacht, nur zwei Wochen',
         },
         text: {
-          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 50 monedas y solo durante una semana. Si lo compras, te lo puedes poner siempre que quieras.',
-          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 50 coins and for one week only. Buy it and you can wear it whenever you like.',
-          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 50 Münzen und nur eine Woche lang. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
+          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 100 monedas y solo hasta el 10 de noviembre. Si lo compras, te lo puedes poner siempre que quieras.',
+          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 100 coins and only until 10 November. Buy it and you can wear it whenever you like.',
+          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 100 Münzen und nur bis zum 10. November. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
+        },
+      },
+      {
+        glyph: 'write',
+        title: {
+          es: 'Tus preguntas dan monedas',
+          en: 'Your questions earn coins',
+          de: 'Deine Fragen bringen Münzen',
+        },
+        text: {
+          es: 'Cuando una pregunta que has sugerido sale como la del día, ganas 10 monedas.',
+          en: 'When a question you suggested becomes the question of the day, you earn 10 coins.',
+          de: 'Wenn eine Frage, die du vorgeschlagen hast, zur Frage des Tages wird, bekommst du 10 Münzen.',
         },
       },
       {

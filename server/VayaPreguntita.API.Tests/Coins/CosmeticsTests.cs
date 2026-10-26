@@ -210,7 +210,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         Clock.SetLocal(HalloweenDay, new TimeOnly(20, 0));
         (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.Success);
-        (await CoinsAsync(group["ana"])).Should().Be(950);
+        (await CoinsAsync(group["ana"])).Should().Be(900);
         await using (var db = NewContext())
         {
             var witch = (await NewCosmeticsService(db).GetCatalogAsync(group["bea"])).Cosmetics.Single(c => c.Key == "ring-witch");
@@ -218,7 +218,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             witch.OnSaleUntil.Should().Be(ShopCatalog.HalloweenUntil);
         }
 
-        Clock.SetLocal(HalloweenDay.AddDays(7), new TimeOnly(20, 0));
+        Clock.SetLocal(HalloweenDay.AddDays(14), new TimeOnly(20, 0));
         (await BuyAsync(group["bea"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
         (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-witch" })).Success.Should().BeTrue();
         await using (var db = NewContext())
@@ -248,7 +248,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
 
-        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 50, 7), Times.Once);
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 14), Times.Once);
     }
 
     [Fact]
@@ -264,7 +264,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(20, 30));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
-        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 50, 6), Times.Once);
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 13), Times.Once);
     }
 
     [Fact]

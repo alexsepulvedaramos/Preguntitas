@@ -45,4 +45,7 @@ public enum CoinReason
     FlashCapsule = 19,
     FlashExtension = 20,
     FlashAnonymousAuthor = 21,
+
+    // A member-written question was played (rama 57); RefId = the DailyEntry
+    QuestionPlayed = 22,
 }

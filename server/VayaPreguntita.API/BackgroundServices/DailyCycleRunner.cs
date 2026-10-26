@@ -93,6 +93,9 @@ public class DailyCycleRunner(
                 await PaySelectorRewardAsync(entry);
 
             foreach (var entry in entriesToActivate)
+                await PayAuthorRewardAsync(entry);
+
+            foreach (var entry in entriesToActivate)
                 await CloseCycleAsync(entry);
 
             foreach (var entry in entriesToActivate)
@@ -240,6 +243,35 @@ public class DailyCycleRunner(
         {
             // Never block the rest of the tick over a reward.
             logger.LogError(ex, "Selector reward failed for entry {EntryId}", entry.Id);
+        }
+    }
+
+    // The author of a member-written question is paid when it's played (§17.2), while still a
+    // member. Whoever chose their own question gets the selector rewards instead.
+    private async Task PayAuthorRewardAsync(DailyEntry entry)
+    {
+        if (AuthorGuessRules.AuthorOf(entry.Question) is not int authorId)
+            return;
+        if (authorId == entry.SelectorUserId && entry.SelectionKind != SelectionKind.Auto)
+            return;
+        try
+        {
+            var isMember = await context.GroupMembers.AnyAsync(m =>
+                m.GroupId == entry.GroupId && m.UserId == authorId);
+            if (!isMember)
+                return;
+            await coinService.GrantAsync(
+                authorId,
+                CoinReason.QuestionPlayed,
+                CoinRewards.QuestionPlayed,
+                entry.GroupId,
+                entry.Id
+            );
+        }
+        catch (Exception ex)
+        {
+            // Never block the rest of the tick over a reward.
+            logger.LogError(ex, "Author reward failed for entry {EntryId}", entry.Id);
         }
     }
 }

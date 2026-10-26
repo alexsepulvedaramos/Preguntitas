@@ -17,6 +17,10 @@ public static class CoinRewards
     public const int SelectorChoice = 5;
     public const int SelectorCreatedBonus = 5;
 
+    // Paid at activation to the member who wrote the question (§17.2), unless they chose it
+    // themselves: then the selector rewards stand in for it.
+    public const int QuestionPlayed = 10;
+
     // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min.
     public const int RaceWon = 10;
 
@@ -84,5 +88,6 @@ public static class CoinRewards
                 or CoinReason.SelectorChoice
                 or CoinReason.SelectorCreated
                 or CoinReason.GuessCorrect
-                or CoinReason.RaceWon;
+                or CoinReason.RaceWon
+                or CoinReason.QuestionPlayed;
 }

@@ -69,7 +69,7 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   item('ring-doodle', CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
 
   // Seasonal (Halloween 2026): only on sale for a week; the catalog from the server says when.
-  { ...item('ring-witch', CosmeticKind.RingSkin, 50), seasonal: true },
+  { ...item('ring-witch', CosmeticKind.RingSkin, 100), seasonal: true },
 
   ...FRAME_COLOR_KEYS.map((color) => item(frameColorItemKey(color), CosmeticKind.FrameColor, 200)),
 ];

@@ -5,7 +5,7 @@
     hlmBtn
     [variant]="isSelector() && pendingQuestion() ? 'outline' : 'default'"
     [class]="
-      (fill() ? 'w-full' : 'w-fit') + ' gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
+      (fill() ? 'w-full' : 'w-fit') + ' relative gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring ' +
       (flash()
         ? 'bg-flash text-flash-foreground hover:bg-flash/85'
         : isSelector()
@@ -30,6 +30,11 @@
       } @else {
         <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggest') }}
+        <span
+          class="pointer-events-none absolute -top-2.5 -right-1.5 rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold leading-none tabular-nums text-accent-foreground shadow-sm ring-2 ring-background"
+        >
+          <app-coin-text [text]="t('picker.suggestReward', { coins: suggestReward })" />
+        </span>
       }
     } @else {
       @if (isSelector()) {
@@ -38,6 +43,11 @@
       } @else {
         <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggestQuestion') }}
+        <span
+          class="pointer-events-none absolute -top-2.5 -right-1.5 rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold leading-none tabular-nums text-accent-foreground shadow-sm ring-2 ring-background"
+        >
+          <app-coin-text [text]="t('picker.suggestReward', { coins: suggestReward })" />
+        </span>
       }
     }
   </button>
@@ -68,6 +78,10 @@
       } @else if (step() === 'create') {
         @if (flash()) {
           <p hlmDialogDescription>{{ t('flash.launchText') }}</p>
+        } @else if (!isSelector()) {
+          <p hlmDialogDescription>
+            <app-coin-text [text]="t('picker.suggestRewardHint', { coins: suggestReward })" />
+          </p>
         }
       }
     </hlm-dialog-header>
