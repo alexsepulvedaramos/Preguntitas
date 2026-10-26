@@ -10,8 +10,8 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
-    // A palette colour key (FrameColors.PaletteKeys), FrameColors.Streak (ring follows the streak tier) or FrameColors.None.
-    // null is treated as Streak.
+    // A palette colour key (FrameColors.PaletteKeys, owned in the shop since rama 57),
+    // FrameColors.Streak (ring follows the streak tier) or FrameColors.None. null is treated as Streak.
     public string? FrameColor { get; set; } = Helpers.FrameColors.Streak;
 
     // Set the first time the user reaches a 3-day streak, when a fixed frame colour is
@@ -35,11 +35,10 @@ public class User
     // change is mirrored by a CoinTransaction row.
     public int Coins { get; set; } = 0;
 
-    // Equipped shop cosmetics (rama 42, §17.10): ShopCatalog keys the user owns (UserItem),
-    // null = none.
+    // Equipped ring finish (rama 42, §17.10; rama 57): a ShopCatalog key the user owns
+    // (UserItem), drawn on top of the streak ring, so only while FrameColor follows the
+    // streak. null = none.
     public string? RingSkinKey { get; set; }
-    public string? NameColorKey { get; set; }
-    public string? ThemeKey { get; set; }
     public List<GroupMember> GroupMemberships { get; set; } = [];
 
     [InverseProperty("Creator")]

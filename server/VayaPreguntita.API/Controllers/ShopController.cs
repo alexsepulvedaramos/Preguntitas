@@ -47,6 +47,7 @@ public class ShopController(
             CosmeticPurchaseResult.UnknownItem => BadRequest("Unknown item."),
             CosmeticPurchaseResult.AlreadyOwned => Conflict(ServerText.CosmeticAlreadyOwned),
             CosmeticPurchaseResult.NotEnoughCoins => Conflict(ServerText.NotEnoughCoins),
+            CosmeticPurchaseResult.NotOnSale => Conflict(ServerText.CosmeticNotOnSale),
             _ => StatusCode(500),
         };
     }

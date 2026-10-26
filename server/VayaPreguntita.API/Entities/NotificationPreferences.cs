@@ -26,4 +26,7 @@ public class NotificationPreferences
 
     // "😂 Reacción" — someone reacted to your chat message or answer (§17.15 item 6).
     public bool Reaction { get; set; } = true;
+
+    // "🎃 Novedad en la tienda" — a seasonal frame arrives in the shop (rama 57).
+    public bool ShopNews { get; set; } = true;
 }

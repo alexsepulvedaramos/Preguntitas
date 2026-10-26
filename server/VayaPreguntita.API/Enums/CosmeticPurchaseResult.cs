@@ -6,4 +6,6 @@ public enum CosmeticPurchaseResult
     UnknownItem,
     AlreadyOwned,
     NotEnoughCoins,
+    // A seasonal item outside its sale window (rama 57).
+    NotOnSale,
 }

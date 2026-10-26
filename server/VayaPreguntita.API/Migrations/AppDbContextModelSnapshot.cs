@@ -22,6 +22,20 @@ namespace VayaPreguntita.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.Announcement", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.AuthorGuess", b =>
                 {
                     b.Property<int>("DailyEntryId")
@@ -455,6 +469,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<bool>("SelectorTurn")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("ShopNews")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("StreakDanger")
                         .HasColumnType("boolean");
 
@@ -773,10 +790,6 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("HighestStreakEver")
                         .HasColumnType("integer");
 
-                    b.Property<string>("NameColorKey")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
@@ -797,10 +810,6 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Property<bool>("StreakFrameAutoApplied")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("ThemeKey")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Username")
                         .IsRequired()

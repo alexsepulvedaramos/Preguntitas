@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Moq;
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.DTOs.Users;
 using VayaPreguntita.API.Enums;
@@ -7,8 +8,9 @@ using VayaPreguntita.API.Tests.Testing;
 
 namespace VayaPreguntita.API.Tests.Coins;
 
-// Shop cosmetics (rama 42, §17.10): bought once with coins, kept forever, equipped through
-// the profile only when owned, and shown to the rest of the group through the member list.
+// Shop cosmetics (rama 42, §17.10; rama 57): bought once with coins, kept forever, equipped
+// through the profile only when owned, and shown to the rest of the group through the member
+// list. Seasonal frames are only sold in their window and announced once by push.
 [Collection(PostgresCollection.Name)]
 public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 {
@@ -36,22 +38,24 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         return await NewUserService(db).UpdateProfileAsync(userId, request);
     }
 
+    private static readonly DateOnly HalloweenDay = new(2026, 10, 27);
+
     [Fact]
     public async Task Buying_ChargesThePrice_OnceAndForAll()
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
 
-        (await BuyAsync(group["ana"], "ring-neon")).Should().Be(CosmeticPurchaseResult.Success);
-        (await BuyAsync(group["ana"], "ring-neon")).Should().Be(CosmeticPurchaseResult.AlreadyOwned);
+        (await BuyAsync(group["ana"], "ring-volt")).Should().Be(CosmeticPurchaseResult.Success);
+        (await BuyAsync(group["ana"], "ring-volt")).Should().Be(CosmeticPurchaseResult.AlreadyOwned);
 
         (await CoinsAsync(group["ana"])).Should().Be(600);
         await using var db = NewContext();
         var row = await db.CoinTransactions.SingleAsync(t => t.UserId == group["ana"]);
         row.Reason.Should().Be(CoinReason.Cosmetic);
         row.Amount.Should().Be(-400);
-        row.RefId.Should().Be(ShopCatalog.ByKey("ring-neon")!.Id);
-        (await NewCoinService(db).GetHistoryAsync(group["ana"], null)).Items.Single().ItemKey.Should().Be("ring-neon");
+        row.RefId.Should().Be(ShopCatalog.ByKey("ring-volt")!.Id);
+        (await NewCoinService(db).GetHistoryAsync(group["ana"], null)).Items.Single().ItemKey.Should().Be("ring-volt");
     }
 
     [Fact]
@@ -60,7 +64,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 399);
 
-        (await BuyAsync(group["ana"], "ring-neon")).Should().Be(CosmeticPurchaseResult.NotEnoughCoins);
+        (await BuyAsync(group["ana"], "ring-volt")).Should().Be(CosmeticPurchaseResult.NotEnoughCoins);
         (await BuyAsync(group["ana"], "ring-gold-plated")).Should().Be(CosmeticPurchaseResult.UnknownItem);
 
         (await CoinsAsync(group["ana"])).Should().Be(399);
@@ -70,24 +74,79 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public async Task Equipping_RequiresOwnership_AndTheRightSlot()
+    public async Task WearingAFinish_RequiresOwningIt_AndPutsTheFrameOnTheStreakRing()
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
-        await BuyAsync(group["ana"], "ring-neon");
+        await BuyAsync(group["ana"], "ring-volt");
+        await BuyAsync(group["ana"], "frame-blue");
+        (await UpdateAsync(group["ana"], new() { FrameColor = "blue" })).Success.Should().BeTrue();
 
-        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-pixel" }))
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-arcade" }))
             .Error.Should().Be("COSMETIC_NOT_OWNED");
-        (await UpdateAsync(group["ana"], new() { NameColorKey = "ring-neon" }))
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "frame-blue" }))
             .Error.Should().Be("COSMETIC_NOT_OWNED");
-        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-neon" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-volt" })).Success.Should().BeTrue();
 
         await using (var db = NewContext())
-            (await db.Users.SingleAsync(u => u.Id == group["ana"])).RingSkinKey.Should().Be("ring-neon");
+        {
+            var ana = await db.Users.SingleAsync(u => u.Id == group["ana"]);
+            ana.RingSkinKey.Should().Be("ring-volt");
+            ana.FrameColor.Should().Be(FrameColors.Streak);
+        }
 
         (await UpdateAsync(group["ana"], new() { RingSkinKey = "" })).Success.Should().BeTrue();
         await using (var db = NewContext())
             (await db.Users.SingleAsync(u => u.Id == group["ana"])).RingSkinKey.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task FrameColours_AreBoughtInTheShop_AndTakeTheFinishOff()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        await SetCoinsAsync(group["ana"], 1000);
+        await BuyAsync(group["ana"], "ring-volt");
+        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-volt" });
+
+        (await UpdateAsync(group["ana"], new() { FrameColor = "purple" })).Error.Should().Be("COSMETIC_NOT_OWNED");
+        (await BuyAsync(group["ana"], "frame-purple")).Should().Be(CosmeticPurchaseResult.Success);
+        (await CoinsAsync(group["ana"])).Should().Be(400);
+        (await UpdateAsync(group["ana"], new() { FrameColor = "purple" })).Success.Should().BeTrue();
+
+        await using var db = NewContext();
+        var ana = await db.Users.SingleAsync(u => u.Id == group["ana"]);
+        ana.FrameColor.Should().Be("purple");
+        ana.RingSkinKey.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task FrameColours_TakeALegacyHex_AndTheFreeFramesNeedNothing()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        await SetCoinsAsync(group["bea"], 1000);
+        await BuyAsync(group["bea"], "frame-blue");
+
+        (await UpdateAsync(group["bea"], new() { FrameColor = "#3B82F6" })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { FrameColor = "#123456" })).Error.Should().Be("INVALID_FRAME_COLOR");
+        (await UpdateAsync(group["ana"], new() { FrameColor = FrameColors.None })).Success.Should().BeTrue();
+        (await UpdateAsync(group["ana"], new() { FrameColor = FrameColors.Streak })).Success.Should().BeTrue();
+
+        await using var db = NewContext();
+        (await NewUserService(db).GetProfileAsync(group["bea"]))!.FrameColor.Should().Be("blue");
+        (await NewUserService(db).GetProfileAsync(group["ana"]))!.FrameColor.Should().Be(FrameColors.Streak);
+    }
+
+    [Fact]
+    public async Task TheRetiredSeniorityFrame_FromAnOldClient_BecomesTheStreakRing()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        await using (var db = NewContext())
+            await db.Users.Where(u => u.Id == group["ana"]).ExecuteUpdateAsync(s => s.SetProperty(u => u.FrameColor, FrameColors.None));
+
+        (await UpdateAsync(group["ana"], new() { FrameColor = FrameColors.RetiredSeniority })).Success.Should().BeTrue();
+
+        await using var check = NewContext();
+        (await NewUserService(check).GetProfileAsync(group["ana"]))!.FrameColor.Should().Be(FrameColors.Streak);
     }
 
     [Fact]
@@ -96,9 +155,8 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
 
-        (await BuyAsync(group["ana"], "badge-frog")).Should().Be(CosmeticPurchaseResult.UnknownItem);
-        (await BuyAsync(group["ana"], "acc-halo")).Should().Be(CosmeticPurchaseResult.UnknownItem);
-        (await BuyAsync(group["ana"], "title-oracle")).Should().Be(CosmeticPurchaseResult.UnknownItem);
+        foreach (var key in new[] { "badge-frog", "acc-halo", "title-oracle", "color-coral", "theme-ocean" })
+            (await BuyAsync(group["ana"], key)).Should().Be(CosmeticPurchaseResult.UnknownItem);
         (await UpdateAsync(group["ana"], new() { TitleKey = "title-oracle" })).Error.Should().Be("TITLE_NOT_UNLOCKED");
         (await CoinsAsync(group["ana"])).Should().Be(1000);
     }
@@ -112,59 +170,101 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             new()
             {
                 UserId = group["ana"],
-                Amount = 150,
+                Amount = 250,
                 Reason = CoinReason.CosmeticRefund,
-                RefId = ShopCatalog.Retired.Single(i => i.Key == "badge-frog").Id,
+                RefId = ShopCatalog.Retired.Single(i => i.Key == "theme-ocean").Id,
                 CreatedAt = DateTime.UtcNow,
             }
         );
         await db.SaveChangesAsync();
 
-        (await NewCoinService(db).GetHistoryAsync(group["ana"], null)).Items.Single().ItemKey.Should().Be("badge-frog");
+        (await NewCoinService(db).GetHistoryAsync(group["ana"], null)).Items.Single().ItemKey.Should().Be("theme-ocean");
     }
 
     [Fact]
-    public async Task TheMemberList_CarriesEachMembersLook()
+    public async Task TheMemberList_CarriesEachMembersFinish()
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
-        await BuyAsync(group["ana"], "ring-pixel");
-        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-pixel" });
+        await BuyAsync(group["ana"], "ring-orbit");
+        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-orbit" });
 
         await using var db = NewContext();
         var members = (await NewGroupsService(db).GetGroupMembersAsync(group.Id, group["bea"])).ToList();
 
-        var ana = members.Single(m => m.Id == group["ana"]);
-        ana.Look!.RingSkin.Should().Be("ring-pixel");
-        ana.Look.NameColor.Should().BeNull();
+        members.Single(m => m.Id == group["ana"]).Look!.RingSkin.Should().Be("ring-orbit");
         members.Single(m => m.Id == group["bea"]).Look.Should().BeNull();
     }
 
     [Fact]
-    public async Task TheSeniorityFrame_IsAValidFrameChoice()
+    public async Task ASeasonalFrame_IsOnlySoldInItsWindow_ButIsWornForever()
     {
         var group = await SeedGroupAsync("ana", "bea");
+        await SetCoinsAsync(group["ana"], 1000);
+        await SetCoinsAsync(group["bea"], 1000);
 
-        (await UpdateAsync(group["ana"], new() { FrameColor = FrameColors.Seniority })).Success.Should().BeTrue();
+        Clock.SetLocal(HalloweenDay, new TimeOnly(19, 59));
+        (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
+        await using (var db = NewContext())
+            (await NewCosmeticsService(db).GetCatalogAsync(group["ana"])).Cosmetics.Should().NotContain(c => c.Key == "ring-witch");
 
-        await using var db = NewContext();
-        var profile = await NewUserService(db).GetProfileAsync(group["ana"]);
-        profile!.FrameColor.Should().Be(FrameColors.Seniority);
-        profile.FirstJoinedAt.Should().NotBeNull();
+        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 0));
+        (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.Success);
+        (await CoinsAsync(group["ana"])).Should().Be(950);
+        await using (var db = NewContext())
+        {
+            var witch = (await NewCosmeticsService(db).GetCatalogAsync(group["bea"])).Cosmetics.Single(c => c.Key == "ring-witch");
+            witch.OnSale.Should().BeTrue();
+            witch.OnSaleUntil.Should().Be(ShopCatalog.HalloweenUntil);
+        }
+
+        Clock.SetLocal(HalloweenDay.AddDays(7), new TimeOnly(20, 0));
+        (await BuyAsync(group["bea"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
+        (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-witch" })).Success.Should().BeTrue();
+        await using (var db = NewContext())
+        {
+            var service = NewCosmeticsService(db);
+            (await service.GetCatalogAsync(group["bea"])).Cosmetics.Should().NotContain(c => c.Key == "ring-witch");
+            var owned = (await service.GetCatalogAsync(group["ana"])).Cosmetics.Single(c => c.Key == "ring-witch");
+            owned.Owned.Should().BeTrue();
+            owned.OnSale.Should().BeFalse();
+        }
     }
 
     [Fact]
-    public async Task FrameColours_ArePaletteKeys_AndALegacyHexBecomesItsKey()
+    public async Task ASeasonalFrame_IsAnnouncedOnce_AtEightInTheEvening()
     {
-        var group = await SeedGroupAsync("ana", "bea");
+        await SeedGroupAsync("ana", "bea");
 
-        (await UpdateAsync(group["ana"], new() { FrameColor = "purple" })).Success.Should().BeTrue();
-        (await UpdateAsync(group["bea"], new() { FrameColor = "#3B82F6" })).Success.Should().BeTrue();
-        (await UpdateAsync(group["ana"], new() { FrameColor = "#123456" })).Error.Should().Be("INVALID_FRAME_COLOR");
+        Clock.SetLocal(HalloweenDay, new TimeOnly(19, 59));
+        await using (var db = NewContext())
+            await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
+        Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 
-        await using var db = NewContext();
-        (await NewUserService(db).GetProfileAsync(group["ana"]))!.FrameColor.Should().Be("purple");
-        (await NewUserService(db).GetProfileAsync(group["bea"]))!.FrameColor.Should().Be("blue");
+        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 1));
+        await using (var db = NewContext())
+            await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
+        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 2));
+        await using (var db = NewContext())
+            await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
+
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 50, 7), Times.Once);
+    }
+
+    [Fact]
+    public async Task AMissedAnnouncement_WaitsForTheNextEvening()
+    {
+        await SeedGroupAsync("ana", "bea");
+
+        Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(9, 0));
+        await using (var db = NewContext())
+            await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
+        Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+
+        Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(20, 30));
+        await using (var db = NewContext())
+            await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 50, 6), Times.Once);
     }
 
     [Fact]
@@ -174,5 +274,24 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         everything.Select(i => i.Id).Should().OnlyHaveUniqueItems();
         everything.Select(i => i.Key).Should().OnlyHaveUniqueItems();
         ShopCatalog.All.Should().OnlyContain(i => i.Key.Length <= 40 && i.Price > 0);
+        FrameColors.PaletteKeys.Should().OnlyContain(k => ShopCatalog.ByKey(ShopCatalog.FrameColorKey(k)) != null);
+    }
+
+    // What a player earns on a typical day in one group on top of the streak bonus: the vote
+    // plus, on average, first voter, picking the question and guessing the author (ledger,
+    // 2026-10-21 → 26: ~6.6).
+    private const double TypicalDailyCoinsInOneGroup = 6.6;
+
+    // The price of a seasonal frame must be payable by playing every day of its window in one
+    // group, starting from nothing and a new streak (§17.15 item 8).
+    [Fact]
+    public void ASeasonalFrame_CostsNoMoreThanItsWindowOfPlay()
+    {
+        foreach (var item in ShopCatalog.All.Where(i => i.IsSeasonal))
+        {
+            var days = (int)(item.OnSaleUntil!.Value - item.OnSaleFrom!.Value).TotalDays;
+            var earned = Enumerable.Range(1, days).Sum(day => TypicalDailyCoinsInOneGroup + CoinRewards.StreakBonus(day));
+            ((double)item.Price).Should().BeLessThanOrEqualTo(earned, item.Key);
+        }
     }
 }

@@ -9,7 +9,8 @@ namespace VayaPreguntita.API.BackgroundServices;
 
 // One tick of the daily cycle (§4.3): preselect tomorrow's question once T has passed,
 // activate today's at T, remind selectors who haven't chosen, open the race to select at
-// T − 10 min, send the "streak in danger" pushes and build last month's summaries. DailyPreselectionService runs it every minute in its own DI scope;
+// T − 10 min, send the "streak in danger" pushes, build last month's summaries and announce
+// seasonal frames (rama 57). DailyPreselectionService runs it every minute in its own DI scope;
 // tests run it directly at a fixed instant.
 public class DailyCycleRunner(
     AppDbContext context,
@@ -19,6 +20,7 @@ public class DailyCycleRunner(
     ICoinService coinService,
     IMonthlySummaryService monthlySummaryService,
     IFlashService flashService,
+    ISeasonalAnnouncementService seasonalAnnouncementService,
     TimeProvider clock,
     ILogger<DailyCycleRunner> logger
 )
@@ -140,6 +142,9 @@ public class DailyCycleRunner(
 
         // ── TIME CAPSULES (rama 50): push the ones whose results just opened ──
         await flashService.OpenDueCapsulesAsync();
+
+        // ── SEASONAL FRAMES (rama 57): the "in the shop" push, once, at 20:00 ────
+        await seasonalAnnouncementService.AnnounceDueAsync();
     }
 
     // A 1-vs-1 Deathmatch the selector actively chose is a duel (§17.15 item 6); a pure

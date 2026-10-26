@@ -142,6 +142,23 @@ public class NotificationService(
         });
 
     // Opens the group page straight on that month's story.
+    // Not tied to a group: groupId 0 keeps it apart from every group's merged notification.
+    public Task SendSeasonalItemAsync(string itemKey, int price, int daysLeft) =>
+        RunLoggedAsync("seasonal_item", 0, async context =>
+        {
+            var optedOut = context.NotificationPreferences.Where(p => !p.ShopNews).Select(p => p.UserId);
+            var recipients = await context.DevicePushSubscriptions
+                .Where(s => !optedOut.Contains(s.UserId))
+                .Select(s => new Recipient(s, s.User.PreferredLanguage))
+                .ToListAsync();
+            await SendLocalizedAsync(context, recipients, TimeSpan.FromDays(daysLeft), lang =>
+                BuildPayload(
+                    ServerText.Push.SeasonalTitle(lang, itemKey),
+                    ServerText.Push.SeasonalBody(lang, itemKey, price, daysLeft),
+                    0, "Vaya Preguntita", "shop_news", lang, url: "/shop?tab=style"
+                ));
+        });
+
     public Task SendMonthlySummaryAsync(int groupId, string groupName, DateOnly month) =>
         RunLoggedAsync("monthly_summary", groupId, async context =>
         {
