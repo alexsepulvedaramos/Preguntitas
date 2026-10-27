@@ -333,10 +333,11 @@ function drawCrown(out: Group[], key: FinishKey, lite: boolean, blur: string): v
     // gold printed a little off the line.
     const ink = '#2a2233';
     const wig = { cls: 'vp-fx-wiggle', st: anim(1.8, 0) };
-    const k = 12.6;
+    // The crown sits a little smaller than the paper, centred, so the sticker has a margin.
+    const k = 10.2;
     g.shapes.push(path({ d: blob(0, -75, 22, seeded(91)), fill: '#fffaf0', stroke: ink, sw: 1.2, ...wig }));
-    g.shapes.push(path({ d: iconPath('crown', 1.2, -72.8, k), fill: ICON_COLORS.crown, ...wig }));
-    g.shapes.push(path({ d: iconPath('crown', 0, -74, k), stroke: ink, sw: 1.4, cap: 'round', 'stroke-linejoin': 'round', ...wig }));
+    g.shapes.push(path({ d: iconPath('crown', 1, -73.3, k), fill: ICON_COLORS.crown, ...wig }));
+    g.shapes.push(path({ d: iconPath('crown', 0, -74.3, k), stroke: ink, sw: 1.3, cap: 'round', 'stroke-linejoin': 'round', ...wig }));
   } else {
     const look = CROWN_LOOKS[key]!;
     if (look.glow && !lite) g.shapes.push(path({ d: CROWN_PATH, stroke: look.glow, sw: 5, op: 0.55, f: blur, cls: 'vp-fx-pulse' }));
