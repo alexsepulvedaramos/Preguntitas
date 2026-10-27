@@ -31,7 +31,7 @@ import {
 import { MemberCardService } from '../../core/services/member-card.service';
 import {
   FRAME_NONE, FRAME_STREAK, frameColorVar, isColorFrame, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
-import { frameColorItemKey } from '../../core/constants/shop-catalog';
+import { COSMETICS, CosmeticKind, frameColorItemKey } from '../../core/constants/shop-catalog';
 import { UserProfileDto } from '../../core/services/user.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslationKey } from '../../core/i18n/translation.types';
@@ -86,6 +86,19 @@ export class ProfilePageComponent implements OnInit {
     const owned = new Set(this.user()?.ownedCosmetics ?? []);
     return FRAME_COLORS.filter((c) => !isColorFrame(c.value) || owned.has(frameColorItemKey(c.value)));
   });
+  // The ring finishes you own (rama 57), worn over the streak ring.
+  protected readonly ownedFinishes = computed(() => {
+    const owned = new Set(this.user()?.ownedCosmetics ?? []);
+    return COSMETICS.filter((c) => c.kind === CosmeticKind.RingSkin && owned.has(c.key)).map((c) => ({
+      key: c.key,
+      name: this.t(c.name),
+    }));
+  });
+  // The finish worn now, if the frame follows the streak.
+  protected readonly wornFinish = computed(() =>
+    frameFollowsStreak(this.user()?.frameColor) ? (this.user()?.look?.ringSkin ?? null) : null
+  );
+  protected readonly wornFinishName = computed(() => this.ownedFinishes().find((f) => f.key === this.wornFinish())?.name ?? null);
   protected readonly frameNone = FRAME_NONE;
   protected readonly swatch = (value: string) => (isColorFrame(value) ? frameColorVar(value) : null);
   protected readonly frameStreak = FRAME_STREAK;
@@ -112,7 +125,8 @@ export class ProfilePageComponent implements OnInit {
   // null is treated as "streak" (the default since rama 19).
   protected readonly selectedFrame = computed(() => {
     const frame = this.user()?.frameColor;
-    return frameFollowsStreak(frame) ? FRAME_STREAK : frame;
+    if (!frameFollowsStreak(frame)) return frame;
+    return this.wornFinish() ? null : FRAME_STREAK;
   });
 
   protected readonly streakFrameMaterial = computed(() => {
@@ -214,6 +228,18 @@ export class ProfilePageComponent implements OnInit {
     this.userService.updateProfile({ frameColor: color }).subscribe({
       next: profile => {
         // A plain colour takes the ring finish off (rama 57).
+        this.authService.patchCurrentUser({ frameColor: profile.frameColor, look: profile.look });
+        this.isSavingFrame.set(false);
+      },
+      error: () => this.isSavingFrame.set(false),
+    });
+  }
+
+  // Wears a finish (it puts the frame back on the streak ring), or takes it off.
+  selectFinish(key: string): void {
+    this.isSavingFrame.set(true);
+    this.userService.updateProfile({ ringSkinKey: this.wornFinish() === key ? '' : key }).subscribe({
+      next: profile => {
         this.authService.patchCurrentUser({ frameColor: profile.frameColor, look: profile.look });
         this.isSavingFrame.set(false);
       },

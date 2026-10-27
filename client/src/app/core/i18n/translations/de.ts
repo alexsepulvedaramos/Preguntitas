@@ -752,6 +752,7 @@ export const de: Translation = {
     },
     frameMoreColors: 'Mehr Farben',
     frameFollows: 'Dein Rahmen folgt deiner besten aktuellen Serie',
+    frameFinish: '{name} über deinem Serienring, der deiner besten aktuellen Serie folgt',
     frameFrom3: 'er erscheint, sobald du 3 Tage am Stück abgestimmt hast',
     frameHint: 'Wähl „Serie“, damit dein Rahmen mit deinen Abstimmungstagen am Stück wächst',
     titleHeading: 'Titel',

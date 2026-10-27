@@ -40,9 +40,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Deine Krone, auch in klein',
         },
         text: {
-          es: 'Si llevas un acabado y la corona del grupo, la corona sale con su estilo también en las caras pequeñas, como en la lista de quién ha votado. Y la de Garabato ahora es una pegatina, como sus iconos.',
-          en: 'If you wear a finish and the group’s crown, the crown keeps its style on the small faces too, like the list of who has voted. And Doodle’s crown is now a sticker, like its icons.',
-          de: 'Trägst du eine Veredelung und die Krone der Gruppe, behält die Krone ihren Stil auch auf den kleinen Gesichtern, etwa in der Liste, wer abgestimmt hat. Und die Krone von Gekritzel ist jetzt ein Sticker, wie ihre Symbole.',
+          es: 'Si llevas un acabado y la corona del grupo, la corona sale con su estilo también en las caras pequeñas, como en la lista de quién ha votado. Y la de Garabato ahora es una pegatina, como sus iconos. En tu perfil ya puedes elegir los acabados que tienes.',
+          en: 'If you wear a finish and the group’s crown, the crown keeps its style on the small faces too, like the list of who has voted. And Doodle’s crown is now a sticker, like its icons. Your profile now lets you pick the finishes you own.',
+          de: 'Trägst du eine Veredelung und die Krone der Gruppe, behält die Krone ihren Stil auch auf den kleinen Gesichtern, etwa in der Liste, wer abgestimmt hat. Und die Krone von Gekritzel ist jetzt ein Sticker, wie ihre Symbole. In deinem Profil kannst du jetzt deine Veredelungen auswählen.',
         },
       },
       {

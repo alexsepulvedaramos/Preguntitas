@@ -752,6 +752,7 @@ export const en: Translation = {
     },
     frameMoreColors: 'More colours',
     frameFollows: 'Your frame follows your best current streak',
+    frameFinish: '{name} over your streak ring, which follows your best current streak',
     frameFrom3: 'it appears after voting 3 days in a row',
     frameHint: 'Pick “Streak” so your frame grows with your days in a row of voting',
     titleHeading: 'Title',

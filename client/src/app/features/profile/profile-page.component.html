@@ -76,13 +76,39 @@
             }
           </button>
         }
+        @for (finish of ownedFinishes(); track finish.key) {
+          <!-- An owned ring finish (rama 57), previewed on your own avatar -->
+          <button
+            class="grid size-12 place-items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none disabled:opacity-60 disabled:pointer-events-none"
+            [class]="wornFinish() === finish.key ? 'ring-2 ring-accent ring-offset-2 ring-offset-background' : ''"
+            [attr.aria-label]="finish.name"
+            [attr.aria-pressed]="wornFinish() === finish.key"
+            [disabled]="isSavingFrame()"
+            (click)="selectFinish(finish.key)"
+          >
+            <app-user-avatar
+              [avatarUrl]="user()?.avatarUrl"
+              [username]="user()?.username ?? ''"
+              [frameColor]="frameStreak"
+              [streak]="user()?.highestStreak"
+              [look]="{ ringSkin: finish.key }"
+              [showRibbon]="false"
+              size="sm"
+            />
+          </button>
+        }
         <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'style' }">
           <ng-icon hlm name="lucideShoppingBag" class="size-4!" aria-hidden="true" />
           {{ t('profile.frameMoreColors') }}
         </a>
       </div>
       <p class="text-xs text-muted-foreground">
-        @if (selectedFrame() === frameStreak) {
+        @if (wornFinishName(); as name) {
+          {{ t('profile.frameFinish', { name: name }) }}
+          @if (streakFrameMaterial(); as material) {
+            · {{ material }}
+          }
+        } @else if (selectedFrame() === frameStreak) {
           {{ t('profile.frameFollows') }}
           @if (streakFrameMaterial(); as material) {
             · {{ material }}

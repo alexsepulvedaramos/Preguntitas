@@ -753,6 +753,7 @@ export const es = {
     },
     frameMoreColors: 'Más colores',
     frameFollows: 'Tu marco sigue tu mejor racha actual',
+    frameFinish: '{name} sobre tu anillo de racha, que sigue tu mejor racha actual',
     frameFrom3: 'aparece a partir de 3 días seguidos votando',
     frameHint: 'Elige «Racha» para que tu marco arda con tus días seguidos votando',
     titleHeading: 'Título',
