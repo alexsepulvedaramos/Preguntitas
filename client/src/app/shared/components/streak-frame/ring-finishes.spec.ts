@@ -53,6 +53,15 @@ describe('ring finishes (rama 57)', () => {
     expect(rare).toContain('url(#acr)');
   });
 
+  it('keeps the finish’s crown where only the tier ring is drawn, except for the rare finishes', () => {
+    const ringOnly = renderStreakFrame({ tier: 'gold', crownFinish: 'ring-witch', crown: true, lite: true, ribbon: null, uid: 'a' });
+    expect(ringOnly).not.toContain('url(#acr)');
+    expect(ringOnly).toContain('vp-frame__fx');
+    const rare = renderStreakFrame({ tier: 'gold', crownFinish: 'ring-volt', crown: true, lite: true, ribbon: null, uid: 'a' });
+    expect(rare).toContain('url(#acr)');
+    expect(rare).not.toContain('vp-frame__fx');
+  });
+
   it('puts a finish on a neutral ring before the first tier', () => {
     expect(renderStreakFrame({ tier: null, crown: false, lite: true, ribbon: null, uid: 'a' })).not.toContain('stroke-width="5"');
     const early = renderStreakFrame({ tier: null, finish: 'ring-orbit', crown: false, lite: true, ribbon: null, uid: 'a' });

@@ -1,5 +1,5 @@
 import { CROWN_LOOK, FRAME_LOOKS, NEUTRAL_RING_LOOK, STREAK_TIERS, StreakTierKey } from '../../../core/constants/streak-tiers';
-import { FinishKey, renderFinish } from './ring-finishes';
+import { FinishKey, renderFinish, renderFinishCrown } from './ring-finishes';
 
 // Builds the markup of a streak frame (rama 19). Coordinates: viewBox -100..100 over a box
 // twice the avatar's size, so the avatar's radius is 50 and the rim spans 49–59. Every value
@@ -11,6 +11,9 @@ export interface FrameOptions {
   // A shop finish drawn on top of the tier's material (rama 57); with no tier yet it sits on a
   // plain neutral ring. It brings its own effects and its own crown.
   finish?: FinishKey | null;
+  // The wearer's finish when the finish itself isn't drawn (tier ring only): the crown still
+  // comes in its style.
+  crownFinish?: FinishKey | null;
   crown: boolean;
   // Light version for list sizes: rim, shine and gems only — no particles or ornaments.
   lite: boolean;
@@ -59,7 +62,8 @@ export function renderStreakFrame(o: FrameOptions): string {
   const fx = finish
     ? renderFinish(finish, tier ? STREAK_TIERS.findIndex((t) => t.key === tier) + 1 : 0, lite, crown, `url(#${id}blur)`)
     : null;
-  const tierCrown = crown && (!fx || fx.plainCrown);
+  const styledCrown = !fx && crown && o.crownFinish ? renderFinishCrown(o.crownFinish, lite, `url(#${id}blur)`) : null;
+  const tierCrown = crown && (fx ? fx.plainCrown : !styledCrown);
   const tierEffects = !fx;
   let html = '';
 
@@ -167,7 +171,8 @@ export function renderStreakFrame(o: FrameOptions): string {
   html += svg;
 
   // The finish, above the face.
-  if (fx) html += `<svg class="vp-frame__fx" viewBox="-100 -100 200 200" aria-hidden="true">${fx.front}</svg>`;
+  if (fx || styledCrown)
+    html += `<svg class="vp-frame__fx" viewBox="-100 -100 200 200" aria-hidden="true">${fx ? fx.front : styledCrown}</svg>`;
 
   // Light sweeping round the rim — from bronze on.
   if (look?.sheen) {

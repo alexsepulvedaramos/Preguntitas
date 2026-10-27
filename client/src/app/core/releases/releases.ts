@@ -24,6 +24,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.1',
+    date: '2026-10-27',
+    title: {
+      es: 'Retoques de marcos',
+      en: 'Frame touch-ups',
+      de: 'Feinschliff an den Rahmen',
+    },
+    items: [
+      {
+        glyph: 'crown',
+        title: {
+          es: 'Tu corona, también en pequeño',
+          en: 'Your crown, small sizes too',
+          de: 'Deine Krone, auch in klein',
+        },
+        text: {
+          es: 'Si llevas un acabado y la corona del grupo, la corona sale con su estilo también en las caras pequeñas, como en la lista de quién ha votado. Y la de Garabato ahora es una pegatina, como sus iconos. En tu perfil ya puedes elegir los acabados que tienes.',
+          en: 'If you wear a finish and the group’s crown, the crown keeps its style on the small faces too, like the list of who has voted. And Doodle’s crown is now a sticker, like its icons. Your profile now lets you pick the finishes you own.',
+          de: 'Trägst du eine Veredelung und die Krone der Gruppe, behält die Krone ihren Stil auch auf den kleinen Gesichtern, etwa in der Liste, wer abgestimmt hat. Und die Krone von Gekritzel ist jetzt ein Sticker, wie ihre Symbole. In deinem Profil kannst du jetzt deine Veredelungen auswählen.',
+        },
+      },
+      {
+        glyph: 'versus',
+        title: {
+          es: 'Caras en los Deathmatch',
+          en: 'Faces in Deathmatch',
+          de: 'Gesichter im Deathmatch',
+        },
+        text: {
+          es: 'Al votar, debajo de los nombres de cada equipo salen sus caras con sus marcos. Y el resultado se lee mejor: con dos equipos, cara a cara como un marcador; con más, una clasificación del más votado al menos. Con sus caras, el porcentaje y los votos.',
+          en: 'When voting, each team’s faces and frames show under their names. And the result reads better: with two teams, face to face like a scoreboard; with more, a ranking from most voted down. With their faces, the share and the votes.',
+          de: 'Beim Abstimmen siehst du unter den Namen jedes Teams ihre Gesichter mit Rahmen. Und das Ergebnis liest sich besser: bei zwei Teams Kopf an Kopf wie eine Anzeigetafel, bei mehr eine Rangliste vom meistgewählten an. Mit Gesichtern, Anteil und Stimmen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.0',
     date: '2026-10-27',
     title: {

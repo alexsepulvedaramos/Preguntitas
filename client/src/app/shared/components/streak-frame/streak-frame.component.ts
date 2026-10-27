@@ -27,6 +27,8 @@ export class StreakFrameComponent {
   readonly tier = input<StreakTierKey | null>(null);
   // A shop finish drawn over the tier's material (rama 57).
   readonly finish = input<FinishKey | null>(null);
+  // The wearer's finish when only the tier ring is drawn, for the crown's style.
+  readonly crownFinish = input<FinishKey | null>(null);
   readonly crown = input(false);
   readonly lite = input(true);
   readonly ribbon = input<number | null>(null);
@@ -38,6 +40,7 @@ export class StreakFrameComponent {
       renderStreakFrame({
         tier: this.tier(),
         finish: this.finish(),
+        crownFinish: this.crownFinish(),
         crown: this.crown(),
         lite: this.lite(),
         ribbon: this.ribbon(),

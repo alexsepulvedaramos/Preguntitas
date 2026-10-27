@@ -28,7 +28,7 @@ export type AvatarEffects = 'auto' | 'full' | 'ring';
   template: `
     <div class="relative isolate rounded-full shrink-0" [class]="sizeClass()">
       @if (tier() || finish() || crown()) {
-        <app-streak-frame [tier]="tier()" [finish]="finish()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
+        <app-streak-frame [tier]="tier()" [finish]="finish()" [crownFinish]="crownFinish()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
       }
       <div
         class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
@@ -87,6 +87,12 @@ export class UserAvatarComponent {
   protected readonly finish = computed<FinishKey | null>(() => {
     const key = this.look()?.ringSkin;
     return this.effects() !== 'ring' && frameFollowsStreak(this.frameColor()) && isFinish(key) ? key : null;
+  });
+
+  // Where only the tier ring is drawn, the crown still wears the finish's style.
+  protected readonly crownFinish = computed<FinishKey | null>(() => {
+    const key = this.look()?.ringSkin;
+    return frameFollowsStreak(this.frameColor()) && isFinish(key) ? key : null;
   });
 
   // Full frames (particles, ornaments, icons) only where the avatar is big enough to show

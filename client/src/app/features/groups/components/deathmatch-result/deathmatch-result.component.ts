@@ -1,27 +1,39 @@
 import { Component, computed, inject, input } from '@angular/core';
 
 import { QuestionResult } from '../../../../core/models/result.model';
-import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 
-// One row per team (always both, even at 0 votes — it's a head-to-head comparison, hiding
-// a side would look broken). The backend resolves DisplayText as "Jugador1 + Jugador2"
-// (same convention as Secret Pairing) so no cross-referencing against question.teams /
-// group members is needed here.
+// The Deathmatch result (1.32.1). Two teams: face to face, like a scoreboard — the teams side
+// by side in their order, faces with frames, the share big, the names once, then the split bar
+// and each side's votes. Three or four: a ranking, most voted first, with the rank (ties share
+// it), faces, a thin bar, the names, the share and its votes. The clear leader gets the accent.
+// Who has voted is shown under the timer, as for every question.
 @Component({
   selector: 'app-deathmatch-result',
-  imports: [ResultOptionBarComponent],
+  imports: [UserAvatarComponent],
   templateUrl: './deathmatch-result.component.html',
 })
 export class DeathmatchResultComponent {
   public readonly result = input.required<QuestionResult>();
   protected readonly t = inject(I18nService).t;
+  protected readonly groupStreaks = inject(GroupStreaksService);
 
-  // The leading team's label, or null on a tie (including no votes yet).
-  protected readonly leader = computed(() => {
-    const results = this.result().results;
-    const maxVotes = Math.max(...results.map((r) => r.voteCount), 0);
-    const leaders = results.filter((r) => r.voteCount === maxVotes);
-    return maxVotes === 0 || leaders.length > 1 ? null : leaders[0].displayText;
+  protected readonly rows = computed(() => {
+    const options = [...this.result().results].sort((a, b) => b.voteCount - a.voteCount);
+    const top = options[0]?.voteCount ?? 0;
+    const leaders = options.filter((o) => o.voteCount === top).length;
+    return options.map((option) => ({
+      option,
+      rank: 1 + options.filter((o) => o.voteCount > option.voteCount).length,
+      leads: top > 0 && leaders === 1 && option.voteCount === top,
+    }));
+  });
+
+  // Face to face keeps the teams in their order (left/right as when voting), not by votes.
+  protected readonly faceToFace = computed(() => {
+    const byId = new Map(this.rows().map((row) => [row.option.id, row]));
+    return this.result().results.map((option) => byId.get(option.id)!);
   });
 }

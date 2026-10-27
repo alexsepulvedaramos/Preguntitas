@@ -2,11 +2,29 @@
   @for (team of question().teams; track $index; let isLast = $last) {
     <button
       type="button"
-      [class]="optionClass($index)"
+      [class]="optionClass($index) + ' py-3'"
       [attr.aria-pressed]="selectedIndex() === $index"
       (click)="select($index)"
     >
-      {{ teamLabel(team) }}
+      <span class="flex flex-col items-center gap-3 text-center">
+        <span class="font-semibold">{{ teamLabel(team) }}</span>
+        <!-- Who is in the team, big enough to show their frames (rama 57) -->
+        <span class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 pb-1" aria-hidden="true">
+          @for (member of teamMembers(team); track member.id) {
+            <app-user-avatar
+              [avatarUrl]="member.avatarUrl"
+              [username]="member.username"
+              [frameColor]="member.frameColor"
+              [streak]="member.currentStreak"
+              [crown]="member.hasCrown"
+              [look]="member.look"
+              [showRibbon]="false"
+              effects="full"
+              size="md"
+            />
+          }
+        </span>
+      </span>
     </button>
     @if (!isLast) {
       <span class="text-center text-2xs text-muted-foreground/70 tracking-wide select-none">vs</span>

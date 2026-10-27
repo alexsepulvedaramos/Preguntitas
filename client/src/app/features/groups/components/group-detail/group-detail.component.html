@@ -366,7 +366,8 @@
 
         <div class="flex flex-col gap-2">
           <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
-          <div class="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+          <!-- Room below for the crown and hat of a big framed face in the results (1.32.1) -->
+          <div class="flex min-w-0 items-center gap-2 pb-4 text-xs text-muted-foreground">
             @if (flash.launchedBy; as launcher) {
               <app-user-avatar
                 [avatarUrl]="launcher.avatarUrl"
