@@ -1,40 +1,46 @@
-<div class="flex flex-col items-center gap-0.5 pb-2">
-  <span class="text-xs uppercase tracking-wide text-muted-foreground">{{
-    leader() ? t('results.leading') : t('results.result')
-  }}</span>
-  <span class="font-display text-2xl text-primary-text text-center truncate max-w-full">{{ leader() ?? t('results.tie') }}</span>
-</div>
-
-<div class="flex flex-col gap-1">
-  @for (option of result().results; track option.id; let i = $index; let isLast = $last) {
-    <app-result-option-bar
-      [label]="option.displayText"
-      [voteCount]="option.voteCount"
-      [percentage]="option.percentage"
-      [voters]="option.voters"
-      [allResults]="result().results"
-      [class.animate-result-enter-left]="i % 2 === 0"
-      [class.animate-result-enter-right]="i % 2 === 1"
+<!-- One row per team, most voted first (1.32.1): rank, the team's faces with their frames, a
+     thin bar, the names and the share. Who has voted stays under the timer, as everywhere. -->
+<ol class="flex flex-col gap-2.5" [attr.aria-label]="t('results.result')">
+  @for (row of rows(); track row.option.id; let i = $index) {
+    <li
+      class="animate-result-enter-left grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
+      [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
       [style.animation-delay.ms]="i * 70"
-    />
-    <!-- Who is in the team, big enough to show their frames (rama 57) -->
-    <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 py-2" aria-hidden="true">
-      @for (member of option.teamMembers; track member.id) {
-        <app-user-avatar
-          [avatarUrl]="member.avatarUrl"
-          [username]="member.username"
-          [frameColor]="member.frameColor"
-          [streak]="groupStreaks.streakFor(member.id)"
-          [crown]="groupStreaks.hasCrown(member.id)"
-          [look]="groupStreaks.lookFor(member.id)"
-          [showRibbon]="false"
-          effects="full"
-          size="md"
-        />
-      }
-    </div>
-    @if (!isLast) {
-      <span class="text-center text-2xs text-muted-foreground/70 tracking-wide select-none">vs</span>
-    }
+    >
+      <span
+        class="text-center font-display text-2xl tabular-nums"
+        [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'"
+        >{{ row.rank }}</span
+      >
+      <div class="flex min-w-0 flex-col gap-2">
+        <div class="flex items-center gap-1.5 py-1" aria-hidden="true">
+          @for (member of row.option.teamMembers; track member.id) {
+            <app-user-avatar
+              [avatarUrl]="member.avatarUrl"
+              [username]="member.username"
+              [frameColor]="member.frameColor"
+              [streak]="groupStreaks.streakFor(member.id)"
+              [crown]="groupStreaks.hasCrown(member.id)"
+              [look]="groupStreaks.lookFor(member.id)"
+              [showRibbon]="false"
+              size="sm"
+            />
+          }
+        </div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div
+            class="h-full rounded-full transition-[width] duration-500"
+            [class]="row.leads ? 'bg-accent' : 'bg-primary/60'"
+            [style.width.%]="row.option.percentage"
+          ></div>
+        </div>
+        <span class="truncate text-xs text-muted-foreground">{{ row.option.displayText }}</span>
+      </div>
+      <span
+        class="min-w-[3ch] text-right font-display text-2xl tabular-nums"
+        [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
+        >{{ row.option.percentage }}%</span
+      >
+    </li>
   }
-</div>
+</ol>

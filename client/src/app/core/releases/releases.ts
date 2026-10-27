@@ -53,9 +53,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Gesichter im Deathmatch',
         },
         text: {
-          es: 'Debajo de los nombres de cada equipo salen sus caras con sus marcos, al votar y en los resultados.',
-          en: 'Under each team’s names you now see their faces and frames, when voting and in the results.',
-          de: 'Unter den Namen jedes Teams siehst du jetzt ihre Gesichter mit Rahmen, beim Abstimmen und in den Ergebnissen.',
+          es: 'Al votar, debajo de los nombres de cada equipo salen sus caras con sus marcos. Y el resultado es ahora una clasificación: cada equipo en su fila, del más votado al menos, con sus caras, una barra y el porcentaje.',
+          en: 'When voting, each team’s faces and frames show under their names. And the result is now a ranking: each team on its own row, most voted first, with their faces, a bar and the share.',
+          de: 'Beim Abstimmen siehst du unter den Namen jedes Teams ihre Gesichter mit Rahmen. Und das Ergebnis ist jetzt eine Rangliste: jedes Team in seiner Zeile, das meistgewählte zuerst, mit Gesichtern, Balken und Anteil.',
         },
       },
     ],
