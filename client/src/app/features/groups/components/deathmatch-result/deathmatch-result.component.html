@@ -1,15 +1,38 @@
-<!-- The Deathmatch result (1.32.1). Who has voted stays under the timer, as everywhere. -->
+<!-- The Deathmatch result (1.32.1). 1.32.2: who voted each team, as small faces outside the
+     team cards (so voters and fighters don't mix); tapping the result opens the votes summary. -->
+@if (hasVoters()) {
+  <hlm-dialog>
+    <button
+      type="button"
+      hlmDialogTrigger
+      class="block w-full rounded-default text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <ng-container *ngTemplateOutlet="board" />
+    </button>
+
+    <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
+      <app-votes-summary [results]="summary()" />
+    </hlm-dialog-content>
+  </hlm-dialog>
+} @else {
+  <ng-container *ngTemplateOutlet="board" />
+}
+
+<ng-template #board>
 @if (rows().length === 2) {
   <!-- Two teams: face to face, like a scoreboard, with the split bar and each side's votes -->
   <div class="flex flex-col gap-3">
     <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2">
-      @for (row of faceToFace(); track row.option.id; let first = $first) {
+      @for (row of faceToFace(); track row.option.id; let first = $first; let i = $index) {
         @if (!first) {
           <span class="self-center font-display text-xl italic text-muted-foreground" aria-hidden="true">vs</span>
         }
         <div
-          class="animate-result-enter-left flex min-w-0 flex-col items-center gap-2.5 rounded-default border px-2 py-3 text-center transition-colors"
+          class="flex min-w-0 flex-col items-center gap-2.5 rounded-default border px-2 py-3 text-center transition-colors"
           [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+          [class.animate-result-enter-left]="first"
+          [class.animate-result-enter-right]="!first"
+          [style.animation-delay.ms]="i * 70"
         >
           <div
             class="items-center justify-center gap-x-1 py-2"
@@ -48,9 +71,15 @@
         ></span>
       }
     </div>
-    <div class="-mt-1 flex justify-between text-xs tabular-nums text-muted-foreground">
-      @for (row of faceToFace(); track row.option.id) {
-        <span [class]="row.leads ? 'font-semibold text-accent-text' : ''">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+    <!-- Each side's voters under its end of the bar: the left one aligned left, the right one right -->
+    <div class="-mt-1 flex items-center justify-between gap-2 text-xs tabular-nums text-muted-foreground">
+      @for (row of faceToFace(); track row.option.id; let last = $last) {
+        <span class="flex min-h-7 items-center gap-1.5" [class.flex-row-reverse]="last">
+          @if (row.option.voters.length > 0) {
+            <app-voter-stack [voters]="row.option.voters" />
+          }
+          <span [class]="row.leads ? 'font-semibold text-accent-text' : ''">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+        </span>
       }
     </div>
   </div>
@@ -59,8 +88,10 @@
   <ol class="flex flex-col gap-2.5" [attr.aria-label]="t('results.result')">
     @for (row of rows(); track row.option.id; let i = $index) {
       <li
-        class="animate-result-enter-left grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
+        class="grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
         [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+        [class.animate-result-enter-left]="i % 2 === 0"
+        [class.animate-result-enter-right]="i % 2 === 1"
         [style.animation-delay.ms]="i * 70"
       >
         <span
@@ -92,17 +123,24 @@
           </div>
           <span class="truncate text-xs text-muted-foreground">{{ row.option.displayText }}</span>
         </div>
-        <div class="flex flex-col items-end">
+        <div class="flex flex-col items-end gap-1.5">
           <span
             class="min-w-[3ch] text-right font-display text-2xl tabular-nums"
             [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
             >{{ row.option.percentage }}%</span
           >
-          <span class="text-2xs tabular-nums" [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'">{{
-            t('history.votes', { count: row.option.voteCount })
-          }}</span>
+          <!-- Who voted it where its vote count was; the count stays for screen readers -->
+          @if (row.option.voters.length > 0) {
+            <app-voter-stack [voters]="row.option.voters" />
+            <span class="sr-only">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+          } @else {
+            <span class="text-2xs tabular-nums" [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'">{{
+              t('history.votes', { count: row.option.voteCount })
+            }}</span>
+          }
         </div>
       </li>
     }
   </ol>
 }
+</ng-template>

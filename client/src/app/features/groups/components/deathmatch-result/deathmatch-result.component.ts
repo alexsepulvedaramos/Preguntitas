@@ -1,18 +1,25 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 
 import { QuestionResult } from '../../../../core/models/result.model';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { GroupStreaksService } from '../../services/group-streaks.service';
+import { VoterStackComponent } from '../voter-stack/voter-stack.component';
+import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
 
 // The Deathmatch result (1.32.1). Two teams: face to face, like a scoreboard — the teams side
 // by side in their order, faces with frames, the share big, the names once, then the split bar
 // and each side's votes. Three or four: a ranking, most voted first, with the rank (ties share
 // it), faces, a thin bar, the names, the share and its votes. The clear leader gets the accent.
-// Who has voted is shown under the timer, as for every question.
+// Who has voted is shown under the timer, as for every question. 1.32.2: who voted each team, as
+// small faces (under each end of the bar, or where a ranked row's vote count was), and tapping
+// the result opens the votes summary — unless the votes are anonymous (no voters are sent).
 @Component({
   selector: 'app-deathmatch-result',
-  imports: [UserAvatarComponent],
+  imports: [UserAvatarComponent, NgTemplateOutlet, HlmDialogImports, VoterStackComponent, VotesSummaryComponent],
   templateUrl: './deathmatch-result.component.html',
 })
 export class DeathmatchResultComponent {
@@ -30,6 +37,10 @@ export class DeathmatchResultComponent {
       leads: top > 0 && leaders === 1 && option.voteCount === top,
     }));
   });
+
+  protected readonly hasVoters = computed(() => this.result().results.some((o) => o.voters.length > 0));
+  // The summary lists the teams most voted first.
+  protected readonly summary = computed(() => this.rows().map((row) => row.option));
 
   // Face to face keeps the teams in their order (left/right as when voting), not by votes.
   protected readonly faceToFace = computed(() => {

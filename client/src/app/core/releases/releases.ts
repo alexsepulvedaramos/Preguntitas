@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.2',
+    date: '2026-10-27',
+    title: {
+      es: 'Quién ha votado en los Deathmatch',
+      en: 'Who voted in Deathmatch',
+      de: 'Wer im Deathmatch abgestimmt hat',
+    },
+    items: [
+      {
+        glyph: 'versus',
+        title: {
+          es: 'Quién ha votado a cada equipo',
+          en: 'Who voted for each team',
+          de: 'Wer für welches Team gestimmt hat',
+        },
+        text: {
+          es: 'Vuelven a salir sus caras en el resultado del Deathmatch.',
+          en: 'Their faces are back in the Deathmatch result.',
+          de: 'Ihre Gesichter sind im Deathmatch-Ergebnis zurück.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.1',
     date: '2026-10-27',
     title: {
