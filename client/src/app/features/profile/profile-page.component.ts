@@ -4,8 +4,9 @@ import {
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { RouterLink } from '@angular/router';
 import {
-  lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideCalendarHeart
+  lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideBan, lucideShoppingBag
 } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -29,8 +30,8 @@ import {
 } from '../../core/services/notification-preferences.service';
 import { MemberCardService } from '../../core/services/member-card.service';
 import {
-  FRAME_NONE, FRAME_STREAK, frameColorVar, isColorFrame, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor, FRAME_SENIORITY } from '../../core/constants/streak-tiers';
-import { seniorityStage } from '../../core/constants/shop-catalog';
+  FRAME_NONE, FRAME_STREAK, frameColorVar, isColorFrame, STREAK_MATERIAL_KEYS, TITLE_AUTO, TITLE_NONE, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
+import { frameColorItemKey } from '../../core/constants/shop-catalog';
 import { UserProfileDto } from '../../core/services/user.service';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslationKey } from '../../core/i18n/translation.types';
@@ -40,7 +41,6 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
   { label: 'profile.frameColors.streak', value: FRAME_STREAK },
-  { label: 'profile.frameColors.seniority', value: FRAME_SENIORITY },
   { label: 'profile.frameColors.purple', value: 'purple' },
   { label: 'profile.frameColors.blue', value: 'blue' },
   { label: 'profile.frameColors.green', value: 'green' },
@@ -54,7 +54,7 @@ const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [PageHeaderComponent, 
+  imports: [PageHeaderComponent, RouterLink,
     ReactiveFormsModule,
     HlmButtonImports,
     HlmInputImports,
@@ -68,7 +68,7 @@ const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
     AvatarPickerComponent,
     LanguagePickerComponent,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideCalendarHeart })],
+  providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideBan, lucideShoppingBag })],
   templateUrl: './profile-page.component.html',
 })
 export class ProfilePageComponent implements OnInit {
@@ -81,17 +81,14 @@ export class ProfilePageComponent implements OnInit {
   private readonly memberCard = inject(MemberCardService);
   protected readonly t = inject(I18nService).t;
 
-  protected readonly frameColors = FRAME_COLORS;
+  // The streak ring, no frame and the frame colours you own (bought in the shop since rama 57).
+  protected readonly frameColors = computed(() => {
+    const owned = new Set(this.user()?.ownedCosmetics ?? []);
+    return FRAME_COLORS.filter((c) => !isColorFrame(c.value) || owned.has(frameColorItemKey(c.value)));
+  });
   protected readonly frameNone = FRAME_NONE;
   protected readonly swatch = (value: string) => (isColorFrame(value) ? frameColorVar(value) : null);
   protected readonly frameStreak = FRAME_STREAK;
-  protected readonly frameSeniority = FRAME_SENIORITY;
-
-  // Seniority frame (rama 42): the stage reached in the oldest group, if any.
-  protected readonly seniorityName = computed(() => {
-    const stage = seniorityStage(this.user()?.firstJoinedAt);
-    return stage ? this.t(stage.name) : null;
-  });
   protected readonly streakDangerHours = STREAK_DANGER_HOURS;
   protected readonly isSavingProfile = signal(false);
   protected readonly isSavingPassword = signal(false);
@@ -107,7 +104,7 @@ export class ProfilePageComponent implements OnInit {
   protected readonly notifPrefs = signal<NotificationPreferences>({
     newQuestion: true, selectorTurn: true, userVoted: true, newMessage: true,
     streakDanger: true, streakDangerHoursBefore: 3, raceToSelect: true, flashQuestion: true, monthlySummary: true,
-    nudge: true, reaction: true,
+    nudge: true, reaction: true, shopNews: true,
   });
 
   protected readonly user = computed(() => this.authService.currentUser());
@@ -186,6 +183,7 @@ export class ProfilePageComponent implements OnInit {
       | 'monthlySummary'
       | 'nudge'
       | 'reaction'
+      | 'shopNews'
       | 'userVoted'
       | 'newMessage'
       | 'streakDanger',
@@ -215,7 +213,8 @@ export class ProfilePageComponent implements OnInit {
     this.isSavingFrame.set(true);
     this.userService.updateProfile({ frameColor: color }).subscribe({
       next: profile => {
-        this.authService.patchCurrentUser({ frameColor: profile.frameColor });
+        // A plain colour takes the ring finish off (rama 57).
+        this.authService.patchCurrentUser({ frameColor: profile.frameColor, look: profile.look });
         this.isSavingFrame.set(false);
       },
       error: () => this.isSavingFrame.set(false),

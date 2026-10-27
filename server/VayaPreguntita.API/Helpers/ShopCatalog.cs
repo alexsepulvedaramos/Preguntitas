@@ -4,23 +4,87 @@ namespace VayaPreguntita.API.Helpers;
 
 // One cosmetic for sale. Id is the ledger RefId of its purchase (with the ledger's unique
 // (UserId, Reason, RefId) index that makes buying twice impossible) — never reuse or
-// renumber one.
-public record CosmeticItem(int Id, string Key, CosmeticKind Kind, int Price, CosmeticRarity Rarity);
+// renumber one. A seasonal item (rama 57, §17.15) is only sold between OnSaleFrom and
+// OnSaleUntil (UTC); whoever bought it keeps wearing it whenever they like.
+public record CosmeticItem(
+    int Id,
+    string Key,
+    CosmeticKind Kind,
+    int Price,
+    CosmeticRarity Rarity,
+    DateTime? OnSaleFrom = null,
+    DateTime? OnSaleUntil = null
+)
+{
+    public bool IsSeasonal => OnSaleFrom is not null;
 
-// The cosmetics catalog (rama 42, §17.10): a server constant, like the pack catalog. The
-// art is pure CSS/SVG on the client — mirrored in core/constants/shop-catalog.ts, keep both
-// in sync.
+    public bool IsOnSale(DateTime nowUtc) =>
+        (OnSaleFrom is null || nowUtc >= OnSaleFrom) && (OnSaleUntil is null || nowUtc < OnSaleUntil);
+
+    // A seasonal item is shown, not yet for sale, in the week before its window opens, so
+    // whoever reads the release notes finds it with its countdown.
+    public bool IsComingSoon(DateTime nowUtc) =>
+        OnSaleFrom is not null && nowUtc < OnSaleFrom && nowUtc >= OnSaleFrom - ShopCatalog.ComingSoonLead;
+}
+
+// The cosmetics catalog (rama 42, §17.10; rethought in rama 57, §17.15 item 8): a server
+// constant, like the pack catalog. The art is pure CSS/SVG on the client — mirrored in
+// core/constants/shop-catalog.ts, keep both in sync.
 public static class ShopCatalog
 {
+    // Halloween 2026 (rama 57): one week from 27 Oct 16:00 Madrid (CET, UTC+1), when the
+    // "in the shop" push goes out. 100 coins on purpose: players have savings and spend
+    // little, so it is an exception to the window-of-play price rule (developer, 2026-10-27).
+    public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 15, 0, 0, DateTimeKind.Utc);
+    public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(7);
+
+    // Seasonal items allowed to cost more than their window of play earns (§17.16).
+    public static readonly string[] PriceRuleExceptions = ["ring-witch"];
+
+    // How long before its window a seasonal item is listed as coming soon.
+    public static readonly TimeSpan ComingSoonLead = TimeSpan.FromDays(7);
+
+    // Frame colour key → catalog key ("purple" → "frame-purple").
+    public static string FrameColorKey(string paletteKey) => $"frame-{paletteKey}";
+
     public static readonly CosmeticItem[] All =
     [
-        // Ring skins: restyle the streak ring, still encoding the tier.
-        new(1, "ring-neon", CosmeticKind.RingSkin, 400, CosmeticRarity.Common),
-        new(2, "ring-pixel", CosmeticKind.RingSkin, 600, CosmeticRarity.Rare),
-        new(3, "ring-ice", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
-        new(4, "ring-flames", CosmeticKind.RingSkin, 1000, CosmeticRarity.Legendary),
+        // Ring finishes, drawn on top of the streak ring's material so the tier still shows, in
+        // one step per rarity (§17.16): rare = animated, the same on every tier, plain crown;
+        // epic = grows lightly with the tier, crown in its colour; legendary = grows a lot, the
+        // game's icons and its own crown. Ids 7 (ring-orbit) and 84 (ring-glitter) are art
+        // kept off sale for later — never reuse them.
+        new(5, "ring-volt", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(81, "ring-sparks", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(82, "ring-bubbles", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(83, "ring-confetti", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(4, "ring-flare", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
+        new(3, "ring-blizzard", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
+        new(8, "ring-aurora", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
+        new(1, "ring-neon", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
+        new(2, "ring-arcade", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
+        new(6, "ring-doodle", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
 
-        // Name colours: a curated palette with light/dark variants (WCAG AA).
+        // Seasonal finishes.
+        new(101, "ring-witch", CosmeticKind.RingSkin, 100, CosmeticRarity.Common, HalloweenFrom, HalloweenUntil),
+
+        // Plain frame colours (free until rama 57): the colour drawn round the avatar instead
+        // of the streak ring.
+        new(71, FrameColorKey("purple"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(72, FrameColorKey("blue"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(73, FrameColorKey("green"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(74, FrameColorKey("yellow"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(75, FrameColorKey("orange"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(76, FrameColorKey("red"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+        new(77, FrameColorKey("pink"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+    ];
+
+    // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners by the
+    // RetireBadgesAndShopTitles, RetireAvatarAccessories and ShopRethink migrations. Kept only
+    // so the ledger can still name them; their ids are never reused.
+    public static readonly CosmeticItem[] Retired =
+    [
+        // Name colours (rama 57): just coloured text, and a name can already hold emojis.
         new(21, "color-coral", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
         new(22, "color-tangerine", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
         new(23, "color-gold", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
@@ -30,18 +94,12 @@ public static class ShopCatalog
         new(27, "color-pink", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
         new(28, "color-lime", CosmeticKind.NameColor, 250, CosmeticRarity.Common),
 
-        // App themes: a full personal palette (light and dark). Only the owner sees it.
+        // App themes (rama 57): only the owner saw them, so they showed nothing off.
         new(61, "theme-ocean", CosmeticKind.Theme, 250, CosmeticRarity.Common),
         new(62, "theme-strawberry", CosmeticKind.Theme, 250, CosmeticRarity.Common),
         new(63, "theme-grape", CosmeticKind.Theme, 250, CosmeticRarity.Common),
         new(64, "theme-tangerine", CosmeticKind.Theme, 250, CosmeticRarity.Common),
-    ];
 
-    // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners by the
-    // RetireBadgesAndShopTitles and RetireAvatarAccessories migrations. Kept only so the ledger
-    // can still name them; their ids are never reused.
-    public static readonly CosmeticItem[] Retired =
-    [
         // Avatar accessories (rama 43): drawn over the photo, so anyone could fake one by
         // uploading a picture with the sticker already on it.
         new(11, "acc-sunglasses", CosmeticKind.Accessory, 200, CosmeticRarity.Common),
@@ -75,7 +133,8 @@ public static class ShopCatalog
     private static readonly Dictionary<string, CosmeticItem> ByKeyMap = All.ToDictionary(i => i.Key);
     private static readonly Dictionary<int, CosmeticItem> ByIdMap = All.Concat(Retired).ToDictionary(i => i.Id);
 
-    // Only cosmetics on sale.
+    // Every current cosmetic, seasonal ones out of their window included (owners still wear
+    // them); not the retired ones.
     public static CosmeticItem? ByKey(string? key) =>
         key is not null && ByKeyMap.TryGetValue(key, out var item) ? item : null;
 

@@ -111,9 +111,13 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
             NewCoinService(db),
             NewMonthlySummaryService(db),
             NewFlashService(db),
+            NewSeasonalAnnouncementService(db),
             Clock,
             NullLogger<DailyCycleRunner>.Instance
         );
+
+    protected SeasonalAnnouncementService NewSeasonalAnnouncementService(AppDbContext db) =>
+        new(db, Notifications.Object, Clock, NullLogger<SeasonalAnnouncementService>.Instance);
 
     protected GroupsService NewGroupsService(AppDbContext db) =>
         new(db, TestMapper.Instance, NewDailyService(db), NewStreakService(db), Clock);

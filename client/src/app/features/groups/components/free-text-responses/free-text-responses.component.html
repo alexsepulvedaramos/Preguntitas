@@ -14,7 +14,7 @@
           [streak]="groupStreaks.streakFor(response.userId)"
           [crown]="groupStreaks.hasCrown(response.userId)"
           [look]="groupStreaks.lookFor(response.userId)"
-          [memberSince]="groupStreaks.joinedAtFor(response.userId)"
+          effects="full"
           size="md"
         />
       </button>

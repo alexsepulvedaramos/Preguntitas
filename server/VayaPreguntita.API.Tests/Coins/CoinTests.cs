@@ -187,6 +187,53 @@ public class CoinTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         (await BalanceAsync(group["bea"])).Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData(SelectionKind.Auto)]
+    [InlineData(SelectionKind.Picked)]
+    public async Task TheAuthor_IsPaidWhenTheirQuestionIsPlayed(SelectionKind kind)
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        var questionId = await AddQuestionAsync(group.Id, creatorId: group["ana"]);
+        await AddEntryAsync(group.Id, Today, questionId, group["bea"], activated: false, selectionKind: kind);
+
+        Clock.SetLocal(Today, DailyTime);
+        await TickAsync();
+        await TickAsync();
+
+        (await BalanceAsync(group["ana"])).Should().Be(CoinRewards.QuestionPlayed);
+    }
+
+    [Theory]
+    [InlineData(SelectionKind.Auto, CoinRewards.QuestionPlayed)]
+    [InlineData(SelectionKind.Picked, CoinRewards.SelectorChoice)]
+    [InlineData(SelectionKind.Created, CoinRewards.SelectorChoice + CoinRewards.SelectorCreatedBonus)]
+    public async Task AnAuthorWhoChoseTheirOwnQuestion_GetsOnlyTheSelectorRewards(SelectionKind kind, int expected)
+    {
+        var group = await SeedGroupAsync("ana");
+        var questionId = await AddQuestionAsync(group.Id, creatorId: group["ana"]);
+        await AddEntryAsync(group.Id, Today, questionId, group["ana"], activated: false, selectionKind: kind);
+
+        Clock.SetLocal(Today, DailyTime);
+        await TickAsync();
+
+        (await BalanceAsync(group["ana"])).Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task AnAuthorWhoLeftTheGroup_IsNotPaid()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        var questionId = await AddQuestionAsync(group.Id, creatorId: group["ana"]);
+        await AddEntryAsync(group.Id, Today, questionId, group["bea"], activated: false);
+        await using (var db = NewContext())
+            await db.GroupMembers.Where(m => m.GroupId == group.Id && m.UserId == group["ana"]).ExecuteDeleteAsync();
+
+        Clock.SetLocal(Today, DailyTime);
+        await TickAsync();
+
+        (await BalanceAsync(group["ana"])).Should().Be(0);
+    }
+
     [Fact]
     public async Task ARewardIsPaidOncePerReference()
     {

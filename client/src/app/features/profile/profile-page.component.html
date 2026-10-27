@@ -18,7 +18,6 @@
             [frameColor]="user()?.frameColor"
             [streak]="user()?.highestStreak"
             [look]="user()?.look"
-            [memberSince]="user()?.firstJoinedAt"
             size="xl"
           />
           <div
@@ -57,14 +56,13 @@
     <!-- ===== MARCO DE COLOR ===== -->
     <section class="flex flex-col gap-3">
       <h2 class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.frame') }}</h2>
-      <div class="flex gap-2 flex-wrap">
-        @for (color of frameColors; track color.value) {
+      <div class="flex gap-2 flex-wrap items-center">
+        @for (color of frameColors(); track color.value) {
           <button
-            class="size-9 rounded-full transition-transform focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none"
-            [class]="selectedFrame() === color.value ? 'scale-110 ring-2 ring-foreground ring-offset-2' : 'hover:scale-105'"
-            [class.bg-muted]="color.value === frameStreak || color.value === frameSeniority"
+            class="size-9 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none flex items-center justify-center disabled:opacity-60 disabled:pointer-events-none"
+            [class]="selectedFrame() === color.value ? 'ring-2 ring-accent ring-offset-2 ring-offset-background' : ''"
+            [class.bg-muted]="color.value === frameStreak || color.value === frameNone"
             [style.background-color]="swatch(color.value)"
-            [style.border]="color.value === frameNone ? '2px dashed var(--border)' : null"
             [attr.aria-label]="t(color.label)"
             [attr.aria-pressed]="selectedFrame() === color.value"
             [disabled]="isSavingFrame()"
@@ -72,15 +70,15 @@
           >
             @if (color.value === frameStreak) {
               <ng-icon hlm name="lucideFlame" class="size-4! text-primary-text" />
-            } @else if (color.value === frameSeniority) {
-              <ng-icon hlm name="lucideCalendarHeart" class="size-4! text-primary-text" />
             } @else if (color.value === frameNone) {
-              <span class="text-xs text-muted-foreground leading-none">✕</span>
-            } @else if (selectedFrame() === color.value) {
-              <ng-icon hlm name="lucideCheck" class="size-4! text-white" />
+              <ng-icon hlm name="lucideBan" class="size-4! text-muted-foreground" />
             }
           </button>
         }
+        <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'style' }">
+          <ng-icon hlm name="lucideShoppingBag" class="size-4!" aria-hidden="true" />
+          {{ t('profile.frameMoreColors') }}
+        </a>
       </div>
       <p class="text-xs text-muted-foreground">
         @if (selectedFrame() === frameStreak) {
@@ -89,11 +87,6 @@
             · {{ material }}
           } @else {
             · {{ t('profile.frameFrom3') }}
-          }
-        } @else if (selectedFrame() === frameSeniority) {
-          {{ t('profile.seniorityHint') }}
-          @if (seniorityName(); as stage) {
-            · {{ stage }}
           }
         } @else {
           {{ t('profile.frameHint') }}
@@ -420,6 +413,17 @@
           <hlm-switch
             [checked]="notifPrefs().reaction"
             (checkedChange)="togglePref('reaction')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
+            <p class="text-sm text-foreground">{{ t('profile.prefShopNews') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefShopNewsHint') }}</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().shopNews"
+            (checkedChange)="togglePref('shopNews')"
           />
         </div>
 

@@ -19,11 +19,10 @@ export interface UserProfileDto {
   unlockedTitles: TitleOption[];
   coins: number;
   inventory: Inventory; // rama 45
-  // Shop cosmetics (rama 42)
+  // Shop cosmetics (rama 42): the equipped finish and every owned key (finishes and frame
+  // colours, rama 57)
   look: Look | null;
-  themeKey: string | null;
   ownedCosmetics: string[];
-  firstJoinedAt: string | null;
 }
 
 export interface UpdateProfileRequest {
@@ -33,10 +32,9 @@ export interface UpdateProfileRequest {
   frameColor?: string | null;
   titleKey?: string; // 'auto', 'none' or an unlocked tier key
   preferredLanguage?: string;
-  // Equipped cosmetics (rama 42): an owned key, '' to take it off, omitted = unchanged.
+  // Equipped finish (rama 42, rama 57): an owned key, '' to take it off, omitted = unchanged.
+  // Wearing one puts the frame back on the streak ring.
   ringSkinKey?: string;
-  nameColorKey?: string;
-  themeKey?: string;
 }
 
 export interface ChangePasswordRequest {

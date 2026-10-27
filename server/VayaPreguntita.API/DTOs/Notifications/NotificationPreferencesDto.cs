@@ -17,7 +17,9 @@ public record NotificationPreferencesDto(
     // "👉 Toque" (§17.10).
     bool Nudge = true,
     // "😂 Reacción" (§17.15 item 6).
-    bool Reaction = true
+    bool Reaction = true,
+    // "🎃 Novedad en la tienda" — seasonal frames (rama 57).
+    bool ShopNews = true
 )
 {
     public static readonly int[] AllowedStreakDangerHours = [1, 2, 3, 4, 6, 8];

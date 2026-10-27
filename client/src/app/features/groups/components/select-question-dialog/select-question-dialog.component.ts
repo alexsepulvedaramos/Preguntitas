@@ -14,7 +14,7 @@ import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
 import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
 import { LaunchFlashResponse, SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
-import { CoinsEarned, EMPTY_INVENTORY, FLASH_QUESTION_PRICE } from '../../../../core/models/coin.model';
+import { CoinsEarned, EMPTY_INVENTORY, FLASH_QUESTION_PRICE, QUESTION_PLAYED_REWARD } from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -83,6 +83,7 @@ export class SelectQuestionDialogComponent {
   // Stretch the trigger to its slot, for the group's row of actions under the question.
   public readonly fill = input(false);
   protected readonly flashPrice = FLASH_QUESTION_PRICE;
+  protected readonly suggestReward = QUESTION_PLAYED_REWARD;
   protected readonly ownedFlashes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion
   );

@@ -13,9 +13,7 @@ public class UpdateProfileRequestDto
     // "es", "en" or "de". null = unchanged.
     public string? PreferredLanguage { get; set; }
 
-    // Equipped shop cosmetics (rama 42): an owned ShopCatalog key of that kind, "" to take it
-    // off, null = unchanged.
+    // Equipped ring finish (rama 42, rama 57): an owned ShopCatalog key, "" to take it off,
+    // null = unchanged. Wearing one puts the frame back on the streak ring.
     public string? RingSkinKey { get; set; }
-    public string? NameColorKey { get; set; }
-    public string? ThemeKey { get; set; }
 }

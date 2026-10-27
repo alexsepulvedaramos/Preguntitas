@@ -1,14 +1,16 @@
 namespace VayaPreguntita.API.Helpers;
 
 // User.FrameColor values: a palette colour key (§14 visual rules — the client draws each with a
-// light and a dark variant) or one of the special frames below (rama 19).
+// light and a dark variant; bought in the shop since rama 57) or one of the special frames
+// below (rama 19).
 public static class FrameColors
 {
     public const string Streak = "streak";
     public const string None = "none";
 
-    // Seniority frame (rama 42, §17.10): free, by time in the group (outside one: the oldest).
-    public const string Seniority = "seniority";
+    // The seniority frame (rama 42), retired in rama 57: the ShopRethink migration moved its
+    // wearers to the streak ring, and an old client sending it gets the streak ring too.
+    public const string RetiredSeniority = "seniority";
 
     public static bool FollowsStreak(string? frameColor) =>
         frameColor is null or Streak;

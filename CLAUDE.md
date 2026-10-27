@@ -44,5 +44,6 @@ Internal-only changes (docs, tests, CI, refactors with no visible effect) get no
 Spec §14 "Frontend Design System & Style Guide" is **binding**. Whenever a branch touches the client UI (templates, component styles, new screens or components):
 1. **Read §14 before writing the template**, not only at the end.
 2. **Before committing, re-read §14 and check the diff against it**, rule by rule — at least: semantic colour tokens only (selected = `accent` border + `accent/15`, never ad-hoc `primary` tints); Spartan `hlmBtn`/`Hlm*` instead of hand-rolled buttons or native controls; touch targets (icon buttons ≥ `size-8`); `focus-visible:ring-2 focus-visible:ring-ring`; `transition-colors`; disabled at `opacity-60`; the two radii; people shown with `app-user-avatar` + `app-user-name`; no emoji in UI chrome (glyphs from `GLYPHS`); `aria-label`/`sr-only` on icon-only controls; copy only from the i18n dictionaries.
-3. Say in the PR description that the §14 check was done and list anything that deliberately deviates (a deviation needs the developer's explicit OK).
+3. **Any new or redesigned look is shown first as an artifact prototype** (animated where it moves, at the real app sizes) and built only after the developer's OK (developer, 2026-10-26).
+4. Say in the PR description that the §14 check was done and list anything that deliberately deviates (a deviation needs the developer's explicit OK).
 - Git commits: no `Co-Authored-By: Claude` trailer.

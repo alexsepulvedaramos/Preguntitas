@@ -24,12 +24,8 @@ public class UserProfileDto
     public Coins.InventoryDto Inventory { get; set; } = new();
     public List<Streaks.TitleOptionDto> UnlockedTitles { get; set; } = [];
 
-    // Shop cosmetics (rama 42, §17.10): what's equipped, the personal app theme, and every
-    // owned key.
+    // Shop cosmetics (rama 42, §17.10): what's equipped and every owned key (ring finishes
+    // and frame colours, rama 57).
     public Shop.LookDto? Look { get; set; }
-    public string? ThemeKey { get; set; }
     public List<string> OwnedCosmetics { get; set; } = [];
-
-    // When the user joined their oldest current group: seniority frame outside a group.
-    public DateTime? FirstJoinedAt { get; set; }
 }

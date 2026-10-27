@@ -16,11 +16,10 @@
         [streak]="head.currentStreak"
         [crown]="!allGroups() && head.hasCrown"
         [look]="head.look"
-        [memberSince]="memberSince()"
         size="xl"
       />
       <p class="mt-2 max-w-full font-display text-2xl italic text-foreground">
-        <app-user-name [name]="head.username" [look]="head.look" />
+        <app-user-name [name]="head.username" />
       </p>
       @if (head.title) {
         <p class="text-sm font-semibold text-primary-text">{{ head.title }}</p>

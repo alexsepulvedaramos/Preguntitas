@@ -36,6 +36,9 @@ public interface INotificationService
         int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl);
     // Reaction (rama 48): to the author of the message or answer, if their Reaction preference
     // is on and the group isn't muted. The caller applies ReactionRules.PushCooldown.
+    // A seasonal frame arrives in the shop (rama 57): every player with the ShopNews preference
+    // on, whatever their groups. Opens the shop's style tab.
+    Task SendSeasonalItemAsync(string itemKey, int price, int daysLeft);
     Task SendReactionAsync(
         int groupId, int authorUserId, string groupName, string reactorUsername, string emoji,
         bool isAnswer, string preview, string url);

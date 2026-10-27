@@ -24,6 +24,82 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.0',
+    date: '2026-10-27',
+    title: {
+      es: 'Acabados para tu anillo y Halloween',
+      en: 'Ring finishes and Halloween',
+      de: 'Veredelungen für deinen Ring und Halloween',
+    },
+    items: [
+      {
+        glyph: 'sparkles',
+        title: {
+          es: 'Acabados para tu anillo de racha',
+          en: 'Finishes for your streak ring',
+          de: 'Veredelungen für deinen Serienring',
+        },
+        text: {
+          es: 'Diez acabados nuevos en la tienda, encima de tu anillo para que tu nivel se siga viendo. Raros, animados: Rayos, Chispas, Burbujas y Confeti. Épicos, que ganan efectos con tu racha: Llamarada, Ventisca y Aurora. Legendarios, que cambian en cada nivel y traen su propia corona: Neón, Arcade y Garabato. Toca uno para ver todos sus niveles.',
+          en: 'Ten new finishes in the shop, on top of your ring so your level still shows. Rare, animated: Lightning, Sparks, Bubbles and Confetti. Epic, gaining effects with your streak: Blaze, Blizzard and Aurora. Legendary, changing on every level and bringing their own crown: Neon, Arcade and Doodle. Tap one to see all its levels.',
+          de: 'Zehn neue Veredelungen im Shop, über deinem Ring, damit deine Stufe sichtbar bleibt. Selten, animiert: Blitze, Funken, Seifenblasen und Konfetti. Episch, mit mehr Effekten je nach Serie: Flammenmeer, Schneesturm und Polarlicht. Legendär, mit jeder Stufe anders und mit eigener Krone: Neon, Arcade und Gekritzel. Tippe auf eine, um alle Stufen zu sehen.',
+        },
+      },
+      {
+        glyph: 'celebrate',
+        title: {
+          es: 'Noche de brujas, solo esta semana',
+          en: 'Witching night, this week only',
+          de: 'Hexennacht, nur diese Woche',
+        },
+        text: {
+          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 100 monedas y solo hasta el 3 de noviembre. Si lo compras, te lo puedes poner siempre que quieras.',
+          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 100 coins and only until 3 November. Buy it and you can wear it whenever you like.',
+          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 100 Münzen und nur bis zum 3. November. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
+        },
+      },
+      {
+        glyph: 'write',
+        title: {
+          es: 'Tus preguntas dan monedas',
+          en: 'Your questions earn coins',
+          de: 'Deine Fragen bringen Münzen',
+        },
+        text: {
+          es: 'Cuando una pregunta que has sugerido sale como la del día, ganas 10 monedas.',
+          en: 'When a question you suggested becomes the question of the day, you earn 10 coins.',
+          de: 'Wenn eine Frage, die du vorgeschlagen hast, zur Frage des Tages wird, bekommst du 10 Münzen.',
+        },
+      },
+      {
+        glyph: 'shop',
+        title: {
+          es: 'Una tienda más clara',
+          en: 'A clearer shop',
+          de: 'Ein übersichtlicherer Shop',
+        },
+        text: {
+          es: 'Ahora tiene dos pestañas, Objetos y Estilo, y tus movimientos se abren tocando tu saldo. Los colores del marco pasan a la tienda: el que llevabas puesto es tuyo, de regalo.',
+          en: 'It now has two tabs, Items and Style, and your coin activity opens when you tap your balance. Frame colours move to the shop: the one you were wearing is yours, as a gift.',
+          de: 'Er hat jetzt zwei Tabs, Gegenstände und Stil, und dein Münzverlauf öffnet sich mit einem Tipp auf dein Guthaben. Die Rahmenfarben gibt es jetzt im Shop: Die, die du getragen hast, gehört dir als Geschenk.',
+        },
+      },
+      {
+        glyph: 'wallet',
+        title: {
+          es: 'Te devolvemos lo gastado',
+          en: 'Your coins back',
+          de: 'Deine Münzen zurück',
+        },
+        text: {
+          es: 'Los temas de la app y los colores de nombre se retiran: si compraste alguno, te devolvemos lo que pagaste. El marco de antigüedad también se va y vuelves a tu anillo de racha.',
+          en: 'App themes and name colours are retired: if you bought any, you get back what you paid. The seniority frame goes too, and you’re back on your streak ring.',
+          de: 'App-Themes und Namensfarben fallen weg: Wenn du welche gekauft hast, bekommst du zurück, was du bezahlt hast. Auch der Dabeisein-Rahmen geht, und du trägst wieder deinen Serienring.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.31.1',
     date: '2026-10-26',
     title: {

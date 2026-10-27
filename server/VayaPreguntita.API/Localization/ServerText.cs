@@ -278,6 +278,11 @@ public static class ServerText
         "You already own that.",
         "Das hast du schon.");
 
+    public static string CosmeticNotOnSale => Pick(
+        "Eso ya no está a la venta.",
+        "That's no longer on sale.",
+        "Das gibt es nicht mehr zu kaufen.");
+
     public static string CosmeticNotOwned => Pick(
         "Antes tienes que comprarlo en la tienda.",
         "You need to buy that in the shop first.",
@@ -591,6 +596,28 @@ public static class ServerText
             $"Ya está el resumen de {MonthNames.Es[month - 1]} en {groupName}: premios, participación y tu match.",
             $"Your {MonthNames.En[month - 1]} summary for {groupName} is here: awards, participation and your match.",
             $"Der Rückblick auf den {MonthNames.De[month - 1]} in {groupName} ist da: Auszeichnungen, Beteiligung und dein Match.");
+
+        // A seasonal ring finish arrives in the shop (rama 57): every player, once, at 16:00.
+        public static string SeasonalTitle(string lang, string itemKey) => itemKey switch
+        {
+            "ring-witch" => Pick(lang,
+                "🎃 Halloween llega a la tienda",
+                "🎃 Halloween hits the shop",
+                "🎃 Halloween im Shop"),
+            _ => Pick(lang, "✨ Novedad en la tienda", "✨ New in the shop", "✨ Neu im Shop"),
+        };
+
+        public static string SeasonalBody(string lang, string itemKey, int price, int days) => itemKey switch
+        {
+            "ring-witch" => Pick(lang,
+                $"Marco «Noche de brujas» por {price} 🪙, solo durante {days} días. Se queda contigo para siempre.",
+                $"The \"Witching night\" frame for {price} 🪙, only for {days} days. Yours to keep forever.",
+                $"Rahmen „Hexennacht“ für {price} 🪙, nur {days} Tage lang. Er bleibt für immer deiner."),
+            _ => Pick(lang,
+                $"Un marco de temporada por {price} 🪙, solo durante {days} días.",
+                $"A seasonal frame for {price} 🪙, only for {days} days.",
+                $"Ein Saison-Rahmen für {price} 🪙, nur {days} Tage lang."),
+        };
     }
 
     // Hardcoded so the container's globalization settings never change a push.

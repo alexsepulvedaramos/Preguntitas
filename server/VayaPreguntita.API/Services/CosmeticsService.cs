@@ -13,16 +13,21 @@ public class CosmeticsService(AppDbContext context, ICoinService coinService, Ti
     public async Task<ShopCatalogDto> GetCatalogAsync(int userId)
     {
         var owned = (await GetOwnedKeysAsync(userId)).ToHashSet();
+        var now = DailyClock.UtcNow(clock);
         return new ShopCatalogDto
         {
             Cosmetics = ShopCatalog
-                .All.Select(i => new CosmeticDto
+                .All.Where(i => i.IsOnSale(now) || i.IsComingSoon(now) || owned.Contains(i.Key))
+                .Select(i => new CosmeticDto
                 {
                     Key = i.Key,
                     Kind = i.Kind,
                     Price = i.Price,
                     Rarity = i.Rarity,
                     Owned = owned.Contains(i.Key),
+                    OnSaleFrom = i.OnSaleFrom,
+                    OnSaleUntil = i.OnSaleUntil,
+                    OnSale = i.IsOnSale(now),
                 })
                 .ToList(),
         };
@@ -40,6 +45,8 @@ public class CosmeticsService(AppDbContext context, ICoinService coinService, Ti
         var item = ShopCatalog.ByKey(key);
         if (item is null)
             return CosmeticPurchaseResult.UnknownItem;
+        if (!item.IsOnSale(DailyClock.UtcNow(clock)))
+            return CosmeticPurchaseResult.NotOnSale;
         if (await context.UserItems.AnyAsync(i => i.UserId == userId && i.ItemKey == key))
             return CosmeticPurchaseResult.AlreadyOwned;
 

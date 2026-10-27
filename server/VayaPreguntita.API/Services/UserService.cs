@@ -44,11 +44,7 @@ public class UserService(
                 .Select(t => new DTOs.Streaks.TitleOptionDto(t.Key, t.Title, t.Material, t.MinDays))
                 .ToList(),
             Look = DTOs.Shop.LookDto.From(user),
-            ThemeKey = user.ThemeKey,
             OwnedCosmetics = owned,
-            FirstJoinedAt = await context
-                .GroupMembers.Where(m => m.UserId == userId)
-                .MinAsync(m => (DateTime?)m.JoinedAt),
         };
     }
 
@@ -85,8 +81,9 @@ public class UserService(
         if (request.AvatarUrl is not null)
             user.AvatarUrl = string.IsNullOrWhiteSpace(request.AvatarUrl) ? null : request.AvatarUrl;
 
-        // FrameColor: a palette key, "streak", "seniority" or "none"; an empty string also means
-        // no frame. A legacy hex from the old picker becomes its key.
+        // FrameColor: an owned palette key, "streak" or "none"; an empty string also means no
+        // frame. A legacy hex from the old picker becomes its key; the retired seniority frame
+        // (rama 57), from an old client, becomes the streak ring.
         if (request.FrameColor is not null)
         {
             var frame = request.FrameColor.Trim();
@@ -94,10 +91,18 @@ public class UserService(
                 frame = FrameColors.None;
             if (FrameColors.LegacyHex.TryGetValue(frame, out var key))
                 frame = key;
-            if (frame != FrameColors.Streak && frame != FrameColors.None && frame != FrameColors.Seniority
-                && !FrameColors.PaletteKeys.Contains(frame))
+            if (frame == FrameColors.RetiredSeniority)
+                frame = FrameColors.Streak;
+            if (frame != FrameColors.Streak && frame != FrameColors.None && !FrameColors.PaletteKeys.Contains(frame))
                 return (false, "INVALID_FRAME_COLOR");
+            if (FrameColors.PaletteKeys.Contains(frame)
+                && frame != user.FrameColor
+                && !await cosmeticsService.OwnsAsync(userId, ShopCatalog.FrameColorKey(frame), Enums.CosmeticKind.FrameColor))
+                return (false, "COSMETIC_NOT_OWNED");
             user.FrameColor = frame;
+            // A finish is drawn on the streak ring only: any other frame takes it off.
+            if (!FrameColors.FollowsStreak(frame))
+                user.RingSkinKey = null;
         }
 
         if (request.TitleKey is not null)
@@ -113,21 +118,18 @@ public class UserService(
                 return (false, "TITLE_NOT_UNLOCKED");
         }
 
-        // Cosmetic slots: "" takes the item off; anything else must be owned and of that kind.
-        foreach (var (requested, kind, apply) in new (string?, Enums.CosmeticKind, Action<string?>)[]
+        // Ring finish: "" takes it off; anything else must be an owned finish, and wearing it
+        // puts the frame back on the streak ring it is drawn on.
+        if (request.RingSkinKey is not null)
         {
-            (request.RingSkinKey, Enums.CosmeticKind.RingSkin, k => user.RingSkinKey = k),
-            (request.NameColorKey, Enums.CosmeticKind.NameColor, k => user.NameColorKey = k),
-            (request.ThemeKey, Enums.CosmeticKind.Theme, k => user.ThemeKey = k),
-        })
-        {
-            if (requested is null)
-                continue;
-            var key = requested.Trim();
+            var key = request.RingSkinKey.Trim();
             if (key.Length == 0)
-                apply(null);
-            else if (await cosmeticsService.OwnsAsync(userId, key, kind))
-                apply(key);
+                user.RingSkinKey = null;
+            else if (await cosmeticsService.OwnsAsync(userId, key, Enums.CosmeticKind.RingSkin))
+            {
+                user.RingSkinKey = key;
+                user.FrameColor = FrameColors.Streak;
+            }
             else
                 return (false, "COSMETIC_NOT_OWNED");
         }

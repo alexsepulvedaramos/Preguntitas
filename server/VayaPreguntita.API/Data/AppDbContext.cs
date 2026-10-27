@@ -35,6 +35,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<VoteChange> VoteChanges { get; set; }
     public DbSet<Nudge> Nudges { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
+    public DbSet<Announcement> Announcements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -410,8 +411,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<User>(e =>
         {
             e.Property(u => u.RingSkinKey).HasMaxLength(40);
-            e.Property(u => u.NameColorKey).HasMaxLength(40);
-            e.Property(u => u.ThemeKey).HasMaxLength(40);
+        });
+
+        // ==========================================
+        // ANNOUNCEMENTS (rama 57) — one-off pushes to everyone, sent once
+        // ==========================================
+        modelBuilder.Entity<Announcement>(e =>
+        {
+            e.HasKey(a => a.Key);
+            e.Property(a => a.Key).HasMaxLength(60);
         });
 
         // ==========================================

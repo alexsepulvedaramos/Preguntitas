@@ -32,6 +32,8 @@ export enum CoinReason {
   FlashCapsule = 19,
   FlashExtension = 20,
   FlashAnonymousAuthor = 21,
+  // A member-written question was played (rama 57)
+  QuestionPlayed = 22,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -111,7 +113,20 @@ export const EMPTY_INVENTORY: Inventory = {
 
 // GET shop (rama 42): the cosmetics catalog, with what you own.
 export interface ShopCatalog {
-  cosmetics: { key: string; kind: number; price: number; rarity: number; owned: boolean }[];
+  cosmetics: CatalogCosmetic[];
+}
+
+// GET shop (rama 42). Seasonal items (rama 57) carry their sale window: listed in the week
+// before it as coming soon, and once it is over only to their owners (onSale false both ways).
+export interface CatalogCosmetic {
+  key: string;
+  kind: number;
+  price: number;
+  rarity: number;
+  owned: boolean;
+  onSaleFrom: string | null;
+  onSaleUntil: string | null;
+  onSale: boolean;
 }
 
 // POST shop/cosmetics
@@ -139,6 +154,9 @@ export const NUDGE_MESSAGE_MAX = 80;
 
 // A flash question (rama 44, §17.11): launched at once, open 24 h.
 export const FLASH_QUESTION_PRICE = 100;
+
+// Paid to the author when their suggested question is played (CoinRewards.QuestionPlayed).
+export const QUESTION_PLAYED_REWARD = 10;
 
 // Flash variants (rama 50, §17.15 item 6): combinable add-ons paid in coins on top of the
 // flash, and the +24 h extension any member can buy once per flash.

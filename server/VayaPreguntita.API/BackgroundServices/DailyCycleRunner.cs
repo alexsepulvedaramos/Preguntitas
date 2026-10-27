@@ -9,7 +9,8 @@ namespace VayaPreguntita.API.BackgroundServices;
 
 // One tick of the daily cycle (§4.3): preselect tomorrow's question once T has passed,
 // activate today's at T, remind selectors who haven't chosen, open the race to select at
-// T − 10 min, send the "streak in danger" pushes and build last month's summaries. DailyPreselectionService runs it every minute in its own DI scope;
+// T − 10 min, send the "streak in danger" pushes, build last month's summaries and announce
+// seasonal frames (rama 57). DailyPreselectionService runs it every minute in its own DI scope;
 // tests run it directly at a fixed instant.
 public class DailyCycleRunner(
     AppDbContext context,
@@ -19,6 +20,7 @@ public class DailyCycleRunner(
     ICoinService coinService,
     IMonthlySummaryService monthlySummaryService,
     IFlashService flashService,
+    ISeasonalAnnouncementService seasonalAnnouncementService,
     TimeProvider clock,
     ILogger<DailyCycleRunner> logger
 )
@@ -91,6 +93,9 @@ public class DailyCycleRunner(
                 await PaySelectorRewardAsync(entry);
 
             foreach (var entry in entriesToActivate)
+                await PayAuthorRewardAsync(entry);
+
+            foreach (var entry in entriesToActivate)
                 await CloseCycleAsync(entry);
 
             foreach (var entry in entriesToActivate)
@@ -140,6 +145,9 @@ public class DailyCycleRunner(
 
         // ── TIME CAPSULES (rama 50): push the ones whose results just opened ──
         await flashService.OpenDueCapsulesAsync();
+
+        // ── SEASONAL FRAMES (rama 57): the "in the shop" push, once, at 16:00 ────
+        await seasonalAnnouncementService.AnnounceDueAsync();
     }
 
     // A 1-vs-1 Deathmatch the selector actively chose is a duel (§17.15 item 6); a pure
@@ -235,6 +243,35 @@ public class DailyCycleRunner(
         {
             // Never block the rest of the tick over a reward.
             logger.LogError(ex, "Selector reward failed for entry {EntryId}", entry.Id);
+        }
+    }
+
+    // The author of a member-written question is paid when it's played (§17.2), while still a
+    // member. Whoever chose their own question gets the selector rewards instead.
+    private async Task PayAuthorRewardAsync(DailyEntry entry)
+    {
+        if (AuthorGuessRules.AuthorOf(entry.Question) is not int authorId)
+            return;
+        if (authorId == entry.SelectorUserId && entry.SelectionKind != SelectionKind.Auto)
+            return;
+        try
+        {
+            var isMember = await context.GroupMembers.AnyAsync(m =>
+                m.GroupId == entry.GroupId && m.UserId == authorId);
+            if (!isMember)
+                return;
+            await coinService.GrantAsync(
+                authorId,
+                CoinReason.QuestionPlayed,
+                CoinRewards.QuestionPlayed,
+                entry.GroupId,
+                entry.Id
+            );
+        }
+        catch (Exception ex)
+        {
+            // Never block the rest of the tick over a reward.
+            logger.LogError(ex, "Author reward failed for entry {EntryId}", entry.Id);
         }
     }
 }
