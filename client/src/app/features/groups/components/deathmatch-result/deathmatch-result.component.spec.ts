@@ -50,6 +50,18 @@ describe('DeathmatchResultComponent', () => {
     expect(el.querySelector('button[hlmDialogTrigger]')).not.toBeNull();
   });
 
+  it('opens the same votes summary as every question, a one-member team shown as that member', async () => {
+    const el = await render([team(1, [ana], [carlos, dani], 67), team(2, [bea, eva], [fran], 33)]);
+    (el.querySelector('button[hlmDialogTrigger]') as HTMLButtonElement).click();
+    await new Promise((resolve) => setTimeout(resolve));
+    const dialog = document.querySelector('app-votes-summary') as HTMLElement;
+    expect(dialog.textContent).toContain('Resumen de votos');
+    // Ana's team opens her member card, like a Superlative option; the pair shows both faces.
+    expect(dialog.querySelectorAll('button[aria-label]').length).toBe(1);
+    expect(dialog.textContent).toContain('Carlos');
+    expect(dialog.textContent).toContain('Fran');
+  });
+
   it('shows the voters in each ranked row', async () => {
     const el = await render([
       team(1, [ana], [bea, carlos], 50),

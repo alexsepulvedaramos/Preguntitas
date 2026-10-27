@@ -74,12 +74,6 @@
     </button>
 
     <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
-      <hlm-dialog-header>
-        <h3 hlmDialogTitle class="font-display text-lg italic tracking-wider">
-          {{ t('results.summary') }}
-        </h3>
-      </hlm-dialog-header>
-
       <app-votes-summary [results]="allResults()" />
     </hlm-dialog-content>
   </hlm-dialog>

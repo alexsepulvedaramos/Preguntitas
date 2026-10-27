@@ -11,12 +11,6 @@
     </button>
 
     <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
-      <hlm-dialog-header>
-        <h3 hlmDialogTitle class="font-display text-lg italic tracking-wider">
-          {{ t('results.summary') }}
-        </h3>
-      </hlm-dialog-header>
-
       <app-votes-summary [results]="summary()" />
     </hlm-dialog-content>
   </hlm-dialog>
@@ -29,13 +23,16 @@
   <!-- Two teams: face to face, like a scoreboard, with the split bar and each side's votes -->
   <div class="flex flex-col gap-3">
     <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2">
-      @for (row of faceToFace(); track row.option.id; let first = $first) {
+      @for (row of faceToFace(); track row.option.id; let first = $first; let i = $index) {
         @if (!first) {
           <span class="self-center font-display text-xl italic text-muted-foreground" aria-hidden="true">vs</span>
         }
         <div
-          class="animate-result-enter-left flex min-w-0 flex-col items-center gap-2.5 rounded-default border px-2 py-3 text-center transition-colors"
+          class="flex min-w-0 flex-col items-center gap-2.5 rounded-default border px-2 py-3 text-center transition-colors"
           [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+          [class.animate-result-enter-left]="first"
+          [class.animate-result-enter-right]="!first"
+          [style.animation-delay.ms]="i * 70"
         >
           <div
             class="items-center justify-center gap-x-1 py-2"
@@ -91,8 +88,10 @@
   <ol class="flex flex-col gap-2.5" [attr.aria-label]="t('results.result')">
     @for (row of rows(); track row.option.id; let i = $index) {
       <li
-        class="animate-result-enter-left grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
+        class="grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
         [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+        [class.animate-result-enter-left]="i % 2 === 0"
+        [class.animate-result-enter-right]="i % 2 === 1"
         [style.animation-delay.ms]="i * 70"
       >
         <span
