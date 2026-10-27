@@ -24,6 +24,7 @@ Before implementing anything in this repo:
 
 Every PR that changes something players notice ships a release note — **inside the same branch, before opening the PR**:
 1. Add a new entry at the top of `client/src/app/core/releases/releases.ts` (or extend the top entry if that version hasn't been merged/tagged yet). Written for players: what they'll notice, no internal names — in Spanish, English and German (every text is an `{ es, en, de }` object; `translations.spec.ts` fails if one is missing). The "Novedades" page and the app version read from this file.
+   - Mark every item as **game** (content or gameplay) or **polish** (visual rework, bug fix, performance, copy). Polish is one short sentence, no title or paragraph; only releases with a game item light the «Nuevo» badge and toast (spec §14 "Game vs polish", built in rama 59 — until it ships, write polish items as one-line entries).
 2. Bump semver: new player-visible feature → MINOR, fixes only → PATCH. Set the same version in `client/package.json` and the two `version` fields at the top of `client/package-lock.json`.
 3. Set the entry's `date` to the day it's merged.
 
