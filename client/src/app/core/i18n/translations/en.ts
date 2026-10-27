@@ -230,6 +230,8 @@ export const en: Translation = {
     title: 'What’s new',
     intro: 'What has changed in Vaya Preguntita, from newest to oldest.',
     howItWorks: 'How the game works',
+    polishMore: { one: 'And also, {count} touch-up or fix', other: 'And also, {count} touch-ups and fixes' },
+    polishOnly: { one: '{count} touch-up or fix', other: '{count} touch-ups and fixes' },
   },
   demo: {
     groupName: 'The usual suspects',

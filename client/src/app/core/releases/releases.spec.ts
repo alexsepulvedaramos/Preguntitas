@@ -1,5 +1,5 @@
 import packageJson from '../../../../package.json';
-import { APP_VERSION, RELEASES, compareVersions } from './releases';
+import { APP_VERSION, LATEST_GAME_RELEASE, RELEASES, compareVersions, hasGameItems } from './releases';
 
 // Guards the release checklist (spec §14 "Releases"): the newest entry is the app version
 // and must match package.json.
@@ -22,6 +22,17 @@ describe('releases', () => {
       expect(release.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(release.items.length, release.version).toBeGreaterThan(0);
     }
+  });
+
+  it('marks the kind of every item from 1.32.2 on', () => {
+    for (const release of RELEASES.filter(r => compareVersions(r.version, '1.32.2') >= 0)) {
+      for (const item of release.items) expect(item.kind, release.version).toBeDefined();
+    }
+  });
+
+  it('announces the newest release that has a game item', () => {
+    expect(hasGameItems(LATEST_GAME_RELEASE)).toBe(true);
+    expect(RELEASES.slice(0, RELEASES.indexOf(LATEST_GAME_RELEASE)).some(hasGameItems)).toBe(false);
   });
 
   it('compares versions numerically, not as text', () => {

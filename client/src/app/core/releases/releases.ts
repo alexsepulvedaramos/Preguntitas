@@ -8,11 +8,25 @@ import { GlyphName } from '../../shared/components/glyph/glyphs';
 
 export type Localized = Record<Lang, string>;
 
-export interface ReleaseItem {
+// Game items change the game (content, gameplay); polish items are touch-ups and fixes.
+// Items without a `kind` (releases before 1.32.0) count as game (spec §14 "Releases").
+export interface GameItem {
+  kind?: 'game';
   glyph: GlyphName;
   title: Localized;
   text: Localized;
 }
+
+// One short sentence per language; no glyph or title.
+export interface PolishItem {
+  kind: 'polish';
+  text: Localized;
+}
+
+export type ReleaseItem = GameItem | PolishItem;
+
+export const isPolish = (item: ReleaseItem): item is PolishItem => item.kind === 'polish';
+export const isGame = (item: ReleaseItem): item is GameItem => !isPolish(item);
 
 export interface Release {
   version: string;
@@ -24,6 +38,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.3',
+    date: '2026-10-27',
+    title: {
+      es: 'Novedades más claras',
+      en: 'Clearer what’s new',
+      de: 'Übersichtlichere Neuigkeiten',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'En Novedades, lo que cambia el juego va aparte y los retoques y arreglos se pliegan en una sola línea.',
+          en: 'In What’s new, what changes the game stands out and touch-ups and fixes fold into a single line.',
+          de: 'In den Neuigkeiten steht, was das Spiel verändert, für sich, und Feinschliff und Fixes sind in einer Zeile zusammengefasst.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.2',
     date: '2026-10-27',
     title: {
@@ -33,16 +66,11 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        glyph: 'versus',
-        title: {
-          es: 'Quién ha votado a cada equipo',
-          en: 'Who voted for each team',
-          de: 'Wer für welches Team gestimmt hat',
-        },
+        kind: 'polish',
         text: {
-          es: 'Vuelven a salir sus caras en el resultado del Deathmatch.',
-          en: 'Their faces are back in the Deathmatch result.',
-          de: 'Ihre Gesichter sind im Deathmatch-Ergebnis zurück.',
+          es: 'Vuelven a salir las caras de quien ha votado a cada equipo en el resultado del Deathmatch.',
+          en: 'The faces of who voted for each team are back in the Deathmatch result.',
+          de: 'Die Gesichter derer, die für jedes Team gestimmt haben, sind im Deathmatch-Ergebnis zurück.',
         },
       },
     ],
@@ -57,29 +85,27 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
-        glyph: 'crown',
-        title: {
-          es: 'Tu corona, también en pequeño',
-          en: 'Your crown, small sizes too',
-          de: 'Deine Krone, auch in klein',
-        },
+        kind: 'polish',
         text: {
-          es: 'Si llevas un acabado y la corona del grupo, la corona sale con su estilo también en las caras pequeñas, como en la lista de quién ha votado. Y la de Garabato ahora es una pegatina, como sus iconos. En tu perfil ya puedes elegir los acabados que tienes.',
-          en: 'If you wear a finish and the group’s crown, the crown keeps its style on the small faces too, like the list of who has voted. And Doodle’s crown is now a sticker, like its icons. Your profile now lets you pick the finishes you own.',
-          de: 'Trägst du eine Veredelung und die Krone der Gruppe, behält die Krone ihren Stil auch auf den kleinen Gesichtern, etwa in der Liste, wer abgestimmt hat. Und die Krone von Gekritzel ist jetzt ein Sticker, wie ihre Symbole. In deinem Profil kannst du jetzt deine Veredelungen auswählen.',
+          es: 'La corona del grupo mantiene su estilo también en las caras pequeñas, y la de Garabato ahora es una pegatina.',
+          en: 'The group’s crown keeps its style on small faces too, and Doodle’s crown is now a sticker.',
+          de: 'Die Krone der Gruppe behält ihren Stil auch auf kleinen Gesichtern, und die von Gekritzel ist jetzt ein Sticker.',
         },
       },
       {
-        glyph: 'versus',
-        title: {
-          es: 'Caras en los Deathmatch',
-          en: 'Faces in Deathmatch',
-          de: 'Gesichter im Deathmatch',
-        },
+        kind: 'polish',
         text: {
-          es: 'Al votar, debajo de los nombres de cada equipo salen sus caras con sus marcos. Y el resultado se lee mejor: con dos equipos, cara a cara como un marcador; con más, una clasificación del más votado al menos. Con sus caras, el porcentaje y los votos.',
-          en: 'When voting, each team’s faces and frames show under their names. And the result reads better: with two teams, face to face like a scoreboard; with more, a ranking from most voted down. With their faces, the share and the votes.',
-          de: 'Beim Abstimmen siehst du unter den Namen jedes Teams ihre Gesichter mit Rahmen. Und das Ergebnis liest sich besser: bei zwei Teams Kopf an Kopf wie eine Anzeigetafel, bei mehr eine Rangliste vom meistgewählten an. Mit Gesichtern, Anteil und Stimmen.',
+          es: 'En tu perfil ya puedes elegir los acabados que tienes.',
+          en: 'Your profile now lets you pick the finishes you own.',
+          de: 'In deinem Profil kannst du jetzt deine Veredelungen auswählen.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Al votar en un Deathmatch salen las caras de cada equipo, y el resultado se lee mejor.',
+          en: 'Voting in a Deathmatch shows each team’s faces, and the result reads better.',
+          de: 'Beim Abstimmen im Deathmatch siehst du die Gesichter jedes Teams, und das Ergebnis liest sich besser.',
         },
       },
     ],
@@ -94,6 +120,7 @@ export const RELEASES: readonly Release[] = [
     },
     items: [
       {
+        kind: 'game',
         glyph: 'sparkles',
         title: {
           es: 'Acabados para tu anillo de racha',
@@ -107,6 +134,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
+        kind: 'game',
         glyph: 'celebrate',
         title: {
           es: 'Noche de brujas, solo esta semana',
@@ -120,6 +148,7 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
+        kind: 'game',
         glyph: 'write',
         title: {
           es: 'Tus preguntas dan monedas',
@@ -133,19 +162,15 @@ export const RELEASES: readonly Release[] = [
         },
       },
       {
-        glyph: 'shop',
-        title: {
-          es: 'Una tienda más clara',
-          en: 'A clearer shop',
-          de: 'Ein übersichtlicherer Shop',
-        },
+        kind: 'polish',
         text: {
-          es: 'Ahora tiene dos pestañas, Objetos y Estilo, y tus movimientos se abren tocando tu saldo. Los colores del marco pasan a la tienda: el que llevabas puesto es tuyo, de regalo.',
-          en: 'It now has two tabs, Items and Style, and your coin activity opens when you tap your balance. Frame colours move to the shop: the one you were wearing is yours, as a gift.',
-          de: 'Er hat jetzt zwei Tabs, Gegenstände und Stil, und dein Münzverlauf öffnet sich mit einem Tipp auf dein Guthaben. Die Rahmenfarben gibt es jetzt im Shop: Die, die du getragen hast, gehört dir als Geschenk.',
+          es: 'La tienda tiene ahora dos pestañas, Objetos y Estilo, y tus movimientos se abren tocando tu saldo.',
+          en: 'The shop now has two tabs, Items and Style, and your coin activity opens when you tap your balance.',
+          de: 'Der Shop hat jetzt zwei Tabs, Gegenstände und Stil, und dein Münzverlauf öffnet sich mit einem Tipp auf dein Guthaben.',
         },
       },
       {
+        kind: 'game',
         glyph: 'wallet',
         title: {
           es: 'Te devolvemos lo gastado',
@@ -2158,6 +2183,12 @@ export const RELEASES: readonly Release[] = [
 
 export const LATEST_RELEASE: Release = RELEASES[0];
 export const APP_VERSION = LATEST_RELEASE.version;
+
+export const hasGameItems = (release: Release): boolean => release.items.some(isGame);
+
+// The newest release with something that changes the game: the only kind that lights the
+// header dot, the «Nuevo» badge and the toast (spec §14 "Game vs polish").
+export const LATEST_GAME_RELEASE: Release = RELEASES.find(hasGameItems) ?? LATEST_RELEASE;
 
 // Semver comparison for plain MAJOR.MINOR.PATCH strings: < 0 when a is older than b.
 export function compareVersions(a: string, b: string): number {

@@ -41,7 +41,7 @@ export class MainLayoutComponent implements OnInit {
     // and so landing straight on /releases (which marks the release as seen) skips it.
     setTimeout(() => {
       if (!this.authService.isAuthenticated() || !this.releaseNotes.takeAnnouncement()) return;
-      const { version, title } = this.releaseNotes.latest;
+      const { version, title } = this.releaseNotes.announced;
       toast(this.t('layout.releaseToast', { version }), {
         description: title[this.i18n.lang()],
         action: { label: this.t('layout.view'), onClick: () => this.router.navigate(['/releases']) },
