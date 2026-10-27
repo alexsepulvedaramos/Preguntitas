@@ -1,7 +1,9 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs';
+
+import { APP_VERSION, isUpdateWorthPrompt } from '../releases/releases';
 
 const HOURLY = 60 * 60 * 1000;
 
@@ -21,8 +23,12 @@ export class AppUpdateService {
     if (!this.swUpdate.isEnabled) return;
 
     this.swUpdate.versionUpdates
-      .pipe(filter(event => event.type === 'VERSION_READY'), takeUntilDestroyed())
-      .subscribe(() => this.readySignal.set(true));
+      .pipe(filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'), takeUntilDestroyed())
+      .subscribe(event => {
+        // Polish-only updates install quietly with the next load; only game or critical
+        // ones interrupt (spec §14 "Game vs polish").
+        if (isUpdateWorthPrompt(event.latestVersion.appData, APP_VERSION)) this.readySignal.set(true);
+      });
 
     // A broken cache can't be repaired in place: reload onto the server's version.
     this.swUpdate.unrecoverable

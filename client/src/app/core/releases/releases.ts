@@ -33,6 +33,9 @@ export interface Release {
   // ISO date (YYYY-MM-DD) the release reached production.
   date: string;
   title: Localized;
+  // A fix players must have right away (data loss, a broken daily): it shows the "new version"
+  // prompt even without game items. Rare; polish never sets it otherwise.
+  critical?: true;
   items: ReleaseItem[];
 }
 
@@ -52,6 +55,14 @@ export const RELEASES: readonly Release[] = [
           es: 'En Novedades, lo que cambia el juego va aparte y los retoques y arreglos se pliegan en una sola línea.',
           en: 'In What’s new, what changes the game stands out and touch-ups and fixes fold into a single line.',
           de: 'In den Neuigkeiten steht, was das Spiel verändert, für sich, und Feinschliff und Fixes sind in einer Zeile zusammengefasst.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'El aviso de «hay una versión nueva» solo aparece si trae algo del juego o un arreglo importante; los retoques se instalan sin molestar.',
+          en: 'The “new version” prompt only appears when it brings something for the game or an important fix; touch-ups install quietly.',
+          de: 'Der Hinweis „Neue Version“ erscheint nur, wenn sie etwas fürs Spiel oder einen wichtigen Fix bringt; Feinschliff wird unauffällig installiert.',
         },
       },
     ],
@@ -2199,4 +2210,30 @@ export function compareVersions(a: string, b: string): number {
     if (diff !== 0) return diff;
   }
   return 0;
+}
+
+// What a running app needs to know about the build it could update to, without having its
+// code: copied by hand into `appData` of ngsw-config.json (a spec checks they match) and
+// read from the new service-worker version. The "new version" prompt only shows when a game
+// or critical release is newer than the running one (spec §14 "Game vs polish").
+export interface UpdateAppData {
+  version: string;
+  lastGameVersion: string | null;
+  lastCriticalVersion: string | null;
+}
+
+export function updateAppData(releases: readonly Release[]): UpdateAppData {
+  return {
+    version: releases[0].version,
+    lastGameVersion: releases.find(hasGameItems)?.version ?? null,
+    lastCriticalVersion: releases.find(r => r.critical)?.version ?? null,
+  };
+}
+
+// True when updating from `running` is worth interrupting the player for. Unknown data
+// (older manifests) counts as worth it.
+export function isUpdateWorthPrompt(appData: unknown, running: string): boolean {
+  const data = appData as Partial<UpdateAppData> | undefined | null;
+  if (!data || typeof data.version !== 'string') return true;
+  return [data.lastGameVersion, data.lastCriticalVersion].some(v => !!v && compareVersions(v, running) > 0);
 }

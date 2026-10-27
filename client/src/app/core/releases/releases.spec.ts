@@ -1,5 +1,6 @@
+import ngswConfig from '../../../../ngsw-config.json';
 import packageJson from '../../../../package.json';
-import { APP_VERSION, LATEST_GAME_RELEASE, RELEASES, compareVersions, hasGameItems } from './releases';
+import { APP_VERSION, LATEST_GAME_RELEASE, RELEASES, compareVersions, hasGameItems, isUpdateWorthPrompt, updateAppData } from './releases';
 
 // Guards the release checklist (spec §14 "Releases"): the newest entry is the app version
 // and must match package.json.
@@ -33,6 +34,18 @@ describe('releases', () => {
   it('announces the newest release that has a game item', () => {
     expect(hasGameItems(LATEST_GAME_RELEASE)).toBe(true);
     expect(RELEASES.slice(0, RELEASES.indexOf(LATEST_GAME_RELEASE)).some(hasGameItems)).toBe(false);
+  });
+
+  it('keeps appData in ngsw-config.json in sync with the releases', () => {
+    expect(ngswConfig.appData).toEqual(updateAppData(RELEASES));
+  });
+
+  it('prompts to update only for game or critical releases newer than the running one', () => {
+    const data = { version: '1.34.1', lastGameVersion: '1.33.0', lastCriticalVersion: null };
+    expect(isUpdateWorthPrompt(data, '1.32.3')).toBe(true);
+    expect(isUpdateWorthPrompt(data, '1.33.0')).toBe(false);
+    expect(isUpdateWorthPrompt({ ...data, lastCriticalVersion: '1.34.0' }, '1.33.0')).toBe(true);
+    expect(isUpdateWorthPrompt(undefined, '1.33.0')).toBe(true);
   });
 
   it('compares versions numerically, not as text', () => {
