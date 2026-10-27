@@ -47,7 +47,7 @@ describe.each([
 describe('release notes', () => {
   it('are written in every language', () => {
     for (const release of RELEASES) {
-      const texts = [release.title, ...release.items.flatMap((item) => [item.title, item.text])];
+      const texts = [release.title, ...release.items.flatMap((item) => 'title' in item ? [item.title, item.text] : [item.text])];
       for (const text of texts) {
         for (const lang of LANGUAGES) expect(text[lang]?.trim(), `${release.version} ${lang}`).toBeTruthy();
       }

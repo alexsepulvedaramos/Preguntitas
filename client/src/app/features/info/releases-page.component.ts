@@ -8,7 +8,7 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 
-import { RELEASES, compareVersions } from '../../core/releases/releases';
+import { LATEST_GAME_RELEASE, RELEASES, compareVersions, isGame, isPolish } from '../../core/releases/releases';
 import { ReleaseNotesService } from '../../core/services/release-notes.service';
 import { InfoPageNav } from './info-page-nav';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -41,25 +41,37 @@ export class ReleasesPageComponent implements OnInit {
       version: release.version,
       date: release.date,
       title: release.title[lang],
-      items: release.items.map(item => ({ glyph: item.glyph, title: item.title[lang], text: item.text[lang] })),
+      items: release.items.filter(isGame).map(item => ({ glyph: item.glyph, title: item.title[lang], text: item.text[lang] })),
+      polish: release.items.filter(isPolish).map(item => item.text[lang]),
       displayDate: formatDate(release.date, dateFormat),
-      isNew: this.seenBefore
+      // Only releases with a game item are «Nuevo»; polish-only ones stay quiet (spec §14).
+      isNew: release.items.some(isGame) && (this.seenBefore
         ? compareVersions(release.version, this.seenBefore) > 0
-        : release === RELEASES[0],
+        : release === LATEST_GAME_RELEASE),
     }));
   });
 
-  // Versions the player opened or closed by hand; the rest follow the default (open when it's
-  // the latest or new to this device).
+  // Cards and polish folds the player opened or closed by hand; the rest follow the default
+  // (a card is open when it's the latest game release or new to this device; polish folds
+  // start closed).
   private readonly toggled = signal<ReadonlyMap<string, boolean>>(new Map());
 
   protected isOpen(release: { version: string; isNew: boolean }): boolean {
-    return this.toggled().get(release.version) ?? (release.isNew || release.version === RELEASES[0].version);
+    return this.toggled().get(release.version) ?? (release.isNew || release.version === LATEST_GAME_RELEASE.version);
+  }
+
+  protected isPolishOpen(release: { version: string }): boolean {
+    return this.toggled().get('polish-' + release.version) ?? false;
   }
 
   protected toggle(release: { version: string; isNew: boolean }): void {
     const open = this.isOpen(release);
     this.toggled.update((m) => new Map(m).set(release.version, !open));
+  }
+
+  protected togglePolish(release: { version: string }): void {
+    const open = this.isPolishOpen(release);
+    this.toggled.update((m) => new Map(m).set('polish-' + release.version, !open));
   }
 
   ngOnInit(): void {

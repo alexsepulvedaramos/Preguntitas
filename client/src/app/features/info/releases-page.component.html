@@ -8,6 +8,7 @@
 
     <ol class="flex flex-col gap-4">
       @for (release of releases(); track release.version) {
+        @if (release.items.length > 0) {
         <li hlmCard size="sm" [attr.aria-labelledby]="'release-' + release.version">
           <!-- Older versions start folded (UX audit: the page was ~13,000 px on a phone) -->
           <button
@@ -33,19 +34,66 @@
             </span>
           </button>
           @if (isOpen(release)) {
-          <ul hlmCardContent [id]="'release-items-' + release.version" class="flex flex-col gap-3">
-            @for (item of release.items; track item.title) {
-              <li class="grid grid-cols-[2.25rem_1fr] gap-3 items-start">
-                <app-glyph [name]="item.glyph" size="md" />
-                <div class="flex flex-col">
-                  <span class="font-semibold text-foreground">{{ item.title }}</span>
-                  <span class="text-muted-foreground"><app-coin-text [text]="item.text" /></span>
-                </div>
-              </li>
+          <div hlmCardContent [id]="'release-items-' + release.version" class="flex flex-col gap-3">
+            <ul class="flex flex-col gap-3">
+              @for (item of release.items; track item.title) {
+                <li class="grid grid-cols-[2.25rem_1fr] gap-3 items-start">
+                  <app-glyph [name]="item.glyph" size="md" />
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-foreground">{{ item.title }}</span>
+                    <span class="text-muted-foreground"><app-coin-text [text]="item.text" /></span>
+                  </div>
+                </li>
+              }
+            </ul>
+            @if (release.polish.length > 0) {
+              <div class="flex flex-col gap-2 border-t pt-3">
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-default"
+                  [attr.aria-expanded]="isPolishOpen(release)"
+                  [attr.aria-controls]="'release-polish-' + release.version"
+                  (click)="togglePolish(release)"
+                >
+                  <span class="min-w-0 flex-1">{{ t('releases.polishMore', { count: release.polish.length }) }}</span>
+                  <ng-icon hlm name="lucideChevronDown" size="sm" class="shrink-0 transition-transform" [class.rotate-180]="isPolishOpen(release)" />
+                </button>
+                @if (isPolishOpen(release)) {
+                  <ul [id]="'release-polish-' + release.version" class="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
+                    @for (line of release.polish; track line) {
+                      <li><app-coin-text [text]="line" /></li>
+                    }
+                  </ul>
+                }
+              </div>
             }
-          </ul>
+          </div>
           }
         </li>
+        } @else {
+        <!-- Polish-only release: a small folded row, no card -->
+        <li class="flex flex-col gap-2 px-1">
+          <button
+            type="button"
+            class="flex w-full items-center gap-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-default"
+            [attr.aria-expanded]="isPolishOpen(release)"
+            [attr.aria-controls]="'release-polish-' + release.version"
+            (click)="togglePolish(release)"
+          >
+            <span hlmBadge variant="secondary">v{{ release.version }}</span>
+            <time class="text-xs" [attr.datetime]="release.date">{{ release.displayDate }}</time>
+            <span class="min-w-0 flex-1 truncate">{{ t('releases.polishOnly', { count: release.polish.length }) }}</span>
+            <ng-icon hlm name="lucideChevronDown" size="sm" class="shrink-0 transition-transform" [class.rotate-180]="isPolishOpen(release)" />
+          </button>
+          @if (isPolishOpen(release)) {
+            <ul [id]="'release-polish-' + release.version" class="list-disc space-y-1.5 pl-6 text-sm text-muted-foreground">
+              @for (line of release.polish; track line) {
+                <li><app-coin-text [text]="line" /></li>
+              }
+            </ul>
+          }
+        </li>
+        }
       }
     </ol>
 

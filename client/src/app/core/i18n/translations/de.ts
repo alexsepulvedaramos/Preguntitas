@@ -230,6 +230,8 @@ export const de: Translation = {
     title: 'Neuigkeiten',
     intro: 'Was sich bei Vaya Preguntita geändert hat, vom Neuesten zum Ältesten.',
     howItWorks: 'So funktioniert das Spiel',
+    polishMore: { one: 'Und außerdem {count} Feinschliff oder Fix', other: 'Und außerdem {count} Feinschliffe und Fixes' },
+    polishOnly: { one: '{count} Feinschliff oder Fix', other: '{count} Feinschliffe und Fixes' },
   },
   demo: {
     groupName: 'Die üblichen Verdächtigen',

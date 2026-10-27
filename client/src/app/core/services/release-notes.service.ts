@@ -1,6 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 
-import { LATEST_RELEASE } from '../releases/releases';
+import { LATEST_GAME_RELEASE, LATEST_RELEASE, compareVersions } from '../releases/releases';
 
 // Last release whose notes this device has opened.
 const SEEN_KEY = 'vp_release_seen';
@@ -27,12 +27,17 @@ function write(key: string, value: string): void {
 @Injectable({ providedIn: 'root' })
 export class ReleaseNotesService {
   readonly latest = LATEST_RELEASE;
+  // What the badge, the header dot and the toast announce: polish-only releases stay quiet.
+  readonly announced = LATEST_GAME_RELEASE;
 
   private readonly seen = signal(read(SEEN_KEY));
 
   // The version this device had seen before the current visit (null = never opened the notes).
   readonly seenVersion = this.seen.asReadonly();
-  readonly hasUnseen = computed(() => this.seen() !== this.latest.version);
+  readonly hasUnseen = computed(() => {
+    const seen = this.seen();
+    return !seen || compareVersions(this.announced.version, seen) > 0;
+  });
 
   markSeen(): void {
     write(SEEN_KEY, this.latest.version);
@@ -43,8 +48,8 @@ export class ReleaseNotesService {
   // brand-new users (and everyone before the notes existed) get the badge, not a toast.
   takeAnnouncement(): boolean {
     if (!this.seen() || !this.hasUnseen()) return false;
-    if (read(ANNOUNCED_KEY) === this.latest.version) return false;
-    write(ANNOUNCED_KEY, this.latest.version);
+    if (read(ANNOUNCED_KEY) === this.announced.version) return false;
+    write(ANNOUNCED_KEY, this.announced.version);
     return true;
   }
 }

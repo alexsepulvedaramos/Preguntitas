@@ -231,6 +231,8 @@ export const es = {
     title: 'Novedades',
     intro: 'Lo que ha ido cambiando en Vaya Preguntita, de lo más nuevo a lo más antiguo.',
     howItWorks: 'Cómo funciona el juego',
+    polishMore: { one: 'Y además, {count} retoque o arreglo', other: 'Y además, {count} retoques y arreglos' },
+    polishOnly: { one: '{count} retoque o arreglo', other: '{count} retoques y arreglos' },
   },
   demo: {
     groupName: 'Los de siempre',
