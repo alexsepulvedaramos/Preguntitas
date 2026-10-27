@@ -141,7 +141,7 @@ public class QuestionsService(AppDbContext context, IMapper mapper, TimeProvider
                     : null,
                 MyGuessCorrect = context
                     .AuthorGuesses.Where(g =>
-                        g.DailyEntryId == d.Id && g.UserId == userId && g.GuessedCreatorId != null
+                        g.DailyEntryId == d.Id && g.UserId == userId && g.GuessedUserId != null
                     )
                     .Select(g => (bool?)g.IsCorrect)
                     .FirstOrDefault(),

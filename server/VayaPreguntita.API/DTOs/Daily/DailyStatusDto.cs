@@ -44,8 +44,11 @@ public class TodayStateDto
     public List<int> VoterIds { get; set; } = [];
     public int MemberCount { get; set; }
 
-    // "Guess the author" (§17.6), once you have voted; null when the question isn't guessable.
+    // The guess (§17.6, §17.17), once you have voted; null when the question isn't guessable.
     public AuthorGuessDto? Guess { get; set; }
+
+    // An automatic pick nobody chose (§17.17): «Hoy decidió el azar» where the guess would be.
+    public bool DecidedByChance { get; set; }
 
     // You voted and haven't changed your vote yet (rama 43, §17.10).
     public bool CanChangeVote { get; set; }

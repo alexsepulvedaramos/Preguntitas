@@ -8,7 +8,8 @@ public static class CoinRewards
     public const int Vote = 5;
     public const int FirstVoter = 3;
 
-    // Guess the author (§17.6) and its hint (§17.10).
+    // Guess the author, the chooser or the flash launcher (§17.6, §17.17) and its hint
+    // (§17.10). A right guess is never capped: guessing is hard (§17.17).
     public const int GuessCorrect = 5;
     public const int AuthorHintPrice = 20;
 
@@ -21,8 +22,9 @@ public static class CoinRewards
     // themselves: then the selector rewards stand in for it.
     public const int QuestionPlayed = 10;
 
-    // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min.
-    public const int RaceWon = 10;
+    // Race to select (§17.5): the member who chooses in the selector's place at T − 10 min,
+    // on top of the selector rewards (10 → 5 in rama 58, so it never beats the drawn selector).
+    public const int RaceWon = 5;
 
     // Flash question (§17.11): launched at once, open 24 h. Cheap on purpose (§17.15): it
     // drives the group dynamic, so it should be used often.
@@ -80,14 +82,14 @@ public static class CoinRewards
         [300] = 150,
     };
 
-    // Streak rewards (the daily bonus included, §17.15) and refunds skip the daily cap.
+    // Streak rewards (the daily bonus included, §17.15), right guesses (§17.17) and refunds
+    // skip the daily cap.
     public static bool IsCapped(CoinReason reason) =>
         reason
             is CoinReason.Vote
                 or CoinReason.FirstVoter
                 or CoinReason.SelectorChoice
                 or CoinReason.SelectorCreated
-                or CoinReason.GuessCorrect
                 or CoinReason.RaceWon
                 or CoinReason.QuestionPlayed;
 }

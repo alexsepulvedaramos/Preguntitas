@@ -4,12 +4,29 @@ using VayaPreguntita.API.Enums;
 
 namespace VayaPreguntita.API.Services;
 
-// "Guess the author" (§17.6) and its hint (§17.10).
+// The guess (§17.6, §17.17) — author, chooser or flash launcher — and its hint (§17.10).
 public interface IAuthorGuessService
 {
     // The member's view of the guess on `entry` (Question loaded), or null when the question
     // isn't guessable. Call it only once the member has voted.
     Task<AuthorGuessDto?> GetStateAsync(DailyEntry entry, int userId);
+
+    // The same for a flash ("¿Quién la lanzó?"), or null when its launcher isn't guessed.
+    Task<AuthorGuessDto?> GetFlashStateAsync(FlashEntry flash, int userId, IReadOnlyCollection<int> memberIds);
+
+    Task<(GuessResult result, GuessAuthorResponseDto? response)> GuessFlashAsync(
+        int groupId,
+        int userId,
+        int flashId,
+        GuessAuthorRequestDto dto
+    );
+
+    Task<(GuessResult result, AuthorHintResponseDto? response)> BuyFlashHintAsync(
+        int groupId,
+        int userId,
+        int flashId,
+        bool useOwned = false
+    );
 
     Task<(GuessResult result, GuessAuthorResponseDto? response)> GuessAsync(
         int groupId,

@@ -29,11 +29,10 @@ public class MemberStatsDto
     // TotalVotes ÷ ActiveQuestions, 0–100.
     public int ParticipationPercent { get; set; }
 
-    public int TimesSelector { get; set; }
     public int QuestionsCreated { get; set; }
 
-    // "Aciertos adivinando X/Y" (§17.6): guesses made in the group (skips excluded) and how
-    // many were right.
+    // "Aciertos adivinando X/Y" (§17.6): guesses of every kind made in the group (skips
+    // excluded) and how many were right.
     public int GuessesMade { get; set; }
     public int GuessesCorrect { get; set; }
 

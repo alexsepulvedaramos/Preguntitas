@@ -9,9 +9,10 @@ using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
 
-// "Guess the author" (§17.6): after voting, a member may guess who wrote a member-written
-// question, once, while it is open. The answer is revealed at once; a correct guess pays
-// 5 🪙 (capped). The hint (20 🪙, §17.10) hides half of the wrong candidates.
+// The guess (§17.6, §17.17): after voting, a member may guess who wrote the question, who chose
+// it, or who launched a flash — once, while it is open. The answer is revealed at once; a right
+// guess pays 5 🪙 (never capped). The hint (20 🪙, §17.10) hides half of the wrong candidates.
+// The daily guess lives in AuthorGuess, the flash one in FlashGuess; the rules are the same.
 public class AuthorGuessService(
     AppDbContext context,
     ICoinService coinService,
@@ -20,52 +21,106 @@ public class AuthorGuessService(
 )
     : IAuthorGuessService
 {
+    // What one guess is about: the open daily entry or a flash.
+    private sealed record Subject(GuessTarget Target, int RefId, bool IsFlash, int GroupId)
+    {
+        public CoinReason RewardReason => IsFlash ? CoinReason.FlashGuessCorrect : CoinReason.GuessCorrect;
+        public CoinReason HintReason => IsFlash ? CoinReason.FlashHint : CoinReason.AuthorHint;
+
+        // Seeds the hint's shuffle; flashes are offset so a flash and a daily entry with the
+        // same id don't hide the same members.
+        public int HintSeed => IsFlash ? -RefId : RefId;
+    }
+
     public async Task<AuthorGuessDto?> GetStateAsync(DailyEntry entry, int userId)
     {
+        var target = AuthorGuessRules.TargetOf(entry);
         var members = await LoadMembersAsync(entry.GroupId);
-        if (!AuthorGuessRules.IsGuessable(entry.Question, members.Keys))
+        if (!AuthorGuessRules.IsGuessable(target, members.Keys))
             return null;
+        return await GetStateAsync(new Subject(target!, entry.Id, false, entry.GroupId), userId, members);
+    }
 
-        var authorId = AuthorGuessRules.AuthorOf(entry.Question)!.Value;
-        var author = members[authorId];
-
-        if (authorId == userId)
-        {
-            var guesses = await context
-                .AuthorGuesses.Where(g =>
-                    g.DailyEntryId == entry.Id && g.GuessedAt != null && g.GuessedCreatorId != null
-                )
-                .Select(g => g.IsCorrect)
-                .ToListAsync();
-            return new AuthorGuessDto
-            {
-                State = AuthorGuessDto.Mine,
-                Author = author,
-                GuessCount = guesses.Count,
-                CaughtCount = guesses.Count(correct => correct),
-            };
-        }
-
-        var row = await context.AuthorGuesses.FirstOrDefaultAsync(g =>
-            g.DailyEntryId == entry.Id && g.UserId == userId
-        );
-        return BuildState(entry, userId, authorId, author, members.Keys, row);
+    public async Task<AuthorGuessDto?> GetFlashStateAsync(FlashEntry flash, int userId, IReadOnlyCollection<int> memberIds)
+    {
+        var target = AuthorGuessRules.TargetOf(flash);
+        if (!AuthorGuessRules.IsGuessable(target, memberIds))
+            return null;
+        var members = await LoadMembersAsync(flash.GroupId);
+        return await GetStateAsync(new Subject(target!, flash.Id, true, flash.GroupId), userId, members);
     }
 
     public async Task<(GuessResult result, GuessAuthorResponseDto? response)> GuessAsync(
         int groupId,
         int userId,
         GuessAuthorRequestDto dto
+    ) => await GuessAsync(await LoadDailyAsync(groupId, userId), userId, dto);
+
+    public async Task<(GuessResult result, GuessAuthorResponseDto? response)> GuessFlashAsync(
+        int groupId,
+        int userId,
+        int flashId,
+        GuessAuthorRequestDto dto
+    ) => await GuessAsync(await LoadFlashAsync(groupId, userId, flashId), userId, dto);
+
+    public async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(
+        int groupId,
+        int userId,
+        bool useOwned = false
+    ) => await BuyHintAsync(await LoadDailyAsync(groupId, userId), userId, useOwned);
+
+    public async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyFlashHintAsync(
+        int groupId,
+        int userId,
+        int flashId,
+        bool useOwned = false
+    ) => await BuyHintAsync(await LoadFlashAsync(groupId, userId, flashId), userId, useOwned);
+
+    // ── The game, for either subject ─────────────────────────────────────────
+
+    private async Task<AuthorGuessDto> GetStateAsync(Subject subject, int userId, Dictionary<int, VoterDto> members)
+    {
+        var target = members[subject.Target.UserId];
+        if (subject.Target.UserId == userId)
+        {
+            var guesses = subject.IsFlash
+                ? await context
+                    .FlashGuesses.Where(g =>
+                        g.FlashEntryId == subject.RefId && g.GuessedAt != null && g.GuessedUserId != null
+                    )
+                    .Select(g => g.IsCorrect)
+                    .ToListAsync()
+                : await context
+                    .AuthorGuesses.Where(g =>
+                        g.DailyEntryId == subject.RefId && g.GuessedAt != null && g.GuessedUserId != null
+                    )
+                    .Select(g => g.IsCorrect)
+                    .ToListAsync();
+            return new AuthorGuessDto
+            {
+                Kind = subject.Target.KindKey,
+                State = AuthorGuessDto.Mine,
+                Author = target,
+                GuessCount = guesses.Count,
+                CaughtCount = guesses.Count(correct => correct),
+            };
+        }
+
+        return BuildState(subject, userId, target, members.Keys, await FindRowAsync(subject, userId));
+    }
+
+    private async Task<(GuessResult result, GuessAuthorResponseDto? response)> GuessAsync(
+        (GuessResult check, Subject? subject, Dictionary<int, VoterDto>? members) load,
+        int userId,
+        GuessAuthorRequestDto dto
     )
     {
-        var (check, entry, members) = await LoadGuessableAsync(groupId, userId);
+        var (check, subject, members) = load;
         if (check != GuessResult.Success)
             return (check, null);
 
-        var authorId = AuthorGuessRules.AuthorOf(entry!.Question)!.Value;
-        var row = await context.AuthorGuesses.FirstOrDefaultAsync(g =>
-            g.DailyEntryId == entry.Id && g.UserId == userId
-        );
+        var targetId = subject!.Target.UserId;
+        var row = await FindRowAsync(subject, userId);
         if (row?.GuessedAt != null)
             return (GuessResult.AlreadyGuessed, null);
 
@@ -74,25 +129,20 @@ public class AuthorGuessService(
         {
             if (dto.CreatorId is not int creatorId)
                 return (GuessResult.InvalidCandidate, null);
-            if (!VisibleCandidates(entry, userId, authorId, members!.Keys, row?.HintUsed == true).Contains(creatorId))
+            if (!VisibleCandidates(subject, userId, members!.Keys, row?.HintUsed == true).Contains(creatorId))
                 return (GuessResult.InvalidCandidate, null);
             guessedId = creatorId;
         }
 
         var now = DailyClock.UtcNow(clock);
-        var correct = guessedId == authorId;
+        var correct = guessedId == targetId;
 
         if (row == null)
         {
-            row = new AuthorGuess
-            {
-                DailyEntryId = entry.Id,
-                UserId = userId,
-                GuessedCreatorId = guessedId,
-                IsCorrect = correct,
-                GuessedAt = now,
-            };
-            context.AuthorGuesses.Add(row);
+            row = NewRow(subject, userId);
+            row.GuessedUserId = guessedId;
+            row.IsCorrect = correct;
+            row.GuessedAt = now;
             try
             {
                 await context.SaveChangesAsync();
@@ -106,29 +156,35 @@ public class AuthorGuessService(
         else
         {
             // Conditional write: of two simultaneous guesses, only one lands.
-            var updated = await context
-                .AuthorGuesses.Where(g =>
-                    g.DailyEntryId == entry.Id && g.UserId == userId && g.GuessedAt == null
-                )
-                .ExecuteUpdateAsync(s =>
-                    s.SetProperty(g => g.GuessedCreatorId, guessedId)
-                        .SetProperty(g => g.IsCorrect, correct)
-                        .SetProperty(g => g.GuessedAt, now)
-                );
+            var updated = subject.IsFlash
+                ? await context
+                    .FlashGuesses.Where(g => g.FlashEntryId == subject.RefId && g.UserId == userId && g.GuessedAt == null)
+                    .ExecuteUpdateAsync(s =>
+                        s.SetProperty(g => g.GuessedUserId, guessedId)
+                            .SetProperty(g => g.IsCorrect, correct)
+                            .SetProperty(g => g.GuessedAt, now)
+                    )
+                : await context
+                    .AuthorGuesses.Where(g => g.DailyEntryId == subject.RefId && g.UserId == userId && g.GuessedAt == null)
+                    .ExecuteUpdateAsync(s =>
+                        s.SetProperty(g => g.GuessedUserId, guessedId)
+                            .SetProperty(g => g.IsCorrect, correct)
+                            .SetProperty(g => g.GuessedAt, now)
+                    );
             if (updated == 0)
                 return (GuessResult.AlreadyGuessed, null);
             await context.Entry(row).ReloadAsync();
         }
 
         var coins = correct
-            ? await coinService.GrantAsync(userId, CoinReason.GuessCorrect, CoinRewards.GuessCorrect, groupId, entry.Id)
+            ? await coinService.GrantAsync(userId, subject.RewardReason, CoinRewards.GuessCorrect, subject.GroupId, subject.RefId)
             : new CoinGrant(0, false);
 
         return (
             GuessResult.Success,
             new GuessAuthorResponseDto
             {
-                Guess = BuildState(entry, userId, authorId, members![authorId], members.Keys, row),
+                Guess = BuildState(subject, userId, members![targetId], members.Keys, row),
                 Coins = new CoinsEarnedDto
                 {
                     Earned = coins.Granted,
@@ -139,20 +195,17 @@ public class AuthorGuessService(
         );
     }
 
-    public async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(
-        int groupId,
+    private async Task<(GuessResult result, AuthorHintResponseDto? response)> BuyHintAsync(
+        (GuessResult check, Subject? subject, Dictionary<int, VoterDto>? members) load,
         int userId,
-        bool useOwned = false
+        bool useOwned
     )
     {
-        var (check, entry, members) = await LoadGuessableAsync(groupId, userId);
+        var (check, subject, members) = load;
         if (check != GuessResult.Success)
             return (check, null);
 
-        var authorId = AuthorGuessRules.AuthorOf(entry!.Question)!.Value;
-        var row = await context.AuthorGuesses.FirstOrDefaultAsync(g =>
-            g.DailyEntryId == entry.Id && g.UserId == userId
-        );
+        var row = await FindRowAsync(subject!, userId);
         if (row?.GuessedAt != null)
             return (GuessResult.AlreadyGuessed, null);
 
@@ -171,17 +224,11 @@ public class AuthorGuessService(
                     // double tap: only the request that flips HintUsed spends the item.
                     if (row == null)
                     {
-                        row = new AuthorGuess { DailyEntryId = entry.Id, UserId = userId, HintUsed = true };
-                        context.AuthorGuesses.Add(row);
+                        row = NewRow(subject!, userId);
+                        row.HintUsed = true;
                         await context.SaveChangesAsync();
                     }
-                    else if (
-                        await context
-                            .AuthorGuesses.Where(g =>
-                                g.DailyEntryId == entry.Id && g.UserId == userId && !g.HintUsed
-                            )
-                            .ExecuteUpdateAsync(s => s.SetProperty(g => g.HintUsed, true)) == 0
-                    )
+                    else if (await MarkHintUsedAsync(subject!, userId) == 0)
                         throw new DbUpdateException("Hint already used.");
 
                     if (!await inventoryService.TryConsumeAsync(userId, InventoryItem.AuthorHint))
@@ -191,21 +238,16 @@ public class AuthorGuessService(
                 {
                     var paid = await coinService.SpendAsync(
                         userId,
-                        CoinReason.AuthorHint,
+                        subject!.HintReason,
                         CoinRewards.AuthorHintPrice,
-                        groupId,
-                        entry.Id
+                        subject.GroupId,
+                        subject.RefId
                     );
                     if (!paid)
                         return (GuessResult.NotEnoughCoins, null);
 
-                    if (row == null)
-                    {
-                        row = new AuthorGuess { DailyEntryId = entry.Id, UserId = userId, HintUsed = true };
-                        context.AuthorGuesses.Add(row);
-                    }
-                    else
-                        row.HintUsed = true;
+                    row ??= NewRow(subject, userId);
+                    row.HintUsed = true;
                     await context.SaveChangesAsync();
                 }
                 await transaction.CommitAsync();
@@ -216,9 +258,7 @@ public class AuthorGuessService(
                 // the guess row for an owned hint): nothing was charged twice, so just show the
                 // hint it bought.
                 context.ChangeTracker.Clear();
-                row = await context.AuthorGuesses.FirstOrDefaultAsync(g =>
-                    g.DailyEntryId == entry.Id && g.UserId == userId
-                );
+                row = await FindRowAsync(subject!, userId);
             }
         }
 
@@ -226,7 +266,7 @@ public class AuthorGuessService(
             GuessResult.Success,
             new AuthorHintResponseDto
             {
-                Guess = BuildState(entry, userId, authorId, members![authorId], members.Keys, row),
+                Guess = BuildState(subject!, userId, members![subject!.Target.UserId], members.Keys, row),
                 Balance = await coinService.GetBalanceAsync(userId),
                 Inventory = await inventoryService.GetAsync(userId),
             }
@@ -235,11 +275,8 @@ public class AuthorGuessService(
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    // The open entry, checked for: something to guess, the caller voted, and isn't the author.
-    private async Task<(GuessResult, DailyEntry?, Dictionary<int, VoterDto>?)> LoadGuessableAsync(
-        int groupId,
-        int userId
-    )
+    // The open entry, checked for: something to guess, the caller voted, and isn't its target.
+    private async Task<(GuessResult, Subject?, Dictionary<int, VoterDto>?)> LoadDailyAsync(int groupId, int userId)
     {
         var entry = await context
             .DailyEntries.Include(d => d.Question)
@@ -249,19 +286,84 @@ public class AuthorGuessService(
         if (entry == null)
             return (GuessResult.NoActiveQuestion, null, null);
 
+        return await CheckAsync(
+            AuthorGuessRules.TargetOf(entry),
+            entry.Id,
+            isFlash: false,
+            groupId,
+            entry.QuestionId,
+            userId
+        );
+    }
+
+    // An open flash, with the same checks.
+    private async Task<(GuessResult, Subject?, Dictionary<int, VoterDto>?)> LoadFlashAsync(
+        int groupId,
+        int userId,
+        int flashId
+    )
+    {
+        var flash = await context.FlashEntries.FirstOrDefaultAsync(f => f.Id == flashId && f.GroupId == groupId);
+        if (flash == null || flash.ClosesAt <= DailyClock.UtcNow(clock))
+            return (GuessResult.NoActiveQuestion, null, null);
+
+        return await CheckAsync(
+            AuthorGuessRules.TargetOf(flash),
+            flash.Id,
+            isFlash: true,
+            groupId,
+            flash.QuestionId,
+            userId
+        );
+    }
+
+    private async Task<(GuessResult, Subject?, Dictionary<int, VoterDto>?)> CheckAsync(
+        GuessTarget? target,
+        int refId,
+        bool isFlash,
+        int groupId,
+        int questionId,
+        int userId
+    )
+    {
         var members = await LoadMembersAsync(groupId);
-        if (
-            !AuthorGuessRules.IsGuessable(entry.Question, members.Keys)
-            || AuthorGuessRules.AuthorOf(entry.Question) == userId
-        )
+        if (!AuthorGuessRules.IsGuessable(target, members.Keys) || target!.UserId == userId)
             return (GuessResult.NotGuessable, null, null);
 
-        var hasVoted = await context.Votes.AnyAsync(v => v.QuestionId == entry.QuestionId && v.UserId == userId);
+        var hasVoted = await context.Votes.AnyAsync(v => v.QuestionId == questionId && v.UserId == userId);
         if (!hasVoted)
             return (GuessResult.MustVoteFirst, null, null);
 
-        return (GuessResult.Success, entry, members);
+        return (GuessResult.Success, new Subject(target, refId, isFlash, groupId), members);
     }
+
+    private async Task<GuessRow?> FindRowAsync(Subject subject, int userId) =>
+        subject.IsFlash
+            ? await context.FlashGuesses.FirstOrDefaultAsync(g => g.FlashEntryId == subject.RefId && g.UserId == userId)
+            : await context.AuthorGuesses.FirstOrDefaultAsync(g => g.DailyEntryId == subject.RefId && g.UserId == userId);
+
+    // A new tracked row for the subject (saved by the caller).
+    private GuessRow NewRow(Subject subject, int userId)
+    {
+        if (subject.IsFlash)
+        {
+            var flashRow = new FlashGuess { FlashEntryId = subject.RefId, UserId = userId };
+            context.FlashGuesses.Add(flashRow);
+            return flashRow;
+        }
+        var row = new AuthorGuess { DailyEntryId = subject.RefId, UserId = userId };
+        context.AuthorGuesses.Add(row);
+        return row;
+    }
+
+    private async Task<int> MarkHintUsedAsync(Subject subject, int userId) =>
+        subject.IsFlash
+            ? await context
+                .FlashGuesses.Where(g => g.FlashEntryId == subject.RefId && g.UserId == userId && !g.HintUsed)
+                .ExecuteUpdateAsync(s => s.SetProperty(g => g.HintUsed, true))
+            : await context
+                .AuthorGuesses.Where(g => g.DailyEntryId == subject.RefId && g.UserId == userId && !g.HintUsed)
+                .ExecuteUpdateAsync(s => s.SetProperty(g => g.HintUsed, true));
 
     private async Task<Dictionary<int, VoterDto>> LoadMembersAsync(int groupId) =>
         await context
@@ -276,9 +378,8 @@ public class AuthorGuessService(
             .ToDictionaryAsync(m => m.Id);
 
     private static List<int> VisibleCandidates(
-        DailyEntry entry,
+        Subject subject,
         int userId,
-        int authorId,
         IEnumerable<int> memberIds,
         bool hintUsed
     )
@@ -287,36 +388,42 @@ public class AuthorGuessService(
         if (!hintUsed)
             return candidates;
 
-        var hidden = AuthorGuessRules.HiddenByHint(entry.Id, userId, candidates.Where(id => id != authorId));
+        var hidden = AuthorGuessRules.HiddenByHint(
+            subject.HintSeed,
+            userId,
+            candidates.Where(id => id != subject.Target.UserId)
+        );
         return candidates.Where(id => !hidden.Contains(id)).ToList();
     }
 
     private static AuthorGuessDto BuildState(
-        DailyEntry entry,
+        Subject subject,
         int userId,
-        int authorId,
-        VoterDto author,
+        VoterDto target,
         IReadOnlyCollection<int> memberIds,
-        AuthorGuess? row
+        GuessRow? row
     )
     {
+        var kind = subject.Target.KindKey;
         if (row?.GuessedAt != null)
-            return row.GuessedCreatorId is int guessed
+            return row.GuessedUserId is int guessed
                 ? new AuthorGuessDto
                 {
+                    Kind = kind,
                     State = AuthorGuessDto.Guessed,
                     GuessedUserId = guessed,
                     Correct = row.IsCorrect,
-                    Author = author,
+                    Author = target,
                 }
-                : new AuthorGuessDto { State = AuthorGuessDto.Skipped, Author = author };
+                : new AuthorGuessDto { Kind = kind, State = AuthorGuessDto.Skipped, Author = target };
 
         var hintUsed = row?.HintUsed == true;
         var wrongCount = AuthorGuessRules.Candidates(memberIds, userId).Count - 1;
         return new AuthorGuessDto
         {
+            Kind = kind,
             State = AuthorGuessDto.Pending,
-            CandidateIds = VisibleCandidates(entry, userId, authorId, memberIds, hintUsed),
+            CandidateIds = VisibleCandidates(subject, userId, memberIds, hintUsed),
             HintUsed = hintUsed,
             HintAvailable = !hintUsed && AuthorGuessRules.HintRemovals(wrongCount) > 0,
             HintPrice = CoinRewards.AuthorHintPrice,
