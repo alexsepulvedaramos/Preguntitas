@@ -1548,6 +1548,8 @@ Rejected in the prototypes: Llamas and Escarcha ("cutres"), Brasas (hid the fram
 **Approved one by one (developer, 2026-10-27):**
 - **Aurora** — option A «Placa»: a night sky with stars, waving northern lights (green, cyan, violet), dark mountains along the bottom and a shooting star now and then; a dark veil on the left keeps the name (white) readable.
 - **Ventisca** — «Colinas de día»: a light winter sky, snowy hills with small pines and snow falling; dark navy name over a white veil.
+- **Llamarada** — «Acampada»: a starry night with pines, a campfire on a ring of stones (dancing flames, a white-hot core, a warm glow) and sparks spiralling up. On the card banner the fire stands on its own at the right so the avatar never covers it, with the pines on the left.
 - On every plate the streak days on the right sit in a small translucent pill so they read over the art.
+- Light plates (Ventisca) get a defined bottom edge (a contour line on the foreground snow, a thin strip at the bottom), and every card banner a soft bottom line, so a plate never melts into a white card.
 
 **Still open:** the remaining plates (one at a time, several options each), what each rarity step brings (proposal: common = name colour only, rare = a still plate, epic = an animated plate, legendary = an animated plate plus the name's own lettering) and the prices.
