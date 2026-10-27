@@ -61,9 +61,8 @@ export interface MemberStats {
   totalVotes: number;
   activeQuestions: number;
   participationPercent: number;
-  timesSelector: number;
   questionsCreated: number;
-  guessesMade: number; // guess the author (rama 36), skips excluded
+  guessesMade: number; // every kind of guess (rama 36, rama 58), skips excluded
   guessesCorrect: number;
   // Duel record (rama 47, §17.15 item 6): closed duels in the group anyone voted on.
   duelsWon: number;

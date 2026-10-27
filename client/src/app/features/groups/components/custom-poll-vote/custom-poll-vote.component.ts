@@ -8,10 +8,11 @@ import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 @Component({
   selector: 'app-custom-poll-vote',
-  imports: [HlmButtonImports, HlmInputImports],
+  imports: [VoteRewardComponent, HlmButtonImports, HlmInputImports],
   templateUrl: './custom-poll-vote.component.html',
 })
 export class CustomPollVoteComponent {

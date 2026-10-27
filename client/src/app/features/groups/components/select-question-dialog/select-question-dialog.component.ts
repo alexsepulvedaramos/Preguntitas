@@ -14,7 +14,14 @@ import { QuestionsService } from '../../../../core/services/questions.service';
 import { PacksService } from '../../../../core/services/packs.service';
 import { Option, Question, QuestionPage, QuestionToVote } from '../../../../core/models/question.model';
 import { LaunchFlashResponse, SelectionSourceItem, SelectResponse } from '../../../../core/models/daily.model';
-import { CoinsEarned, EMPTY_INVENTORY, FLASH_QUESTION_PRICE, QUESTION_PLAYED_REWARD } from '../../../../core/models/coin.model';
+import {
+  CoinsEarned,
+  EMPTY_INVENTORY,
+  FLASH_QUESTION_PRICE,
+  QUESTION_PLAYED_REWARD,
+  SELECTOR_CHOICE_REWARD,
+  SELECTOR_CREATED_REWARD,
+} from '../../../../core/models/coin.model';
 import { Pack, PackTemplate, PackTemplatePage } from '../../../../core/models/pack.model';
 import { QuestionType } from '../../../../core/enums/question-type.enum';
 import { QUESTION_TYPE_LABELS } from '../../../../core/constants/question-type-labels';
@@ -23,6 +30,7 @@ import { CreateQuestionComponent } from '../create-question/create-question.comp
 import { DeathmatchCreateComponent } from '../deathmatch-create/deathmatch-create.component';
 import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
+import { CoinBadgeComponent } from '../../../../shared/components/coin/coin-badge.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
@@ -58,6 +66,7 @@ const PAGE_SIZE = 10;
     DeathmatchCreateComponent,
     DuelNoticeComponent,
     CoinTextComponent,
+    CoinBadgeComponent,
   ],
   providers: [provideIcons({ lucideCheck, lucidePlus, lucideSparkles, lucideTrash2, lucideZap })],
   templateUrl: './select-question-dialog.component.html',
@@ -84,6 +93,13 @@ export class SelectQuestionDialogComponent {
   public readonly fill = input(false);
   protected readonly flashPrice = FLASH_QUESTION_PRICE;
   protected readonly suggestReward = QUESTION_PLAYED_REWARD;
+  // What choosing pays (§17.17): +5 for picking or «Me vale esta», +10 for writing it. Shown
+  // only while it's still to be earned: once chosen, changing the pick pays nothing more.
+  protected readonly choiceReward = SELECTOR_CHOICE_REWARD;
+  protected readonly createdReward = SELECTOR_CREATED_REWARD;
+  protected readonly showChoiceRewards = computed(
+    () => this.isSelector() && !this.flash() && (this.isAutoSelected() || !this.pendingQuestion()),
+  );
   protected readonly ownedFlashes = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).flashQuestion
   );

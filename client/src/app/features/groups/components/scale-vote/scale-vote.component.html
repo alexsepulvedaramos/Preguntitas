@@ -19,8 +19,9 @@
 <button
   type="button"
   hlmBtn
-  class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+  class="relative w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
   (click)="submit()"
 >
   {{ t('vote.submit') }}
+  <app-vote-reward />
 </button>

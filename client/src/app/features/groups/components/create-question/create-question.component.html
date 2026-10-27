@@ -132,11 +132,14 @@
         <button
           type="button"
           hlmBtn
-          class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+          class="relative w-full focus-visible:ring-2 focus-visible:ring-ring"
           [disabled]="submitting()"
           (click)="selectForTomorrow()"
         >
           {{ t('createQuestion.selectForTomorrow') }}
+          @if (selectReward(); as coins) {
+            <app-coin-badge [coins]="coins" />
+          }
         </button>
       }
       @if (!flashOnly()) {

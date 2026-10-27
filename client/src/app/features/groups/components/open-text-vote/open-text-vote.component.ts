@@ -7,6 +7,7 @@ import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 const MAX_LENGTH = 280;
 
@@ -14,7 +15,7 @@ const MAX_LENGTH = 280;
 // shape so the app-vote dispatcher treats it uniformly.
 @Component({
   selector: 'app-open-text-vote',
-  imports: [HlmInputImports, HlmButtonImports],
+  imports: [VoteRewardComponent, HlmInputImports, HlmButtonImports],
   templateUrl: './open-text-vote.component.html',
 })
 export class OpenTextVoteComponent {

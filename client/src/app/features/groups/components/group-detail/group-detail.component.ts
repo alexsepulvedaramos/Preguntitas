@@ -13,7 +13,8 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideChevronLeft, lucideChevronRight,
   lucideEllipsis, lucideFlame, lucideGift, lucideHistory, lucidePartyPopper, lucideRefreshCw, lucideSettings, lucideShare2, lucideSnowflake, lucideUserPlus, lucideX, lucideZap } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
-import { COIN_DAILY_CAP, CoinsEarned, FLASH_EXTEND_WINDOW_MS, FLASH_QUESTION_PRICE, RACE_WON_REWARD } from '../../../../core/models/coin.model';
+import { COIN_DAILY_CAP, CoinsEarned, FLASH_EXTEND_WINDOW_MS, FLASH_QUESTION_PRICE, RACE_WON_REWARD, VOTE_REWARD } from '../../../../core/models/coin.model';
+import { streakBonus } from '../../../../core/constants/streak-tiers';
 
 import { GroupsService } from '../../services/groups.service';
 import { GroupMember, GroupResponse } from '../../models/group.models';
@@ -132,6 +133,11 @@ export class GroupDetailComponent implements OnInit {
   private readonly i18n = inject(I18nService);
   protected readonly t = this.i18n.t;
   protected readonly raceReward = RACE_WON_REWARD;
+  // What voting today pays (§17.17): the vote plus the streak bonus it will carry (the streak
+  // after this vote); the first-voter bonus isn't known in advance.
+  protected readonly voteReward = computed(
+    () => VOTE_REWARD + streakBonus((this.daily()?.myStreak.current ?? 0) + 1),
+  );
 
   public readonly groupId = input.required<string>();
   public readonly numericGroupId = computed(() => Number(this.groupId()));
@@ -262,7 +268,9 @@ export class GroupDetailComponent implements OnInit {
     const label = card.flash
       ? card.flash.launchedBy
         ? this.t('flash.tabLabel', { name: card.flash.launchedBy.username })
-        : this.t('flash.tabLabelAnonymous')
+        : card.flash.launcherHidden
+          ? this.t('flash.tabLabelHidden')
+          : this.t('flash.tabLabelAnonymous')
       : this.t('flash.dailyTabLabel');
     return card.pending ? `${label} · ${this.t('flash.unanswered')}` : label;
   }
@@ -382,6 +390,23 @@ export class GroupDetailComponent implements OnInit {
     const daily = this.daily();
     if (!daily) return;
     this.daily.set({ ...daily, today: { ...daily.today, guess } });
+  }
+
+  // «¿Quién la lanzó?» (§17.17): once guessed or skipped, the launcher shows on the card and tab.
+  onFlashGuessChanged(flashId: number, guess: AuthorGuess) {
+    const daily = this.daily();
+    if (!daily) return;
+    const revealed = guess.state === 'guessed' || guess.state === 'skipped';
+    this.daily.set({
+      ...daily,
+      flashes: (daily.flashes ?? []).map((f) =>
+        f.id !== flashId
+          ? f
+          : revealed
+            ? { ...f, guess, launchedBy: guess.author, launcherHidden: false }
+            : { ...f, guess },
+      ),
+    });
   }
 
   // "+8" with the coin after voting (rama 34) or a right guess (rama 36), with the streak

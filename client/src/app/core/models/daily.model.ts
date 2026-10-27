@@ -19,14 +19,19 @@ export interface TodayState {
     closesAt: string | null; // next T, ISO UTC; null when no_question
     voterIds: number[]; // members who have voted (never their answers)
     memberCount: number;
-    guess: AuthorGuess | null; // once you have voted, when the question is guessable (§17.6)
+    guess: AuthorGuess | null; // once you have voted, when the question is guessable (§17.6, §17.17)
+    decidedByChance: boolean; // an automatic pick nobody chose: «Hoy decidió el azar» (§17.17)
     canChangeVote: boolean; // you voted and haven't changed it yet (rama 43)
 }
 
-// "Guess the author" (§17.6). pending → guessed | skipped; "mine" when you wrote it.
+// The guess (§17.6, §17.17). pending → guessed | skipped; "mine" when you are the answer.
 export type AuthorGuessState = 'pending' | 'guessed' | 'skipped' | 'mine';
 
+// Who is guessed: who wrote it, who chose it (a pack question), or who launched the flash.
+export type GuessKind = 'author' | 'chooser' | 'launcher';
+
 export interface AuthorGuess {
+    kind: GuessKind;
     state: AuthorGuessState;
     candidateIds: number[]; // pending: who you can pick (fewer after the hint)
     hintAvailable: boolean;
@@ -34,7 +39,7 @@ export interface AuthorGuess {
     hintPrice: number;
     guessedUserId: number | null; // guessed
     correct: boolean | null; // guessed
-    author: Voter | null; // guessed, skipped and mine
+    author: Voter | null; // guessed, skipped and mine: who wrote, chose or launched it
     caughtCount: number; // mine: "Te han pillado X de Y"
     guessCount: number;
 }
@@ -83,7 +88,9 @@ export interface DailyStatus {
 export interface FlashState {
     id: number;
     question: QuestionToVote;
-    launchedBy: Voter | null; // public: the buyer is the author — null with anonymousAuthor
+    launchedBy: Voter | null; // the buyer — null with anonymousAuthor and while launcherHidden
+    launcherHidden: boolean; // «¿Quién la lanzó?» (§17.17): kept from you until you guess or skip
+    guess: AuthorGuess | null; // once you have voted ("mine" for the launcher); null when not guessed
     isMine: boolean; // you launched it (also on an anonymous one); only you can extend it
     activatedAt: string;
     closesAt: string; // ISO UTC, 24 h after launch (48 h once extended)

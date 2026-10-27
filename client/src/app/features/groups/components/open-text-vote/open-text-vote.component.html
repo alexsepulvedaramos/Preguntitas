@@ -14,9 +14,10 @@
 <button
   type="button"
   hlmBtn
-  class="w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
+  class="relative w-full mt-2 focus-visible:ring-2 focus-visible:ring-ring"
   [disabled]="!isValid()"
   (click)="submit()"
 >
   {{ t('vote.sendAnswer') }}
+  <app-vote-reward />
 </button>
