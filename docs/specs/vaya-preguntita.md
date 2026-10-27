@@ -1543,9 +1543,9 @@ Rejected in the prototypes: Llamas and Escarcha ("cutres"), Brasas (hid the fram
 - **Common: the same seven colours as the frame colours** (purple, blue, green, yellow, orange, red, pink), a plain coloured name.
 - **Then one name style for each ring finish** (Rayos, Chispas, Burbujas, Confeti, Llamarada, Ventisca, Aurora, Garabato, Neón, Arcade, and the seasonal Noche de brujas), in the same rarity steps as the finishes and cheaper than them. Sold separately from the ring; wearing both is the player's choice.
 
-**Proposed in the prototype, waiting for the developer's OK** ([artifact](https://claude.ai/artifact/R2RxNRZ2ZuU2UGHweFzepJ)):
-- **What each step brings:** common = a plain colour; rare = the finish's colours, with a small moving detail on big sizes; epic = a gradient or glow from the finish, moving all the time on big sizes; legendary = its own lettering (Neón, Arcade, Garabato: three new web fonts, loaded only when someone in the group wears them), animated on big sizes, with one of the game's icons beside the name.
-- **Prices:** half the ring finish of the same rarity: 100 · 200 · 400 · 750 🪙, and 50 🪙 for the seasonal one.
-- **Where it moves:** like the avatar's `effects`, animated only where the person is the point (member card, profile, the leading face of a result); in the chat and lists the same look standing still, with no particles or icons. Everything rests under `prefers-reduced-motion`.
-- **Legibility:** every fill passes WCAG AA on the card in both themes, so the light theme uses darker colours and softer glows (the yellow reads as mustard); long names truncate with an ellipsis and the effect stays inside.
+**Direction (developer, 2026-10-27, after three prototype rounds):** effects inside the letters (gradients, glows, particles on the name) were rejected as cheap-looking at name sizes. The name stays clean; what a style buys is a **plate**: an illustrated scene matching the ring finish, drawn behind the wearer's row in the member list, as the banner of their member card (the avatar overlapping its bottom edge) and behind the leader's row in a result. In the chat, where a plate doesn't fit, only the name's colour changes (AA on the card in both themes). The prototype shows every plate with the **real frame** (the app's own renderer and CSS) at each streak tier, with and without the crown ([artifact](https://claude.ai/artifact/R2RxNRZ2ZuU2UGHweFzepJ)).
 
+**Approved one by one (developer, 2026-10-27):**
+- **Aurora** — option A «Placa»: a night sky with stars, waving northern lights (green, cyan, violet), dark mountains along the bottom and a shooting star now and then; a dark veil on the left keeps the name (white) readable.
+
+**Still open:** the remaining plates (one at a time, several options each), what each rarity step brings (proposal: common = name colour only, rare = a still plate, epic = an animated plate, legendary = an animated plate plus the name's own lettering) and the prices.
