@@ -1547,5 +1547,7 @@ Rejected in the prototypes: Llamas and Escarcha ("cutres"), Brasas (hid the fram
 
 **Approved one by one (developer, 2026-10-27):**
 - **Aurora** — option A «Placa»: a night sky with stars, waving northern lights (green, cyan, violet), dark mountains along the bottom and a shooting star now and then; a dark veil on the left keeps the name (white) readable.
+- **Ventisca** — «Colinas de día»: a light winter sky, snowy hills with small pines and snow falling; dark navy name over a white veil.
+- On every plate the streak days on the right sit in a small translucent pill so they read over the art.
 
 **Still open:** the remaining plates (one at a time, several options each), what each rarity step brings (proposal: common = name colour only, rare = a still plate, epic = an animated plate, legendary = an animated plate plus the name's own lettering) and the prices.
