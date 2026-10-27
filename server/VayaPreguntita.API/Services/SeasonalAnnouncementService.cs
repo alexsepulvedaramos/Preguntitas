@@ -14,10 +14,11 @@ public class SeasonalAnnouncementService(
     ILogger<SeasonalAnnouncementService> logger
 ) : ISeasonalAnnouncementService
 {
-    // The push goes out from 20:00 (Madrid); if the server was down or deployed later, it
-    // waits for the next evening rather than waking anyone up.
-    public static readonly TimeOnly AnnounceFrom = new(20, 0);
-    public static readonly TimeOnly AnnounceUntil = new(23, 0);
+    // The push goes out from 16:00 (Madrid), a little before people come in to answer the
+    // daily question (developer, 2026-10-27); if the server was down or deployed later, it
+    // waits for the next afternoon rather than arriving at night.
+    public static readonly TimeOnly AnnounceFrom = new(16, 0);
+    public static readonly TimeOnly AnnounceUntil = new(19, 0);
 
     public async Task AnnounceDueAsync()
     {

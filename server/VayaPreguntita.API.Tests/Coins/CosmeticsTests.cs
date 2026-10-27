@@ -203,12 +203,12 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await SetCoinsAsync(group["ana"], 1000);
         await SetCoinsAsync(group["bea"], 1000);
 
-        Clock.SetLocal(HalloweenDay, new TimeOnly(19, 59));
+        Clock.SetLocal(HalloweenDay, new TimeOnly(15, 59));
         (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
         await using (var db = NewContext())
             (await NewCosmeticsService(db).GetCatalogAsync(group["ana"])).Cosmetics.Should().NotContain(c => c.Key == "ring-witch");
 
-        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 0));
+        Clock.SetLocal(HalloweenDay, new TimeOnly(16, 0));
         (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.Success);
         (await CoinsAsync(group["ana"])).Should().Be(900);
         await using (var db = NewContext())
@@ -218,7 +218,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             witch.OnSaleUntil.Should().Be(ShopCatalog.HalloweenUntil);
         }
 
-        Clock.SetLocal(HalloweenDay.AddDays(14), new TimeOnly(20, 0));
+        Clock.SetLocal(HalloweenDay.AddDays(14), new TimeOnly(16, 0));
         (await BuyAsync(group["bea"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
         (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-witch" })).Success.Should().BeTrue();
         await using (var db = NewContext())
@@ -232,19 +232,19 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public async Task ASeasonalFrame_IsAnnouncedOnce_AtEightInTheEvening()
+    public async Task ASeasonalFrame_IsAnnouncedOnce_AtFourInTheAfternoon()
     {
         await SeedGroupAsync("ana", "bea");
 
-        Clock.SetLocal(HalloweenDay, new TimeOnly(19, 59));
+        Clock.SetLocal(HalloweenDay, new TimeOnly(15, 59));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
         Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 
-        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 1));
+        Clock.SetLocal(HalloweenDay, new TimeOnly(16, 1));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
-        Clock.SetLocal(HalloweenDay, new TimeOnly(20, 2));
+        Clock.SetLocal(HalloweenDay, new TimeOnly(16, 2));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
 
@@ -252,7 +252,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
-    public async Task AMissedAnnouncement_WaitsForTheNextEvening()
+    public async Task AMissedAnnouncement_WaitsForTheNextAfternoon()
     {
         await SeedGroupAsync("ana", "bea");
 
@@ -261,7 +261,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
         Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
 
-        Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(20, 30));
+        Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(16, 30));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
         Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 13), Times.Once);

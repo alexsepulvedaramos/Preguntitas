@@ -27,9 +27,9 @@ public record CosmeticItem(
 // core/constants/shop-catalog.ts, keep both in sync.
 public static class ShopCatalog
 {
-    // Halloween 2026 (rama 57): two weeks from 27 Oct 20:00 Madrid (CET, UTC+1), when the
+    // Halloween 2026 (rama 57): two weeks from 27 Oct 16:00 Madrid (CET, UTC+1), when the
     // "in the shop" push goes out. Priced so two weeks of daily play in one group pay for it.
-    public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 19, 0, 0, DateTimeKind.Utc);
+    public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 15, 0, 0, DateTimeKind.Utc);
     public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(14);
 
     // Frame colour key → catalog key ("purple" → "frame-purple").

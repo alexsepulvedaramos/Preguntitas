@@ -597,7 +597,7 @@ public static class ServerText
             $"Your {MonthNames.En[month - 1]} summary for {groupName} is here: awards, participation and your match.",
             $"Der Rückblick auf den {MonthNames.De[month - 1]} in {groupName} ist da: Auszeichnungen, Beteiligung und dein Match.");
 
-        // A seasonal ring finish arrives in the shop (rama 57): every player, once, at 20:00.
+        // A seasonal ring finish arrives in the shop (rama 57): every player, once, at 16:00.
         public static string SeasonalTitle(string lang, string itemKey) => itemKey switch
         {
             "ring-witch" => Pick(lang,

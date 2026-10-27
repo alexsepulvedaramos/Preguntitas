@@ -146,7 +146,7 @@ public class DailyCycleRunner(
         // ── TIME CAPSULES (rama 50): push the ones whose results just opened ──
         await flashService.OpenDueCapsulesAsync();
 
-        // ── SEASONAL FRAMES (rama 57): the "in the shop" push, once, at 20:00 ────
+        // ── SEASONAL FRAMES (rama 57): the "in the shop" push, once, at 16:00 ────
         await seasonalAnnouncementService.AnnounceDueAsync();
     }
 
