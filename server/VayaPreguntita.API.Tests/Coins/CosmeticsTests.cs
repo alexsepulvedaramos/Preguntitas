@@ -186,13 +186,13 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     {
         var group = await SeedGroupAsync("ana", "bea");
         await SetCoinsAsync(group["ana"], 1000);
-        await BuyAsync(group["ana"], "ring-orbit");
-        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-orbit" });
+        await BuyAsync(group["ana"], "ring-aurora");
+        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-aurora" });
 
         await using var db = NewContext();
         var members = (await NewGroupsService(db).GetGroupMembersAsync(group.Id, group["bea"])).ToList();
 
-        members.Single(m => m.Id == group["ana"]).Look!.RingSkin.Should().Be("ring-orbit");
+        members.Single(m => m.Id == group["ana"]).Look!.RingSkin.Should().Be("ring-aurora");
         members.Single(m => m.Id == group["bea"]).Look.Should().BeNull();
     }
 

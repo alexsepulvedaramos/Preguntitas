@@ -214,7 +214,7 @@
             </div>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
               @for (tile of seasonal(); track tile.key) {
-                <ng-container *ngTemplateOutlet="styleTile; context: { $implicit: tile }" />
+                <ng-container *ngTemplateOutlet="finishTile; context: { $implicit: tile }" />
               }
             </div>
           </div>
@@ -225,11 +225,19 @@
             <h3 class="font-display text-lg italic tracking-tight text-foreground">{{ t('shop.kinds.ringSkin') }}</h3>
             <p class="text-xs text-muted-foreground">{{ t('shop.kindHints.ringSkin') }}</p>
           </div>
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            @for (tile of finishes(); track tile.key) {
-              <ng-container *ngTemplateOutlet="styleTile; context: { $implicit: tile }" />
-            }
-          </div>
+          @for (group of finishGroups(); track group.rarity) {
+            <div class="flex flex-col gap-2">
+              <div class="flex flex-wrap items-baseline gap-x-2">
+                <h4 class="text-sm font-semibold text-foreground">{{ group.title }}</h4>
+                <p class="text-xs text-muted-foreground">{{ group.hint }}</p>
+              </div>
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                @for (tile of group.tiles; track tile.key) {
+                  <ng-container *ngTemplateOutlet="finishTile; context: { $implicit: tile }" />
+                }
+              </div>
+            </div>
+          }
         </div>
 
         <div class="flex flex-col gap-3">
@@ -283,71 +291,236 @@
       }
     </div>
 
-    @if (tile.owned) {
-      @if (tile.equipped) {
-        @if (tile.choice.finish) {
-          <button
-            hlmBtn
-            variant="outline"
-            size="sm"
-            class="w-full gap-1 focus-visible:ring-2 focus-visible:ring-ring"
-            [disabled]="cosmeticBusy() !== null"
-            (click)="equip(tile, true)"
-          >
-            <ng-icon hlm name="lucideCheck" class="size-4! text-primary-text" aria-hidden="true" />
-            {{ t('shop.equipped') }} · {{ t('shop.unequip') }}
-          </button>
-        } @else {
-          <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary-text">
-            <ng-icon hlm name="lucideCheck" class="size-4!" aria-hidden="true" /> {{ t('shop.equipped') }}
-          </span>
-        }
-      } @else {
-        <button hlmBtn size="sm" class="w-full focus-visible:ring-2 focus-visible:ring-ring" [disabled]="cosmeticBusy() !== null" (click)="equip(tile)">
-          @if (cosmeticBusy() === tile.key) {
-            <hlm-spinner class="size-4" />
-          }
-          {{ t('shop.equip') }}
+    <ng-container *ngTemplateOutlet="tileActions; context: { $implicit: tile }" />
+  </div>
+</ng-template>
+
+<!-- Buy, wear or take off: shared by the tiles and the finish sheet -->
+<ng-template #tileActions let-tile>
+  @if (tile.owned) {
+    @if (tile.equipped) {
+      @if (tile.choice.finish) {
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          class="w-full gap-1 focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="cosmeticBusy() !== null"
+          (click)="equip(tile, true)"
+        >
+          <ng-icon hlm name="lucideCheck" class="size-4! text-primary-text" aria-hidden="true" />
+          {{ t('shop.equipped') }} · {{ t('shop.unequip') }}
         </button>
+      } @else {
+        <span class="inline-flex h-8 items-center gap-1 text-xs font-medium text-primary-text">
+          <ng-icon hlm name="lucideCheck" class="size-4!" aria-hidden="true" /> {{ t('shop.equipped') }}
+        </span>
       }
     } @else {
-      <hlm-alert-dialog #buyCosmeticDlg="hlmAlertDialog" class="w-full">
+      <button hlmBtn size="sm" class="w-full focus-visible:ring-2 focus-visible:ring-ring" [disabled]="cosmeticBusy() !== null" (click)="equip(tile)">
+        @if (cosmeticBusy() === tile.key) {
+          <hlm-spinner class="size-4" />
+        }
+        {{ t('shop.equip') }}
+      </button>
+    }
+  } @else {
+    <hlm-alert-dialog #buyCosmeticDlg="hlmAlertDialog" class="w-full">
+      <button
+        type="button"
+        hlmBtn
+        size="sm"
+        variant="outline"
+        class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+        [disabled]="cosmeticBusy() !== null || tile.missing > 0"
+        (click)="buyCosmeticDlg.open()"
+      >
+        @if (cosmeticBusy() === tile.key) {
+          <hlm-spinner class="size-4" />
+        }
+        <app-coin-text [text]="t('shop.buy', { price: tile.price })" />
+      </button>
+      <ng-template hlmAlertDialogPortal>
+        <hlm-alert-dialog-content>
+          <hlm-alert-dialog-header>
+            <h3 hlmAlertDialogTitle>
+              <app-coin-text [text]="t('shop.confirmTitle', { name: tile.label, price: tile.price })" />
+            </h3>
+            <p hlmAlertDialogDescription>{{ t('shop.confirmText') }}</p>
+          </hlm-alert-dialog-header>
+          <hlm-alert-dialog-footer>
+            <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
+            <button hlmAlertDialogAction (click)="buyCosmeticDlg.close(); buyCosmetic(tile)">
+              {{ t('shop.confirm') }}
+            </button>
+          </hlm-alert-dialog-footer>
+        </hlm-alert-dialog-content>
+      </ng-template>
+    </hlm-alert-dialog>
+    @if (tile.missing > 0) {
+      <span class="text-xs tabular-nums text-muted-foreground">
+        <app-coin-text [text]="t('shop.notEnough', { count: tile.missing })" />
+      </span>
+    }
+  }
+</ng-template>
+
+<!-- One finish tile (rama 57): runs through the levels; tap it to open them all in the sheet -->
+<ng-template #finishTile let-tile>
+  @let at = stepAt(tile.offset);
+  <div
+    class="flex flex-col items-center gap-2 rounded-default border bg-card p-3 text-center transition-colors [&>:last-child]:mt-auto [&>hlm-alert-dialog]:mt-auto"
+    [class]="tile.tried ? 'border-accent bg-accent/15' : 'border-border'"
+  >
+    <button
+      type="button"
+      class="flex w-full flex-col items-center gap-1.5 rounded-default pb-1 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      [attr.aria-label]="t('shop.detail.open', { name: tile.label })"
+      (click)="openDetail(tile)"
+    >
+      <span class="flex h-28 items-center justify-center" aria-hidden="true">
+        <app-user-avatar
+          [avatarUrl]="user()?.avatarUrl"
+          [username]="user()?.username ?? ''"
+          [frameColor]="tile.frameColor"
+          [streak]="at.step.streak"
+          [crown]="at.step.crown"
+          [look]="tile.look"
+          [showRibbon]="false"
+          effects="full"
+          size="lg"
+        />
+      </span>
+      <span class="text-sm font-medium text-foreground">{{ tile.label }}</span>
+      @if (tile.seasonLeft) {
+        <span class="vp-glyph vp-glyph--honey rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonLeft', { time: tile.seasonLeft }) }}</span>
+      } @else if (tile.seasonOver) {
+        <span class="text-2xs text-muted-foreground">{{ t('shop.seasonOver') }}</span>
+      } @else if (tile.rarityLabel) {
+        <span class="rounded-full px-2 py-0.5 text-2xs font-semibold" [class]="rarityClass[tile.rarity]">{{ tile.rarityLabel }}</span>
+      }
+      <span class="flex flex-col items-center gap-1" aria-hidden="true">
+        <span class="flex items-center gap-[3px]">
+          @for (s of steps; track $index) {
+            @if (s.crown) {
+              <ng-icon hlm name="lucideCrown" class="size-2.5! transition-colors" [class]="$index <= at.index ? 'text-flash' : 'text-border'" />
+            } @else {
+              <span class="size-1.5 rounded-full transition-colors" [class]="$index <= at.index ? 'bg-primary' : 'bg-border'"></span>
+            }
+          }
+        </span>
+        <span class="text-2xs tabular-nums text-muted-foreground">{{ stepLabel(at.step) }}</span>
+      </span>
+    </button>
+    <ng-container *ngTemplateOutlet="tileActions; context: { $implicit: tile }" />
+  </div>
+</ng-template>
+
+<!-- A finish's levels (rama 57): played big, stoppable on any level, with what it gains -->
+<hlm-sheet side="bottom" #finishSheet="hlmSheet" (closed)="detailKey.set(null)">
+  <hlm-sheet-content
+    *hlmSheetPortal="let ctx"
+    class="mx-auto max-h-[88svh] w-full max-w-lg gap-4 overflow-y-auto rounded-t-default p-4 pb-8"
+    [showCloseButton]="false"
+  >
+    @if (detail(); as d) {
+      <hlm-sheet-header class="flex-row items-start justify-between gap-2 p-0">
+        <div class="flex flex-col items-start gap-1">
+          <h2 hlmSheetTitle class="font-display text-2xl italic tracking-tight text-foreground">{{ d.label }}</h2>
+          @if (d.seasonLeft) {
+            <span class="vp-glyph vp-glyph--honey rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonLeft', { time: d.seasonLeft }) }}</span>
+          } @else if (d.rarityLabel) {
+            <span class="rounded-full px-2 py-0.5 text-2xs font-semibold" [class]="rarityClass[d.rarity]">{{ d.rarityLabel }}</span>
+          }
+        </div>
+        <button hlmSheetClose hlmBtn variant="outline" size="icon-sm" class="rounded-full focus-visible:ring-2 focus-visible:ring-ring" [attr.aria-label]="t('common.close')">
+          <ng-icon hlm name="lucideX" class="size-4!" aria-hidden="true" />
+        </button>
+      </hlm-sheet-header>
+
+      <div class="relative grid h-56 place-items-center rounded-default bg-muted">
+        <app-user-avatar
+          [avatarUrl]="user()?.avatarUrl"
+          [username]="user()?.username ?? ''"
+          [frameColor]="d.frameColor"
+          [streak]="steps[detailStep()].streak"
+          [crown]="steps[detailStep()].crown"
+          [look]="d.look"
+          [showRibbon]="false"
+          effects="full"
+          size="xl"
+        />
         <button
           type="button"
           hlmBtn
-          size="sm"
           variant="outline"
-          class="w-full focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="cosmeticBusy() !== null || tile.missing > 0"
-          (click)="buyCosmeticDlg.open()"
+          size="icon-sm"
+          class="absolute right-2 top-2 rounded-full focus-visible:ring-2 focus-visible:ring-ring"
+          [attr.aria-label]="detailPlaying() ? t('shop.detail.pause') : t('shop.detail.play')"
+          (click)="togglePlaying()"
         >
-          @if (cosmeticBusy() === tile.key) {
-            <hlm-spinner class="size-4" />
-          }
-          <app-coin-text [text]="t('shop.buy', { price: tile.price })" />
+          <ng-icon hlm [name]="detailPlaying() ? 'lucidePause' : 'lucidePlay'" class="size-4!" aria-hidden="true" />
         </button>
-        <ng-template hlmAlertDialogPortal>
-          <hlm-alert-dialog-content>
-            <hlm-alert-dialog-header>
-              <h3 hlmAlertDialogTitle>
-                <app-coin-text [text]="t('shop.confirmTitle', { name: tile.label, price: tile.price })" />
-              </h3>
-              <p hlmAlertDialogDescription>{{ t('shop.confirmText') }}</p>
-            </hlm-alert-dialog-header>
-            <hlm-alert-dialog-footer>
-              <button hlmAlertDialogCancel>{{ t('common.cancel') }}</button>
-              <button hlmAlertDialogAction (click)="buyCosmeticDlg.close(); buyCosmetic(tile)">
-                {{ t('shop.confirm') }}
-              </button>
-            </hlm-alert-dialog-footer>
-          </hlm-alert-dialog-content>
-        </ng-template>
-      </hlm-alert-dialog>
-      @if (tile.missing > 0) {
-        <span class="text-xs tabular-nums text-muted-foreground">
-          <app-coin-text [text]="t('shop.notEnough', { count: tile.missing })" />
-        </span>
-      }
+        <div class="absolute inset-x-3 bottom-2 flex items-baseline justify-between gap-2 text-xs" aria-live="polite">
+          <span class="text-sm font-semibold text-foreground">{{ detailCaption().level }}</span>
+          <span class="truncate text-muted-foreground">{{ detailCaption().title }}</span>
+        </div>
+      </div>
+
+      <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 pt-2.5" role="group" [attr.aria-label]="t('shop.detail.steps')">
+        @for (s of steps; track $index) {
+          <button
+            type="button"
+            hlmBtn
+            variant="outline"
+            size="sm"
+            class="relative h-auto min-h-11 min-w-14 shrink-0 flex-col gap-0 py-1 transition-colors focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-accent! aria-pressed:bg-accent/15!"
+            [attr.data-finish-step]="$index"
+            [attr.aria-pressed]="$index === detailStep()"
+            [attr.aria-label]="s.crown ? t('shop.detail.crownLong') : stepLabel(s)"
+            (click)="showStep($index)"
+          >
+            @if ($index === myStepIndex() && !s.crown) {
+              <span class="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-primary px-1.5 text-2xs font-bold text-primary-foreground">{{ t('shop.detail.you') }}</span>
+            }
+            @if (s.crown) {
+              <ng-icon hlm name="lucideCrown" class="size-3.5! text-flash" aria-hidden="true" />
+              <span class="text-2xs text-muted-foreground">{{ t('shop.detail.crown') }}</span>
+            } @else if (s.tier) {
+              <span class="text-xs font-semibold">{{ materialName(s.tier) }}</span>
+              <span class="text-2xs tabular-nums text-muted-foreground">{{ t('shop.detail.days', { days: s.streak }) }}</span>
+            } @else {
+              <span class="text-xs font-semibold">{{ t('shop.detail.none') }}</span>
+              <span class="text-2xs tabular-nums text-muted-foreground">{{ t('shop.detail.noneDays') }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <p class="text-sm leading-relaxed text-foreground">
+        <span class="font-semibold">{{ detailEvolves() ? t('shop.detail.grows') : t('shop.detail.fixed') }}</span>
+        {{ growsText(d.key) }}
+      </p>
+      <div class="flex items-start gap-2 rounded-default bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
+        <ng-icon hlm name="lucideInfo" class="mt-px size-4! shrink-0 text-primary-text" aria-hidden="true" />
+        <span>{{ detailNote() }}</span>
+      </div>
+
+      <div class="grid grid-cols-2 items-start gap-2">
+        <button
+          type="button"
+          hlmBtn
+          variant="outline"
+          size="sm"
+          class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+          (click)="trying.set(d.choice); ctx.close()"
+        >
+          {{ t('shop.detail.tryOn') }}
+        </button>
+        <div class="flex flex-col items-center gap-1">
+          <ng-container *ngTemplateOutlet="tileActions; context: { $implicit: d }" />
+        </div>
+      </div>
     }
-  </div>
-</ng-template>
+  </hlm-sheet-content>
+</hlm-sheet>

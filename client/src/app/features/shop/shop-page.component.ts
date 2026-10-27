@@ -1,16 +1,16 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toast } from '@spartan-ng/brain/sonner';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCheck, lucideChevronDown, lucideInfo } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCheck, lucideChevronDown, lucideCrown, lucideInfo, lucidePause, lucidePlay, lucideX } from '@ng-icons/lucide';
 
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmItemImports } from '@spartan-ng/helm/item';
 import { HlmPopoverImports } from '@spartan-ng/helm/popover';
-import { HlmSheetImports } from '@spartan-ng/helm/sheet';
+import { HlmSheet, HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 
@@ -29,7 +29,8 @@ import {
   cosmeticByKey,
   frameColorItemKey,
 } from '../../core/constants/shop-catalog';
-import { FRAME_COLOR_KEYS, FRAME_NONE, FRAME_STREAK, frameFollowsStreak } from '../../core/constants/streak-tiers';
+import { FRAME_COLOR_KEYS, FRAME_NONE, FRAME_STREAK, STREAK_TIERS, StreakTierKey, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
+import { FinishKey, finishEvolves, isFinish } from '../../shared/components/streak-frame/ring-finishes';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { TranslationKey } from '../../core/i18n/translation.types';
 import {
@@ -173,6 +174,29 @@ const SHOP_ITEMS: readonly {
   },
 ];
 
+// The levels a finish is shown on (rama 57): no tier yet, the seven tiers, then the top tier
+// wearing the group's crown. The finish tiles run through them in a loop, staggered so they
+// don't all change at once; the detail sheet plays them big.
+interface FinishStep {
+  tier: StreakTierKey | null;
+  streak: number;
+  crown: boolean;
+}
+const TOP_TIER = STREAK_TIERS[STREAK_TIERS.length - 1];
+const FINISH_STEPS: readonly FinishStep[] = [
+  { tier: null, streak: 0, crown: false },
+  ...STREAK_TIERS.map((tier) => ({ tier: tier.key, streak: tier.minDays, crown: false })),
+  { tier: TOP_TIER.key, streak: TOP_TIER.minDays, crown: true },
+];
+const STEP_MS = 1600;
+const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const RARITY_GROUP_KEYS: Partial<Record<CosmeticRarity, { title: TranslationKey; hint: TranslationKey }>> = {
+  [CosmeticRarity.Rare]: { title: 'shop.rarityGroups.rare.title', hint: 'shop.rarityGroups.rare.hint' },
+  [CosmeticRarity.Epic]: { title: 'shop.rarityGroups.epic.title', hint: 'shop.rarityGroups.epic.hint' },
+  [CosmeticRarity.Legendary]: { title: 'shop.rarityGroups.legendary.title', hint: 'shop.rarityGroups.legendary.hint' },
+};
+
 // What a style tile puts on: a ring finish, or a frame (the streak ring, no frame or a colour).
 type StyleChoice = { finish: string } | { frame: string };
 
@@ -194,6 +218,8 @@ interface StyleTile {
   // What the tile's avatar wears.
   frameColor: string;
   look: Look;
+  // Finish tiles: where the tile starts in the loop of levels.
+  offset: number;
 }
 
 // Coins & shop (rama 34, §17.2; rethought in rama 57, §17.15 item 8): the balance in the
@@ -220,7 +246,7 @@ interface StyleTile {
     HlmSheetImports,
     HlmSpinnerImports,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCheck, lucideChevronDown, lucideInfo })],
+  providers: [provideIcons({ lucideArrowLeft, lucideCheck, lucideChevronDown, lucideCrown, lucideInfo, lucidePause, lucidePlay, lucideX })],
   templateUrl: './shop-page.component.html',
 })
 export class ShopPageComponent implements OnInit, OnDestroy {
@@ -255,6 +281,25 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   // Ticks every 30 s for the seasonal countdown.
   private readonly now = signal(Date.now());
   private readonly ticker = setInterval(() => this.now.set(Date.now()), 30_000);
+
+  // ── Levels of a finish (rama 57) ──
+  protected readonly steps = FINISH_STEPS;
+  // Drives the finish tiles' loop while «Estilo» is open; still under reduced motion, where
+  // every tile rests on the top tier with the crown.
+  private readonly cycle = signal(0);
+  // The finish open in the detail sheet, the level it shows and whether it plays them.
+  protected readonly detailKey = signal<string | null>(null);
+  protected readonly detailStep = signal(0);
+  protected readonly detailPlaying = signal(false);
+  private readonly finishSheet = viewChild<HlmSheet>('finishSheet');
+  private readonly stepper = setInterval(() => {
+    if (REDUCED_MOTION) return;
+    if (this.tab() === 'style') this.cycle.update((c) => c + 1);
+    if (this.detailKey() && this.detailPlaying()) {
+      this.detailStep.update((s) => (s + 1) % FINISH_STEPS.length);
+      this.revealStep();
+    }
+  }, STEP_MS);
 
   private readonly owned = computed(() => new Set(this.user()?.ownedCosmetics ?? []));
   private readonly wornFinish = computed(() =>
@@ -307,6 +352,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       seasonOver: false,
       frameColor,
       look,
+      offset: 0,
       ...extra,
     };
   }
@@ -315,23 +361,84 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   protected readonly seasonal = computed<StyleTile[]>(() =>
     (this.catalog() ?? [])
       .filter((c) => c.onSaleUntil !== null)
-      .map((c) => {
+      .map((c, i) => {
         const entry = cosmeticByKey(c.key);
         if (!entry) return null;
         return this.tile(entry, c.key, this.t(entry.name), { finish: c.key }, FRAME_STREAK, { ringSkin: c.key }, {
           seasonLeft: c.onSale ? this.timeLeft(c.onSaleUntil!) : null,
           seasonOver: !c.onSale,
+          offset: i * 3 + 1,
         });
       })
       .filter((t): t is StyleTile => t !== null)
   );
 
-  // The ring finishes, cheapest first.
-  protected readonly finishes = computed<StyleTile[]>(() =>
-    COSMETICS.filter((c) => c.kind === CosmeticKind.RingSkin && !c.seasonal).map((c) =>
-      this.tile(c, c.key, this.t(c.name), { finish: c.key }, FRAME_STREAK, { ringSkin: c.key })
-    )
-  );
+  // The ring finishes in one group per rarity (§17.16), cheapest first.
+  protected readonly finishGroups = computed(() => {
+    const finishes = COSMETICS.filter((c) => c.kind === CosmeticKind.RingSkin && !c.seasonal).map((c, i) =>
+      this.tile(c, c.key, this.t(c.name), { finish: c.key }, FRAME_STREAK, { ringSkin: c.key }, { offset: i * 3 })
+    );
+    return [CosmeticRarity.Rare, CosmeticRarity.Epic, CosmeticRarity.Legendary].map((rarity) => ({
+      rarity,
+      title: this.t(RARITY_GROUP_KEYS[rarity]!.title),
+      hint: this.t(RARITY_GROUP_KEYS[rarity]!.hint),
+      tiles: finishes.filter((tile) => tile.rarity === rarity),
+    }));
+  });
+
+  // The level a finish tile shows now, and its place in the loop.
+  protected stepAt(offset: number): { step: FinishStep; index: number } {
+    const index = REDUCED_MOTION ? FINISH_STEPS.length - 1 : (this.cycle() + offset) % FINISH_STEPS.length;
+    return { step: FINISH_STEPS[index], index };
+  }
+
+  protected materialName(tier: StreakTierKey): string {
+    return this.t(`streaks.materials.${tier}` as TranslationKey);
+  }
+
+  protected growsText(key: string): string {
+    return this.t(`shop.grows.${key}` as TranslationKey);
+  }
+
+  // "Bronce · 15 d", "Sin nivel", "Con la corona".
+  protected stepLabel(step: FinishStep): string {
+    if (step.crown) return this.t('shop.detail.levelCrown');
+    if (!step.tier) return this.t('shop.detail.none');
+    return this.t('shop.detail.level', { tier: this.materialName(step.tier), days: step.streak });
+  }
+
+  // The level your best streak reaches now, marked «Tú» in the detail sheet.
+  protected readonly myStepIndex = computed(() => {
+    const tier = streakTierFor(this.ringStreak());
+    return tier ? FINISH_STEPS.findIndex((s) => s.tier === tier.key && !s.crown) : 0;
+  });
+
+  // The finish open in the detail sheet, as a tile (price, owned, worn).
+  protected readonly detail = computed<StyleTile | null>(() => {
+    const key = this.detailKey();
+    if (!key) return null;
+    return [...this.seasonal(), ...this.finishGroups().flatMap((g) => g.tiles)].find((tile) => tile.key === key) ?? null;
+  });
+  protected readonly detailEvolves = computed(() => {
+    const key = this.detailKey();
+    return !!key && isFinish(key) && finishEvolves(key as FinishKey);
+  });
+  protected readonly detailCaption = computed(() => {
+    const step = FINISH_STEPS[this.detailStep()];
+    if (step.crown) return { level: this.t('shop.detail.levelCrown'), title: this.t('shop.detail.crownCaption') };
+    if (!step.tier) return { level: `${this.t('shop.detail.none')} · ${this.t('shop.detail.noneDaysLong')}`, title: this.t('shop.detail.neutralCaption') };
+    return {
+      level: `${this.materialName(step.tier)} · ${this.t('shop.detail.daysLong', { days: step.streak })}`,
+      title: this.t(`streaks.titles.${step.tier}` as TranslationKey),
+    };
+  });
+  protected readonly detailNote = computed(() => {
+    if (!this.detailEvolves()) return this.t('shop.detail.noteFixed');
+    const streak = this.ringStreak();
+    const tier = streakTierFor(streak);
+    if (!tier) return this.t('shop.detail.noteStart');
+    return this.t('shop.detail.note', { days: streak, tier: this.materialName(tier.key) });
+  });
 
   // The free streak ring, the plain colours, and no frame.
   protected readonly frames = computed<StyleTile[]>(() => [
@@ -387,6 +494,32 @@ export class ShopPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.ticker);
+    clearInterval(this.stepper);
+  }
+
+  // Opens a finish's levels from the first one, playing unless motion is reduced.
+  openDetail(tile: StyleTile): void {
+    this.detailKey.set(tile.key);
+    this.detailStep.set(REDUCED_MOTION ? FINISH_STEPS.length - 1 : 0);
+    this.detailPlaying.set(!REDUCED_MOTION);
+    this.finishSheet()?.open();
+  }
+
+  // Tapping a level stops the loop there.
+  showStep(index: number): void {
+    this.detailPlaying.set(false);
+    this.detailStep.set(index);
+  }
+
+  // Keeps the level being played in view in the sheet's row of levels.
+  private revealStep(): void {
+    document
+      .querySelector(`[data-finish-step="${this.detailStep()}"]`)
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  }
+
+  togglePlaying(): void {
+    this.detailPlaying.update((playing) => !playing);
   }
 
   // "6 d 3 h", "5 h 12 min", "8 min": what is left of a seasonal sale.

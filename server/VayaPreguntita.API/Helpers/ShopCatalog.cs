@@ -37,13 +37,17 @@ public static class ShopCatalog
 
     public static readonly CosmeticItem[] All =
     [
-        // Ring finishes: drawn on top of the streak ring's material, so the tier still shows;
-        // their effects grow with the tier. Priced by how much they show and move and how much
-        // they change from tier to tier (§17.15 item 8).
+        // Ring finishes, drawn on top of the streak ring's material so the tier still shows, in
+        // one step per rarity (§17.16): rare = animated, the same on every tier, plain crown;
+        // epic = grows lightly with the tier, crown in its colour; legendary = grows a lot, the
+        // game's icons and its own crown. Ids 7 (ring-orbit) and 84 (ring-glitter) are art
+        // kept off sale for later — never reuse them.
         new(5, "ring-volt", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
-        new(4, "ring-flare", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
-        new(3, "ring-blizzard", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
-        new(7, "ring-orbit", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
+        new(81, "ring-sparks", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(82, "ring-bubbles", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(83, "ring-confetti", CosmeticKind.RingSkin, 400, CosmeticRarity.Rare),
+        new(4, "ring-flare", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
+        new(3, "ring-blizzard", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(8, "ring-aurora", CosmeticKind.RingSkin, 800, CosmeticRarity.Epic),
         new(1, "ring-neon", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),
         new(2, "ring-arcade", CosmeticKind.RingSkin, 1500, CosmeticRarity.Legendary),

@@ -40,9 +40,9 @@ export const RELEASES: readonly Release[] = [
           de: 'Veredelungen für deinen Serienring',
         },
         text: {
-          es: 'Ocho acabados nuevos en la tienda: Rayos, Llamarada, Ventisca, Garabato, Órbita, Aurora, Neón y Arcade. Se dibujan encima de tu anillo, así tu nivel se sigue viendo, y ganan efectos según subes de nivel. Si llevas la corona del grupo, cada uno la luce a su estilo.',
-          en: 'Eight new finishes in the shop: Lightning, Blaze, Blizzard, Doodle, Orbit, Aurora, Neon and Arcade. They sit on top of your ring, so your level still shows, and gain effects as you level up. If you wear the group’s crown, each one shows it off in its own style.',
-          de: 'Acht neue Veredelungen im Shop: Blitze, Flammenmeer, Schneesturm, Gekritzel, Umlaufbahn, Polarlicht, Neon und Arcade. Sie liegen über deinem Ring, damit deine Stufe sichtbar bleibt, und bekommen mit jeder Stufe mehr Effekte. Trägst du die Krone der Gruppe, zeigt jede sie in ihrem eigenen Stil.',
+          es: 'Diez acabados nuevos en la tienda, encima de tu anillo para que tu nivel se siga viendo. Raros, animados: Rayos, Chispas, Burbujas y Confeti. Épicos, que ganan efectos con tu racha: Llamarada, Ventisca y Aurora. Legendarios, que cambian en cada nivel y traen su propia corona: Neón, Arcade y Garabato. Toca uno para ver todos sus niveles.',
+          en: 'Ten new finishes in the shop, on top of your ring so your level still shows. Rare, animated: Lightning, Sparks, Bubbles and Confetti. Epic, gaining effects with your streak: Blaze, Blizzard and Aurora. Legendary, changing on every level and bringing their own crown: Neon, Arcade and Doodle. Tap one to see all its levels.',
+          de: 'Zehn neue Veredelungen im Shop, über deinem Ring, damit deine Stufe sichtbar bleibt. Selten, animiert: Blitze, Funken, Seifenblasen und Konfetti. Episch, mit mehr Effekten je nach Serie: Flammenmeer, Schneesturm und Polarlicht. Legendär, mit jeder Stufe anders und mit eigener Krone: Neon, Arcade und Gekritzel. Tippe auf eine, um alle Stufen zu sehen.',
         },
       },
       {
