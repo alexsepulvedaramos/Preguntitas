@@ -134,6 +134,20 @@ public class MonthlySummaryService(
             .Where(g => onTime.Contains((questionByEntry[g.DailyEntryId], g.UserId)))
             .Select(g => (g.DailyEntryId, g.UserId))
             .ToList();
+        // «Mejor detective» (§17.17) counts the flash launchers guessed too. A flash guess is
+        // only made while it's open, after an on-time vote; negative ids keep them apart.
+        correctGuesses.AddRange(
+            (await context.FlashGuesses
+                .Where(g =>
+                    g.FlashEntry.GroupId == groupId
+                    && g.FlashEntry.LocalDate >= month
+                    && g.FlashEntry.LocalDate < monthEnd
+                    && g.IsCorrect
+                    && g.GuessedAt != null)
+                .Select(g => new { g.FlashEntryId, g.UserId })
+                .ToListAsync())
+            .Select(g => (-g.FlashEntryId, g.UserId))
+        );
 
         var members = await context.GroupMembers
             .Where(m => m.GroupId == groupId)

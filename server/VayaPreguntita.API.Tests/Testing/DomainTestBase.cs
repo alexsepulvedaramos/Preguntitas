@@ -77,7 +77,15 @@ public abstract class DomainTestBase(DatabaseFixture fixture) : IAsyncLifetime
     protected AuthorGuessService NewAuthorGuessService(AppDbContext db) => new(db, NewCoinService(db), NewInventoryService(db), Clock);
 
     protected FlashService NewFlashService(AppDbContext db) =>
-        new(db, TestMapper.Instance, NewCoinService(db), NewInventoryService(db), Notifications.Object, Clock);
+        new(
+            db,
+            TestMapper.Instance,
+            NewCoinService(db),
+            NewInventoryService(db),
+            Notifications.Object,
+            NewAuthorGuessService(db),
+            Clock
+        );
 
     protected VoteChangeService NewVoteChangeService(AppDbContext db) =>
         new(db, TestMapper.Instance, NewCoinService(db), NewInventoryService(db), NewFlashService(db), Clock);

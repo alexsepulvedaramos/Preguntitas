@@ -18,6 +18,7 @@ public class FlashService(
     ICoinService coinService,
     IInventoryService inventoryService,
     INotificationService notificationService,
+    IAuthorGuessService guessService,
     TimeProvider clock
 ) : IFlashService
 {
@@ -116,6 +117,8 @@ public class FlashService(
             AnonymousAuthor = options.AnonymousAuthor,
             AnonymousVotes = options.AnonymousVotes,
             ResultsHiddenUntil = hiddenUntil,
+            // "¿Quién la lanzó?" (§17.17): the launcher stays hidden until each member guesses.
+            GuessLauncher = !options.AnonymousAuthor && memberIds.Count >= AuthorGuessRules.MinMembers,
         };
         context.FlashEntries.Add(flash);
         try
@@ -155,6 +158,7 @@ public class FlashService(
         var launcher = await context.Users.FindAsync(userId);
         var launcherName = launcher?.Username ?? string.Empty;
         // A 1-vs-1 flash Deathmatch is a duel (§17.15 item 6): its sides get the duel push.
+        // Pushes name nobody while the launcher is anonymous or still to be guessed.
         var duelists = DuelRules.Duelists(question);
         _ = notificationService.SendFlashQuestionAsync(
             groupId,
@@ -163,9 +167,10 @@ public class FlashService(
             launcherName,
             question.Text,
             duelists is (int first, int second)
-                ? new DuelPush(userId, launcherName, first, second, Anonymous: flash.AnonymousAuthor)
+                ? new DuelPush(userId, launcherName, first, second, Anonymous: flash.AnonymousAuthor || flash.GuessLauncher)
                 : null,
-            flash.AnonymousAuthor
+            flash.AnonymousAuthor,
+            flash.GuessLauncher
         );
 
         return (
@@ -303,7 +308,10 @@ public class FlashService(
                 flash.GroupId,
                 flash.Id,
                 flash.Group.Name,
-                flash.AnonymousAuthor ? null : flash.LaunchedBy.Username,
+                // A launcher still being guessed stays hidden while the flash is open.
+                flash.AnonymousAuthor || (flash.GuessLauncher && flash.ClosesAt > nowUtc)
+                    ? null
+                    : flash.LaunchedBy.Username,
                 flash.LocalDate,
                 flash.Question.Text
             );
@@ -342,7 +350,9 @@ public class FlashService(
 
         var nowUtc = DailyClock.UtcNow(clock);
         var result = await CalculateResultsAsync(flash.Question);
-        result.Author = flash.AnonymousAuthor ? null : ToVoter(flash.LaunchedBy);
+        result.Author = flash.AnonymousAuthor || !await LauncherShownAsync(flash, userId, nowUtc)
+            ? null
+            : ToVoter(flash.LaunchedBy);
         if (flash.AnonymousVotes)
             ResultsBuilder.Anonymize(result, userId);
         result.CapsuleOpensAt = flash.ResultsHiddenUntil;
@@ -394,13 +404,33 @@ public class FlashService(
             .Select(c => c.QuestionId)
             .ToListAsync();
 
+        var groupIds = flashes.Select(f => f.GroupId).Distinct().ToList();
+        var membersByGroup = (
+            await context
+                .GroupMembers.Where(m => groupIds.Contains(m.GroupId))
+                .Select(m => new { m.GroupId, m.UserId })
+                .ToListAsync()
+        )
+            .GroupBy(m => m.GroupId)
+            .ToDictionary(g => g.Key, g => (IReadOnlyCollection<int>)g.Select(m => m.UserId).ToList());
+
         var nowUtc = DailyClock.UtcNow(clock);
         var states = new List<FlashStateDto>();
         foreach (var flash in flashes)
         {
+            var memberIds = membersByGroup.GetValueOrDefault(flash.GroupId) ?? [];
+            // "¿Quién la lanzó?" (§17.17): the launcher stays hidden from you until you guess
+            // or skip (the launcher sees "Te han pillado"). Null when there is nothing to guess.
+            var guessable = AuthorGuessRules.IsGuessable(AuthorGuessRules.TargetOf(flash), memberIds);
+            var isMine = flash.LaunchedByUserId == userId;
             var voterIds = voters.Where(v => v.QuestionId == flash.QuestionId).Select(v => v.UserId).ToList();
             var hasVoted = voterIds.Contains(userId);
             var isSealed = flash.IsSealed(nowUtc);
+            var guess = guessable && (hasVoted || isMine)
+                ? await guessService.GetFlashStateAsync(flash, userId, memberIds)
+                : null;
+            var launcherHidden =
+                guessable && !isMine && guess?.State is not (AuthorGuessDto.Guessed or AuthorGuessDto.Skipped);
 
             QuestionResultDto? results = null;
             if (hasVoted && !isSealed)
@@ -415,9 +445,12 @@ public class FlashService(
                 {
                     Id = flash.Id,
                     Question = mapper.Map<QuestionToVoteDto>(flash.Question),
-                    // An anonymous author is never named; anonymous votes name no voter.
-                    LaunchedBy = flash.AnonymousAuthor ? null : ToVoter(flash.LaunchedBy),
-                    IsMine = flash.LaunchedByUserId == userId,
+                    // An anonymous author is never named, one still to be guessed not yet;
+                    // anonymous votes name no voter.
+                    LaunchedBy = flash.AnonymousAuthor || launcherHidden ? null : ToVoter(flash.LaunchedBy),
+                    LauncherHidden = launcherHidden,
+                    Guess = guess,
+                    IsMine = isMine,
                     ActivatedAt = flash.ActivatedAt,
                     ClosesAt = flash.ClosesAt,
                     UserHasVoted = hasVoted,
@@ -430,14 +463,32 @@ public class FlashService(
                     CapsuleOpensAt = flash.ResultsHiddenUntil,
                     Sealed = isSealed,
                     Extended = flash.ExtendedByUserId != null,
-                    // On an anonymous flash the extender isn't named either (it may be its author).
-                    ExtendedBy = flash.AnonymousAuthor || flash.AnonymousVotes || flash.ExtendedBy == null
+                    // On an anonymous flash the extender isn't named either (only its launcher can
+                    // extend it), nor while the launcher is still to be guessed.
+                    ExtendedBy = flash.AnonymousAuthor || flash.AnonymousVotes || launcherHidden || flash.ExtendedBy == null
                         ? null
                         : ToVoter(flash.ExtendedBy),
                 }
             );
         }
         return states;
+    }
+
+    // Whether the history detail may name the launcher: always once the flash has closed (as the
+    // daily author, §17.6), and while open once you launched it, guessed or skipped.
+    private async Task<bool> LauncherShownAsync(FlashEntry flash, int userId, DateTime nowUtc)
+    {
+        if (!flash.GuessLauncher || flash.ClosesAt <= nowUtc || flash.LaunchedByUserId == userId)
+            return true;
+        var memberIds = await context
+            .GroupMembers.Where(m => m.GroupId == flash.GroupId)
+            .Select(m => m.UserId)
+            .ToListAsync();
+        if (!AuthorGuessRules.IsGuessable(AuthorGuessRules.TargetOf(flash), memberIds))
+            return true;
+        return await context.FlashGuesses.AnyAsync(g =>
+            g.FlashEntryId == flash.Id && g.UserId == userId && g.GuessedAt != null
+        );
     }
 
     private async Task<QuestionResultDto> CalculateResultsAsync(Question question)

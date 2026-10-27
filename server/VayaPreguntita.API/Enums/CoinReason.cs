@@ -48,4 +48,8 @@ public enum CoinReason
 
     // A member-written question was played (rama 57); RefId = the DailyEntry
     QuestionPlayed = 22,
+
+    // Guess the flash launcher (rama 58); RefId = the flash
+    FlashGuessCorrect = 23,
+    FlashHint = 24,
 }

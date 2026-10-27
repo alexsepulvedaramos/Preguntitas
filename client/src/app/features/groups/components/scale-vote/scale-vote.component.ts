@@ -7,10 +7,11 @@ import { QuestionToVote } from '../../../../core/models/question.model';
 import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 @Component({
   selector: 'app-scale-vote',
-  imports: [HlmButtonImports, HlmSliderImports],
+  imports: [VoteRewardComponent, HlmButtonImports, HlmSliderImports],
   templateUrl: './scale-vote.component.html',
 })
 export class ScaleVoteComponent {

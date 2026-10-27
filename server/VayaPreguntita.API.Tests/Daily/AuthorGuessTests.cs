@@ -303,6 +303,5 @@ public class AuthorGuessTests(DatabaseFixture fixture) : DomainTestBase(fixture)
 
         stats!.GuessesMade.Should().Be(1);
         stats.GuessesCorrect.Should().Be(1);
-        stats.TimesSelector.Should().Be(0, "picking today's open question isn't shown yet: it would point at the author");
     }
 }

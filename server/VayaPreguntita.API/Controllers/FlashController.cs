@@ -1,5 +1,6 @@
 // FlashController.cs
-// Flash questions (§17.11): launch one for coins, vote it, and read it from the history.
+// Flash questions (§17.11): launch one for coins, vote it, guess who launched it (§17.17), and
+// read it from the history.
 
 namespace VayaPreguntita.API.Controllers;
 
@@ -18,7 +19,8 @@ using VayaPreguntita.API.Services;
 public class FlashController(
     IFlashService flashService,
     IGroupsService groupsService,
-    IVoteChangeService voteChangeService
+    IVoteChangeService voteChangeService,
+    IAuthorGuessService guessService
 ) : ControllerBase
 {
     private bool TryGetCurrentUserId(out int userId)
@@ -104,6 +106,35 @@ public class FlashController(
 
         var (result, response) = await voteChangeService.ChangeFlashAsync(groupId, userId, flashId, dto, useOwned);
         return result == VoteChangeResult.Success ? Ok(response) : VoteChangeErrors.ToResult(this, result);
+    }
+
+    // POST api/groups/{groupId}/flash/{flashId}/guess
+    // "¿Quién la lanzó?" (§17.17): guess who launched an open flash once you've voted, or skip.
+    [HttpPost("{flashId:int}/guess")]
+    public async Task<ActionResult<GuessAuthorResponseDto>> Guess(int groupId, int flashId, GuessAuthorRequestDto dto)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var (result, response) = await guessService.GuessFlashAsync(groupId, userId, flashId, dto);
+        return result == GuessResult.Success ? Ok(response) : GuessErrors.ToResult(this, result);
+    }
+
+    // POST api/groups/{groupId}/flash/{flashId}/guess/hint
+    // The hint (§17.10) on a flash guess, as on the daily one. ?useOwned=true uses one from the
+    // inventory.
+    [HttpPost("{flashId:int}/guess/hint")]
+    public async Task<ActionResult<AuthorHintResponseDto>> BuyHint(int groupId, int flashId, [FromQuery] bool useOwned = false)
+    {
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+        if (!await groupsService.IsUserInGroupAsync(userId, groupId))
+            return Forbid();
+
+        var (result, response) = await guessService.BuyFlashHintAsync(groupId, userId, flashId, useOwned);
+        return result == GuessResult.Success ? Ok(response) : GuessErrors.ToResult(this, result);
     }
 
     // GET api/groups/{groupId}/flash/{flashId}

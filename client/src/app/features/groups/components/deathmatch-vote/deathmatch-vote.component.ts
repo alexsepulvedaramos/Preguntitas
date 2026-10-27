@@ -8,10 +8,11 @@ import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 @Component({
   selector: 'app-deathmatch-vote',
-  imports: [HlmButtonImports, UserAvatarComponent],
+  imports: [VoteRewardComponent, HlmButtonImports, UserAvatarComponent],
   templateUrl: './deathmatch-vote.component.html',
 })
 export class DeathmatchVoteComponent {

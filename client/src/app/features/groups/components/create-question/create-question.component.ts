@@ -37,6 +37,7 @@ import { FlashOptionsComponent } from '../flash-options/flash-options.component'
 import { FoldSectionComponent } from '../fold-section/fold-section.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
+import { CoinBadgeComponent } from '../../../../shared/components/coin/coin-badge.component';
 
 // Placeholder hint shown in the question text input, tailored to the selected type.
 const TEXT_PLACEHOLDERS: Record<QuestionType, TranslationKey> = {
@@ -60,6 +61,7 @@ const TEXT_MAX_LENGTH = 200;
   selector: 'app-create-question',
   imports: [
     CoinTextComponent,
+    CoinBadgeComponent,
     GlyphComponent,
     HlmButtonImports,
     HlmFieldImports,
@@ -91,6 +93,8 @@ export class CreateQuestionComponent {
   // Hide the "select for tomorrow" path when the current user isn't today's selector
   // (the backend rejects daily/select from anyone else) — only "save to pool" applies then.
   public readonly showSelectButton = input(true);
+  // «+N 🪙» on «Elegir para mañana» while writing it still pays the selector (§17.17).
+  public readonly selectReward = input<number | null>(null);
   // Opened from the group's "Lanzar flash" button (§17.15): launching is the only action.
   public readonly flashOnly = input(false);
 

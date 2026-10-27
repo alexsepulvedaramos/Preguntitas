@@ -47,7 +47,7 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<DateTime?>("GuessedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("GuessedCreatorId")
+                    b.Property<int?>("GuessedUserId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("HintUsed")
@@ -58,7 +58,7 @@ namespace VayaPreguntita.API.Migrations
 
                     b.HasKey("DailyEntryId", "UserId");
 
-                    b.HasIndex("GuessedCreatorId");
+                    b.HasIndex("GuessedUserId");
 
                     b.HasIndex("UserId");
 
@@ -254,6 +254,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("GuessLauncher")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("LaunchedByUserId")
                         .HasColumnType("integer");
 
@@ -283,6 +286,35 @@ namespace VayaPreguntita.API.Migrations
                         .IsUnique();
 
                     b.ToTable("FlashEntries");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.FlashGuess", b =>
+                {
+                    b.Property<int>("FlashEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("GuessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("GuessedUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("HintUsed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("FlashEntryId", "UserId");
+
+                    b.HasIndex("GuessedUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FlashGuesses");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.Group", b =>
@@ -966,9 +998,9 @@ namespace VayaPreguntita.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VayaPreguntita.API.Entities.User", "GuessedCreator")
+                    b.HasOne("VayaPreguntita.API.Entities.User", "GuessedUser")
                         .WithMany()
-                        .HasForeignKey("GuessedCreatorId")
+                        .HasForeignKey("GuessedUserId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("VayaPreguntita.API.Entities.User", "User")
@@ -979,7 +1011,7 @@ namespace VayaPreguntita.API.Migrations
 
                     b.Navigation("DailyEntry");
 
-                    b.Navigation("GuessedCreator");
+                    b.Navigation("GuessedUser");
 
                     b.Navigation("User");
                 });
@@ -1090,6 +1122,32 @@ namespace VayaPreguntita.API.Migrations
                     b.Navigation("LaunchedBy");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.FlashGuess", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.FlashEntry", "FlashEntry")
+                        .WithMany()
+                        .HasForeignKey("FlashEntryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "GuessedUser")
+                        .WithMany()
+                        .HasForeignKey("GuessedUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FlashEntry");
+
+                    b.Navigation("GuessedUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.Group", b =>

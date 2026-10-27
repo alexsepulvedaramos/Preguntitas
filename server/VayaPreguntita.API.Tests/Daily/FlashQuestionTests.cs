@@ -82,8 +82,9 @@ public class FlashQuestionTests(DatabaseFixture fixture) : DomainTestBase(fixtur
         var question = await db.Questions.SingleAsync(q => q.Id == response.Flash.Question.Id);
         question.IsUsed.Should().BeTrue("a flash question never enters the pool");
         question.CreatorId.Should().Be(group["ana"]);
+        // In a group of 3+ the launcher is to be guessed (§17.17): the push names nobody.
         Notifications.Verify(
-            n => n.SendFlashQuestionAsync(group.Id, group["ana"], "Los de siempre", "ana", It.IsAny<string>(), null),
+            n => n.SendFlashQuestionAsync(group.Id, group["ana"], "Los de siempre", "ana", It.IsAny<string>(), null, false, true),
             Times.Once
         );
     }

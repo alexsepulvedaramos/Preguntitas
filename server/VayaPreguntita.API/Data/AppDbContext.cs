@@ -28,6 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
     public DbSet<CoinTransaction> CoinTransactions { get; set; }
     public DbSet<AuthorGuess> AuthorGuesses { get; set; }
+    public DbSet<FlashGuess> FlashGuesses { get; set; }
     public DbSet<FlashEntry> FlashEntries { get; set; }
     public DbSet<MonthlySummary> MonthlySummaries { get; set; }
     public DbSet<UserInventoryItem> UserInventory { get; set; }
@@ -258,7 +259,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         });
 
         // ==========================================
-        // AUTHOR GUESS (rama 36, §17.6) — one per member and daily entry
+        // AUTHOR GUESS (rama 36, §17.6; the chooser since rama 58) — one per member and daily entry
         // ==========================================
         modelBuilder.Entity<AuthorGuess>(e =>
         {
@@ -273,9 +274,31 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
              .WithMany()
              .HasForeignKey(g => g.UserId)
              .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(g => g.GuessedCreator)
+            e.HasOne(g => g.GuessedUser)
              .WithMany()
-             .HasForeignKey(g => g.GuessedCreatorId)
+             .HasForeignKey(g => g.GuessedUserId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ==========================================
+        // FLASH GUESS (rama 58, §17.17) — one per member and flash
+        // ==========================================
+        modelBuilder.Entity<FlashGuess>(e =>
+        {
+            e.HasKey(g => new { g.FlashEntryId, g.UserId });
+            // Member-card stats: a member's guesses in a group.
+            e.HasIndex(g => g.UserId);
+            e.HasOne(g => g.FlashEntry)
+             .WithMany()
+             .HasForeignKey(g => g.FlashEntryId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(g => g.User)
+             .WithMany()
+             .HasForeignKey(g => g.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(g => g.GuessedUser)
+             .WithMany()
+             .HasForeignKey(g => g.GuessedUserId)
              .OnDelete(DeleteBehavior.SetNull);
         });
 

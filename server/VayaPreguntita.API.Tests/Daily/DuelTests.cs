@@ -137,7 +137,10 @@ public class DuelTests(DatabaseFixture fixture) : DomainTestBase(fixture)
                 "Los de siempre",
                 "ana",
                 It.IsAny<string>(),
-                new DuelPush(group["ana"], "ana", group["ana"], group["bea"])
+                // The launcher is to be guessed (§17.17), so the duel push names nobody either.
+                new DuelPush(group["ana"], "ana", group["ana"], group["bea"], Anonymous: true),
+                false,
+                true
             ),
             Times.Once
         );

@@ -504,6 +504,12 @@ public static class ServerText
             $"Anonymous question: {text}",
             $"Anonyme Frage: {text}");
 
+        // A flash whose launcher is to be guessed (rama 58, §17.17): not named until you guess.
+        public static string FlashQuestionGuessBody(string lang, string text) => Pick(lang,
+            $"¿Quién pregunta? {text}",
+            $"Who's asking? {text}",
+            $"Wer fragt? {text}");
+
         // Time capsule (rama 50): to every member when its results open.
         public static string CapsuleOpenedTitle(string lang, string groupName) => Pick(lang,
             $"⏳ Se ha abierto una cápsula del tiempo en {groupName}",
@@ -569,7 +575,8 @@ public static class ServerText
             $"{chooser} has pitted you against each other: {text}",
             $"{chooser} lässt euch gegeneinander antreten: {text}");
 
-        // An anonymous flash duel (rama 50) names nobody.
+        // An anonymous flash duel (rama 50), or one whose launcher is to be guessed (rama 58),
+        // names nobody.
         public static string DuelAnonymousBody(string lang, string text) => Pick(lang,
             $"Alguien te ha metido en un duelo: {text}",
             $"Someone has put you in a duel: {text}",

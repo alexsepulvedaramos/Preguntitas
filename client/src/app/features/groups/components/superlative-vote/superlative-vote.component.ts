@@ -12,13 +12,14 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 // Sentinel for "Nadie" — not a real member id, mirrors the backend's allowNobody rule (spec §9).
 const NOBODY_ID = 0;
 
 @Component({
   selector: 'app-superlative-vote',
-  imports: [HlmButtonImports, HlmIconImports, NgIcon, UserAvatarComponent, UserNameComponent],
+  imports: [VoteRewardComponent, HlmButtonImports, HlmIconImports, NgIcon, UserAvatarComponent, UserNameComponent],
   providers: [provideIcons({ lucideCheck })],
   templateUrl: './superlative-vote.component.html',
 })

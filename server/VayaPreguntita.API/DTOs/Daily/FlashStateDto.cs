@@ -9,8 +9,15 @@ public class FlashStateDto
     public int Id { get; set; }
     public QuestionToVoteDto Question { get; set; } = null!;
 
-    // Who bought it: the author is public on a flash question — null on an anonymous one.
+    // Who bought it — null on an anonymous one, and while LauncherHidden.
     public VoterDto? LaunchedBy { get; set; }
+
+    // "¿Quién la lanzó?" (§17.17): the launcher is kept from you until you guess or skip.
+    public bool LauncherHidden { get; set; }
+
+    // The guess on its launcher, once you have voted (or "mine" for the launcher); null when
+    // there is nothing to guess.
+    public AuthorGuessDto? Guess { get; set; }
 
     // The caller launched it — also on an anonymous one, where only its author is told. Only
     // its author can extend it.

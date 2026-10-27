@@ -286,6 +286,9 @@
                     [frameColor]="launcher.frameColor"
                     size="xs"
                   />
+                } @else if (flash.launcherHidden) {
+                  <!-- «¿Quién la lanzó?» (§17.17): no face until you guess -->
+                  <app-glyph name="guess" size="xs" bare />
                 } @else {
                   <app-glyph name="anonymous" size="xs" bare />
                 }
@@ -366,22 +369,39 @@
 
         <div class="flex flex-col gap-2">
           <p class="vp-question-text text-foreground" [innerHTML]="flash.question.text | wordStagger"></p>
-          <!-- Room below for the crown and hat of a big framed face in the results (1.32.1) -->
-          <div class="flex min-w-0 items-center gap-2 pb-4 text-xs text-muted-foreground">
-            @if (flash.launchedBy; as launcher) {
-              <app-user-avatar
-                [avatarUrl]="launcher.avatarUrl"
-                [username]="launcher.username"
-                [frameColor]="launcher.frameColor"
-                [look]="groupStreaks.lookFor(launcher.id)"
-                size="xs"
-              />
-              <span class="min-w-0 truncate">{{ t('guess.createdBy', { name: launcher.username }) }}</span>
-            } @else {
-              <app-glyph name="anonymous" size="xs" bare />
-              <span class="min-w-0 truncate">{{ t('flash.anonymousLaunched') }}</span>
-            }
-          </div>
+          <!-- «¿Quién la lanzó?» (§17.17) once you've voted, as the daily guess; until then (or
+               with nothing to guess) who launched it, hidden while it's to be guessed -->
+          @if (flash.guess; as guess) {
+            <app-author-guess
+              class="pb-4"
+              [groupId]="numericGroupId()"
+              [flashId]="flash.id"
+              [guess]="guess"
+              [members]="members()"
+              (changed)="onFlashGuessChanged(flash.id, $event)"
+              (coinsEarned)="announceCoins($event)"
+            />
+          } @else {
+            <!-- Room below for the crown and hat of a big framed face in the results (1.32.1) -->
+            <div class="flex min-w-0 items-center gap-2 pb-4 text-xs text-muted-foreground">
+              @if (flash.launchedBy; as launcher) {
+                <app-user-avatar
+                  [avatarUrl]="launcher.avatarUrl"
+                  [username]="launcher.username"
+                  [frameColor]="launcher.frameColor"
+                  [look]="groupStreaks.lookFor(launcher.id)"
+                  size="xs"
+                />
+                <span class="min-w-0 truncate">{{ t('guess.createdBy', { name: launcher.username }) }}</span>
+              } @else if (flash.launcherHidden) {
+                <app-glyph name="guess" size="xs" bare />
+                <span class="min-w-0 truncate">{{ t('guess.title.launcher') }}</span>
+              } @else {
+                <app-glyph name="anonymous" size="xs" bare />
+                <span class="min-w-0 truncate">{{ t('flash.anonymousLaunched') }}</span>
+              }
+            </div>
+          }
         </div>
 
         @if (!flash.userHasVoted) {
@@ -435,7 +455,8 @@
 
         <p class="vp-question-text text-foreground" [innerHTML]="daily()!.today.question!.text | wordStagger"></p>
 
-        <!-- "¿Quién la escribió?" (§17.6) under the question, once you've voted -->
+        <!-- "¿Quién la escribió / eligió?" (§17.6, §17.17) under the question, once you've voted;
+             «Hoy decidió el azar» in its place when nobody chose it -->
         @if (daily()!.today.guess; as guess) {
           <app-author-guess
             [groupId]="numericGroupId()"
@@ -444,6 +465,11 @@
             (changed)="onGuessChanged($event)"
             (coinsEarned)="announceCoins($event)"
           />
+        } @else if (daily()!.today.userHasVoted && daily()!.today.decidedByChance) {
+          <p class="flex items-center gap-2 text-xs text-muted-foreground">
+            <app-glyph name="dice" size="xs" bare />
+            {{ t('guess.byChance') }}
+          </p>
         }
 
         @if (daily()!.today.status === 'voting') {
@@ -453,6 +479,7 @@
             [question]="daily()!.today.question!"
             [members]="members()"
             [showQuestion]="false"
+            [reward]="voteReward()"
             (voted)="onVoted($event)"
           />
         } @else {

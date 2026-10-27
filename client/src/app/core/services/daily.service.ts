@@ -57,17 +57,24 @@ export class DailyService {
         return this.http.post<VoteResponse>(`${this.baseUrl}/${groupId}/daily/vote`, dto);
     }
 
-    // "¿Quién la escribió?" (§17.6): guess the author of the open question, or skip
-    guessAuthor(groupId: number, dto: GuessAuthorRequest): Observable<GuessAuthorResponse> {
-        return this.http.post<GuessAuthorResponse>(`${this.baseUrl}/${groupId}/daily/guess`, dto);
+    // "¿Quién la escribió / eligió?" (§17.6, §17.17) on the open question, or "¿Quién la lanzó?"
+    // on a flash (flashId); skip gives up and shows the answer
+    guessAuthor(groupId: number, dto: GuessAuthorRequest, flashId: number | null = null): Observable<GuessAuthorResponse> {
+        return this.http.post<GuessAuthorResponse>(`${this.guessUrl(groupId, flashId)}`, dto);
     }
 
-    // Author hint (§17.10): hides half of the wrong candidates; 409 when coins are short
+    // Hint (§17.10): hides half of the wrong candidates; 409 when coins are short
     // useOwned: spend a hint from the inventory instead of paying (rama 45).
-    buyAuthorHint(groupId: number, useOwned = false): Observable<AuthorHintResponse> {
-        return this.http.post<AuthorHintResponse>(`${this.baseUrl}/${groupId}/daily/guess/hint`, {}, {
+    buyAuthorHint(groupId: number, useOwned = false, flashId: number | null = null): Observable<AuthorHintResponse> {
+        return this.http.post<AuthorHintResponse>(`${this.guessUrl(groupId, flashId)}/hint`, {}, {
             params: useOwned ? { useOwned: true } : {},
         });
+    }
+
+    private guessUrl(groupId: number, flashId: number | null): string {
+        return flashId === null
+            ? `${this.baseUrl}/${groupId}/daily/guess`
+            : `${this.baseUrl}/${groupId}/flash/${flashId}/guess`;
     }
 
     // Acknowledge the "Has perdido tu racha…" notice so it isn't shown again

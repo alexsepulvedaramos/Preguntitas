@@ -34,6 +34,9 @@ export enum CoinReason {
   FlashAnonymousAuthor = 21,
   // A member-written question was played (rama 57)
   QuestionPlayed = 22,
+  // Guess the flash launcher (rama 58)
+  FlashGuessCorrect = 23,
+  FlashHint = 24,
 }
 
 // Coins paid by one request (POST daily/vote → coins).
@@ -60,7 +63,7 @@ export interface CoinHistoryPage {
   nextBefore: number | null; // pass as ?before= for the next page
 }
 
-// Capped coins (voting, choosing) per local day, across all groups.
+// Capped coins (voting, choosing) per local day, across all groups. Right guesses are never capped.
 export const COIN_DAILY_CAP = 40;
 
 // POST shop/purchase (rama 35): a streak freeze (a gift when targetUserId is someone
@@ -170,8 +173,14 @@ export const FLASH_EXTEND_WINDOW_MS = 6 * 60 * 60 * 1000;
 export const FLASH_CAPSULE_MIN_DAYS = 1;
 export const FLASH_CAPSULE_MAX_DAYS = 365;
 
-// Winning the race to select (rama 40, §17.5).
-export const RACE_WON_REWARD = 10;
+// Voting the daily question on time and choosing it (CoinRewards.Vote, SelectorChoice,
+// SelectorCreatedBonus): «+N 🪙» on the buttons that pay them (§17.17).
+export const VOTE_REWARD = 5;
+export const SELECTOR_CHOICE_REWARD = 5;
+export const SELECTOR_CREATED_REWARD = SELECTOR_CHOICE_REWARD + 5;
 
-// A right "guess the author" (rama 36, §17.6).
+// Winning the race to select (rama 40, §17.5; 10 → 5 in rama 58).
+export const RACE_WON_REWARD = 5;
+
+// A right guess: author, chooser or flash launcher (rama 36, §17.6, §17.17).
 export const AUTHOR_GUESS_REWARD = 5;

@@ -9,18 +9,18 @@
         class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
       >
         <app-glyph name="guess" size="xs" untinted />
-        <app-coin-text [text]="t('guess.button', { coins: reward })" />
+        <app-coin-text [text]="t('guess.button', { title: title(), coins: reward })" />
       </button>
 
       <hlm-dialog-content *hlmDialogPortal="let ctx" class="flex max-h-[85dvh] w-[95vw] max-w-md flex-col gap-4">
         <hlm-dialog-header>
           <h3 hlmDialogTitle class="flex items-center gap-2 font-display text-xl italic text-foreground">
-            <app-glyph name="guess" size="sm" />{{ t('guess.title') }}
+            <app-glyph name="guess" size="sm" />{{ title() }}
           </h3>
           <p hlmDialogDescription><app-coin-text [text]="t('guess.subtitle', { coins: reward })" /></p>
         </hlm-dialog-header>
 
-        <div class="-mx-1 flex min-h-0 flex-col gap-2 overflow-y-auto px-1 py-1" role="radiogroup" [attr.aria-label]="t('guess.title')">
+        <div class="-mx-1 flex min-h-0 flex-col gap-2 overflow-y-auto px-1 py-1" role="radiogroup" [attr.aria-label]="title()">
           @for (m of candidates(); track m.id) {
             <button
               type="button"
@@ -105,9 +105,9 @@
 
   @case ('mine') {
     <div class="flex items-center gap-2 rounded-default border border-border bg-card px-3 py-2 text-sm">
-      <app-glyph name="write" size="sm" />
+      <app-glyph [name]="mineGlyph()" size="sm" />
       <p class="min-w-0 flex-1 text-foreground">
-        {{ t('guess.mine') }}
+        {{ kindText('mine') }}
         <span class="text-muted-foreground">
           ·
           @if (guess().guessCount > 0) {
@@ -130,9 +130,9 @@
         <app-user-avatar [avatarUrl]="author.avatarUrl" [username]="author.username" [frameColor]="author.frameColor" [look]="groupStreaks.lookFor(author.id)" size="sm" />
         <p class="min-w-0 flex-1 text-foreground">
           @if (guess().state === 'skipped') {
-            {{ t('guess.wroteIt', { name: author.username }) }}
+            {{ kindText('revealed', author.username) }}
           } @else if (guess().correct) {
-            {{ t('guess.right', { name: author.username }) }}
+            {{ kindText('right', author.username) }}
           } @else {
             {{ t('guess.wrong', { name: author.username }) }}
             <span class="text-muted-foreground">· {{ t('guess.yourPick', { name: guessedName() }) }}</span>

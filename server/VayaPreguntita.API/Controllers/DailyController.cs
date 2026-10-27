@@ -132,7 +132,8 @@ public class DailyController(
     }
 
     // POST api/groups/{groupId}/daily/guess
-    // "¿Quién la escribió?" (§17.6): guess the author of the open question, or skip.
+    // "¿Quién la escribió?" / "¿Quién la eligió?" (§17.6, §17.17): guess who wrote or chose the
+    // open question, or skip.
     [HttpPost("guess")]
     public async Task<ActionResult<GuessAuthorResponseDto>> GuessAuthor(int groupId, GuessAuthorRequestDto dto)
     {
@@ -142,11 +143,11 @@ public class DailyController(
             return Forbid();
 
         var (result, response) = await authorGuessService.GuessAsync(groupId, userId, dto);
-        return result == GuessResult.Success ? Ok(response) : GuessError(result);
+        return result == GuessResult.Success ? Ok(response) : GuessErrors.ToResult(this, result);
     }
 
     // POST api/groups/{groupId}/daily/guess/hint
-    // Author hint (§17.10): 20 coins, hides half of the wrong candidates. 409 if coins are short.
+    // Hint (§17.10): 20 coins, hides half of the wrong candidates. 409 if coins are short.
     // ?useOwned=true spends one from the inventory instead (rama 45); 409 when none is left.
     [HttpPost("guess/hint")]
     public async Task<ActionResult<AuthorHintResponseDto>> BuyAuthorHint(int groupId, [FromQuery] bool useOwned = false)
@@ -157,22 +158,8 @@ public class DailyController(
             return Forbid();
 
         var (result, response) = await authorGuessService.BuyHintAsync(groupId, userId, useOwned);
-        return result == GuessResult.Success ? Ok(response) : GuessError(result);
+        return result == GuessResult.Success ? Ok(response) : GuessErrors.ToResult(this, result);
     }
-
-    private ActionResult GuessError(GuessResult result) =>
-        result switch
-        {
-            GuessResult.NoActiveQuestion => NotFound(ServerText.NoActiveQuestionToday),
-            GuessResult.NotGuessable => BadRequest(ServerText.GuessNotAvailable),
-            GuessResult.MustVoteFirst => BadRequest(ServerText.GuessMustVoteFirst),
-            GuessResult.AlreadyGuessed => Conflict(ServerText.AlreadyGuessed),
-            GuessResult.InvalidCandidate => BadRequest(ServerText.GuessInvalidCandidate),
-            GuessResult.NotEnoughCoins => Conflict(ServerText.NotEnoughCoins),
-            GuessResult.HintNotAvailable => BadRequest(ServerText.HintNotAvailable),
-            GuessResult.NoneOwned => Conflict(ServerText.NoItemOwned),
-            _ => StatusCode(500),
-        };
 
     // POST api/groups/{groupId}/daily/streak/dismiss-lost
     // Acknowledges the "Has perdido tu racha…" notice (rama 19).

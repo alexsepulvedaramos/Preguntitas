@@ -88,6 +88,7 @@ public class DailyService(
             ClosesAt = DailyClock.ToUtc(openEntry.Date.AddDays(1), group.DailyQuestionTime),
             VoterIds = voterIds,
             MemberCount = group.Members.Count,
+            DecidedByChance = AuthorGuessRules.DecidedByChance(openEntry),
         };
 
         if (hasVoted)

@@ -160,6 +160,8 @@ describe('GroupDetailComponent live refresh', () => {
     extended: false,
     extendedBy: null,
     isMine: false,
+    launcherHidden: false,
+    guess: null as unknown,
   });
 
   const flushWithFlashes = (status: 'voting' | 'results', flashes: unknown[]) => {
@@ -224,6 +226,38 @@ describe('GroupDetailComponent live refresh', () => {
     const page = showFlash({ ...flash(1), launchedBy: null, anonymousAuthor: true });
 
     expect(page.querySelector('app-today-voters')).not.toBeNull();
+  });
+
+  // ── «¿Quién la lanzó?» / «¿Quién la eligió?» (rama 58) ──
+
+  it('a flash whose launcher is to be guessed shows no face until you guess', () => {
+    const page = showFlash({ ...flash(1), launchedBy: null, launcherHidden: true });
+
+    expect(page.textContent).toContain('guess.title.launcher');
+    expect(page.textContent).not.toContain('ana');
+    expect(fixture.componentInstance.deckTabLabel(fixture.componentInstance['deck']()[0])).toContain('flash.tabLabelHidden');
+  });
+
+  it('guessing a flash launcher reveals them on the card', () => {
+    const pending = { kind: 'launcher', state: 'pending', candidateIds: [9], hintAvailable: false, hintUsed: false, hintPrice: 20, guessedUserId: null, correct: null, author: null, caughtCount: 0, guessCount: 0 };
+    showFlash({ ...flash(1, true), launchedBy: null, launcherHidden: true, guess: pending });
+
+    const ana = { id: 9, username: 'ana', avatarUrl: null, frameColor: null };
+    fixture.componentInstance.onFlashGuessChanged(1, { ...pending, state: 'guessed', correct: true, guessedUserId: 9, author: ana } as never);
+
+    const state = fixture.componentInstance.daily()!.flashes[0];
+    expect(state.launchedBy?.username).toBe('ana');
+    expect(state.launcherHidden).toBe(false);
+  });
+
+  it('a daily question nobody chose says chance decided, once you have voted', () => {
+    fixture.detectChanges();
+    http.expectOne((r) => r.url.endsWith('/daily/current')).flush({ ...daily('results'), today: { ...daily('results').today, decidedByChance: true } });
+    http.expectOne((r) => r.url.endsWith('/members')).flush([]);
+    http.expectOne((r) => /\/groups\/1$/.test(r.url)).flush({ id: 1, name: 'g' });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('guess.byChance');
   });
 
   it('a sealed capsule you voted shows no results and no vote form', () => {

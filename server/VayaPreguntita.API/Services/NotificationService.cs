@@ -104,19 +104,20 @@ public class NotificationService(
 
     public Task SendFlashQuestionAsync(
         int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel,
-        bool anonymous = false) =>
+        bool anonymous = false, bool guessLauncher = false) =>
         RunLoggedAsync("flash_question", groupId, async context =>
         {
             var recipients = await GetEligibleMembersAsync(context, groupId, excludeUserId: launcherUserId, pref => pref.FlashQuestion);
             var (duelists, others) = SplitDuelists(recipients, duel);
             var text = Shorten(questionText);
+            var named = !anonymous && !guessLauncher;
             await SendLocalizedAsync(context, others, FlashService.OpenFor, lang =>
                 BuildPayload(
                     ServerText.Push.FlashQuestionTitle(lang, groupName),
-                    anonymous
-                        ? ServerText.Push.FlashQuestionAnonymousBody(lang, text)
-                        : ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
-                    groupId, groupName, "flash_question", lang, actor: anonymous ? null : launcherUsername
+                    anonymous ? ServerText.Push.FlashQuestionAnonymousBody(lang, text)
+                    : guessLauncher ? ServerText.Push.FlashQuestionGuessBody(lang, text)
+                    : ServerText.Push.FlashQuestionBody(lang, launcherUsername, text),
+                    groupId, groupName, "flash_question", lang, actor: named ? launcherUsername : null
                 ));
             if (duel != null)
                 await SendDuelAsync(context, duelists, duel, FlashService.OpenFor, groupId, groupName, "flash_duel", _ => questionText);

@@ -18,10 +18,14 @@ public class FlashEntry
     public int QuestionId { get; set; }
     public Question Question { get; set; } = null!;
 
-    // Public: the buyer is the author, so there is no "guess the author" — unless the flash is
-    // anonymous (rama 50), then the API never names them.
+    // The buyer is the author. Hidden until you guess when GuessLauncher is set, never named on
+    // an anonymous flash (rama 50).
     public int LaunchedByUserId { get; set; }
     public User LaunchedBy { get; set; } = null!;
+
+    // "¿Quién la lanzó?" (§17.17): set at launch on a non-anonymous flash in a group of 3+, so
+    // flashes launched before it keep showing their launcher.
+    public bool GuessLauncher { get; set; }
 
     // Anonymous author (rama 50, §17.15 item 6): nobody is told who launched it. Its votes stay
     // public unless AnonymousVotes is on too.

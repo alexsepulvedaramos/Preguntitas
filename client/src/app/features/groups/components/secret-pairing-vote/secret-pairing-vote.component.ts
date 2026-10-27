@@ -12,12 +12,13 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
+import { VoteRewardComponent } from '../vote-reward/vote-reward.component';
 
 const REQUIRED_SELECTIONS = 2;
 
 @Component({
   selector: 'app-secret-pairing-vote',
-  imports: [HlmButtonImports, HlmIconImports, NgIcon, UserAvatarComponent, UserNameComponent],
+  imports: [VoteRewardComponent, HlmButtonImports, HlmIconImports, NgIcon, UserAvatarComponent, UserNameComponent],
   providers: [provideIcons({ lucideCheck })],
   templateUrl: './secret-pairing-vote.component.html',
 })

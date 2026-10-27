@@ -13,12 +13,12 @@ public interface INotificationService
     // "¡Elige tú!" (§17.5): every member but the selector, 10 minutes before T.
     Task SendRaceToSelectAsync(int groupId, int selectorUserId, string groupName, TimeOnly dailyTime);
     // "⚡ Pregunta flash" (§17.11): every member but the buyer. A duel's two sides get the duel
-    // push instead (§17.15 item 6).
+    // push instead (§17.15 item 6). Neither names the launcher when anonymous or guessLauncher.
     Task SendFlashQuestionAsync(
         int groupId, int launcherUserId, string groupName, string launcherUsername, string questionText, DuelPush? duel,
-        bool anonymous = false);
+        bool anonymous = false, bool guessLauncher = false);
     // Time capsule (rama 50): every member, once its results open. launcherUsername is null on
-    // an anonymous flash.
+    // an anonymous flash, and while its launcher is still being guessed.
     Task SendCapsuleOpenedAsync(
         int groupId, int flashId, string groupName, string? launcherUsername, DateOnly launchedOn, string questionText);
     // "Resumen del mes" (§17.12): every member, when last month's summary is ready.

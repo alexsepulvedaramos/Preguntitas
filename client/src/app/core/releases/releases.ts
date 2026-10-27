@@ -41,6 +41,67 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.33.0',
+    date: '2026-10-27',
+    title: {
+      es: '¿Quién la eligió?',
+      en: 'Who picked it?',
+      de: 'Wer hat sie ausgesucht?',
+    },
+    items: [
+      {
+        kind: 'game',
+        glyph: 'guess',
+        title: {
+          es: '«¿Quién la eligió?»',
+          en: '“Who picked it?”',
+          de: '„Wer hat sie ausgesucht?“',
+        },
+        text: {
+          es: 'Las preguntas de pack que alguien elige también se adivinan: después de votar, adivina quién la eligió y gana 5 🪙 si aciertas. Si nadie la eligió, verás «Hoy decidió el azar».',
+          en: 'Pack questions someone picked can be guessed too: after voting, guess who picked it and win 5 🪙 if you’re right. If nobody picked it, you’ll see “Chance picked today’s question”.',
+          de: 'Auch Paketfragen, die jemand ausgesucht hat, kann man raten: Nach dem Abstimmen tippst du, wer sie ausgesucht hat, und gewinnst 5 🪙, wenn du richtig liegst. Hat niemand sie ausgesucht, steht da „Heute hat der Zufall entschieden“.',
+        },
+      },
+      {
+        kind: 'game',
+        glyph: 'flash',
+        title: {
+          es: '«¿Quién la lanzó?»',
+          en: '“Who launched it?”',
+          de: '„Wer hat sie gestartet?“',
+        },
+        text: {
+          es: 'Las preguntas flash ya no dicen quién las lanzó hasta que lo adivinas o te rindes, y también pagan 5 🪙 por acierto. Las de autor anónimo siguen sin revelarse nunca.',
+          en: 'Flash questions no longer say who launched them until you guess or give up, and a right guess pays 5 🪙 too. Anonymous ones still never tell.',
+          de: 'Blitzfragen verraten erst, wer sie gestartet hat, wenn du geraten oder aufgegeben hast, und ein richtiger Tipp bringt auch 5 🪙. Anonyme bleiben weiterhin geheim.',
+        },
+      },
+      {
+        kind: 'game',
+        glyph: 'wallet',
+        title: {
+          es: 'Monedas a la vista',
+          en: 'Coins in plain sight',
+          de: 'Münzen auf einen Blick',
+        },
+        text: {
+          es: 'Los botones que dan monedas dicen cuántas: votar, elegir la pregunta (+5), «Me vale esta» (+5) o escribirla tú (+10). Acertar quién fue paga siempre, aunque hayas llegado al tope diario, y ganar la carrera por elegir da ahora 5 🪙.',
+          en: 'Buttons that pay coins now say how many: voting, picking the question (+5), “This one works” (+5) or writing it yourself (+10). Guessing right always pays, even past the daily cap, and winning the race to pick now gives 5 🪙.',
+          de: 'Knöpfe, die Münzen bringen, zeigen jetzt wie viele: abstimmen, die Frage aussuchen (+5), „Passt so“ (+5) oder sie selbst schreiben (+10). Richtig raten zahlt sich immer aus, auch über dem Tageslimit, und das Wettrennen ums Aussuchen bringt jetzt 5 🪙.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'La ficha de cada miembro ya no muestra «Veces selector», y la pista se llama ahora solo «Pista».',
+          en: 'Member cards no longer show “Times picking”, and the hint is now just called “Hint”.',
+          de: 'Die Mitgliederkarte zeigt „Mal ausgewählt“ nicht mehr, und der Tipp heißt jetzt einfach „Tipp“.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.3',
     date: '2026-10-27',
     title: {

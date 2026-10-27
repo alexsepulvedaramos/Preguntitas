@@ -27,6 +27,9 @@
       @if (isSelector()) {
         <ng-icon hlm name="lucideSparkles" />
         {{ pendingQuestion() ? t('picker.change') : t('picker.pick') }}
+        @if (showChoiceRewards()) {
+          <app-coin-badge [coins]="choiceReward" />
+        }
       } @else {
         <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggest') }}
@@ -40,6 +43,9 @@
       @if (isSelector()) {
         <ng-icon hlm name="lucideSparkles" />
         {{ t('picker.yourTurn') }}
+        @if (showChoiceRewards()) {
+          <app-coin-badge [coins]="choiceReward" />
+        }
       } @else {
         <ng-icon hlm name="lucidePlus" />
         {{ t('picker.suggestQuestion') }}
@@ -149,7 +155,7 @@
                 <button
                   type="button"
                   hlmBtn
-                  class="w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
+                  class="relative w-full gap-2 bg-accent text-accent-foreground hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-ring"
                   [disabled]="confirming()"
                   (click)="keepPending(ctx)"
                 >
@@ -159,6 +165,9 @@
                     <ng-icon hlm name="lucideCheck" />
                   }
                   {{ t('picker.keepIt') }}
+                  @if (showChoiceRewards()) {
+                    <app-coin-badge [coins]="choiceReward" />
+                  }
                 </button>
               }
             </div>
@@ -167,15 +176,22 @@
           <button
             type="button"
             hlmBtn
-            class="w-full focus-visible:ring-2 focus-visible:ring-ring"
+            class="relative w-full focus-visible:ring-2 focus-visible:ring-ring"
             (click)="openCreate()"
           >
             {{ t('picker.create') }}
+            @if (showChoiceRewards()) {
+              <app-coin-badge [coins]="createdReward" />
+            }
           </button>
 
           <div class="flex items-center gap-2 text-xs text-muted-foreground" aria-hidden="true">
             <span class="h-px flex-1 bg-border"></span>
-            {{ t('picker.orExisting') }}
+            @if (showChoiceRewards()) {
+              <app-coin-text [text]="t('picker.orExistingReward', { coins: choiceReward })" />
+            } @else {
+              {{ t('picker.orExisting') }}
+            }
             <span class="h-px flex-1 bg-border"></span>
           </div>
 
@@ -318,6 +334,7 @@
           [groupId]="groupId()"
           [members]="members()"
           [showSelectButton]="isSelector()"
+          [selectReward]="showChoiceRewards() && !pendingEditValue() ? createdReward : null"
           [flashOnly]="flash()"
           [initialValue]="pendingEditValue()"
           [overwriteQuestionId]="pendingEditValue()?.id ?? null"

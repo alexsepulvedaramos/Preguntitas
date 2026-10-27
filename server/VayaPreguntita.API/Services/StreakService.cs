@@ -401,12 +401,21 @@ public class StreakService(
                 votedActive++;
         }
 
+        // Every kind of guess counts: author, chooser and flash launcher (§17.17).
         var guesses = await context
             .AuthorGuesses.Where(g =>
-                g.UserId == userId && g.DailyEntry.GroupId == groupId && g.GuessedCreatorId != null
+                g.UserId == userId && g.DailyEntry.GroupId == groupId && g.GuessedUserId != null
             )
             .Select(g => g.IsCorrect)
             .ToListAsync();
+        guesses.AddRange(
+            await context
+                .FlashGuesses.Where(g =>
+                    g.UserId == userId && g.FlashEntry.GroupId == groupId && g.GuessedUserId != null
+                )
+                .Select(g => g.IsCorrect)
+                .ToListAsync()
+        );
 
         var openId = entries.Count > 0 ? entries[^1].Id : (int?)null;
         var previousId = entries.Count > 1 ? entries[^2].Id : (int?)null;
@@ -429,9 +438,6 @@ public class StreakService(
             TotalVotes = voted.Count,
             ActiveQuestions = active,
             ParticipationPercent = active == 0 ? 0 : (int)Math.Round(100.0 * votedActive / active),
-            // Closed entries only: counting the open one would reveal who picked today's
-            // question, and the selector is often its author ("guess the author", §17.6).
-            TimesSelector = entries.Take(Math.Max(0, entries.Count - 1)).Count(e => e.SelectorUserId == userId),
             QuestionsCreated = await context.Questions.CountAsync(q =>
                 q.GroupId == groupId && q.CreatorId == userId
             ),
