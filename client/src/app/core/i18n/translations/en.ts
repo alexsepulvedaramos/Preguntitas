@@ -1019,6 +1019,7 @@ export const en: Translation = {
       'ring-witch': 'A witch’s hat, a purple and green spell, a pumpkin and bats flying across; at the top, the moon, a spider and a ghost.',
     },
     seasonLeft: '{time} left',
+    seasonSoon: 'Arrives in {time}',
     seasonOver: 'No longer on sale',
     frameStreak: 'Streak ring',
     frameNone: 'No frame',

@@ -215,6 +215,8 @@ interface StyleTile {
   // Seasonal (rama 57): how long it is still sold, or that it no longer is.
   seasonLeft: string | null;
   seasonOver: boolean;
+  // Coming soon: how long until it goes on sale (not buyable yet).
+  seasonSoon: string | null;
   // What the tile's avatar wears.
   frameColor: string;
   look: Look;
@@ -350,6 +352,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       entry,
       seasonLeft: null,
       seasonOver: false,
+      seasonSoon: null,
       frameColor,
       look,
       offset: 0,
@@ -365,8 +368,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
         const entry = cosmeticByKey(c.key);
         if (!entry) return null;
         return this.tile(entry, c.key, this.t(entry.name), { finish: c.key }, FRAME_STREAK, { ringSkin: c.key }, {
-          seasonLeft: c.onSale ? this.timeLeft(c.onSaleUntil!) : null,
-          seasonOver: !c.onSale,
+          ...this.seasonState(c),
           offset: i * 3 + 1,
         });
       })
@@ -522,7 +524,18 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     this.detailPlaying.update((playing) => !playing);
   }
 
-  // "6 d 3 h", "5 h 12 min", "8 min": what is left of a seasonal sale.
+  // Where a seasonal item stands, by the ticking clock, so a coming-soon frame turns buyable
+  // the moment its window opens, without reloading.
+  private seasonState(c: CatalogCosmetic): Pick<StyleTile, 'seasonLeft' | 'seasonOver' | 'seasonSoon'> {
+    const now = this.now();
+    const from = c.onSaleFrom ? Date.parse(c.onSaleFrom) : null;
+    const until = Date.parse(c.onSaleUntil!);
+    if (from !== null && now < from) return { seasonLeft: null, seasonOver: false, seasonSoon: this.timeLeft(c.onSaleFrom!) };
+    if (now < until) return { seasonLeft: this.timeLeft(c.onSaleUntil!), seasonOver: false, seasonSoon: null };
+    return { seasonLeft: null, seasonOver: true, seasonSoon: null };
+  }
+
+  // "6 d 3 h", "5 h 12 min", "8 min": what is left until a seasonal date.
   private timeLeft(until: string): string {
     const minutes = Math.max(0, Math.floor((Date.parse(until) - this.now()) / 60_000));
     const d = Math.floor(minutes / 1440);

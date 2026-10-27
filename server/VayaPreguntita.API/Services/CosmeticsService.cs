@@ -17,7 +17,7 @@ public class CosmeticsService(AppDbContext context, ICoinService coinService, Ti
         return new ShopCatalogDto
         {
             Cosmetics = ShopCatalog
-                .All.Where(i => i.IsOnSale(now) || owned.Contains(i.Key))
+                .All.Where(i => i.IsOnSale(now) || i.IsComingSoon(now) || owned.Contains(i.Key))
                 .Select(i => new CosmeticDto
                 {
                     Key = i.Key,
@@ -25,6 +25,7 @@ public class CosmeticsService(AppDbContext context, ICoinService coinService, Ti
                     Price = i.Price,
                     Rarity = i.Rarity,
                     Owned = owned.Contains(i.Key),
+                    OnSaleFrom = i.OnSaleFrom,
                     OnSaleUntil = i.OnSaleUntil,
                     OnSale = i.IsOnSale(now),
                 })

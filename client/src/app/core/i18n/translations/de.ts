@@ -1019,6 +1019,7 @@ export const de: Translation = {
       'ring-witch': 'Ein Hexenhut, ein lila-grüner Zauber, ein Kürbis und Fledermäuse, die vorbeifliegen; ganz oben der Mond, eine Spinne und ein Geist.',
     },
     seasonLeft: 'Noch {time}',
+    seasonSoon: 'Kommt in {time}',
     seasonOver: 'Nicht mehr erhältlich',
     frameStreak: 'Serienring',
     frameNone: 'Kein Rahmen',

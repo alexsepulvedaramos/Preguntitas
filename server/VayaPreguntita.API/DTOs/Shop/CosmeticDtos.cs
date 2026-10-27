@@ -3,7 +3,8 @@ using VayaPreguntita.API.Enums;
 namespace VayaPreguntita.API.DTOs.Shop;
 
 // GET api/shop: the cosmetics catalog, with what the user already owns (rama 42, §17.10).
-// Seasonal items appear while on sale, and afterwards only to their owners (rama 57).
+// Seasonal items appear in the week before their window (coming soon), while on sale, and
+// afterwards only to their owners (rama 57).
 public class ShopCatalogDto
 {
     public List<CosmeticDto> Cosmetics { get; set; } = [];
@@ -17,11 +18,12 @@ public class CosmeticDto
     public CosmeticRarity Rarity { get; set; }
     public bool Owned { get; set; }
 
-    // Seasonal items (rama 57): the end of the sale window (UTC), for the countdown. null for
-    // the permanent catalog.
+    // Seasonal items (rama 57): the sale window (UTC), for the countdowns. null for the
+    // permanent catalog.
+    public DateTime? OnSaleFrom { get; set; }
     public DateTime? OnSaleUntil { get; set; }
 
-    // A seasonal item still listed because you own it, its sale over.
+    // false for a seasonal item not on sale: coming soon, or listed because you own it.
     public bool OnSale { get; set; } = true;
 }
 

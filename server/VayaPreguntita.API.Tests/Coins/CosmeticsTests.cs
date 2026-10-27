@@ -203,10 +203,18 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await SetCoinsAsync(group["ana"], 1000);
         await SetCoinsAsync(group["bea"], 1000);
 
+        // Not listed until the week before; then shown as coming soon, not for sale yet.
+        Clock.SetLocal(HalloweenDay.AddDays(-8), new TimeOnly(12, 0));
+        await using (var db = NewContext())
+            (await NewCosmeticsService(db).GetCatalogAsync(group["ana"])).Cosmetics.Should().NotContain(c => c.Key == "ring-witch");
         Clock.SetLocal(HalloweenDay, new TimeOnly(15, 59));
         (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
         await using (var db = NewContext())
-            (await NewCosmeticsService(db).GetCatalogAsync(group["ana"])).Cosmetics.Should().NotContain(c => c.Key == "ring-witch");
+        {
+            var soon = (await NewCosmeticsService(db).GetCatalogAsync(group["ana"])).Cosmetics.Single(c => c.Key == "ring-witch");
+            soon.OnSale.Should().BeFalse();
+            soon.OnSaleFrom.Should().Be(ShopCatalog.HalloweenFrom);
+        }
 
         Clock.SetLocal(HalloweenDay, new TimeOnly(16, 0));
         (await BuyAsync(group["ana"], "ring-witch")).Should().Be(CosmeticPurchaseResult.Success);

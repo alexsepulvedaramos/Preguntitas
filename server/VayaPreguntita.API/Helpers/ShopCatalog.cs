@@ -20,6 +20,11 @@ public record CosmeticItem(
 
     public bool IsOnSale(DateTime nowUtc) =>
         (OnSaleFrom is null || nowUtc >= OnSaleFrom) && (OnSaleUntil is null || nowUtc < OnSaleUntil);
+
+    // A seasonal item is shown, not yet for sale, in the week before its window opens, so
+    // whoever reads the release notes finds it with its countdown.
+    public bool IsComingSoon(DateTime nowUtc) =>
+        OnSaleFrom is not null && nowUtc < OnSaleFrom && nowUtc >= OnSaleFrom - ShopCatalog.ComingSoonLead;
 }
 
 // The cosmetics catalog (rama 42, §17.10; rethought in rama 57, §17.15 item 8): a server
@@ -31,6 +36,9 @@ public static class ShopCatalog
     // "in the shop" push goes out. Priced so two weeks of daily play in one group pay for it.
     public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 15, 0, 0, DateTimeKind.Utc);
     public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(14);
+
+    // How long before its window a seasonal item is listed as coming soon.
+    public static readonly TimeSpan ComingSoonLead = TimeSpan.FromDays(7);
 
     // Frame colour key → catalog key ("purple" → "frame-purple").
     public static string FrameColorKey(string paletteKey) => $"frame-{paletteKey}";

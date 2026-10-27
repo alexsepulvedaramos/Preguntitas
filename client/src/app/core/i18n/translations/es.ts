@@ -1022,6 +1022,7 @@ export const es = {
       'ring-witch': 'Sombrero de bruja, un hechizo morado y verde, una calabaza y murciélagos que cruzan por delante; en lo más alto, la luna, una araña y un fantasma.',
     },
     seasonLeft: 'Quedan {time}',
+    seasonSoon: 'Llega en {time}',
     seasonOver: 'Ya no se vende',
     frameStreak: 'Anillo de racha',
     frameNone: 'Sin marco',

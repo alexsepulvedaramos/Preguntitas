@@ -116,14 +116,15 @@ export interface ShopCatalog {
   cosmetics: CatalogCosmetic[];
 }
 
-// GET shop (rama 42). Seasonal items (rama 57) carry the end of their sale window; once it is
-// over they are only listed to their owners, with onSale false.
+// GET shop (rama 42). Seasonal items (rama 57) carry their sale window: listed in the week
+// before it as coming soon, and once it is over only to their owners (onSale false both ways).
 export interface CatalogCosmetic {
   key: string;
   kind: number;
   price: number;
   rarity: number;
   owned: boolean;
+  onSaleFrom: string | null;
   onSaleUntil: string | null;
   onSale: boolean;
 }
