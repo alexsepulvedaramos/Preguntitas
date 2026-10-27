@@ -47,32 +47,7 @@
       <!-- Who voted it: inside the bar, right side, vertically centred — never spilling
            onto the next row. Up to 4 faces; from 5, three and "+n". -->
       @if (voters().length > 0) {
-        <div class="absolute inset-y-0 right-2 z-30 flex items-center">
-          <!-- Each face sits over the one on its left, frame included: explicit stacking order -->
-          @for (voter of shownVoters(); track voter.id; let first = $first; let i = $index) {
-            <app-user-avatar
-              [avatarUrl]="voter.avatarUrl"
-              [username]="voter.username"
-              [frameColor]="voter.frameColor"
-              [streak]="groupStreaks.streakFor(voter.id)"
-              [crown]="groupStreaks.hasCrown(voter.id)"
-              [look]="groupStreaks.lookFor(voter.id)"
-              effects="ring"
-              size="xs"
-              class="relative inline-block rounded-full ring-2 ring-background"
-              [class.-ml-1]="!first"
-              [style.z-index]="i + 1"
-            />
-          }
-          @if (extraVoters() > 0) {
-            <span
-              class="relative -ml-1 flex size-6 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground ring-2 ring-background"
-              [style.z-index]="shownVoters().length + 1"
-            >
-              +{{ extraVoters() }}
-            </span>
-          }
-        </div>
+        <app-voter-stack [voters]="voters()" class="absolute inset-y-0 right-2 z-30" />
       }
     </div>
 
@@ -105,47 +80,7 @@
         </h3>
       </hlm-dialog-header>
 
-      <div class="flex flex-col gap-2 py-1 max-h-[60vh] overflow-y-auto">
-        @for (option of allResults(); track option.id) {
-          @if (option.voters.length > 0) {
-            <div class="flex flex-col gap-0.5 rounded-default bg-muted/50 px-4 py-3">
-              <div class="flex items-center gap-2.5">
-                @if (option.targetUser) {
-                  <button
-                    type="button"
-                    class="shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    (click)="openMemberCard(option.targetUser.id)"
-                    [attr.aria-label]="t('results.memberStats', { name: option.targetUser.username })"
-                  >
-                    <app-user-avatar
-                      [avatarUrl]="option.targetUser.avatarUrl"
-                      [username]="option.targetUser.username"
-                      [frameColor]="option.targetUser.frameColor"
-                      [streak]="groupStreaks.streakFor(option.targetUser.id)"
-                      [crown]="groupStreaks.hasCrown(option.targetUser.id)"
-                      [look]="groupStreaks.lookFor(option.targetUser.id)"
-                      effects="full"
-                      size="md"
-                    />
-                  </button>
-                }
-                <p class="text-base font-bold text-foreground leading-tight">
-                  {{ option.displayText }}
-                  <span class="text-sm font-normal text-muted-foreground">&thinsp;({{ option.voters.length }})</span>
-                </p>
-              </div>
-              <div
-                class="flex flex-col text-sm text-muted-foreground leading-snug"
-                [class]="option.targetUser ? 'pl-12' : 'pl-1'"
-              >
-                @for (voter of option.voters; track voter.id) {
-                  <app-user-name [name]="voter.username" />
-                }
-              </div>
-            </div>
-          }
-        }
-      </div>
+      <app-votes-summary [results]="allResults()" />
     </hlm-dialog-content>
   </hlm-dialog>
 

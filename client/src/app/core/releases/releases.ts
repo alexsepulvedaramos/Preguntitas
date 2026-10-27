@@ -24,6 +24,30 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.2',
+    date: '2026-10-27',
+    title: {
+      es: 'Quién ha votado en los Deathmatch',
+      en: 'Who voted in Deathmatch',
+      de: 'Wer im Deathmatch abgestimmt hat',
+    },
+    items: [
+      {
+        glyph: 'versus',
+        title: {
+          es: 'Vuelve quién ha votado a quién',
+          en: 'Who voted for whom is back',
+          de: 'Wer wen gewählt hat, ist zurück',
+        },
+        text: {
+          es: 'En el resultado de un Deathmatch vuelven a salir las caras de quien ha votado a cada equipo. Toca el resultado para ver la lista completa. Si los votos son anónimos, solo se ven los porcentajes.',
+          en: 'A Deathmatch result shows again the faces of who voted for each team. Tap the result to see the full list. If the votes are anonymous, only the shares show.',
+          de: 'Im Ergebnis eines Deathmatch siehst du wieder die Gesichter derer, die für jedes Team gestimmt haben. Tippe auf das Ergebnis für die ganze Liste. Bei anonymen Stimmen siehst du nur die Anteile.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.1',
     date: '2026-10-27',
     title: {

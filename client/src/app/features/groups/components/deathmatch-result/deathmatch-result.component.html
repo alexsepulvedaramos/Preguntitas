@@ -1,4 +1,30 @@
-<!-- The Deathmatch result (1.32.1). Who has voted stays under the timer, as everywhere. -->
+<!-- The Deathmatch result (1.32.1). 1.32.2: who voted each team, as small faces outside the
+     team cards (so voters and fighters don't mix); tapping the result opens the votes summary. -->
+@if (hasVoters()) {
+  <hlm-dialog>
+    <button
+      type="button"
+      hlmDialogTrigger
+      class="block w-full rounded-default text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <ng-container *ngTemplateOutlet="board" />
+    </button>
+
+    <hlm-dialog-content *hlmDialogPortal class="w-sm max-w-[95vw]">
+      <hlm-dialog-header>
+        <h3 hlmDialogTitle class="font-display text-lg italic tracking-wider">
+          {{ t('results.summary') }}
+        </h3>
+      </hlm-dialog-header>
+
+      <app-votes-summary [results]="summary()" />
+    </hlm-dialog-content>
+  </hlm-dialog>
+} @else {
+  <ng-container *ngTemplateOutlet="board" />
+}
+
+<ng-template #board>
 @if (rows().length === 2) {
   <!-- Two teams: face to face, like a scoreboard, with the split bar and each side's votes -->
   <div class="flex flex-col gap-3">
@@ -48,9 +74,15 @@
         ></span>
       }
     </div>
-    <div class="-mt-1 flex justify-between text-xs tabular-nums text-muted-foreground">
-      @for (row of faceToFace(); track row.option.id) {
-        <span [class]="row.leads ? 'font-semibold text-accent-text' : ''">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+    <!-- Each side's voters under its end of the bar: the left one aligned left, the right one right -->
+    <div class="-mt-1 flex items-center justify-between gap-2 text-xs tabular-nums text-muted-foreground">
+      @for (row of faceToFace(); track row.option.id; let last = $last) {
+        <span class="flex min-h-7 items-center gap-1.5" [class.flex-row-reverse]="last">
+          @if (row.option.voters.length > 0) {
+            <app-voter-stack [voters]="row.option.voters" />
+          }
+          <span [class]="row.leads ? 'font-semibold text-accent-text' : ''">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+        </span>
       }
     </div>
   </div>
@@ -92,17 +124,24 @@
           </div>
           <span class="truncate text-xs text-muted-foreground">{{ row.option.displayText }}</span>
         </div>
-        <div class="flex flex-col items-end">
+        <div class="flex flex-col items-end gap-1.5">
           <span
             class="min-w-[3ch] text-right font-display text-2xl tabular-nums"
             [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
             >{{ row.option.percentage }}%</span
           >
-          <span class="text-2xs tabular-nums" [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'">{{
-            t('history.votes', { count: row.option.voteCount })
-          }}</span>
+          <!-- Who voted it where its vote count was; the count stays for screen readers -->
+          @if (row.option.voters.length > 0) {
+            <app-voter-stack [voters]="row.option.voters" />
+            <span class="sr-only">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+          } @else {
+            <span class="text-2xs tabular-nums" [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'">{{
+              t('history.votes', { count: row.option.voteCount })
+            }}</span>
+          }
         </div>
       </li>
     }
   </ol>
 }
+</ng-template>

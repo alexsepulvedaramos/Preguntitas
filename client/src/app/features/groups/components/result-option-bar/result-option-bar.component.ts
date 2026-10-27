@@ -6,13 +6,10 @@ import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { OptionResult, Voter } from '../../../../core/models/result.model';
 import { User } from '../../../../core/models/user.model';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
-import { MemberCardService } from '../../../../core/services/member-card.service';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
-import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
-
-// Most voter faces shown inside a bar before collapsing into "+n".
-const MAX_FACES = 4;
+import { VoterStackComponent, voterStackChips } from '../voter-stack/voter-stack.component';
+import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
 
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
 // its percentage, used by every per-type results component. Tapping a row with at least one
@@ -20,7 +17,7 @@ const MAX_FACES = 4;
 // with no voters (e.g. an empty Scale bin) render as a static, non-interactive bar.
 @Component({
   selector: 'app-result-option-bar',
-  imports: [UserNameComponent, HlmDialogImports, UserAvatarComponent, NgTemplateOutlet],
+  imports: [HlmDialogImports, UserAvatarComponent, NgTemplateOutlet, VoterStackComponent, VotesSummaryComponent],
   templateUrl: './result-option-bar.component.html',
 })
 export class ResultOptionBarComponent {
@@ -42,26 +39,14 @@ export class ResultOptionBarComponent {
     const max = Math.max(0, ...this.allResults().map(r => r.voteCount));
     return max > 0 && this.voteCount() === max;
   });
-  // Voter faces inside the bar: all of them up to 4; from 5 on, three and a "+n" chip.
-  protected readonly shownVoters = computed(() => {
-    const voters = this.voters();
-    return voters.length <= MAX_FACES ? voters : voters.slice(0, MAX_FACES - 1);
-  });
-  protected readonly extraVoters = computed(() => this.voters().length - this.shownVoters().length);
   // Keeps the label clear of the faces: 24 px each, overlapping by 4, plus the 8 px inset.
   protected readonly labelPaddingRight = computed(() => {
-    const chips = this.shownVoters().length + (this.extraVoters() > 0 ? 1 : 0);
+    const chips = voterStackChips(this.voters());
     return chips === 0 ? 16 : 8 + 24 + (chips - 1) * 20 + 8;
   });
   protected readonly displayWidth = computed(() => this.barWidth() ?? this.percentage());
 
-  // Members' streak rings inside the group (rama 19) and the member card on tap.
+  // Members' streak rings inside the group (rama 19).
   protected readonly groupStreaks = inject(GroupStreaksService);
-  private readonly memberCard = inject(MemberCardService);
   protected readonly t = inject(I18nService).t;
-
-  openMemberCard(userId: number) {
-    const groupId = this.groupStreaks.currentGroupId();
-    if (groupId != null) this.memberCard.open(groupId, userId);
-  }
 }
