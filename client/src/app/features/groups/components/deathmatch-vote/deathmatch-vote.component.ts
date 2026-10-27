@@ -7,10 +7,11 @@ import { CreateVote } from '../../../../core/models/vote.model';
 import { GroupMember } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { voteOptionClass } from '../vote/vote-option.util';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-deathmatch-vote',
-  imports: [HlmButtonImports],
+  imports: [HlmButtonImports, UserAvatarComponent],
   templateUrl: './deathmatch-vote.component.html',
 })
 export class DeathmatchVoteComponent {
@@ -23,6 +24,10 @@ export class DeathmatchVoteComponent {
 
   protected optionClass(index: number): string {
     return voteOptionClass(this.selectedIndex() === index);
+  }
+
+  protected teamMembers(team: number[]): GroupMember[] {
+    return team.map((id) => this.members().find((m) => m.id === id)).filter((m): m is GroupMember => !!m);
   }
 
   protected teamLabel(team: number[]): string {

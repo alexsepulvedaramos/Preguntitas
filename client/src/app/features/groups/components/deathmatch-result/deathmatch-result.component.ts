@@ -3,6 +3,8 @@ import { Component, computed, inject, input } from '@angular/core';
 import { QuestionResult } from '../../../../core/models/result.model';
 import { ResultOptionBarComponent } from '../result-option-bar/result-option-bar.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 
 // One row per team (always both, even at 0 votes — it's a head-to-head comparison, hiding
 // a side would look broken). The backend resolves DisplayText as "Jugador1 + Jugador2"
@@ -10,12 +12,13 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 // group members is needed here.
 @Component({
   selector: 'app-deathmatch-result',
-  imports: [ResultOptionBarComponent],
+  imports: [ResultOptionBarComponent, UserAvatarComponent],
   templateUrl: './deathmatch-result.component.html',
 })
 export class DeathmatchResultComponent {
   public readonly result = input.required<QuestionResult>();
   protected readonly t = inject(I18nService).t;
+  protected readonly groupStreaks = inject(GroupStreaksService);
 
   // The leading team's label, or null on a tie (including no votes yet).
   protected readonly leader = computed(() => {

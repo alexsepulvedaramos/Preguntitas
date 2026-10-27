@@ -24,6 +24,43 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.32.1',
+    date: '2026-10-27',
+    title: {
+      es: 'Retoques de marcos',
+      en: 'Frame touch-ups',
+      de: 'Feinschliff an den Rahmen',
+    },
+    items: [
+      {
+        glyph: 'crown',
+        title: {
+          es: 'Tu corona, también en pequeño',
+          en: 'Your crown, small sizes too',
+          de: 'Deine Krone, auch in klein',
+        },
+        text: {
+          es: 'Si llevas un acabado y la corona del grupo, la corona sale con su estilo también en las caras pequeñas, como en la lista de quién ha votado. Y la de Garabato ahora es una pegatina, como sus iconos.',
+          en: 'If you wear a finish and the group’s crown, the crown keeps its style on the small faces too, like the list of who has voted. And Doodle’s crown is now a sticker, like its icons.',
+          de: 'Trägst du eine Veredelung und die Krone der Gruppe, behält die Krone ihren Stil auch auf den kleinen Gesichtern, etwa in der Liste, wer abgestimmt hat. Und die Krone von Gekritzel ist jetzt ein Sticker, wie ihre Symbole.',
+        },
+      },
+      {
+        glyph: 'versus',
+        title: {
+          es: 'Caras en los Deathmatch',
+          en: 'Faces in Deathmatch',
+          de: 'Gesichter im Deathmatch',
+        },
+        text: {
+          es: 'Debajo de los nombres de cada equipo salen sus caras con sus marcos, al votar y en los resultados.',
+          en: 'Under each team’s names you now see their faces and frames, when voting and in the results.',
+          de: 'Unter den Namen jedes Teams siehst du jetzt ihre Gesichter mit Rahmen, beim Abstimmen und in den Ergebnissen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.32.0',
     date: '2026-10-27',
     title: {

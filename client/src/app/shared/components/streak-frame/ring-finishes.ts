@@ -329,9 +329,14 @@ function drawCrown(out: Group[], key: FinishKey, lite: boolean, blur: string): v
     g.shapes.push(path({ d, stroke: '#fff7c2', sw: 2.4 }));
     g.shapes.push(path({ d, stroke: '#ffc83d', sw: 1, op: 0.9 }));
   } else if (key === 'ring-doodle') {
-    const d = iconPath('crown', 0, -73, 17.6);
-    g.shapes.push(path({ d, fill: '#f2c14e', op: 0.45, cls: 'vp-fx-wiggle', st: anim(1.8, 0) }));
-    g.shapes.push(path({ d, stroke: '#f2c14e', sw: 2.2, cap: 'round', cls: 'vp-fx-wiggle', st: anim(1.8, 0) }));
+    // A sticker, like Garabato's icons: a wobbly paper blob with the crown inked on top and its
+    // gold printed a little off the line.
+    const ink = '#2a2233';
+    const wig = { cls: 'vp-fx-wiggle', st: anim(1.8, 0) };
+    const k = 12.6;
+    g.shapes.push(path({ d: blob(0, -75, 22, seeded(91)), fill: '#fffaf0', stroke: ink, sw: 1.2, ...wig }));
+    g.shapes.push(path({ d: iconPath('crown', 1.2, -72.8, k), fill: ICON_COLORS.crown, ...wig }));
+    g.shapes.push(path({ d: iconPath('crown', 0, -74, k), stroke: ink, sw: 1.4, cap: 'round', 'stroke-linejoin': 'round', ...wig }));
   } else {
     const look = CROWN_LOOKS[key]!;
     if (look.glow && !lite) g.shapes.push(path({ d: CROWN_PATH, stroke: look.glow, sw: 5, op: 0.55, f: blur, cls: 'vp-fx-pulse' }));
@@ -950,6 +955,15 @@ function confetti(out: Group[], lite: boolean, rnd: () => number): void {
     else ring.shapes.push(path({ d: turnedRect(x, y, lite ? 3.4 : 2.4, lite ? 7 : 5.2, a + rnd() * 120), fill: col, cls: 'vp-fx-wiggle', st }));
   }
   out.push(ring);
+}
+
+// The crown in a finish's style on its own, for where the finish itself isn't drawn (the
+// small "who has voted" faces, rama 57): null for the rare finishes, which wear the plain one.
+export function renderFinishCrown(key: FinishKey, lite: boolean, blurUrl: string): string | null {
+  if (FIXED_LEVEL[key] !== undefined) return null;
+  const out: Group[] = [];
+  drawCrown(out, key, lite, blurUrl);
+  return out.map(groupText).join('');
 }
 
 // ── Entry point ──────────────────────────────────────────────────────────────

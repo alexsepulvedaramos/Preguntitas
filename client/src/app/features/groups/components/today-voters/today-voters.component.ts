@@ -66,7 +66,7 @@ const STACKED_AVATARS = 4;
                 class="flex items-center gap-2 rounded-default text-left text-sm text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 (click)="openCard(m.id); ctx.close()"
               >
-                <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" size="xs" />
+                <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" [look]="m.look" size="xs" />
                 <span class="truncate">{{ m.username }}</span>
               </button>
             }
@@ -82,7 +82,7 @@ const STACKED_AVATARS = 4;
                   class="flex min-w-0 flex-1 items-center gap-2 rounded-default text-left text-sm text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   (click)="openCard(m.id); ctx.close()"
                 >
-                  <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" size="xs" />
+                  <app-user-avatar [avatarUrl]="m.avatarUrl" [username]="m.username" [frameColor]="m.frameColor" [streak]="m.currentStreak" [crown]="m.hasCrown" [look]="m.look" size="xs" />
                   <span class="truncate">{{ m.username }}</span>
                 </button>
                 <!-- Only where a nudge can go out now; nothing otherwise, to keep the list calm -->

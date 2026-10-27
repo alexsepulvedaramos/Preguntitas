@@ -17,6 +17,22 @@
       [class.animate-result-enter-right]="i % 2 === 1"
       [style.animation-delay.ms]="i * 70"
     />
+    <!-- Who is in the team, big enough to show their frames (rama 57) -->
+    <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 py-2" aria-hidden="true">
+      @for (member of option.teamMembers; track member.id) {
+        <app-user-avatar
+          [avatarUrl]="member.avatarUrl"
+          [username]="member.username"
+          [frameColor]="member.frameColor"
+          [streak]="groupStreaks.streakFor(member.id)"
+          [crown]="groupStreaks.hasCrown(member.id)"
+          [look]="groupStreaks.lookFor(member.id)"
+          [showRibbon]="false"
+          effects="full"
+          size="md"
+        />
+      }
+    </div>
     @if (!isLast) {
       <span class="text-center text-2xs text-muted-foreground/70 tracking-wide select-none">vs</span>
     }
