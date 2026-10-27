@@ -5,9 +5,11 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 
-// The Deathmatch result (1.32.1): one row per team, most voted first, with its rank, the team's
-// faces and frames, a thin bar, the names and its share; the clear leader gets the accent.
-// Ties share a rank. Who has voted is shown under the timer, as for every question.
+// The Deathmatch result (1.32.1). Two teams: face to face, like a scoreboard — the teams side
+// by side in their order, faces with frames, the share big, the names once, then the split bar
+// and each side's votes. Three or four: a ranking, most voted first, with the rank (ties share
+// it), faces, a thin bar, the names, the share and its votes. The clear leader gets the accent.
+// Who has voted is shown under the timer, as for every question.
 @Component({
   selector: 'app-deathmatch-result',
   imports: [UserAvatarComponent],
@@ -27,5 +29,11 @@ export class DeathmatchResultComponent {
       rank: 1 + options.filter((o) => o.voteCount > option.voteCount).length,
       leads: top > 0 && leaders === 1 && option.voteCount === top,
     }));
+  });
+
+  // Face to face keeps the teams in their order (left/right as when voting), not by votes.
+  protected readonly faceToFace = computed(() => {
+    const byId = new Map(this.rows().map((row) => [row.option.id, row]));
+    return this.result().results.map((option) => byId.get(option.id)!);
   });
 }

@@ -1,46 +1,108 @@
-<!-- One row per team, most voted first (1.32.1): rank, the team's faces with their frames, a
-     thin bar, the names and the share. Who has voted stays under the timer, as everywhere. -->
-<ol class="flex flex-col gap-2.5" [attr.aria-label]="t('results.result')">
-  @for (row of rows(); track row.option.id; let i = $index) {
-    <li
-      class="animate-result-enter-left grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
-      [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
-      [style.animation-delay.ms]="i * 70"
-    >
-      <span
-        class="text-center font-display text-2xl tabular-nums"
-        [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'"
-        >{{ row.rank }}</span
-      >
-      <div class="flex min-w-0 flex-col gap-2">
-        <div class="flex items-center gap-1.5 py-1" aria-hidden="true">
-          @for (member of row.option.teamMembers; track member.id) {
-            <app-user-avatar
-              [avatarUrl]="member.avatarUrl"
-              [username]="member.username"
-              [frameColor]="member.frameColor"
-              [streak]="groupStreaks.streakFor(member.id)"
-              [crown]="groupStreaks.hasCrown(member.id)"
-              [look]="groupStreaks.lookFor(member.id)"
-              [showRibbon]="false"
-              size="sm"
-            />
-          }
-        </div>
-        <div class="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+<!-- The Deathmatch result (1.32.1). Who has voted stays under the timer, as everywhere. -->
+@if (rows().length === 2) {
+  <!-- Two teams: face to face, like a scoreboard, with the split bar and each side's votes -->
+  <div class="flex flex-col gap-3">
+    <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2">
+      @for (row of faceToFace(); track row.option.id; let first = $first) {
+        @if (!first) {
+          <span class="self-center font-display text-xl italic text-muted-foreground" aria-hidden="true">vs</span>
+        }
+        <div
+          class="animate-result-enter-left flex min-w-0 flex-col items-center gap-2.5 rounded-default border px-2 py-3 text-center transition-colors"
+          [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+        >
           <div
-            class="h-full rounded-full transition-[width] duration-500"
-            [class]="row.leads ? 'bg-accent' : 'bg-primary/60'"
-            [style.width.%]="row.option.percentage"
-          ></div>
+            class="items-center justify-center gap-x-1 py-2"
+            [class]="row.option.teamMembers.length > 3 ? 'grid grid-cols-3 gap-y-2' : 'flex'"
+            aria-hidden="true"
+          >
+            @for (member of row.option.teamMembers; track member.id) {
+              <app-user-avatar
+                [avatarUrl]="member.avatarUrl"
+                [username]="member.username"
+                [frameColor]="member.frameColor"
+                [streak]="groupStreaks.streakFor(member.id)"
+                [crown]="groupStreaks.hasCrown(member.id)"
+                [look]="groupStreaks.lookFor(member.id)"
+                [showRibbon]="false"
+                [effects]="row.option.teamMembers.length > 3 ? 'auto' : 'full'"
+                [size]="row.option.teamMembers.length > 3 ? 'sm' : 'md'"
+              />
+            }
+          </div>
+          <span
+            class="font-display text-4xl leading-none tabular-nums"
+            [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
+            >{{ row.option.percentage }}%</span
+          >
+          <span class="text-sm font-semibold leading-snug [overflow-wrap:anywhere]">{{ row.option.displayText }}</span>
         </div>
-        <span class="truncate text-xs text-muted-foreground">{{ row.option.displayText }}</span>
-      </div>
-      <span
-        class="min-w-[3ch] text-right font-display text-2xl tabular-nums"
-        [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
-        >{{ row.option.percentage }}%</span
+      }
+    </div>
+    <div class="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+      @for (row of faceToFace(); track row.option.id) {
+        <span
+          class="h-full rounded-full transition-[width] duration-500"
+          [class]="row.leads ? 'bg-accent' : 'bg-primary/60'"
+          [style.width.%]="row.option.percentage"
+        ></span>
+      }
+    </div>
+    <div class="-mt-1 flex justify-between text-xs tabular-nums text-muted-foreground">
+      @for (row of faceToFace(); track row.option.id) {
+        <span [class]="row.leads ? 'font-semibold text-accent-text' : ''">{{ t('history.votes', { count: row.option.voteCount }) }}</span>
+      }
+    </div>
+  </div>
+} @else {
+  <!-- Three or four teams: a ranking, most voted first; ties share a rank -->
+  <ol class="flex flex-col gap-2.5" [attr.aria-label]="t('results.result')">
+    @for (row of rows(); track row.option.id; let i = $index) {
+      <li
+        class="animate-result-enter-left grid grid-cols-[1.75rem_1fr_auto] items-center gap-2.5 rounded-default border px-3 py-2.5 transition-colors"
+        [class]="row.leads ? 'border-accent bg-accent/10' : 'border-border bg-card'"
+        [style.animation-delay.ms]="i * 70"
       >
-    </li>
-  }
-</ol>
+        <span
+          class="text-center font-display text-2xl tabular-nums"
+          [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'"
+          >{{ row.rank }}</span
+        >
+        <div class="flex min-w-0 flex-col gap-2">
+          <div class="flex items-center gap-1.5 py-1" aria-hidden="true">
+            @for (member of row.option.teamMembers; track member.id) {
+              <app-user-avatar
+                [avatarUrl]="member.avatarUrl"
+                [username]="member.username"
+                [frameColor]="member.frameColor"
+                [streak]="groupStreaks.streakFor(member.id)"
+                [crown]="groupStreaks.hasCrown(member.id)"
+                [look]="groupStreaks.lookFor(member.id)"
+                [showRibbon]="false"
+                size="sm"
+              />
+            }
+          </div>
+          <div class="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+            <div
+              class="h-full rounded-full transition-[width] duration-500"
+              [class]="row.leads ? 'bg-accent' : 'bg-primary/60'"
+              [style.width.%]="row.option.percentage"
+            ></div>
+          </div>
+          <span class="truncate text-xs text-muted-foreground">{{ row.option.displayText }}</span>
+        </div>
+        <div class="flex flex-col items-end">
+          <span
+            class="min-w-[3ch] text-right font-display text-2xl tabular-nums"
+            [class]="row.leads ? 'text-accent-text' : 'text-foreground'"
+            >{{ row.option.percentage }}%</span
+          >
+          <span class="text-2xs tabular-nums" [class]="row.leads ? 'text-accent-text' : 'text-muted-foreground'">{{
+            t('history.votes', { count: row.option.voteCount })
+          }}</span>
+        </div>
+      </li>
+    }
+  </ol>
+}
