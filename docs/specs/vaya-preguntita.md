@@ -919,7 +919,7 @@ The app follows **semver** (`MAJOR.MINOR.PATCH`): a new player-visible feature b
 
 **Game vs polish (developer, 2026-10-27; built in rama 59).** Players should notice what changes the game, not every touch-up. Every release item is one of two kinds:
 - **Game** — content or gameplay: question types, packs, the shop and its items, coins, flash questions, duels, streak rules, new screens that add something to do. Written as today: glyph, title and a short text.
-- **Polish** — visual reworks, bug fixes, performance, copy. **One short sentence** per item in es/en/de, no title or paragraph.
+- **Polish** — visual reworks, bug fixes, performance, copy. A short bullet per item in es/en/de (a sentence or two, as long as it needs — developer, 2026-10-27), no title; shown as a bulleted list when the fold is expanded.
 
 On «Novedades» the game items show as today; a release's polish items fold into one line at its end («Y además, N retoques y arreglos»), expanded on tap. A **polish-only release** is a small folded row with no card. The header dot, the «Nuevo» badge and the one-off toast fire **only for releases with at least one game item**. Semver doesn't change (polish → PATCH, game → MINOR) and every PR players can notice still gets an entry, even if it is one polish line. **Scope (developer, 2026-10-27):** the prototype was approved; rama 59 reclassifies only the last three releases (1.32.0, 1.32.1, 1.32.2). Older releases stay as they are: items without a kind count as game and show as today. Every release from 1.32.2 on marks each item's kind. Earlier releases were tagged retroactively on the last merge of each release day: v1.0.0 → #33, v1.1.0 → #36, v1.2.0 → #39, v1.2.1 → #41, v1.3.0 → #46, v1.3.1 → #50, v1.4.0 → #53.
 
