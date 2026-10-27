@@ -32,10 +32,14 @@ public record CosmeticItem(
 // core/constants/shop-catalog.ts, keep both in sync.
 public static class ShopCatalog
 {
-    // Halloween 2026 (rama 57): two weeks from 27 Oct 16:00 Madrid (CET, UTC+1), when the
-    // "in the shop" push goes out. Priced so two weeks of daily play in one group pay for it.
+    // Halloween 2026 (rama 57): one week from 27 Oct 16:00 Madrid (CET, UTC+1), when the
+    // "in the shop" push goes out. 100 coins on purpose: players have savings and spend
+    // little, so it is an exception to the window-of-play price rule (developer, 2026-10-27).
     public static readonly DateTime HalloweenFrom = new(2026, 10, 27, 15, 0, 0, DateTimeKind.Utc);
-    public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(14);
+    public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(7);
+
+    // Seasonal items allowed to cost more than their window of play earns (§17.16).
+    public static readonly string[] PriceRuleExceptions = ["ring-witch"];
 
     // How long before its window a seasonal item is listed as coming soon.
     public static readonly TimeSpan ComingSoonLead = TimeSpan.FromDays(7);

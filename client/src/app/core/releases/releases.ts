@@ -48,14 +48,14 @@ export const RELEASES: readonly Release[] = [
       {
         glyph: 'celebrate',
         title: {
-          es: 'Noche de brujas, solo dos semanas',
-          en: 'Witching night, two weeks only',
-          de: 'Hexennacht, nur zwei Wochen',
+          es: 'Noche de brujas, solo esta semana',
+          en: 'Witching night, this week only',
+          de: 'Hexennacht, nur diese Woche',
         },
         text: {
-          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 100 monedas y solo hasta el 10 de noviembre. Si lo compras, te lo puedes poner siempre que quieras.',
-          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 100 coins and only until 10 November. Buy it and you can wear it whenever you like.',
-          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 100 Münzen und nur bis zum 10. November. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
+          es: 'Un marco de Halloween con sombrero de bruja, calabaza y murciélagos, por 100 monedas y solo hasta el 3 de noviembre. Si lo compras, te lo puedes poner siempre que quieras.',
+          en: 'A Halloween frame with a witch’s hat, a pumpkin and bats, for 100 coins and only until 3 November. Buy it and you can wear it whenever you like.',
+          de: 'Ein Halloween-Rahmen mit Hexenhut, Kürbis und Fledermäusen, für 100 Münzen und nur bis zum 3. November. Wenn du ihn kaufst, kannst du ihn tragen, wann du willst.',
         },
       },
       {

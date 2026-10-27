@@ -226,7 +226,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             witch.OnSaleUntil.Should().Be(ShopCatalog.HalloweenUntil);
         }
 
-        Clock.SetLocal(HalloweenDay.AddDays(14), new TimeOnly(16, 0));
+        Clock.SetLocal(HalloweenDay.AddDays(7), new TimeOnly(16, 0));
         (await BuyAsync(group["bea"], "ring-witch")).Should().Be(CosmeticPurchaseResult.NotOnSale);
         (await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-witch" })).Success.Should().BeTrue();
         await using (var db = NewContext())
@@ -256,7 +256,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
 
-        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 14), Times.Once);
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 7), Times.Once);
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         Clock.SetLocal(HalloweenDay.AddDays(1), new TimeOnly(16, 30));
         await using (var db = NewContext())
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
-        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 13), Times.Once);
+        Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 6), Times.Once);
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     [Fact]
     public void ASeasonalFrame_CostsNoMoreThanItsWindowOfPlay()
     {
-        foreach (var item in ShopCatalog.All.Where(i => i.IsSeasonal))
+        foreach (var item in ShopCatalog.All.Where(i => i.IsSeasonal && !ShopCatalog.PriceRuleExceptions.Contains(i.Key)))
         {
             var days = (int)(item.OnSaleUntil!.Value - item.OnSaleFrom!.Value).TotalDays;
             var earned = Enumerable.Range(1, days).Sum(day => TypicalDailyCoinsInOneGroup + CoinRewards.StreakBonus(day));
