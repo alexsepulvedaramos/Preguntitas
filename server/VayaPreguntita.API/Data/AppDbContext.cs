@@ -434,6 +434,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<User>(e =>
         {
             e.Property(u => u.RingSkinKey).HasMaxLength(40);
+            e.Property(u => u.PlateKey).HasMaxLength(40);
         });
 
         // ==========================================

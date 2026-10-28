@@ -826,6 +826,10 @@ namespace VayaPreguntita.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PlateKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<string>("PreferredLanguage")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

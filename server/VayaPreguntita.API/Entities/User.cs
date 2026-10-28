@@ -39,6 +39,10 @@ public class User
     // (UserItem), drawn on top of the streak ring, so only while FrameColor follows the
     // streak. null = none.
     public string? RingSkinKey { get; set; }
+
+    // Equipped plate (rama 60, §17.18): an owned ShopCatalog plate key, drawn behind the
+    // name in the featured places, independent of the ring. null = none.
+    public string? PlateKey { get; set; }
     public List<GroupMember> GroupMemberships { get; set; } = [];
 
     [InverseProperty("Creator")]

@@ -134,6 +134,18 @@ public class UserService(
                 return (false, "COSMETIC_NOT_OWNED");
         }
 
+        // Plate: "" takes it off; anything else must be an owned plate. It goes with any ring.
+        if (request.PlateKey is not null)
+        {
+            var key = request.PlateKey.Trim();
+            if (key.Length == 0)
+                user.PlateKey = null;
+            else if (await cosmeticsService.OwnsAsync(userId, key, Enums.CosmeticKind.Plate))
+                user.PlateKey = key;
+            else
+                return (false, "COSMETIC_NOT_OWNED");
+        }
+
         if (request.PreferredLanguage is not null)
         {
             if (!AppLanguages.IsSupported(request.PreferredLanguage))
