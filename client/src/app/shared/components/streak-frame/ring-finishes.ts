@@ -291,6 +291,31 @@ function drawIcons(out: Group[], level: number, lite: boolean, style: IconStyle,
   });
 }
 
+// One of Garabato's icon stickers on its own, as SVG markup centred on 0,0 within ±9.5 (for
+// the Garabato plate's sticker trial, rama 60). Fills go inline so a host stylesheet that sets
+// `fill: none` on paths can't blank them.
+export type StickerIcon = Exclude<IconKind, 'crown'>;
+export const STICKER_ICONS: readonly StickerIcon[] = ICON_DISPLAY as StickerIcon[];
+
+export function iconStickerMarkup(kind: StickerIcon, seed: number): string {
+  const ink = '#2a2233';
+  const col = ICON_COLORS[kind];
+  const k = 3.4;
+  const fill = (d: string, c: string) => `<path d="${d}" style="fill:${c}"/>`;
+  const line = (d: string, c: string, w: number) =>
+    `<path d="${d}" style="fill:none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  let h = `<path d="${blob(0, 0, 7.6, seeded(seed))}" style="fill:#fffaf0" stroke="${ink}" stroke-width="1"/>`;
+  if (kind === 'question') {
+    h += line(questionPath(0.9, 0.9, k), col, 2.6) + line(questionPath(0, 0, k), ink, 1.3);
+  } else if (kind === 'coin') {
+    const r = F(1.15 * k);
+    h += fill(ellipse(0.9, 0.9, r, r), col) + line(ellipse(0, 0, r, r), ink, 1.1) + line(questionPath(0, 0, k * 0.5), ink, 0.9);
+  } else {
+    h += fill(iconPath(kind, 0.9, 0.9, k), col) + line(iconPath(kind, 0, 0, k), ink, 1.1);
+  }
+  return h;
+}
+
 // ── Crowns ───────────────────────────────────────────────────────────────────
 // The crown of the group's longest current streak, in every finish's own style but always the
 // same size and place as the plain gold one (46 × 36 above the head). On list sizes it sits

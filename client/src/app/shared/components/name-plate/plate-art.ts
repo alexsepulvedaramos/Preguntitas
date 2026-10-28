@@ -1,3 +1,4 @@
+import { STICKER_ICONS, iconStickerMarkup } from '../streak-frame/ring-finishes';
 import { FRAME_COLOR_KEYS, FrameColorKey, STREAK_TIERS, streakTierFor } from '../../../core/constants/streak-tiers';
 
 // Plates (rama 60, spec §17.18): an illustrated scene behind the wearer's name in the
@@ -314,7 +315,7 @@ function jitter(pts: Pt[], amp: number, rnd: () => number): string {
   return d;
 }
 
-function doodleAt(shape: string, color: string, x: number, y: number, size: number): string {
+function doodleIn(shape: string, color: string, x: number, y: number, size: number): string {
   const rnd = seeded(shape.length * 31 + Math.round(x * 7 + y * 3));
   const frames = [0, 1, 2]
     .map((f) => `<path class="vp-fx-boil" style="animation-delay:${F(-f * 0.3)}s" d="${jitter(SHAPES[shape], 1.6, rnd)}" stroke="${color}" stroke-width="2"/>`)
@@ -323,7 +324,7 @@ function doodleAt(shape: string, color: string, x: number, y: number, size: numb
 }
 
 // A sticker like the frame's: a wobbly paper blob, the doodle inked on top, its colour printed off the line.
-function sticker(x: number, y: number, size: number, color: string, shape = 'star', tilt = -8): string {
+function paperSticker(x: number, y: number, size: number, color: string, shape = 'star', tilt = -8): string {
   const rnd = seeded(Math.round(x * 13 + y));
   const blob = ring(10, (k) => {
     const a = (k / 9) * Math.PI * 2;
@@ -334,7 +335,14 @@ function sticker(x: number, y: number, size: number, color: string, shape = 'sta
   return `<svg class="vpp-doodle vp-fx-wiggle" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;--d:2.2s" viewBox="-2 -2 34 34"><g transform="rotate(${tilt} 15 15)"><path d="${jitter(blob, 0.4, rnd)}Z" fill="${INK.paper}" stroke="${INK.ink}" stroke-width="1.2"/><path d="${d}" stroke="${color}" stroke-width="3" transform="translate(1.2 1.2)"/><path d="${d}" stroke="${INK.ink}" stroke-width="1.4"/></g></svg>`;
 }
 
-function doodle(level: number, banner: boolean): string {
+// Trial (developer, 2026-10-28): the frame's own icon stickers instead of the doodles, in the
+// same cells. Chosen per device in the profile until one of the two is kept.
+function iconSticker(n: number, x: number, y: number, size: number): string {
+  const tilt = ((n * 37) % 25) - 12;
+  return `<svg class="vpp-sticker vp-fx-wiggle" style="left:${x}%;top:${y}%;width:${F(size)}px;height:${F(size)}px;--d:${F(1.6 + (n % 4) * 0.2)}s;animation-delay:${F(-n * 0.3)}s" viewBox="-9.5 -9.5 19 19"><g transform="rotate(${tilt})">${iconStickerMarkup(STICKER_ICONS[n % STICKER_ICONS.length], n * 31 + 7)}</g></svg>`;
+}
+
+function doodle(level: number, banner: boolean, stickers = false): string {
   // Each doodle has its own cell of a grid, so none overlap and every level keeps the page
   // evenly filled ([x%, y%] of the cell's top-left corner). Row: two rows by seven columns
   // right of the name. Banner: three by three on each side, the middle third left empty for
@@ -344,6 +352,12 @@ function doodle(level: number, banner: boolean): string {
     : { a: [44, 6], c: [76, 50], b: [52, 50], d: [84, 6], e: [60, 6], g: [92, 50], s1: [76, 6], sp1: [44, 50], sp2: [84, 50], f: [68, 50], h: [92, 6], pl: [52, 6], s2: [68, 6], s3: [60, 50] };
   const at = (k: keyof typeof P) => P[k] as [number, number];
   const sz = banner ? 34 : 22;
+  // In the sticker trial every doodle and paper sticker becomes one of the game's icons.
+  let n = 0;
+  const doodleAt = (shape: string, color: string, x: number, y: number, size: number) =>
+    stickers ? iconSticker(n++, x, y, sz) : doodleIn(shape, color, x, y, size);
+  const sticker = (x: number, y: number, size: number, color: string, shape?: string, tilt?: number) =>
+    stickers ? iconSticker(n++, x, y, sz) : paperSticker(x, y, size, color, shape, tilt);
   let h = doodleAt('squiggle', INK.cream, ...at('a'), sz) + doodleAt('star', INK.cream, ...at('c'), sz * 0.8);
   if (level >= 1) h += doodleAt('spiral', INK.cream, ...at('b'), sz * 0.8) + doodleAt('cloud', INK.cream, ...at('d'), sz * 0.8);
   // Stone: pink doodles (the frame's second line).
@@ -352,7 +366,7 @@ function doodle(level: number, banner: boolean): string {
   if (level >= 3) {
     (['sp1', 'sp2'] as const).forEach((k, i) => {
       const [x, y] = at(k);
-      h += `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleAt('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 18 : 12)}</span>`;
+      h += `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleIn('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 18 : 12)}</span>`;
     });
     h += sticker(...at('s1'), banner ? 34 : 22, INK.pink);
   }
@@ -361,7 +375,7 @@ function doodle(level: number, banner: boolean): string {
   // Gold: a paper plane flying in its cell (on the banner, away from the middle).
   if (level >= 5) {
     const [x, y] = at('pl');
-    h += `<span class="vpp-plane" style="left:${x}%;top:${y}%;--px:${banner ? -14 : 8}px">${doodleAt('plane', INK.cyan, 0, 0, sz * 0.8)}</span>`;
+    h += `<span class="vpp-plane" style="left:${x}%;top:${y}%;--px:${banner ? -14 : 8}px">${doodleIn('plane', INK.cyan, 0, 0, sz * 0.8)}</span>`;
   }
   // Sapphire: two more stickers.
   if (level >= 6) h += sticker(...at('s2'), banner ? 32 : 22, INK.cyan, 'flower', 10) + sticker(...at('s3'), banner ? 30 : 20, '#ffd400', 'spiral', -14);
@@ -406,7 +420,12 @@ function witch(level: number, banner: boolean): string {
 // ── Entry point ────────────────────────────────────────────────────────────────
 
 // The inner markup of a plate; the host element carries `vp-plate vp-plate--<scene>`.
-export function renderPlate(key: string | null | undefined, streak: number | null | undefined, context: PlateContext): string {
+export function renderPlate(
+  key: string | null | undefined,
+  streak: number | null | undefined,
+  context: PlateContext,
+  doodleStickers = false
+): string {
   const scene = plateScene(key);
   if (!scene) return '';
   if ('color' in scene) return '<i class="vpp-tint-glow"></i>';
@@ -432,7 +451,7 @@ export function renderPlate(key: string | null | undefined, streak: number | nul
     case 'arcade':
       return arcade(level, banner);
     case 'doodle':
-      return doodle(level, banner);
+      return doodle(level, banner, doodleStickers);
     case 'witch':
       return witch(level, banner);
   }

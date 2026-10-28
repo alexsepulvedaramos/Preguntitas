@@ -760,6 +760,8 @@ export const en: Translation = {
     plateNone: 'You have none yet: they are in the shop, under Style.',
     platesEverywhere: 'Nameplates everywhere (test)',
     platesEverywhereHint: 'On this device only: also in the member list, the chat and every result row.',
+    doodleStickers: 'Notebook with stickers (trial)',
+    doodleStickersHint: 'Only on this device: the Doodle notebook plate shows its frame’s icon stickers instead of doodles.',
     frameFollows: 'Your frame follows your best current streak',
     frameFinish: '{name} over your streak ring, which follows your best current streak',
     frameFrom3: 'it appears after voting 3 days in a row',

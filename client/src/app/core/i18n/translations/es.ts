@@ -761,6 +761,8 @@ export const es = {
     plateNone: 'Aún no tienes ninguna: están en la tienda, en Estilo.',
     platesEverywhere: 'Placas en todas partes (prueba)',
     platesEverywhereHint: 'Solo en este dispositivo: también en la lista de miembros, el chat y cada fila de los resultados.',
+    doodleStickers: 'Libreta con pegatinas (prueba)',
+    doodleStickersHint: 'Solo en este dispositivo: la placa Libreta de garabatos lleva las pegatinas de iconos de su marco en vez de garabatos.',
     frameFollows: 'Tu marco sigue tu mejor racha actual',
     frameFinish: '{name} sobre tu anillo de racha, que sigue tu mejor racha actual',
     frameFrom3: 'aparece a partir de 3 días seguidos votando',

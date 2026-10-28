@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+import { PlatesDisplayService } from '../../../core/services/plates-display.service';
 import { PlateContext, plateClass, plateIsLight, plateTintColor, renderPlate } from './plate-art';
 
 // A plate (rama 60, spec §17.18): the scene behind a name in the featured places. Fills its
@@ -18,6 +19,7 @@ import { PlateContext, plateClass, plateIsLight, plateTintColor, renderPlate } f
 })
 export class NamePlateComponent {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly display = inject(PlatesDisplayService);
 
   // A ShopCatalog plate key ("plate-neon", "plate-purple").
   readonly plate = input<string | null | undefined>(null);
@@ -36,6 +38,6 @@ export class NamePlateComponent {
   // The markup is built only from our own constants (see renderPlate), never from user
   // input, so bypassing sanitization is safe and keeps the SVG and inline styles.
   protected readonly markup = computed<SafeHtml>(() =>
-    this.sanitizer.bypassSecurityTrustHtml(renderPlate(this.plate(), this.streak(), this.context()))
+    this.sanitizer.bypassSecurityTrustHtml(renderPlate(this.plate(), this.streak(), this.context(), this.display.doodleStickers()))
   );
 }

@@ -160,6 +160,13 @@
         </div>
         <hlm-switch [checked]="platesDisplay.everywhere()" (checkedChange)="platesDisplay.setEverywhere($event)" />
       </div>
+      <div class="flex items-center justify-between gap-3 rounded-default border border-dashed border-border p-3">
+        <div>
+          <p class="text-sm text-foreground">{{ t('profile.doodleStickers') }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('profile.doodleStickersHint') }}</p>
+        </div>
+        <hlm-switch [checked]="platesDisplay.doodleStickers()" (checkedChange)="platesDisplay.setDoodleStickers($event)" />
+      </div>
     </section>
 
     <div hlmSeparator></div>

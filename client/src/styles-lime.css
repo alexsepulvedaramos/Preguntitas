@@ -837,6 +837,7 @@
   }
   .vp-plate--doodle.vp-plate--banner { --rule: 15px; --margin: 9%; }
   .vp-plate .vpp-doodle { position: absolute; overflow: visible; }
+  .vp-plate .vpp-sticker { position: absolute; overflow: visible; filter: drop-shadow(0 1px 1px rgb(42 34 51 / 0.3)); }
   .vp-plate .vpp-doodle path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .vp-plate .vpp-pop { animation: vpp-pop 2.1s steps(1) infinite; }
   @keyframes vpp-pop { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }

@@ -760,6 +760,8 @@ export const de: Translation = {
     plateNone: 'Du hast noch keins: Sie sind im Shop unter Stil.',
     platesEverywhere: 'Namensschilder überall (Test)',
     platesEverywhereHint: 'Nur auf diesem Gerät: auch in der Mitgliederliste, im Chat und in jeder Ergebniszeile.',
+    doodleStickers: 'Heft mit Stickern (Test)',
+    doodleStickersHint: 'Nur auf diesem Gerät: Das Kritzelheft zeigt die Symbol-Sticker seines Rahmens statt Kritzeleien.',
     frameFollows: 'Dein Rahmen folgt deiner besten aktuellen Serie',
     frameFinish: '{name} über deinem Serienring, der deiner besten aktuellen Serie folgt',
     frameFrom3: 'er erscheint, sobald du 3 Tage am Stück abgestimmt hast',
