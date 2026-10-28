@@ -89,6 +89,7 @@
               <li><span class="font-medium text-foreground">{{ t('shop.kinds.seasonal') }}:</span> {{ t('shop.kindHints.seasonal') }}</li>
               <li><span class="font-medium text-foreground">{{ t('shop.kinds.ringSkin') }}:</span> {{ t('shop.kindHints.ringSkin') }}</li>
               <li><span class="font-medium text-foreground">{{ t('shop.kinds.frameColor') }}:</span> {{ t('shop.kindHints.frameColor') }}</li>
+              <li><span class="font-medium text-foreground">{{ t('shop.kinds.plate') }}:</span> {{ t('shop.kindHints.plate') }}</li>
             </ul>
           </div>
         </hlm-popover-content>
@@ -97,12 +98,13 @@
   </app-page-header>
 
   <div class="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-12">
-    <!-- Two tabs, both always in view (rama 57) -->
-    <hlm-tabs class="flex flex-col gap-4" [tab]="tab()" (tabActivated)="tab.set($event)">
+    <!-- Three tabs, all always in view (rama 57; plates got their own in rama 60) -->
+    <hlm-tabs class="flex flex-col gap-4" [tab]="tab()" (tabActivated)="openTab($event)">
       <div class="sticky top-[3.5rem] z-20 -mx-4 bg-background/95 px-4 py-2 backdrop-blur">
-        <hlm-tabs-list class="grid w-full grid-cols-2" [attr.aria-label]="t('titles.shop')">
+        <hlm-tabs-list class="grid w-full grid-cols-3" [attr.aria-label]="t('titles.shop')">
           <button hlmTabsTrigger="items">{{ t('shop.tabItems') }}</button>
-          <button hlmTabsTrigger="style">{{ t('shop.tabStyle') }}</button>
+          <button hlmTabsTrigger="rings">{{ t('shop.tabRings') }}</button>
+          <button hlmTabsTrigger="plates">{{ t('shop.tabPlates') }}</button>
         </hlm-tabs-list>
       </div>
 
@@ -169,45 +171,11 @@
         </div>
       </section>
 
-      <!-- Style (rama 42, rethought in rama 57): tried on your own avatar, bought once, worn from here -->
-      <section class="flex flex-col gap-6" hlmTabsContent="style" aria-labelledby="shop-style-title">
-        <h2 id="shop-style-title" class="sr-only">{{ t('shop.cosmeticsTitle') }}</h2>
+      <!-- Rings (rama 42, rethought in rama 57): tried on your own avatar, bought once, worn from here -->
+      <section class="flex flex-col gap-6" hlmTabsContent="rings" aria-labelledby="shop-rings-title">
+        <h2 id="shop-rings-title" class="sr-only">{{ t('shop.tabRings') }}</h2>
 
-        <div
-          hlmCard
-          class="sticky top-[7rem] z-10 isolate flex-row items-center gap-5 overflow-hidden px-6 py-5 shadow-sm [&>:not(app-name-plate)]:relative [&>:not(app-name-plate)]:z-[1]"
-          aria-live="polite"
-        >
-          @if (previewPlate(); as plate) {
-            <app-name-plate [plate]="plate" [streak]="ringStreak()" />
-          }
-          <div class="p-3">
-            <app-user-avatar
-              [avatarUrl]="user()?.avatarUrl"
-              [username]="user()?.username ?? ''"
-              [frameColor]="previewFrame()"
-              [streak]="ringStreak()"
-              [look]="previewLook()"
-              [showRibbon]="false"
-              size="lg"
-            />
-          </div>
-          <div class="flex min-w-0 flex-1 flex-col gap-1" [class]="previewPlateText()">
-            <p class="font-display text-xl italic" [class]="previewPlate() ? '' : 'text-foreground'">
-              <app-user-name [name]="user()?.username" />
-            </p>
-            @if (user()?.title) {
-              <p class="truncate text-sm font-semibold" [class]="previewPlate() ? 'opacity-85' : 'text-primary-text'">{{ user()?.title }}</p>
-            }
-            @if (trying()) {
-              <button hlmBtn variant="outline" size="sm" class="mt-1 self-start focus-visible:ring-2 focus-visible:ring-ring" (click)="stopTrying()">
-                {{ t('shop.previewReset') }}
-              </button>
-            } @else {
-              <p class="text-xs" [class]="previewPlate() ? 'opacity-85' : 'text-muted-foreground'">{{ t('shop.previewHint') }}</p>
-            }
-          </div>
-        </div>
+        <ng-container *ngTemplateOutlet="previewCard" />
 
         @if (seasonal().length > 0) {
           <div class="flex flex-col gap-3">
@@ -255,27 +223,68 @@
           </div>
         </div>
 
-        <!-- Plates (rama 60): sold apart from the ring, shown in the featured places -->
-        <div class="flex flex-col gap-3">
-          <div class="flex flex-col gap-0.5">
-            <h3 class="font-display text-lg italic tracking-tight text-foreground">{{ t('shop.kinds.plate') }}</h3>
-            <p class="text-xs text-muted-foreground">{{ t('shop.kindHints.plate') }}</p>
-          </div>
-          @for (group of plateGroups(); track group.key) {
-            <div class="flex flex-col gap-2">
-              <h4 class="text-sm font-semibold text-foreground">{{ group.title }}</h4>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                @for (tile of group.tiles; track tile.key) {
-                  <ng-container *ngTemplateOutlet="plateTile; context: { $implicit: tile }" />
-                }
-              </div>
+      </section>
+
+      <!-- Plates (rama 60): sold apart from the ring, shown in the featured places -->
+      <section class="flex flex-col gap-6" hlmTabsContent="plates" aria-labelledby="shop-plates-title">
+        <h2 id="shop-plates-title" class="sr-only">{{ t('shop.tabPlates') }}</h2>
+
+        <ng-container *ngTemplateOutlet="previewCard" />
+
+        <p class="text-xs text-muted-foreground">{{ t('shop.kindHints.plate') }}</p>
+        @for (group of plateGroups(); track group.key) {
+          <div class="flex flex-col gap-3">
+            <h3 class="font-display text-lg italic tracking-tight text-foreground">{{ group.title }}</h3>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              @for (tile of group.tiles; track tile.key) {
+                <ng-container *ngTemplateOutlet="plateTile; context: { $implicit: tile }" />
+              }
             </div>
-          }
-        </div>
+          </div>
+        }
       </section>
     </hlm-tabs>
   </div>
 </div>
+
+<!-- Your look as it stands with what you are trying on (ring and plate together), on top of both style tabs -->
+<ng-template #previewCard>
+        <div
+          hlmCard
+          class="sticky top-[7rem] z-10 isolate flex-row items-center gap-5 overflow-hidden px-6 py-5 shadow-sm [&>:not(app-name-plate)]:relative [&>:not(app-name-plate)]:z-[1]"
+          aria-live="polite"
+        >
+          @if (previewPlate(); as plate) {
+            <app-name-plate [plate]="plate" [streak]="ringStreak()" />
+          }
+          <div class="p-3">
+            <app-user-avatar
+              [avatarUrl]="user()?.avatarUrl"
+              [username]="user()?.username ?? ''"
+              [frameColor]="previewFrame()"
+              [streak]="ringStreak()"
+              [look]="previewLook()"
+              [showRibbon]="false"
+              size="lg"
+            />
+          </div>
+          <div class="flex min-w-0 flex-1 flex-col gap-1" [class]="previewPlateText()">
+            <p class="font-display text-xl italic" [class]="previewPlate() ? '' : 'text-foreground'">
+              <app-user-name [name]="user()?.username" />
+            </p>
+            @if (user()?.title) {
+              <p class="truncate text-sm font-semibold" [class]="previewPlate() ? 'opacity-85' : 'text-primary-text'">{{ user()?.title }}</p>
+            }
+            @if (trying()) {
+              <button hlmBtn variant="outline" size="sm" class="mt-1 self-start focus-visible:ring-2 focus-visible:ring-ring" (click)="stopTrying()">
+                {{ t('shop.previewReset') }}
+              </button>
+            } @else {
+              <p class="text-xs" [class]="previewPlate() ? 'opacity-85' : 'text-muted-foreground'">{{ t(tab() === 'plates' ? 'shop.previewHintPlate' : 'shop.previewHint') }}</p>
+            }
+          </div>
+        </div>
+</ng-template>
 
 <!-- One style tile: tap to try it on, then buy, wear or take off -->
 <ng-template #styleTile let-tile>
@@ -346,20 +355,24 @@
       <span class="relative z-[1] min-w-0 truncate text-sm font-semibold"><app-user-name [name]="user()?.username" /></span>
     </button>
 
-    <div class="flex items-center justify-between gap-2">
-      <span class="min-w-0 truncate text-sm font-medium text-foreground">{{ tile.label }}</span>
-      @if (tile.seasonSoon) {
-        <span class="vp-glyph vp-glyph--honey shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonSoon', { time: tile.seasonSoon }) }}</span>
-      } @else if (tile.seasonLeft) {
-        <span class="vp-glyph vp-glyph--honey shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonLeft', { time: tile.seasonLeft }) }}</span>
-      } @else if (tile.seasonOver) {
-        <span class="shrink-0 text-2xs text-muted-foreground">{{ t('shop.seasonOver') }}</span>
-      } @else if (tile.rarityLabel) {
-        <span class="shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold" [class]="rarityClass[tile.rarity]">{{ tile.rarityLabel }}</span>
-      }
+    <!-- Name and tag on the left, the action on the right: one row keeps the plates tab short -->
+    <div class="flex items-center gap-3">
+      <div class="flex min-w-0 flex-1 flex-col items-start gap-1">
+        <span class="max-w-full truncate text-sm font-medium text-foreground">{{ tile.label }}</span>
+        @if (tile.seasonSoon) {
+          <span class="vp-glyph vp-glyph--honey shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonSoon', { time: tile.seasonSoon }) }}</span>
+        } @else if (tile.seasonLeft) {
+          <span class="vp-glyph vp-glyph--honey shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold">{{ t('shop.seasonLeft', { time: tile.seasonLeft }) }}</span>
+        } @else if (tile.seasonOver) {
+          <span class="shrink-0 text-2xs text-muted-foreground">{{ t('shop.seasonOver') }}</span>
+        } @else if (tile.rarityLabel) {
+          <span class="shrink-0 rounded-full px-2 py-0.5 text-2xs font-semibold" [class]="rarityClass[tile.rarity]">{{ tile.rarityLabel }}</span>
+        }
+      </div>
+      <div class="flex w-36 shrink-0 flex-col items-center gap-1">
+        <ng-container *ngTemplateOutlet="tileActions; context: { $implicit: tile }" />
+      </div>
     </div>
-
-    <ng-container *ngTemplateOutlet="tileActions; context: { $implicit: tile }" />
   </div>
 </ng-template>
 

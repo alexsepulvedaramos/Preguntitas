@@ -63,6 +63,14 @@ export const RELEASES: readonly Release[] = [
           de: 'Neu im Shop unter Stil: eine Szene hinter deinem Namen im Profil, auf deiner Karte, wenn du ein Ergebnis anführst, in Duellen und im Monatsrückblick. Es gibt eins zu jeder Veredelung und ein schlichtes zu jeder Farbe, zum selben Preis wie der Ring. Die legendären (Neon, Arcade und Kritzel) wachsen wie ihr Ring mit deiner Serie.',
         },
       },
+      {
+        kind: 'polish',
+        text: {
+          es: 'La tienda tiene ahora tres pestañas, Objetos, Aros y Placas, y recuerda la última que abriste.',
+          en: 'The shop now has three tabs, Items, Rings and Plates, and remembers the last one you opened.',
+          de: 'Der Shop hat jetzt drei Tabs, Gegenstände, Ringe und Schilder, und merkt sich den zuletzt geöffneten.',
+        },
+      },
     ],
   },
   {

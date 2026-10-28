@@ -198,6 +198,24 @@ const FINISH_STEPS: readonly FinishStep[] = [
 const STEP_MS = 1600;
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+type ShopTab = 'items' | 'rings' | 'plates';
+const TAB_STORAGE_KEY = 'vp_shop_tab';
+
+function asTab(value: string | null): ShopTab | null {
+  if (value === 'style') return 'rings';
+  return value === 'items' || value === 'rings' || value === 'plates' ? value : null;
+}
+
+function initialTab(asked: string | null): ShopTab {
+  const fromLink = asTab(asked);
+  if (fromLink) return fromLink;
+  try {
+    return asTab(localStorage.getItem(TAB_STORAGE_KEY)) ?? 'items';
+  } catch {
+    return 'items';
+  }
+}
+
 const RARITY_GROUP_KEYS: Partial<Record<CosmeticRarity, { title: TranslationKey; hint: TranslationKey }>> = {
   [CosmeticRarity.Rare]: { title: 'shop.rarityGroups.rare.title', hint: 'shop.rarityGroups.rare.hint' },
   [CosmeticRarity.Epic]: { title: 'shop.rarityGroups.epic.title', hint: 'shop.rarityGroups.epic.hint' },
@@ -278,8 +296,9 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   private historyLoaded = false;
   protected readonly busy = signal<InventoryItem | null>(null);
 
-  // Open tab: 'items' or 'style' (the seasonal push opens ?tab=style).
-  protected readonly tab = signal(this.route.snapshot.queryParamMap.get('tab') === 'style' ? 'style' : 'items');
+  // Open tab: 'items', 'rings' or 'plates'. A link may ask for one (?tab=plates; the seasonal
+  // push and older links say ?tab=style, the rings); otherwise the last one seen on this device.
+  protected readonly tab = signal<ShopTab>(initialTab(this.route.snapshot.queryParamMap.get('tab')));
 
   // ── Style (rama 42, rama 57) ──
   protected readonly user = this.authService.currentUser;
@@ -305,7 +324,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   private readonly finishSheet = viewChild<HlmSheet>('finishSheet');
   private readonly stepper = setInterval(() => {
     if (REDUCED_MOTION) return;
-    if (this.tab() === 'style') this.cycle.update((c) => c + 1);
+    if (this.tab() !== 'items') this.cycle.update((c) => c + 1);
     if (this.detailKey() && this.detailPlaying()) {
       this.detailStep.update((s) => (s + 1) % FINISH_STEPS.length);
       this.revealStep();
@@ -524,6 +543,16 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       date: format.format(new Date(item.createdAt)),
     }));
   });
+
+  protected openTab(value: string): void {
+    const tab = asTab(value) ?? 'items';
+    this.tab.set(tab);
+    try {
+      localStorage.setItem(TAB_STORAGE_KEY, tab);
+    } catch {
+      // Storage unavailable: the shop opens on «Objetos» next time.
+    }
+  }
 
   ngOnInit(): void {
     // Selector rewards are paid by the daily tick, so refresh the balance on entry.
