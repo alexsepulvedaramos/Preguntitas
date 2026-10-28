@@ -35,6 +35,8 @@ export interface UpdateProfileRequest {
   // Equipped finish (rama 42, rama 57): an owned key, '' to take it off, omitted = unchanged.
   // Wearing one puts the frame back on the streak ring.
   ringSkinKey?: string;
+  // Equipped plate (rama 60): an owned plate key, '' to take it off, omitted = unchanged.
+  plateKey?: string;
 }
 
 export interface ChangePasswordRequest {

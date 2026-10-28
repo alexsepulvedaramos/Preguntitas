@@ -88,7 +88,15 @@
 
       <ul class="flex flex-col gap-2">
         @for (member of members(); track member.id) {
-          <li class="flex items-center gap-3 py-2">
+          @let plate = platesDisplay.everywhere() ? member.look?.plate : null;
+          <li
+            class="flex items-center gap-3 py-2"
+            [class]="plate ? 'relative isolate overflow-hidden rounded-default px-2 [&>:not(app-name-plate)]:relative [&>:not(app-name-plate)]:z-[1]' + ' ' + plateText(plate) : ''"
+          >
+            @if (plate) {
+              <!-- Temporary «everywhere» switch (rama 60, §17.18) -->
+              <app-name-plate [plate]="plate" [streak]="member.currentStreak" />
+            }
             <!-- Avatar + name: opens the member card (rama 19) -->
             <button
               type="button"
@@ -108,7 +116,7 @@
 
             <!-- Name + badge -->
             <div class="flex flex-col min-w-0 flex-1">
-              <span class="flex items-center gap-2 text-sm font-medium text-foreground">
+              <span class="flex items-center gap-2 text-sm font-medium" [class]="plate ? plateText(plate) : 'text-foreground'">
                 <app-user-name [name]="member.username" />
                 @if (member.currentStreak > 0) {
                   <span hlmBadge variant="secondary" class="shrink-0 tabular-nums" [attr.aria-label]="t('settings.streakLabel', { count: member.currentStreak })">
@@ -117,7 +125,7 @@
                 }
               </span>
               @if (member.title || member.isAdmin) {
-                <span class="text-xs text-muted-foreground truncate">
+                <span class="text-xs truncate" [class]="plate ? 'opacity-85' : 'text-muted-foreground'">
                   {{ member.title }}{{ member.title && member.isAdmin ? ' · ' : '' }}{{ member.isAdmin ? t('settings.admin') : '' }}
                 </span>
               }

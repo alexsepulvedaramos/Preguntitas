@@ -28,6 +28,7 @@ import {
   Look,
   cosmeticByKey,
   frameColorItemKey,
+  frameColorOf,
 } from '../../core/constants/shop-catalog';
 import { FRAME_COLOR_KEYS, FRAME_NONE, FRAME_STREAK, STREAK_TIERS, StreakTierKey, frameFollowsStreak, streakTierFor } from '../../core/constants/streak-tiers';
 import { FinishKey, finishEvolves, isFinish } from '../../shared/components/streak-frame/ring-finishes';
@@ -53,6 +54,8 @@ import { GlyphName } from '../../shared/components/glyph/glyphs';
 import { CoinComponent } from '../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { NamePlateComponent } from '../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../shared/components/name-plate/plate-art';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -201,8 +204,9 @@ const RARITY_GROUP_KEYS: Partial<Record<CosmeticRarity, { title: TranslationKey;
   [CosmeticRarity.Legendary]: { title: 'shop.rarityGroups.legendary.title', hint: 'shop.rarityGroups.legendary.hint' },
 };
 
-// What a style tile puts on: a ring finish, or a frame (the streak ring, no frame or a colour).
-type StyleChoice = { finish: string } | { frame: string };
+// What a style tile puts on: a ring finish, a frame (the streak ring, no frame or a colour) or
+// a plate (rama 60).
+type StyleChoice = { finish: string } | { frame: string } | { plate: string };
 
 interface StyleTile {
   key: string; // catalog key, or the frame value for the free frames
@@ -244,6 +248,7 @@ interface StyleTile {
     NgIcon,
     UserAvatarComponent,
     UserNameComponent,
+    NamePlateComponent,
     HlmAlertDialogImports,
     HlmButtonImports,
     HlmCardImports,
@@ -312,17 +317,27 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     frameFollowsStreak(this.user()?.frameColor) ? (this.user()?.look?.ringSkin ?? null) : null
   );
   private readonly wornFrame = computed(() => (frameFollowsStreak(this.user()?.frameColor) ? FRAME_STREAK : this.user()?.frameColor ?? FRAME_STREAK));
+  private readonly wornPlate = computed(() => this.user()?.look?.plate ?? null);
+
+  // The plate behind the try-on preview: the one being tried, or the one you wear (rama 60).
+  protected readonly previewPlate = computed(() => {
+    const trying = this.trying();
+    return trying && 'plate' in trying ? trying.plate : this.wornPlate();
+  });
+  protected readonly previewPlateText = computed(() => plateTextClass(this.previewPlate()));
 
   // The try-on avatar: what you wear, or what you are trying.
   protected readonly previewLook = computed<Look>(() => {
     const trying = this.trying();
     if (trying && 'finish' in trying) return { ringSkin: trying.finish };
+    if (trying && 'plate' in trying) return { ringSkin: this.wornFinish() };
     if (trying) return { ringSkin: null };
     return { ringSkin: this.wornFinish() };
   });
   protected readonly previewFrame = computed(() => {
     const trying = this.trying();
     if (trying && 'frame' in trying) return trying.frame;
+    if (trying && 'plate' in trying) return this.user()?.frameColor;
     if (trying) return FRAME_STREAK;
     return this.user()?.frameColor;
   });
@@ -338,7 +353,11 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   private tile(entry: CosmeticEntry | null, key: string, label: string, choice: StyleChoice, frameColor: string, look: Look, extra: Partial<StyleTile> = {}): StyleTile {
     const trying = this.trying();
     const equipped =
-      'finish' in choice ? this.wornFinish() === choice.finish : !this.wornFinish() && this.wornFrame() === choice.frame;
+      'plate' in choice
+        ? this.wornPlate() === choice.plate
+        : 'finish' in choice
+          ? this.wornFinish() === choice.finish
+          : !this.wornFinish() && this.wornFrame() === choice.frame;
     const tried = !!trying && JSON.stringify(trying) === JSON.stringify(choice);
     const price = entry?.price ?? 0;
     const owned = !entry || this.owned().has(entry.key);
@@ -367,7 +386,7 @@ export class ShopPageComponent implements OnInit, OnDestroy {
   // The season's frames: on sale now, or owned from an earlier season (rama 57).
   protected readonly seasonal = computed<StyleTile[]>(() =>
     (this.catalog() ?? [])
-      .filter((c) => c.onSaleUntil !== null)
+      .filter((c) => c.onSaleUntil !== null && cosmeticByKey(c.key)?.kind === CosmeticKind.RingSkin)
       .map((c, i) => {
         const entry = cosmeticByKey(c.key);
         if (!entry) return null;
@@ -445,6 +464,31 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     if (!tier) return this.t('shop.detail.noteStart');
     return this.t('shop.detail.note', { days: streak, tier: this.materialName(tier.key) });
   });
+
+  // Plates (rama 60, §17.18): one group per rarity, the season's, and the plain colours. Each
+  // tile shows the plate behind your own name; a legendary one at your best streak's tier.
+  protected readonly plateGroups = computed(() => {
+    const catalog = this.catalog() ?? [];
+    const plates = COSMETICS.filter((c) => c.kind === CosmeticKind.Plate)
+      .map((c) => {
+        const listed = catalog.find((x) => x.key === c.key);
+        // A seasonal plate shows only while the server lists it (coming soon, on sale or owned).
+        if (c.seasonal && !listed) return null;
+        return this.tile(c, c.key, this.t(c.name), { plate: c.key }, this.user()?.frameColor ?? FRAME_STREAK, { ringSkin: this.wornFinish() }, listed?.onSaleUntil ? this.seasonState(listed) : {});
+      })
+      .filter((t): t is StyleTile => t !== null);
+    const colour = (t: StyleTile) => !!frameColorOf(`frame-${t.key.slice('plate-'.length)}`);
+    return [
+      { key: 'seasonal', title: this.t('shop.kinds.seasonal'), tiles: plates.filter((t) => t.entry?.seasonal) },
+      ...[CosmeticRarity.Rare, CosmeticRarity.Epic, CosmeticRarity.Legendary].map((rarity) => ({
+        key: `r${rarity}`,
+        title: this.t(RARITY_GROUP_KEYS[rarity]!.title),
+        tiles: plates.filter((t) => t.rarity === rarity && !t.entry?.seasonal),
+      })),
+      { key: 'colours', title: this.t('shop.plateColours'), tiles: plates.filter((t) => colour(t)) },
+    ].filter((g) => g.tiles.length > 0);
+  });
+  protected readonly plateText = plateTextClass;
 
   // The free streak ring, the plain colours, and no frame.
   protected readonly frames = computed<StyleTile[]>(() => [
@@ -585,7 +629,12 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     if (this.cosmeticBusy()) return;
     this.cosmeticBusy.set(tile.key);
     const choice = tile.choice;
-    const request = 'finish' in choice ? { ringSkinKey: unequip ? '' : choice.finish } : { frameColor: choice.frame };
+    const request =
+      'plate' in choice
+        ? { plateKey: unequip ? '' : choice.plate }
+        : 'finish' in choice
+          ? { ringSkinKey: unequip ? '' : choice.finish }
+          : { frameColor: choice.frame };
     this.userService.updateProfile(request).subscribe({
       next: (profile) => {
         this.cosmeticBusy.set(null);

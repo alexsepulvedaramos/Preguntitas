@@ -5,14 +5,18 @@
     <!-- ── Bar ──────────────────────────────────────────────────────────────── -->
     <!-- Outer wrapper: relative but NO overflow-hidden so the lead avatar (z-10) can bleed out -->
     <div class="relative flex-1 h-10">
-      <!-- Track (always full width) -->
-      <div class="absolute inset-0 rounded-full bg-muted"></div>
+      <!-- Track (always full width). The leader wears their plate here (rama 60, §17.18). -->
+      <div class="absolute inset-0 isolate overflow-hidden rounded-full" [class.bg-muted]="!plate()">
+        @if (plate(); as plate) {
+          <app-name-plate [plate]="plate" [streak]="groupStreaks.streakFor(leadUser()!.id)" />
+        }
+      </div>
 
       <!-- Colored fill -->
       @if (displayWidth() > 0) {
         <div
           class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500"
-          [class]="isLeader() ? 'bg-primary/60' : 'bg-primary/25'"
+          [class]="plate() ? (plateLight() ? 'bg-foreground/15' : 'bg-white/25') : isLeader() ? 'bg-primary/60' : 'bg-primary/25'"
           [style.width.%]="displayWidth()"
         ></div>
       }
@@ -40,7 +44,11 @@
         [class]="leadUser() ? 'pl-14' : 'pl-4'"
         [style.padding-right.px]="labelPaddingRight()"
       >
-        <span class="text-sm font-semibold text-foreground truncate">{{ label() }}</span>
+        <span
+          class="text-sm font-semibold truncate"
+          [class]="plate() ? plateText() : 'text-foreground'"
+          >{{ label() }}</span
+        >
       </div>
 
 

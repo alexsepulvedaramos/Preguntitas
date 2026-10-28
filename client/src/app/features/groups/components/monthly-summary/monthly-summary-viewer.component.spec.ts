@@ -4,6 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { MonthlySummaryViewerComponent } from './monthly-summary-viewer.component';
 import { MonthlySummary } from '../../../../core/models/monthly-summary.model';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 
 const ana = { userId: 1, username: 'ana', avatarUrl: null };
 const bea = { userId: 2, username: 'bea', avatarUrl: null };
@@ -38,7 +39,12 @@ describe('MonthlySummaryViewerComponent', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [MonthlySummaryViewerComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        // The award slides look up the winners' plates in the group's member list (rama 60).
+        { provide: GroupStreaksService, useValue: { ensure: () => {}, lookFor: () => null, streakFor: () => null } },
+      ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);

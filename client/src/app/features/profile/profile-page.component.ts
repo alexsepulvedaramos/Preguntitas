@@ -38,6 +38,9 @@ import { TranslationKey } from '../../core/i18n/translation.types';
 import { LanguagePickerComponent } from '../../shared/components/language-picker/language-picker.component';
 import { apiErrorMessage } from '../../shared/utils/api-error';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { NamePlateComponent } from '../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../shared/components/name-plate/plate-art';
+import { PlatesDisplayService } from '../../core/services/plates-display.service';
 
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
   { label: 'profile.frameColors.streak', value: FRAME_STREAK },
@@ -67,6 +70,7 @@ const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
     UserAvatarComponent,
     AvatarPickerComponent,
     LanguagePickerComponent,
+    NamePlateComponent,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideChartColumn, lucideCheck, lucideEye, lucideEyeOff, lucideFlame, lucideBan, lucideShoppingBag })],
   templateUrl: './profile-page.component.html',
@@ -99,6 +103,20 @@ export class ProfilePageComponent implements OnInit {
     frameFollowsStreak(this.user()?.frameColor) ? (this.user()?.look?.ringSkin ?? null) : null
   );
   protected readonly wornFinishName = computed(() => this.ownedFinishes().find((f) => f.key === this.wornFinish())?.name ?? null);
+
+  // Plates (rama 60): the owned ones, worn independently of the ring.
+  protected readonly ownedPlates = computed(() => {
+    const owned = new Set(this.user()?.ownedCosmetics ?? []);
+    return COSMETICS.filter((c) => c.kind === CosmeticKind.Plate && owned.has(c.key)).map((c) => ({
+      key: c.key,
+      name: this.t(c.name),
+      text: plateTextClass(c.key),
+    }));
+  });
+  protected readonly wornPlate = computed(() => this.user()?.look?.plate ?? null);
+  protected readonly isSavingPlate = signal(false);
+  // Temporary switch to compare «featured places only» with «everywhere» (§17.18).
+  protected readonly platesDisplay = inject(PlatesDisplayService);
   protected readonly frameNone = FRAME_NONE;
   protected readonly swatch = (value: string) => (isColorFrame(value) ? frameColorVar(value) : null);
   protected readonly frameStreak = FRAME_STREAK;
@@ -236,6 +254,18 @@ export class ProfilePageComponent implements OnInit {
   }
 
   // Wears a finish (it puts the frame back on the streak ring), or takes it off.
+  // Tapping the worn plate takes it off.
+  selectPlate(key: string): void {
+    this.isSavingPlate.set(true);
+    this.userService.updateProfile({ plateKey: this.wornPlate() === key ? '' : key }).subscribe({
+      next: profile => {
+        this.authService.patchCurrentUser({ look: profile.look });
+        this.isSavingPlate.set(false);
+      },
+      error: () => this.isSavingPlate.set(false),
+    });
+  }
+
   selectFinish(key: string): void {
     this.isSavingFrame.set(true);
     this.userService.updateProfile({ ringSkinKey: this.wornFinish() === key ? '' : key }).subscribe({

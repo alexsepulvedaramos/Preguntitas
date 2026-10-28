@@ -10,6 +10,9 @@ import { GroupStreaksService } from '../../services/group-streaks.service';
 import { I18nService } from '../../../../core/i18n/i18n.service';
 import { VoterStackComponent, voterStackChips } from '../voter-stack/voter-stack.component';
 import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
+import { plateIsLight, plateTextClass } from '../../../../shared/components/name-plate/plate-art';
+import { PlatesDisplayService } from '../../../../core/services/plates-display.service';
 
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
 // its percentage, used by every per-type results component. Tapping a row with at least one
@@ -17,7 +20,7 @@ import { VotesSummaryComponent } from '../votes-summary/votes-summary.component'
 // with no voters (e.g. an empty Scale bin) render as a static, non-interactive bar.
 @Component({
   selector: 'app-result-option-bar',
-  imports: [HlmDialogImports, UserAvatarComponent, NgTemplateOutlet, VoterStackComponent, VotesSummaryComponent],
+  imports: [HlmDialogImports, UserAvatarComponent, NgTemplateOutlet, VoterStackComponent, VotesSummaryComponent, NamePlateComponent],
   templateUrl: './result-option-bar.component.html',
 })
 export class ResultOptionBarComponent {
@@ -48,5 +51,16 @@ export class ResultOptionBarComponent {
 
   // Members' streak rings inside the group (rama 19).
   protected readonly groupStreaks = inject(GroupStreaksService);
+  private readonly platesDisplay = inject(PlatesDisplayService);
+
+  // The person's plate behind the bar (rama 60): the leader's only, or every row while the
+  // temporary «everywhere» switch is on (§17.18).
+  protected readonly plate = computed(() => {
+    const user = this.leadUser();
+    if (!user || (!this.isLeader() && !this.platesDisplay.everywhere())) return null;
+    return this.groupStreaks.lookFor(user.id)?.plate ?? null;
+  });
+  protected readonly plateLight = computed(() => plateIsLight(this.plate()));
+  protected readonly plateText = computed(() => plateTextClass(this.plate()));
   protected readonly t = inject(I18nService).t;
 }

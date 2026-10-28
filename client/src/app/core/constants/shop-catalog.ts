@@ -15,6 +15,7 @@ export enum CosmeticKind {
   Title = 4, // retired (§17.15)
   Theme = 5, // retired (rama 57)
   FrameColor = 6, // a plain frame colour (rama 57): "frame-<key>"
+  Plate = 7, // a plate behind the name (rama 60): "plate-<finish or colour>"
 }
 
 export enum CosmeticRarity {
@@ -27,6 +28,8 @@ export enum CosmeticRarity {
 // What other members see on someone (GroupMember.look, MemberStats.look, the own profile).
 export interface Look {
   ringSkin: string | null;
+  // The plate behind the name in the featured places (rama 60, §17.18).
+  plate?: string | null;
 }
 
 export interface CosmeticEntry {
@@ -77,6 +80,21 @@ export const COSMETICS: readonly CosmeticEntry[] = [
   { ...item('ring-witch', CosmeticKind.RingSkin, 100), seasonal: true },
 
   ...FRAME_COLOR_KEYS.map((color) => item(frameColorItemKey(color), CosmeticKind.FrameColor, 200)),
+
+  // Plates (rama 60, §17.18): sold apart from the ring, at the price of the matching ring or
+  // colour. The art lives in shared/components/name-plate/plate-art.ts.
+  item('plate-volt', CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+  item('plate-sparks', CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+  item('plate-bubbles', CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+  item('plate-confetti', CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+  item('plate-flare', CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+  item('plate-blizzard', CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+  item('plate-aurora', CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+  item('plate-neon', CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+  item('plate-arcade', CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+  item('plate-doodle', CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+  { ...item('plate-witch', CosmeticKind.Plate, 100), seasonal: true },
+  ...FRAME_COLOR_KEYS.map((color) => item(`plate-${color}`, CosmeticKind.Plate, 200)),
 ];
 
 // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners. Kept
