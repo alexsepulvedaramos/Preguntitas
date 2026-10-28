@@ -197,6 +197,36 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
     }
 
     [Fact]
+    public async Task APlate_IsBoughtAndWornApartFromTheRing()
+    {
+        var group = await SeedGroupAsync("ana", "bea");
+        await SetCoinsAsync(group["ana"], 3000);
+
+        // Owning the ring doesn't give its plate: it is a separate item at the ring's price.
+        await BuyAsync(group["ana"], "ring-neon");
+        (await UpdateAsync(group["ana"], new() { PlateKey = "plate-neon" })).Error.Should().Be("COSMETIC_NOT_OWNED");
+        (await BuyAsync(group["ana"], "plate-neon")).Should().Be(CosmeticPurchaseResult.Success);
+        (await CoinsAsync(group["ana"])).Should().Be(0);
+
+        // Any plate goes with any ring, and changing the frame leaves the plate alone.
+        await UpdateAsync(group["ana"], new() { RingSkinKey = "ring-neon" });
+        (await UpdateAsync(group["ana"], new() { PlateKey = "plate-neon" })).Success.Should().BeTrue();
+        await UpdateAsync(group["ana"], new() { FrameColor = FrameColors.None });
+
+        await using (var db = NewContext())
+        {
+            var members = (await NewGroupsService(db).GetGroupMembersAsync(group.Id, group["bea"])).ToList();
+            var look = members.Single(m => m.Id == group["ana"]).Look!;
+            look.Plate.Should().Be("plate-neon");
+            look.RingSkin.Should().BeNull();
+        }
+
+        (await UpdateAsync(group["ana"], new() { PlateKey = "" })).Success.Should().BeTrue();
+        await using (var db = NewContext())
+            (await db.Users.SingleAsync(u => u.Id == group["ana"])).PlateKey.Should().BeNull();
+    }
+
+    [Fact]
     public async Task ASeasonalFrame_IsOnlySoldInItsWindow_ButIsWornForever()
     {
         var group = await SeedGroupAsync("ana", "bea");
@@ -257,6 +287,8 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
 
         Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 7), Times.Once);
+        // The seasonal plate shares the ring's window but gets no push of its own.
+        Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]
@@ -283,6 +315,25 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
         everything.Select(i => i.Key).Should().OnlyHaveUniqueItems();
         ShopCatalog.All.Should().OnlyContain(i => i.Key.Length <= 40 && i.Price > 0);
         FrameColors.PaletteKeys.Should().OnlyContain(k => ShopCatalog.ByKey(ShopCatalog.FrameColorKey(k)) != null);
+    }
+
+    // Every ring finish and every frame colour has its plate, at the same price (§17.18).
+    [Fact]
+    public void EveryRingAndColour_HasItsPlate_AtTheSamePrice()
+    {
+        var sources = ShopCatalog.All.Where(i => i.Kind is CosmeticKind.RingSkin)
+            .Select(i => (Source: i, Plate: ShopCatalog.ByKey(ShopCatalog.PlateKey(i.Key))))
+            .Concat(FrameColors.PaletteKeys.Select(k => (Source: ShopCatalog.ByKey(ShopCatalog.FrameColorKey(k))!, Plate: ShopCatalog.ByKey(ShopCatalog.PlateKey(k)))));
+        foreach (var (source, plate) in sources)
+        {
+            plate.Should().NotBeNull(source.Key);
+            plate!.Kind.Should().Be(CosmeticKind.Plate);
+            plate.Price.Should().Be(source.Price, plate.Key);
+            plate.Rarity.Should().Be(source.Rarity, plate.Key);
+            plate.OnSaleFrom.Should().Be(source.OnSaleFrom, plate.Key);
+            plate.OnSaleUntil.Should().Be(source.OnSaleUntil, plate.Key);
+        }
+        ShopCatalog.All.Count(i => i.Kind == CosmeticKind.Plate).Should().Be(sources.Count());
     }
 
     // What a player earns on a typical day in one group on top of the streak bonus: the vote

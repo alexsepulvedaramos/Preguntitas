@@ -16,4 +16,8 @@ public class UpdateProfileRequestDto
     // Equipped ring finish (rama 42, rama 57): an owned ShopCatalog key, "" to take it off,
     // null = unchanged. Wearing one puts the frame back on the streak ring.
     public string? RingSkinKey { get; set; }
+
+    // Equipped plate (rama 60): an owned plate key, "" to take it off, null = unchanged.
+    // Independent of the ring and the frame colour.
+    public string? PlateKey { get; set; }
 }

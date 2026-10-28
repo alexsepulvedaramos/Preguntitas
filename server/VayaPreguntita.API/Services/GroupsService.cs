@@ -306,6 +306,7 @@ public class GroupsService(
                 u.HighestStreakEver,
                 u.SelectedTitleKey,
                 u.RingSkinKey,
+                u.PlateKey,
             })
             .ToDictionaryAsync(u => u.Id);
         foreach (var m in members)
@@ -316,7 +317,7 @@ public class GroupsService(
             if (titles.TryGetValue(m.Id, out var t))
             {
                 m.Title = StreakTiers.DisplayedTitle(t.HighestStreakEver, t.SelectedTitleKey);
-                m.Look = LookDto.From(t.RingSkinKey);
+                m.Look = LookDto.From(t.RingSkinKey, t.PlateKey);
             }
         }
 

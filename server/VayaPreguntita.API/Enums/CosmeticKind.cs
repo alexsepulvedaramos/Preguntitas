@@ -10,6 +10,7 @@ public enum CosmeticKind
     Title = 4, // retired (§17.15)
     Theme = 5, // retired (rama 57, §17.15)
     FrameColor = 6, // a plain frame colour (rama 57): User.FrameColor, owned as "frame-<key>"
+    Plate = 7, // a plate behind the name (rama 60): User.PlateKey, "plate-<finish or colour>"
 }
 
 public enum CosmeticRarity
