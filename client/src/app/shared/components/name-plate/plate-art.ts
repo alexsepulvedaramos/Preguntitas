@@ -335,30 +335,36 @@ function sticker(x: number, y: number, size: number, color: string, shape = 'sta
 }
 
 function doodle(level: number, banner: boolean): string {
-  // [x%, y%]; on the banner the middle third stays empty for the avatar, icons and crown.
+  // Each doodle has its own cell of a grid, so none overlap and every level keeps the page
+  // evenly filled ([x%, y%] of the cell's top-left corner). Row: two rows by seven columns
+  // right of the name. Banner: three by three on each side, the middle third left empty for
+  // the avatar, the frame's icons and the crown.
   const P = banner
-    ? { a: [6, 14], b: [20, 52], c: [76, 12], d: [86, 50], e: [4, 58], f: [70, 56], g: [26, 10], h: [90, 16], s1: [8, 30], s2: [78, 28], s3: [88, 58] }
-    : { a: [46, 10], b: [57, 50], c: [67, 8], d: [75, 48], e: [47, 52], f: [82, 30], g: [54, 6], h: [63, 32], s1: [71, 20], s2: [58, 28], s3: [80, 4] };
+    ? { a: [3, 8], c: [87, 38], b: [13, 66], d: [67, 8], e: [77, 66], g: [23, 38], s1: [3, 38], sp1: [87, 8], sp2: [23, 66], f: [67, 38], h: [13, 8], pl: [23, 8], s2: [87, 66], s3: [77, 38] }
+    : { a: [44, 6], c: [76, 50], b: [52, 50], d: [84, 6], e: [60, 6], g: [92, 50], s1: [76, 6], sp1: [44, 50], sp2: [84, 50], f: [68, 50], h: [92, 6], pl: [52, 6], s2: [68, 6], s3: [60, 50] };
   const at = (k: keyof typeof P) => P[k] as [number, number];
   const sz = banner ? 34 : 22;
   let h = doodleAt('squiggle', INK.cream, ...at('a'), sz) + doodleAt('star', INK.cream, ...at('c'), sz * 0.8);
-  if (level >= 1) h += doodleAt('spiral', INK.cream, ...at('b'), sz * 0.8) + doodleAt('cloud', INK.cream, ...at('d'), sz);
+  if (level >= 1) h += doodleAt('spiral', INK.cream, ...at('b'), sz * 0.8) + doodleAt('cloud', INK.cream, ...at('d'), sz * 0.8);
   // Stone: pink doodles (the frame's second line).
   if (level >= 2) h += doodleAt('zigzag', INK.pink, ...at('e'), sz) + doodleAt('flower', INK.pink, ...at('g'), sz * 0.8);
   // Bronze: a star sticker like the frame's, and little sparkles popping in and out.
   if (level >= 3) {
-    (banner ? [[2, 42], [95, 44], [22, 74]] : [[50, 28], [66, 60]]).forEach(([x, y], i) => {
-      h += `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleAt('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 16 : 12)}</span>`;
+    (['sp1', 'sp2'] as const).forEach((k, i) => {
+      const [x, y] = at(k);
+      h += `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleAt('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 18 : 12)}</span>`;
     });
-    h += sticker(...at('s1'), banner ? 40 : 26, INK.pink);
+    h += sticker(...at('s1'), banner ? 34 : 22, INK.pink);
   }
   // Silver: cyan doodles (the frame's third line).
-  if (level >= 4) h += doodleAt('arrow', INK.cyan, ...at('f'), sz) + doodleAt('cloud', INK.cyan, ...at('h'), sz * 0.9);
-  // Gold: a paper plane flying.
-  if (level >= 5)
-    h += `<span class="vpp-plane" style="left:${banner ? 4 : 30}%;top:${banner ? 34 : 20}%;--px:${banner ? 30 : 70}px">${doodleAt('plane', INK.cyan, 0, 0, sz)}</span>`;
+  if (level >= 4) h += doodleAt('arrow', INK.cyan, ...at('f'), sz) + doodleAt('cloud', INK.cyan, ...at('h'), sz * 0.8);
+  // Gold: a paper plane flying in its cell (on the banner, away from the middle).
+  if (level >= 5) {
+    const [x, y] = at('pl');
+    h += `<span class="vpp-plane" style="left:${x}%;top:${y}%;--px:${banner ? -14 : 8}px">${doodleAt('plane', INK.cyan, 0, 0, sz * 0.8)}</span>`;
+  }
   // Sapphire: two more stickers.
-  if (level >= 6) h += sticker(...at('s2'), banner ? 36 : 24, INK.cyan, 'flower', 10) + sticker(...at('s3'), banner ? 30 : 22, '#ffd400', 'spiral', -14);
+  if (level >= 6) h += sticker(...at('s2'), banner ? 32 : 22, INK.cyan, 'flower', 10) + sticker(...at('s3'), banner ? 30 : 20, '#ffd400', 'spiral', -14);
   // Amethyst: a doodled three-colour border round the plate.
   if (level >= 7) {
     const W = 400;
