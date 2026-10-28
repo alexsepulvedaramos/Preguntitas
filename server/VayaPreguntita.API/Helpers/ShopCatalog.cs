@@ -39,13 +39,18 @@ public static class ShopCatalog
     public static readonly DateTime HalloweenUntil = HalloweenFrom.AddDays(7);
 
     // Seasonal items allowed to cost more than their window of play earns (§17.16).
-    public static readonly string[] PriceRuleExceptions = ["ring-witch"];
+    public static readonly string[] PriceRuleExceptions = ["ring-witch", "plate-witch"];
 
     // How long before its window a seasonal item is listed as coming soon.
     public static readonly TimeSpan ComingSoonLead = TimeSpan.FromDays(7);
 
     // Frame colour key → catalog key ("purple" → "frame-purple").
     public static string FrameColorKey(string paletteKey) => $"frame-{paletteKey}";
+
+    // The plate matching a ring finish or a frame colour ("ring-neon" → "plate-neon",
+    // "purple" → "plate-purple").
+    public static string PlateKey(string finishOrColour) =>
+        $"plate-{(finishOrColour.StartsWith("ring-") ? finishOrColour["ring-".Length..] : finishOrColour)}";
 
     public static readonly CosmeticItem[] All =
     [
@@ -77,6 +82,28 @@ public static class ShopCatalog
         new(75, FrameColorKey("orange"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
         new(76, FrameColorKey("red"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
         new(77, FrameColorKey("pink"), CosmeticKind.FrameColor, 200, CosmeticRarity.Common),
+
+        // Plates (rama 60, §17.18): an illustrated scene behind the wearer's name in the
+        // featured places, sold apart from the ring at the price of its matching ring or colour.
+        // Legendary plates evolve with the wearer's streak tier, like their frame.
+        new(111, PlateKey("ring-volt"), CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+        new(112, PlateKey("ring-sparks"), CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+        new(113, PlateKey("ring-bubbles"), CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+        new(114, PlateKey("ring-confetti"), CosmeticKind.Plate, 400, CosmeticRarity.Rare),
+        new(115, PlateKey("ring-flare"), CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+        new(116, PlateKey("ring-blizzard"), CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+        new(117, PlateKey("ring-aurora"), CosmeticKind.Plate, 800, CosmeticRarity.Epic),
+        new(118, PlateKey("ring-neon"), CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+        new(119, PlateKey("ring-arcade"), CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+        new(120, PlateKey("ring-doodle"), CosmeticKind.Plate, 1500, CosmeticRarity.Legendary),
+        new(121, PlateKey("ring-witch"), CosmeticKind.Plate, 100, CosmeticRarity.Common, HalloweenFrom, HalloweenUntil),
+        new(131, PlateKey("purple"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(132, PlateKey("blue"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(133, PlateKey("green"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(134, PlateKey("yellow"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(135, PlateKey("orange"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(136, PlateKey("red"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
+        new(137, PlateKey("pink"), CosmeticKind.Plate, 200, CosmeticRarity.Common),
     ];
 
     // Retired cosmetics (§17.15): no longer sold or worn, and refunded to their owners by the
