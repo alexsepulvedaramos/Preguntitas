@@ -287,6 +287,8 @@ public class CosmeticsTests(DatabaseFixture fixture) : DomainTestBase(fixture)
             await NewSeasonalAnnouncementService(db).AnnounceDueAsync();
 
         Notifications.Verify(n => n.SendSeasonalItemAsync("ring-witch", 100, 7), Times.Once);
+        // The seasonal plate shares the ring's window but gets no push of its own.
+        Notifications.Verify(n => n.SendSeasonalItemAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
     }
 
     [Fact]

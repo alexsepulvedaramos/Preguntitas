@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VayaPreguntita.API.Data;
 using VayaPreguntita.API.Entities;
+using VayaPreguntita.API.Enums;
 using VayaPreguntita.API.Helpers;
 
 namespace VayaPreguntita.API.Services;
@@ -27,7 +28,9 @@ public class SeasonalAnnouncementService(
             return;
 
         var now = DailyClock.UtcNow(clock);
-        foreach (var item in ShopCatalog.All.Where(i => i.IsSeasonal && i.IsOnSale(now)))
+        // One push per season: the ring's. Its plate (rama 60) shares the window and isn't
+        // announced on its own.
+        foreach (var item in ShopCatalog.All.Where(i => i.IsSeasonal && i.Kind == CosmeticKind.RingSkin && i.IsOnSale(now)))
         {
             var key = $"seasonal:{item.Key}";
             if (await context.Announcements.AnyAsync(a => a.Key == key))
