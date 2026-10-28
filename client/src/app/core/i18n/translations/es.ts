@@ -1090,7 +1090,7 @@ export const es = {
       'plate-aurora': 'Aurora boreal',
       'plate-neon': 'Letreros de neón',
       'plate-arcade': 'Nivel arcade',
-      'plate-doodle': 'Pizarra de garabatos',
+      'plate-doodle': 'Libreta de garabatos',
       'plate-witch': 'Casa encantada',
       'plate-purple': 'Placa morada',
       'plate-blue': 'Placa azul',

@@ -46,17 +46,17 @@ export function isPlate(key: string | null | undefined): boolean {
 // Light plates carry dark text; the rest carry white text.
 export function plateIsLight(key: string | null | undefined): boolean {
   const scene = plateScene(key);
-  return !!scene && ('color' in scene || scene.finish === 'blizzard');
+  return !!scene && ('color' in scene || scene.finish === 'blizzard' || scene.finish === 'doodle');
 }
 
 // The text colour for content in front of a plate: white on the dark scenes, dark ink on the
-// light one (Ventisca), and the theme's text on a frame colour's plain plate, which is mixed
+// light ones (Ventisca, Garabato's page), and the theme's text on a frame colour's plain plate, which is mixed
 // with the card colour. Empty when there is no plate.
 export function plateTextClass(key: string | null | undefined): string {
   const scene = plateScene(key);
   if (!scene) return '';
   if ('color' in scene) return 'text-foreground';
-  return scene.finish === 'blizzard' ? 'vp-on-plate vp-on-plate--light' : 'vp-on-plate';
+  return scene.finish === 'blizzard' || scene.finish === 'doodle' ? 'vp-on-plate vp-on-plate--light' : 'vp-on-plate';
 }
 
 // The streak tier level the legendaries grow with: 0 = no tier yet, 1 = wood … 7 = amethyst.
@@ -268,9 +268,10 @@ function arcade(level: number, banner: boolean): string {
   return html;
 }
 
-// Garabato: a blackboard filling with marker doodles, each drawn in three jittered frames
-// boiled with the frame's own vp-fx-boil, so board and ring boil together.
-const INK = { cream: '#fff3b0', pink: '#ff8fc7', cyan: '#7fe9ff', ink: '#2a2233', paper: '#fffaf0' };
+// Garabato: a notebook page (blue rules, red margin) filling with marker doodles, each drawn
+// in three jittered frames boiled with the frame's own vp-fx-boil, so page and ring boil
+// together. The frame's cream, pink and cyan lines become markers that read on paper.
+const INK = { cream: '#2b2f6b', pink: '#e0448c', cyan: '#1592c2', ink: '#2a2233', paper: '#fffaf0' };
 type Pt = [number, number] | null;
 const ring = (n: number, f: (a: number) => [number, number]): Pt[] => Array.from({ length: n }, (_, i) => f(i));
 const SHAPES: Record<string, Pt[]> = {

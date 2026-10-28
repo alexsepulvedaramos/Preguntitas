@@ -1087,7 +1087,7 @@ export const en: Translation = {
       'plate-aurora': 'Northern lights',
       'plate-neon': 'Neon signs',
       'plate-arcade': 'Arcade level',
-      'plate-doodle': 'Doodle board',
+      'plate-doodle': 'Doodle notebook',
       'plate-witch': 'Haunted house',
       'plate-purple': 'Purple nameplate',
       'plate-blue': 'Blue nameplate',

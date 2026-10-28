@@ -1087,7 +1087,7 @@ export const de: Translation = {
       'plate-aurora': 'Polarlicht',
       'plate-neon': 'Neonschilder',
       'plate-arcade': 'Arcade-Level',
-      'plate-doodle': 'Kritzeltafel',
+      'plate-doodle': 'Kritzelheft',
       'plate-witch': 'Spukhaus',
       'plate-purple': 'Lila Namensschild',
       'plate-blue': 'Blaues Namensschild',
