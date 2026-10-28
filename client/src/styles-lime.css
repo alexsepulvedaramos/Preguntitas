@@ -636,6 +636,246 @@
   }
 
   /*
+   * Plates (rama 60, spec §17.18), rendered by NamePlateComponent from plate-art.ts: a scene
+   * behind a name in the featured places. The host fills its positioned parent; a veil on the
+   * left keeps the name readable. Legendaries reuse the frame's .vp-fx-* animations so plate
+   * and ring move together. Only transform/opacity animate, except the neon colour cycle.
+   */
+  .vp-plate {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .vp-plate > * { position: absolute; }
+  .vp-plate svg { display: block; overflow: visible; }
+  .vp-plate--row::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--vp-plate-veil, rgb(0 0 0 / 0.45)) 0%, transparent 62%);
+  }
+  .vp-plate--light { --vp-plate-veil: rgb(255 255 255 / 0.55); }
+  /* Text in front of a plate: the scene's own ink, whatever the app theme */
+  .vp-on-plate { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); }
+  .vp-on-plate--light { color: #10324f; text-shadow: 0 1px 0 rgb(255 255 255 / 0.7); }
+
+  /* Rayos — «Rayo en el mar» */
+  .vp-plate--volt { background: linear-gradient(180deg, #120a2a 0%, #2a1a52 60%, #3c2a6a 100%); }
+  .vp-plate .vpp-flash { inset: 0; background: rgb(200 220 255 / 0.3); opacity: 0; animation: vpp-flash 4.5s steps(1) infinite; }
+  .vp-plate .vpp-bolt { opacity: 0; animation: vpp-bolt 4.5s steps(1) infinite; }
+  .vp-plate .vpp-bolt path { filter: drop-shadow(0 0 4px #7fe6ff) drop-shadow(0 0 10px #3cc8ff); }
+  @keyframes vpp-flash { 0%, 70%, 74%, 100% { opacity: 0; } 71%, 73% { opacity: 1; } 72% { opacity: 0.2; } }
+  @keyframes vpp-bolt { 0%, 70%, 75%, 100% { opacity: 0; } 71%, 74% { opacity: 1; } 72.5% { opacity: 0.3; } }
+
+  /* Chispas — «Purpurina» */
+  .vp-plate--sparks { background: linear-gradient(120deg, #3a2a08 0%, #6b4d10 45%, #2e2006 100%); }
+  .vp-plate .vpp-glint {
+    width: 3px;
+    height: 3px;
+    background: #fff3c4;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    animation: vpp-glint 1.8s ease-in-out infinite;
+  }
+  @keyframes vpp-glint {
+    0%, 100% { opacity: 0.1; transform: scale(calc(var(--s, 1) * 0.5)); }
+    50% { opacity: 1; transform: scale(calc(var(--s, 1) * 1.5)); }
+  }
+
+  /* Burbujas — «Fondo marino» */
+  .vp-plate--bubbles { background: linear-gradient(180deg, #23b0d6 0%, #0e6f99 55%, #073f5c 100%); }
+  .vp-plate .vpp-rays {
+    inset: -20% 0 30% 0;
+    background: repeating-linear-gradient(100deg, rgb(255 255 255 / 0.16) 0 10px, transparent 10px 34px);
+    mask: linear-gradient(180deg, #000, transparent);
+  }
+  .vp-plate .vpp-bubble {
+    border-radius: 9999px;
+    background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.9) 0 12%, rgb(255 255 255 / 0.18) 30%, rgb(255 255 255 / 0.06) 60%, transparent 70%);
+    box-shadow: inset 0 0 0 1px rgb(220 248 255 / 0.55);
+    animation: vpp-rise 5s linear infinite;
+  }
+  @keyframes vpp-rise { 0% { transform: translateY(20px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-70px); opacity: 0; } }
+
+  /* Confeti — «Fiesta» */
+  .vp-plate--confetti { background: linear-gradient(180deg, #2a1050 0%, #4a1a7a 100%); }
+  .vp-plate .vpp-confetti { width: 4px; height: 7px; border-radius: 1px; top: -10px; animation: vpp-fall 3.6s linear infinite; }
+  @keyframes vpp-fall { 0% { transform: translate(0, 0) rotate(0); } 100% { transform: translate(var(--dx, 8px), 120px) rotate(540deg); } }
+
+  /* Llamarada — «Acampada» */
+  .vp-plate--flare { background: linear-gradient(180deg, #070a1c 0%, #1a1230 60%, #2a1424 100%); }
+  .vp-plate .vpp-glow {
+    right: 18%;
+    bottom: -40%;
+    width: 40%;
+    height: 140%;
+    border-radius: 9999px;
+    background: radial-gradient(closest-side, rgb(255 140 30 / 0.4), transparent);
+    animation: vpp-breathe 1.8s ease-in-out infinite alternate;
+  }
+  .vp-plate .vpp-scene { right: 12%; bottom: 0; width: 100%; height: 100%; }
+  .vp-plate .vpp-ground { left: 0; right: 0; bottom: 0; height: 8%; background: #0d0805; }
+  .vp-plate .vpp-pines { left: 0; bottom: 0; height: 70%; width: auto; }
+  .vp-plate .vpp-fire { right: 2%; bottom: 0; height: 82%; width: auto; }
+  .vp-plate--banner .vpp-glow { right: -6%; width: 44%; }
+  .vp-plate .vpp-tongue { transform-box: fill-box; transform-origin: 50% 100%; animation: vpp-lick 1s ease-in-out infinite alternate; }
+  .vp-plate .vpp-tongue:nth-of-type(2n) { animation-duration: 0.75s; animation-delay: -0.3s; }
+  .vp-plate .vpp-tongue:nth-of-type(3n) { animation-duration: 1.3s; animation-delay: -0.6s; }
+  .vp-plate .vpp-core { transform-box: fill-box; transform-origin: 50% 100%; animation: vpp-breathe 0.9s ease-in-out infinite alternate; }
+  .vp-plate .vpp-swirl {
+    right: 40%;
+    bottom: 40%;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: #ffe680;
+    box-shadow: 0 0 4px #ffb300;
+    opacity: 0;
+    animation: vpp-swirl 2.6s ease-out infinite;
+  }
+  .vp-plate--banner .vpp-swirl { right: 14%; bottom: 55%; }
+  @keyframes vpp-breathe { from { opacity: 0.7; transform: scale(0.94); } to { opacity: 1; transform: scale(1.04); } }
+  @keyframes vpp-lick { 0% { transform: scale(0.9, 0.8) skewX(-5deg); } 100% { transform: scale(1.05, 1.08) skewX(5deg); } }
+  @keyframes vpp-swirl {
+    0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: 1; }
+    40% { transform: translate(calc(var(--sx) * 8px), -18px); }
+    70% { transform: translate(calc(var(--sx) * -6px), -34px); }
+    100% { opacity: 0; transform: translate(calc(var(--sx) * 4px), -52px); }
+  }
+
+  /* Ventisca — «Colinas de día» */
+  .vp-plate--blizzard { background: linear-gradient(180deg, #9fcdee 0%, #d4ecfb 60%, #eef8ff 100%); }
+  .vp-plate .vpp-hills { left: 0; right: 0; bottom: 0; width: 100%; height: 62%; }
+  .vp-plate .vpp-snow {
+    inset: -64px 0 0 0;
+    background-image:
+      radial-gradient(2px 2px at 10px 12px, #fff 60%, transparent 61%), radial-gradient(1.5px 1.5px at 34px 40px, #fff 60%, transparent 61%),
+      radial-gradient(2.5px 2.5px at 52px 18px, #fff 60%, transparent 61%), radial-gradient(1.5px 1.5px at 22px 54px, #fff 60%, transparent 61%);
+    background-size: 64px 64px;
+    animation: vpp-snow 5s linear infinite;
+  }
+  .vp-plate .vpp-snow--far { background-size: 40px 40px; animation-duration: 3.4s; opacity: 0.7; }
+  @keyframes vpp-snow { from { transform: translate(0, 0); } to { transform: translate(18px, 64px); } }
+
+  /* Aurora */
+  .vp-plate--aurora { background: linear-gradient(180deg, #050a1a 0%, #0d1a3d 65%, #182c63 100%); }
+  .vp-plate .vpp-stars {
+    inset: 0;
+    opacity: 0.8;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, #fff 60%, transparent 61%), radial-gradient(1px 1px at 33% 64%, #fff 60%, transparent 61%),
+      radial-gradient(1.4px 1.4px at 58% 18%, #fff 60%, transparent 61%), radial-gradient(1px 1px at 72% 48%, #fff 60%, transparent 61%),
+      radial-gradient(1.2px 1.2px at 88% 14%, #fff 60%, transparent 61%), radial-gradient(1px 1px at 94% 58%, #fff 60%, transparent 61%),
+      radial-gradient(1px 1px at 46% 40%, #fff 60%, transparent 61%);
+  }
+  .vp-plate .vpp-ribbon { top: -40%; height: 150%; width: 38%; filter: blur(9px); mix-blend-mode: screen; animation: vpp-wave 7s ease-in-out infinite alternate; }
+  .vp-plate .vpp-ribbon--a { left: 30%; background: linear-gradient(180deg, transparent 5%, rgb(42 255 176 / 0.75) 40%, rgb(0 212 255 / 0.35) 70%, transparent 95%); }
+  .vp-plate .vpp-ribbon--b { left: 52%; width: 30%; background: linear-gradient(180deg, transparent 10%, rgb(176 107 255 / 0.65) 45%, rgb(255 107 213 / 0.3) 72%, transparent 95%); animation-duration: 9s; animation-delay: -3s; }
+  .vp-plate .vpp-ribbon--c { left: 72%; width: 26%; background: linear-gradient(180deg, transparent 10%, rgb(42 255 176 / 0.55) 50%, transparent 90%); animation-duration: 8s; animation-delay: -5s; }
+  .vp-plate .vpp-mountains { left: 0; right: 0; bottom: 0; width: 100%; height: 42%; }
+  .vp-plate .vpp-shooting-star { top: 18%; left: 55%; width: 46px; height: 1.5px; border-radius: 2px; background: linear-gradient(90deg, transparent, #fff); opacity: 0; animation: vpp-shoot 6s ease-out infinite; }
+  @keyframes vpp-wave { 0% { transform: skewX(-24deg) translateX(-12%) scaleY(0.92); } 100% { transform: skewX(-14deg) translateX(10%) scaleY(1.08); } }
+  @keyframes vpp-shoot { 0%, 72% { opacity: 0; transform: translate(0, 0) rotate(16deg); } 75% { opacity: 1; } 90% { opacity: 0; transform: translate(70px, 20px) rotate(16deg); } 100% { opacity: 0; } }
+
+  /* Neón (legendary) */
+  .vp-plate--neon {
+    background-color: #130a1e;
+    background-image: linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 30px 14px;
+  }
+  .vp-plate .vpp-wallglow { top: -40%; height: 180%; border-radius: 9999px; background: radial-gradient(closest-side, var(--wg), transparent); }
+  .vp-plate .vpp-tube { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 5px currentColor); }
+  .vp-plate .vpp-tube-core { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+  .vp-plate .vpp-tube--pink { color: #ff2bd6; }
+  .vp-plate .vpp-tube--cyan { color: #00e5ff; }
+  .vp-plate .vpp-tube--violet { color: #a24bff; }
+  /* The same stops and timing as the frame's colour cycle (vp-fx-hue / vp-fx-hue2) */
+  .vp-plate .vpp-cycle-pink { animation: vpp-hue-pink 6s linear infinite; }
+  .vp-plate .vpp-cycle-cyan { animation: vpp-hue-cyan 6s linear infinite; }
+  @keyframes vpp-hue-pink { 0%, 100% { color: #ff2bd6; } 33% { color: #8a5cff; } 66% { color: #ff9a3c; } }
+  @keyframes vpp-hue-cyan { 0%, 100% { color: #00e5ff; } 33% { color: #3cff9e; } 66% { color: #ff5ce1; } }
+  .vp-plate .vpp-chaser { fill: none; stroke: #fff; stroke-linecap: round; filter: drop-shadow(0 0 3px #fff); animation: vpp-chase var(--cd, 2.4s) linear infinite; }
+  @keyframes vpp-chase { to { stroke-dashoffset: var(--cl, -200); } }
+  .vp-plate .vpp-bulb { width: 3px; height: 3px; border-radius: 9999px; background: #fff; box-shadow: 0 0 4px #fff3a6; }
+  .vp-plate .vpp-bulb:nth-child(2n) { background: #fff3a6; }
+  .vp-plate .vpp-reflection { left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(0deg, rgb(162 75 255 / 0.35), transparent); }
+
+  /* Arcade (legendary) */
+  .vp-plate--arcade { background: linear-gradient(180deg, #0b0628 0%, #1d0f4a 70%, #2b1460 100%); }
+  .vp-plate .vpp-pixels { shape-rendering: crispEdges; }
+  .vp-plate .vpp-pixel-hills {
+    left: 0;
+    right: 0;
+    height: 30%;
+    background-repeat: repeat-x;
+    background-size: 64px 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M0 16 V10 H8 V6 H16 V2 H24 V6 H32 V10 H40 V8 H48 V12 H56 V14 H64 V16 Z' fill='%233b1f78'/%3E%3C/svg%3E");
+    animation: vpp-hills 4s steps(16) infinite;
+  }
+  @keyframes vpp-hills { to { background-position: -64px 0; } }
+  .vp-plate .vpp-bob { animation: vpp-bob 1.2s steps(2) infinite; }
+  @keyframes vpp-bob { 50% { transform: translateY(-2px); } }
+  .vp-plate .vpp-patrol { animation: vpp-patrol 4s steps(20) infinite alternate; }
+  @keyframes vpp-patrol { to { transform: translateX(var(--pd, -40px)); } }
+  .vp-plate .vpp-slime { transform-box: fill-box; transform-origin: 50% 100%; animation: vpp-squish 0.5s steps(1) infinite; }
+  @keyframes vpp-squish { 50% { transform: scaleY(0.8); } }
+  .vp-plate .vpp-burst { transform-box: fill-box; transform-origin: center; animation: vpp-burst 2.4s steps(6) infinite; }
+  @keyframes vpp-burst { 0% { transform: scale(0.2); opacity: 1; } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.1); opacity: 0; } }
+
+  /* Garabato (legendary) */
+  /* A notebook page: thin blue rules, the red margin line and a soft bottom edge */
+  .vp-plate--doodle {
+    --rule: 11px;
+    --margin: 22px;
+    background:
+      linear-gradient(90deg, transparent var(--margin), #e88a92 var(--margin), #e88a92 calc(var(--margin) + 1.5px), transparent calc(var(--margin) + 1.5px)),
+      repeating-linear-gradient(180deg, transparent 0 calc(var(--rule) - 1px), #a9c4e4 calc(var(--rule) - 1px) var(--rule)),
+      #fdfcf5;
+    box-shadow: inset 0 -1px 0 rgb(16 50 79 / 0.18);
+  }
+  .vp-plate--doodle.vp-plate--banner { --rule: 15px; --margin: 9%; }
+  .vp-plate .vpp-doodle { position: absolute; overflow: visible; }
+  .vp-plate .vpp-sticker { position: absolute; overflow: visible; filter: drop-shadow(0 1px 1px rgb(42 34 51 / 0.3)); }
+  .vp-plate .vpp-doodle path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .vp-plate .vpp-pop { animation: vpp-pop 2.1s steps(1) infinite; }
+  @keyframes vpp-pop { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; } }
+  .vp-plate .vpp-plane { animation: vpp-plane 6s ease-in-out infinite; }
+  @keyframes vpp-plane {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+    50% { transform: translate(var(--px, 60px), -6px) rotate(6deg); }
+  }
+
+  /* Noche de brujas — «Casa encantada» */
+  .vp-plate--witch { background: linear-gradient(180deg, #0d0a1f 0%, #241a44 70%, #3a2a5c 100%); }
+  .vp-plate .vpp-moon { border-radius: 9999px; background: radial-gradient(circle at 40% 40%, #fffbe0, #ffe9a6 70%); box-shadow: 0 0 16px 4px rgb(255 233 166 / 0.45); }
+  .vp-plate .vpp-ground--night { height: 16%; background: #0a0716; }
+  .vp-plate--banner .vpp-ground--night { height: 12%; }
+  .vp-plate .vpp-bat { width: 20px; height: 10px; opacity: 0; animation: vpp-batfly 6s linear infinite; }
+  .vp-plate .vpp-bat svg { width: 100%; height: 100%; fill: #0a0512; animation: vpp-flap 0.3s steps(2) infinite; }
+  @keyframes vpp-batfly {
+    0% { opacity: 0; transform: translate(0, 8px); } 8% { opacity: 1; }
+    85% { opacity: 1; transform: translate(var(--bw, 200px), -6px); }
+    100% { opacity: 0; transform: translate(var(--bw, 200px), -8px); }
+  }
+  @keyframes vpp-flap { 50% { transform: scaleY(0.45); } }
+  .vp-plate .vpp-window { animation: vpp-candle 1.3s steps(3) infinite alternate; }
+  @keyframes vpp-candle { 0% { opacity: 0.55; } 50% { opacity: 1; } 100% { opacity: 0.75; } }
+
+  /* Frame colours — a plain plate in the colour, deeper towards the right */
+  .vp-plate--tint {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--vp-plate-tint) 10%, var(--card)) 0%, color-mix(in oklab, var(--vp-plate-tint) 38%, var(--card)) 100%);
+  }
+  .vp-plate--tint::after { display: none; }
+  .vp-plate .vpp-tint-glow { inset: 0; background: radial-gradient(60% 120% at 92% 50%, color-mix(in oklab, var(--vp-plate-tint) 35%, transparent), transparent 70%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vp-plate, .vp-plate * { animation: none !important; }
+    .vp-plate .vpp-flash, .vp-plate .vpp-bolt { opacity: 0; }
+  }
+
+  /*
    * The app's own glyph set (GlyphComponent): a Lucide icon on a soft tile, in one of four
    * tones built from the palette tokens. Replaces emoji.
    */

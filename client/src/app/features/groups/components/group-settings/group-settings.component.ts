@@ -45,10 +45,13 @@ import { UserNameComponent } from '../../../../shared/components/user-name/user-
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
+import { PlatesDisplayService } from '../../../../core/services/plates-display.service';
 
 @Component({
   selector: 'app-group-settings',
-  imports: [HlmDropdownMenuImports, PageHeaderComponent, 
+  imports: [HlmDropdownMenuImports, PageHeaderComponent, NamePlateComponent, 
     GlyphComponent,
     UserNameComponent,
     FormsModule,
@@ -82,6 +85,8 @@ export class GroupSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly packsService = inject(PacksService);
   private readonly groupStreaks = inject(GroupStreaksService);
+  protected readonly platesDisplay = inject(PlatesDisplayService);
+  protected readonly plateText = plateTextClass;
   protected readonly memberCard = inject(MemberCardService);
   private readonly router = inject(Router);
   protected readonly t = inject(I18nService).t;

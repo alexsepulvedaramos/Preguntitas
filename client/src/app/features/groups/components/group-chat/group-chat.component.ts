@@ -27,9 +27,12 @@ export const CHAT_POLL_INTERVAL_MS = 15_000;
 // Within this many px of the page bottom counts as "already at the bottom".
 const AT_BOTTOM_THRESHOLD_PX = 80;
 
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
+import { PlatesDisplayService } from '../../../../core/services/plates-display.service';
 @Component({
   selector: 'app-group-chat',
-  imports: [ReactionsComponent, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
+  imports: [NamePlateComponent, ReactionsComponent, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
   providers: [provideIcons({ lucideLock, lucideSend })],
   templateUrl: './group-chat.component.html',
 })
@@ -37,6 +40,8 @@ export class GroupChatComponent implements OnInit {
   private readonly dailyService = inject(DailyService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly groupStreaks = inject(GroupStreaksService);
+  protected readonly platesDisplay = inject(PlatesDisplayService);
+  protected readonly plateText = plateTextClass;
   private readonly injector = inject(Injector);
   protected readonly t = inject(I18nService).t;
 

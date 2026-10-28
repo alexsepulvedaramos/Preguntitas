@@ -118,10 +118,19 @@
         <h2 class="font-display text-2xl italic text-foreground">{{ awardTitle(slide.award.key) }}</h2>
         <div class="flex flex-wrap justify-center gap-4">
           @for (w of slide.award.winners; track w.person.userId) {
-            <div class="flex flex-col items-center gap-1">
-              <app-user-avatar [avatarUrl]="w.person.avatarUrl" [username]="w.person.username" frameColor="none" size="lg" />
-              <span class="text-sm font-semibold text-foreground">{{ w.person.username }}</span>
-            </div>
+            @if (plateOf(w.person.userId); as plate) {
+              <!-- The winner's plate behind them (rama 60) -->
+              <div class="relative isolate flex w-40 flex-col items-center gap-1 overflow-hidden rounded-default px-3 pb-2 pt-10">
+                <app-name-plate [plate]="plate.plate" [streak]="plate.streak" context="banner" />
+                <app-user-avatar class="relative z-[1]" [avatarUrl]="w.person.avatarUrl" [username]="w.person.username" frameColor="none" size="lg" />
+                <span class="relative z-[1] text-sm font-semibold" [class]="plate.text">{{ w.person.username }}</span>
+              </div>
+            } @else {
+              <div class="flex flex-col items-center gap-1">
+                <app-user-avatar [avatarUrl]="w.person.avatarUrl" [username]="w.person.username" frameColor="none" size="lg" />
+                <span class="text-sm font-semibold text-foreground">{{ w.person.username }}</span>
+              </div>
+            }
           }
         </div>
         <p class="text-muted-foreground">{{ awardValue(slide.award) }}</p>

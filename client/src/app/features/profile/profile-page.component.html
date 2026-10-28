@@ -5,8 +5,14 @@
   <div class="flex flex-col gap-6 p-4 pb-8 max-w-lg mx-auto w-full">
 
     <!-- ===== AVATAR ===== -->
-    <!-- Room above for a frame's crown, hat or icons, and below for the ribbon -->
-    <section class="flex flex-col items-center gap-6 pt-14">
+    <!-- Room above for a frame's crown, hat or icons, and below for the ribbon. With a plate
+         (rama 60) the plate is the header's banner and the avatar overlaps its bottom edge. -->
+    @if (wornPlate(); as plate) {
+      <div class="relative isolate -mb-[4.5rem] h-28 overflow-hidden rounded-default">
+        <app-name-plate [plate]="plate" [streak]="user()?.highestStreak" context="banner" />
+      </div>
+    }
+    <section class="relative z-[1] flex flex-col items-center gap-6" [class.pt-14]="!wornPlate()">
       <hlm-drawer direction="bottom">
         <button
           hlmDrawerTrigger
@@ -97,7 +103,7 @@
             />
           </button>
         }
-        <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'style' }">
+        <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'rings' }">
           <ng-icon hlm name="lucideShoppingBag" class="size-4!" aria-hidden="true" />
           {{ t('profile.frameMoreColors') }}
         </a>
@@ -119,6 +125,48 @@
           {{ t('profile.frameHint') }}
         }
       </p>
+    </section>
+
+    <div hlmSeparator></div>
+
+    <!-- ===== PLACA (rama 60) ===== -->
+    <section class="flex flex-col gap-3" aria-labelledby="profile-plate-title">
+      <h2 id="profile-plate-title" class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.plate') }}</h2>
+      <div class="flex flex-wrap items-center gap-2">
+        @for (plate of ownedPlates(); track plate.key) {
+          <button
+            type="button"
+            class="relative isolate flex h-10 w-32 items-center overflow-hidden rounded-default px-3 text-left text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none disabled:opacity-60 disabled:pointer-events-none"
+            [class]="(wornPlate() === plate.key ? 'ring-2 ring-accent ring-offset-2 ring-offset-background ' : '') + plate.text"
+            [attr.aria-pressed]="wornPlate() === plate.key"
+            [disabled]="isSavingPlate()"
+            (click)="selectPlate(plate.key)"
+          >
+            <app-name-plate [plate]="plate.key" [streak]="user()?.highestStreak" />
+            <span class="relative z-[1] truncate">{{ plate.name }}</span>
+          </button>
+        }
+        <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'plates' }">
+          <ng-icon hlm name="lucideShoppingBag" class="size-4!" aria-hidden="true" />
+          {{ t('profile.plateMore') }}
+        </a>
+      </div>
+      <p class="text-xs text-muted-foreground">{{ ownedPlates().length ? t('profile.plateHint') : t('profile.plateNone') }}</p>
+      <!-- Temporary: compare «featured places» with «everywhere» on this device (§17.18) -->
+      <div class="flex items-center justify-between gap-3 rounded-default border border-dashed border-border p-3">
+        <div>
+          <p class="text-sm text-foreground">{{ t('profile.platesEverywhere') }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('profile.platesEverywhereHint') }}</p>
+        </div>
+        <hlm-switch [checked]="platesDisplay.everywhere()" (checkedChange)="platesDisplay.setEverywhere($event)" />
+      </div>
+      <div class="flex items-center justify-between gap-3 rounded-default border border-dashed border-border p-3">
+        <div>
+          <p class="text-sm text-foreground">{{ t('profile.doodleStickers') }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('profile.doodleStickersHint') }}</p>
+        </div>
+        <hlm-switch [checked]="platesDisplay.doodleStickers()" (checkedChange)="platesDisplay.setDoodleStickers($event)" />
+      </div>
     </section>
 
     <div hlmSeparator></div>

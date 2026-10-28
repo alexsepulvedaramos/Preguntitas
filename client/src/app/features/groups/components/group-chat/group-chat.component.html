@@ -66,7 +66,19 @@
             }
           <div class="flex min-w-0 flex-col gap-0.5">
             @if (showLabel) {
-              <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" />
+              @let plate = platesDisplay.everywhere() ? groupStreaks.lookFor(msg.userId)?.plate : null;
+              @if (plate) {
+                <!-- Temporary «everywhere» switch (rama 60, §17.18) -->
+                <span
+                  class="relative isolate inline-flex max-w-full self-start overflow-hidden rounded-full px-2 py-0.5 text-xs font-semibold"
+                  [class]="plateText(plate)"
+                >
+                  <app-name-plate [plate]="plate" [streak]="groupStreaks.streakFor(msg.userId)" />
+                  <app-user-name class="relative z-[1]" [name]="msg.username" />
+                </span>
+              } @else {
+                <app-user-name class="px-1 text-xs font-medium text-muted-foreground" [name]="msg.username" />
+              }
             }
             <div class="flex items-center gap-1">
               <div class="min-w-0 rounded-default bg-muted px-3 py-2 text-foreground">

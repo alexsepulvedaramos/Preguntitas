@@ -9,6 +9,8 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { VoterStackComponent } from '../voter-stack/voter-stack.component';
 import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
 
 // The Deathmatch result (1.32.1). Two teams: face to face, like a scoreboard — the teams side
 // by side in their order, faces with frames, the share big, the names once, then the split bar
@@ -19,7 +21,7 @@ import { VotesSummaryComponent } from '../votes-summary/votes-summary.component'
 // the result opens the votes summary — unless the votes are anonymous (no voters are sent).
 @Component({
   selector: 'app-deathmatch-result',
-  imports: [UserAvatarComponent, NgTemplateOutlet, HlmDialogImports, VoterStackComponent, VotesSummaryComponent],
+  imports: [UserAvatarComponent, NgTemplateOutlet, HlmDialogImports, VoterStackComponent, VotesSummaryComponent, NamePlateComponent],
   templateUrl: './deathmatch-result.component.html',
 })
 export class DeathmatchResultComponent {
@@ -47,4 +49,13 @@ export class DeathmatchResultComponent {
     const byId = new Map(this.rows().map((row) => [row.option.id, row]));
     return this.result().results.map((option) => byId.get(option.id)!);
   });
+
+  // A duel (1 vs 1): each side wears its duelist's plate behind it (rama 60, §17.18).
+  protected readonly sidePlates = computed(() =>
+    this.faceToFace().map((row) => {
+      const members = row.option.teamMembers;
+      const plate = members.length === 1 ? this.groupStreaks.lookFor(members[0].id)?.plate : null;
+      return plate ? { plate, streak: this.groupStreaks.streakFor(members[0].id), text: plateTextClass(plate) } : null;
+    })
+  );
 }

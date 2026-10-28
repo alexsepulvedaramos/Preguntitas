@@ -23,6 +23,7 @@ import { UserAvatarComponent } from '../../../../shared/components/user-avatar/u
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
 
 // Member detail card (rama 19): opened by tapping a member avatar inside a group, or from
 // the profile page for your own stats in every group. Spartan drawer on mobile, dialog on
@@ -40,6 +41,7 @@ import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.
     HlmSkeletonImports,
     HlmSpinnerImports,
     UserAvatarComponent,
+    NamePlateComponent,
   ],
   templateUrl: './member-card.component.html',
 })

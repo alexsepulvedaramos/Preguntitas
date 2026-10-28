@@ -14,6 +14,9 @@ import {
 } from '../../../../core/models/monthly-summary.model';
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
+import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
+import { GroupStreaksService } from '../../services/group-streaks.service';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../../../shared/components/glyph/glyphs';
 
@@ -37,7 +40,7 @@ export const AWARD_GLYPH: Record<SummaryAwardKey, GlyphName> = {
 // static cards stacked in a scroll instead.
 @Component({
   selector: 'app-monthly-summary-viewer',
-  imports: [GlyphComponent, NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent],
+  imports: [GlyphComponent, NgTemplateOutlet, HlmButtonImports, HlmSpinnerImports, NgIcon, UserAvatarComponent, NamePlateComponent],
   providers: [provideIcons({ lucideX })],
   templateUrl: './monthly-summary-viewer.component.html',
   host: {
@@ -48,6 +51,12 @@ export const AWARD_GLYPH: Record<SummaryAwardKey, GlyphName> = {
 })
 export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   private readonly summaries = inject(MonthlySummaryService);
+  // Award winners wear the plate they wear now (rama 60, §17.18): the group's member list.
+  private readonly groupStreaks = inject(GroupStreaksService);
+  protected plateOf(userId: number): { plate: string; streak: number | null; text: string } | null {
+    const plate = this.groupStreaks.lookFor(userId)?.plate;
+    return plate ? { plate, streak: this.groupStreaks.streakFor(userId), text: plateTextClass(plate) } : null;
+  }
   private readonly i18n = inject(I18nService);
   protected readonly t = this.i18n.t;
 
@@ -131,6 +140,7 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
     this.index.set(0);
     this.loading.set(true);
     this.failed.set(false);
+    this.groupStreaks.ensure(this.groupId());
     this.summaries.get(this.groupId(), month).subscribe({
       next: (summary) => {
         this.summary.set(summary);
