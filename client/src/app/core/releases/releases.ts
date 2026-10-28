@@ -41,6 +41,31 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.0',
+    date: '2026-10-28',
+    title: {
+      es: 'Placas',
+      en: 'Nameplates',
+      de: 'Namensschilder',
+    },
+    items: [
+      {
+        kind: 'game',
+        glyph: 'shop',
+        title: {
+          es: 'Placas para tu nombre',
+          en: 'Nameplates',
+          de: 'Namensschilder',
+        },
+        text: {
+          es: 'Nuevo en la tienda, en Estilo: una escena detrás de tu nombre en tu perfil, en tu tarjeta, cuando lideras un resultado, en los duelos y en el resumen del mes. Hay una por cada acabado y una lisa por cada color, al mismo precio que su aro. Las legendarias (Neón, Arcade y Garabato) crecen con tu racha, igual que su aro.',
+          en: 'New in the shop, under Style: a scene behind your name on your profile, your card, when you lead a result, in duels and in the monthly summary. There is one for each finish and a plain one for each colour, at the same price as its ring. The legendary ones (Neon, Arcade and Doodle) grow with your streak, just like their ring.',
+          de: 'Neu im Shop unter Stil: eine Szene hinter deinem Namen im Profil, auf deiner Karte, wenn du ein Ergebnis anführst, in Duellen und im Monatsrückblick. Es gibt eins zu jeder Veredelung und ein schlichtes zu jeder Farbe, zum selben Preis wie der Ring. Die legendären (Neon, Arcade und Kritzel) wachsen wie ihr Ring mit deiner Serie.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.33.0',
     date: '2026-10-27',
     title: {
