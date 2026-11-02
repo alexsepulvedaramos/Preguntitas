@@ -41,6 +41,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.33.1',
+    date: '2026-11-02',
+    title: {
+      es: 'Adivina nada más votar',
+      en: 'Guess right after voting',
+      de: 'Raten direkt nach der Abstimmung',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'Al votar se abre directamente «¿Quién la escribió?» (o la eligió, o la lanzó); si la cierras sin responder, el botón te espera debajo de la pregunta.',
+          en: 'Voting now opens “Who wrote it?” (or picked it, or launched it) straight away; close it without answering and the button waits for you under the question.',
+          de: 'Nach dem Abstimmen öffnet sich „Wer hat sie geschrieben?“ (oder ausgesucht, oder gestartet) sofort; schließt du es ohne Antwort, wartet der Button unter der Frage auf dich.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.33.0',
     date: '2026-10-27',
     title: {
