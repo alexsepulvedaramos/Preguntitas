@@ -335,14 +335,7 @@ function paperSticker(x: number, y: number, size: number, color: string, shape =
   return `<svg class="vpp-doodle vp-fx-wiggle" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;--d:2.2s" viewBox="-2 -2 34 34"><g transform="rotate(${tilt} 15 15)"><path d="${jitter(blob, 0.4, rnd)}Z" fill="${INK.paper}" stroke="${INK.ink}" stroke-width="1.2"/><path d="${d}" stroke="${color}" stroke-width="3" transform="translate(1.2 1.2)"/><path d="${d}" stroke="${INK.ink}" stroke-width="1.4"/></g></svg>`;
 }
 
-// Trial (developer, 2026-10-28): the frame's own icon stickers instead of the doodles, in the
-// same cells. Chosen per device in the profile until one of the two is kept.
-function iconSticker(n: number, x: number, y: number, size: number): string {
-  const tilt = ((n * 37) % 25) - 12;
-  return `<svg class="vpp-sticker vp-fx-wiggle" style="left:${x}%;top:${y}%;width:${F(size)}px;height:${F(size)}px;--d:${F(1.6 + (n % 4) * 0.2)}s;animation-delay:${F(-n * 0.3)}s" viewBox="-9.5 -9.5 19 19"><g transform="rotate(${tilt})">${iconStickerMarkup(STICKER_ICONS[n % STICKER_ICONS.length], n * 31 + 7)}</g></svg>`;
-}
-
-function doodle(level: number, banner: boolean, stickers = false): string {
+function doodle(level: number, banner: boolean): string {
   // Each doodle has its own cell of a grid, so none overlap and every level keeps the page
   // evenly filled ([x%, y%] of the cell's top-left corner). Row: two rows by seven columns
   // right of the name. Banner: three by three on each side, the middle third left empty for
@@ -352,47 +345,91 @@ function doodle(level: number, banner: boolean, stickers = false): string {
     : { a: [44, 6], c: [76, 50], b: [52, 50], d: [84, 6], e: [60, 6], g: [92, 50], s1: [76, 6], sp1: [44, 50], sp2: [84, 50], f: [68, 50], h: [92, 6], pl: [52, 6], s2: [68, 6], s3: [60, 50] };
   const at = (k: keyof typeof P) => P[k] as [number, number];
   const sz = banner ? 34 : 22;
-  // In the sticker trial every doodle and paper sticker becomes one of the game's icons.
-  let n = 0;
-  const doodleAt = (shape: string, color: string, x: number, y: number, size: number) =>
-    stickers ? iconSticker(n++, x, y, sz) : doodleIn(shape, color, x, y, size);
-  const sticker = (x: number, y: number, size: number, color: string, shape?: string, tilt?: number) =>
-    stickers ? iconSticker(n++, x, y, sz) : paperSticker(x, y, size, color, shape, tilt);
-  let h = doodleAt('squiggle', INK.cream, ...at('a'), sz) + doodleAt('star', INK.cream, ...at('c'), sz * 0.8);
-  if (level >= 1) h += doodleAt('spiral', INK.cream, ...at('b'), sz * 0.8) + doodleAt('cloud', INK.cream, ...at('d'), sz * 0.8);
+  let h = doodleIn('squiggle', INK.cream, ...at('a'), sz) + doodleIn('star', INK.cream, ...at('c'), sz * 0.8);
+  if (level >= 1) h += doodleIn('spiral', INK.cream, ...at('b'), sz * 0.8) + doodleIn('cloud', INK.cream, ...at('d'), sz * 0.8);
   // Stone: pink doodles (the frame's second line).
-  if (level >= 2) h += doodleAt('zigzag', INK.pink, ...at('e'), sz) + doodleAt('flower', INK.pink, ...at('g'), sz * 0.8);
+  if (level >= 2) h += doodleIn('zigzag', INK.pink, ...at('e'), sz) + doodleIn('flower', INK.pink, ...at('g'), sz * 0.8);
   // Bronze: a star sticker like the frame's, and little sparkles popping in and out.
   if (level >= 3) {
-    (['sp1', 'sp2'] as const).forEach((k, i) => {
-      const [x, y] = at(k);
-      h += `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleIn('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 18 : 12)}</span>`;
-    });
-    h += sticker(...at('s1'), banner ? 34 : 22, INK.pink);
+    h += sparkles([at('sp1'), at('sp2')], banner);
+    h += paperSticker(...at('s1'), banner ? 34 : 22, INK.pink);
   }
   // Silver: cyan doodles (the frame's third line).
-  if (level >= 4) h += doodleAt('arrow', INK.cyan, ...at('f'), sz) + doodleAt('cloud', INK.cyan, ...at('h'), sz * 0.8);
+  if (level >= 4) h += doodleIn('arrow', INK.cyan, ...at('f'), sz) + doodleIn('cloud', INK.cyan, ...at('h'), sz * 0.8);
   // Gold: a paper plane flying in its cell (on the banner, away from the middle).
-  if (level >= 5) {
-    const [x, y] = at('pl');
-    h += `<span class="vpp-plane" style="left:${x}%;top:${y}%;--px:${banner ? -14 : 8}px">${doodleIn('plane', INK.cyan, 0, 0, sz * 0.8)}</span>`;
-  }
+  if (level >= 5) h += plane(at('pl'), banner ? -14 : 8, sz * 0.8);
   // Sapphire: two more stickers.
-  if (level >= 6) h += sticker(...at('s2'), banner ? 32 : 22, INK.cyan, 'flower', 10) + sticker(...at('s3'), banner ? 30 : 20, '#ffd400', 'spiral', -14);
+  if (level >= 6) h += paperSticker(...at('s2'), banner ? 32 : 22, INK.cyan, 'flower', 10) + paperSticker(...at('s3'), banner ? 30 : 20, '#ffd400', 'spiral', -14);
   // Amethyst: a doodled three-colour border round the plate.
-  if (level >= 7) {
-    const W = 400;
-    const H = 100;
-    const m = 4;
-    const rnd = seeded(77);
-    const rect = (o: number): Pt[] => [[m + o, m], [W / 2, m - o], [W - m, m + o], [W - m - o, H / 2], [W - m, H - m], [W / 2, H - m + o], [m, H - m - o], [m + o, H / 2], [m + o, m]];
-    [INK.cream, INK.pink, INK.cyan].forEach((c, i) => {
+  if (level >= 7) h += doodledBorder();
+  return h;
+}
+
+function sparkles(at: [number, number][], banner: boolean): string {
+  return at
+    .map(([x, y], i) => `<span class="vpp-pop" style="left:${x}%;top:${y}%;animation-delay:${F(-i * 0.7)}s">${doodleIn('spark', i % 2 ? INK.cyan : INK.pink, 0, 0, banner ? 18 : 12)}</span>`)
+    .join('');
+}
+
+function plane([x, y]: [number, number], px: number, size: number): string {
+  return `<span class="vpp-plane" style="left:${x}%;top:${y}%;--px:${px}px">${doodleIn('plane', INK.cyan, 0, 0, size)}</span>`;
+}
+
+function doodledBorder(): string {
+  const W = 400;
+  const H = 100;
+  const m = 4;
+  const rnd = seeded(77);
+  const rect = (o: number): Pt[] => [[m + o, m], [W / 2, m - o], [W - m, m + o], [W - m - o, H / 2], [W - m, H - m], [W / 2, H - m + o], [m, H - m - o], [m + o, H / 2], [m + o, m]];
+  return [INK.cream, INK.pink, INK.cyan]
+    .map((c, i) => {
       const frames = [0, 1, 2]
         .map((f) => `<path class="vp-fx-boil" style="animation-delay:${F(-f * 0.3)}s" d="${jitter(rect(i * 1.5), 2.5, rnd)}" stroke="${c}" stroke-width="${F(2 - i * 0.4)}" vector-effect="non-scaling-stroke"/>`)
         .join('');
-      h += `<svg class="vpp-doodle" style="inset:0;width:100%;height:100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${frames}</svg>`;
-    });
-  }
+      return `<svg class="vpp-doodle" style="inset:0;width:100%;height:100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${frames}</svg>`;
+    })
+    .join('');
+}
+
+// Trial (developer, 2026-10-28): the frame's own icon stickers instead of the doodles, one of
+// each game icon slapped on the page by hand (no grid, no repeats), one more per level. Then
+// the doodled extras as on the doodle page: sparkles, the plane, and from sapphire the stickers
+// a little bigger. Chosen per device in the profile until one of the two is kept.
+type StickerSpot = { x: number; y: number; size: number; tilt: number };
+const STICKER_SPOTS: Record<PlateContext, StickerSpot[]> = {
+  // Right of the name, on a 56 px row.
+  row: [
+    { x: 50, y: 12, size: 24, tilt: -10 },
+    { x: 63, y: 44, size: 22, tilt: 8 },
+    { x: 72, y: 2, size: 26, tilt: -4 },
+    { x: 84, y: 38, size: 23, tilt: 14 },
+    { x: 92, y: 0, size: 20, tilt: -16 },
+  ],
+  // On each side of the banner, clear of the middle third.
+  banner: [
+    { x: 5, y: 12, size: 40, tilt: -12 },
+    { x: 19, y: 50, size: 36, tilt: 10 },
+    { x: 73, y: 8, size: 42, tilt: 6 },
+    { x: 86, y: 46, size: 36, tilt: -10 },
+    { x: 70, y: 60, size: 32, tilt: 14 },
+  ],
+};
+
+function iconSticker(i: number, { x, y, size, tilt }: StickerSpot, grow: number): string {
+  const px = F(size * grow);
+  return `<svg class="vpp-sticker vp-fx-wiggle" style="left:${x}%;top:${y}%;width:${px}px;height:${px}px;--d:${F(1.6 + (i % 4) * 0.2)}s;animation-delay:${F(-i * 0.3)}s" viewBox="-9.5 -9.5 19 19"><g transform="rotate(${tilt})">${iconStickerMarkup(STICKER_ICONS[i], i * 31 + 7)}</g></svg>`;
+}
+
+function stickerPage(level: number, banner: boolean): string {
+  const spots = STICKER_SPOTS[banner ? 'banner' : 'row'];
+  const grow = level >= 6 ? 1.12 : 1;
+  let h = spots
+    .slice(0, Math.min(level + 1, STICKER_ICONS.length))
+    .map((spot, i) => iconSticker(i, spot, grow))
+    .join('');
+  if (level >= 3) h += sparkles(banner ? [[31, 20], [95, 22]] : [[58, 4], [79, 72]], banner);
+  if (level >= 5) h += plane(banner ? [24, 16] : [43, 56], banner ? -12 : 8, banner ? 27 : 18);
+  if (level >= 7) h += doodledBorder();
   return h;
 }
 
@@ -451,7 +488,7 @@ export function renderPlate(
     case 'arcade':
       return arcade(level, banner);
     case 'doodle':
-      return doodle(level, banner, doodleStickers);
+      return doodleStickers ? stickerPage(level, banner) : doodle(level, banner);
     case 'witch':
       return witch(level, banner);
   }
