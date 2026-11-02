@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -27,8 +27,9 @@ import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.
 // "¿Quién la escribió?" on a member-written one, "¿Quién la eligió?" on a pack question someone
 // chose, "¿Quién la lanzó?" on a flash (flashId). A button opens the game in a window: pick a
 // member from the list and confirm, or skip to see the answer; the answer is revealed at once on
-// the card. Leaving it alone keeps it pending until the question closes. Whoever is guessed sees
-// how many people caught them instead.
+// the card. Right after voting the window opens by itself (`prompt`) and the button only shows
+// once it's closed without answering, or on a later visit; leaving it alone keeps it pending
+// until the question closes. Whoever is guessed sees how many people caught them instead.
 // What the one guessed sees next to "Te han pillado X de Y".
 const MINE_GLYPH: Record<AuthorGuess['kind'], GlyphName> = {
   author: 'write',
@@ -63,11 +64,15 @@ export class AuthorGuessComponent {
   readonly members = input.required<GroupMember[]>();
   // Set on a flash: the guess goes to its own endpoint.
   readonly flashId = input<number | null>(null);
+  // Set right after voting: the window opens by itself and the button waits until it closes.
+  readonly prompt = input(false);
 
   // The fresh guess state, for the parent to merge into daily/current.
   readonly changed = output<AuthorGuess>();
   // Coins a right guess paid, for the "+5" coin toast.
   readonly coinsEarned = output<CoinsEarned>();
+  // The prompted window closed (answered, skipped or dismissed), so the next step can follow.
+  readonly promptClosed = output<void>();
 
   protected readonly reward = AUTHOR_GUESS_REWARD;
   protected readonly open = signal(false);
@@ -91,6 +96,17 @@ export class AuthorGuessComponent {
   protected kindText(line: 'mine' | 'revealed' | 'right', name = ''): string {
     return this.t(`guess.${line}.${this.guess().kind}`, { name });
   }
+  constructor() {
+    effect(() => {
+      if (this.prompt() && this.guess().state === 'pending') untracked(() => this.open.set(true));
+    });
+  }
+
+  protected onStateChanged(state: 'open' | 'closed'): void {
+    this.open.set(state === 'open');
+    if (state === 'closed' && this.prompt()) this.promptClosed.emit();
+  }
+
   protected readonly guessedName = computed(() => {
     const id = this.guess().guessedUserId;
     return this.members().find((m) => m.id === id)?.username ?? '';
@@ -142,6 +158,7 @@ export class AuthorGuessComponent {
         this.busy.set(null);
         // Close first: the window lives in the pending state the answer replaces.
         this.open.set(false);
+        if (this.prompt()) this.promptClosed.emit();
         this.changed.emit(res.guess);
         this.coinsEarned.emit(res.coins);
       },

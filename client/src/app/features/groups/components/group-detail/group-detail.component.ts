@@ -217,7 +217,10 @@ export class GroupDetailComponent implements OnInit {
 
   // Streak celebration after a vote that extends the streak (rama 19).
   public readonly celebration = signal<StreakUpdate | null>(null);
-  private openSelectorAfterCelebration = false;
+  // Right after voting the guess window opens by itself (§17.6): 'daily' or the flash's id.
+  public readonly guessPrompt = signal<'daily' | number | null>(null);
+  // What follows a vote, one at a time: the celebration, then the guess, then the picker.
+  private afterVote: (() => void)[] = [];
 
   ngOnInit() {
     this.loadAll();
@@ -298,6 +301,15 @@ export class GroupDetailComponent implements OnInit {
     return this.i18n.formatDate(iso, { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
+  // Voted on a flash: the fresh state, then «¿Quién la lanzó?» opens by itself.
+  onFlashVoteSent(state: FlashState) {
+    this.onFlashVoted(state);
+    if (state.guess?.state === 'pending') {
+      this.afterVote = [() => this.guessPrompt.set(state.id)];
+      this.nextAfterVote();
+    }
+  }
+
   onFlashVoted(state: FlashState) {
     const daily = this.daily();
     if (!daily) return;
@@ -364,18 +376,29 @@ export class GroupDetailComponent implements OnInit {
     // Voting unlocks the chat (rama 49); a tier change or milestone also posts a message in it.
     this.chat()?.reload();
 
-    // If this user is the selector for the next question, auto-open the picker —
-    // after the celebration when one is shown.
-    // Stay on the card you just answered so you see its results; the "1 question left" button
-    // points at the next one (UX audit: jumping away hid the results you'd just unlocked).
+    // One window at a time: the streak celebration, then the guess window (most people never
+    // pressed its button, so it opens by itself), then the picker if this user chooses the next
+    // question. Stay on the card you just answered so you see its results; the "1 question left"
+    // button points at the next one (UX audit: jumping away hid the results you'd just unlocked).
+    const steps: (() => void)[] = [];
+    if (streak.current > streak.previous) steps.push(() => this.celebration.set(streak));
+    if (guess?.state === 'pending') steps.push(() => this.guessPrompt.set('daily'));
+    if (daily.selection?.isCurrentUserSelector) steps.push(() => this.selectDialog()?.triggerOpen());
+    this.afterVote = steps;
+    this.nextAfterVote();
+  }
 
-    const isSelector = !!daily.selection?.isCurrentUserSelector;
-    if (streak.current > streak.previous) {
-      this.openSelectorAfterCelebration = isSelector;
-      this.celebration.set(streak);
-    } else if (isSelector) {
-      setTimeout(() => this.selectDialog()?.triggerOpen(), 600);
-    }
+  // Runs the next window after a vote, with a short pause so they don't snap into each other.
+  private nextAfterVote() {
+    const step = this.afterVote.shift();
+    if (step) setTimeout(step, 400);
+  }
+
+  // The guess window opened after voting was closed: the button takes its place.
+  onGuessPromptClosed() {
+    if (this.guessPrompt() === null) return;
+    this.guessPrompt.set(null);
+    this.nextAfterVote();
   }
 
   // "¿Quién la escribió?" answered, skipped or narrowed down by the hint (rama 36).
@@ -437,10 +460,7 @@ export class GroupDetailComponent implements OnInit {
 
   onCelebrationDismissed() {
     this.celebration.set(null);
-    if (this.openSelectorAfterCelebration) {
-      this.openSelectorAfterCelebration = false;
-      setTimeout(() => this.selectDialog()?.triggerOpen(), 300);
-    }
+    this.nextAfterVote();
   }
 
   dismissLostStreak() {

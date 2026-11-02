@@ -378,6 +378,8 @@
               [flashId]="flash.id"
               [guess]="guess"
               [members]="members()"
+              [prompt]="guessPrompt() === flash.id"
+              (promptClosed)="onGuessPromptClosed()"
               (changed)="onFlashGuessChanged(flash.id, $event)"
               (coinsEarned)="announceCoins($event)"
             />
@@ -412,7 +414,7 @@
             [members]="members()"
             [flashId]="flash.id"
             [showQuestion]="false"
-            (flashVoted)="onFlashVoted($event)"
+            (flashVoted)="onFlashVoteSent($event)"
           />
         } @else if (flash.sealed) {
           <div class="vp-glyph--frost flex items-start gap-3 rounded-default border border-(--vp-glyph-fg)/30 bg-(--vp-glyph-bg) p-3">
@@ -462,6 +464,8 @@
             [groupId]="numericGroupId()"
             [guess]="guess"
             [members]="members()"
+            [prompt]="guessPrompt() === 'daily'"
+            (promptClosed)="onGuessPromptClosed()"
             (changed)="onGuessChanged($event)"
             (coinsEarned)="announceCoins($event)"
           />
