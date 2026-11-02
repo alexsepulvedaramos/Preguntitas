@@ -11,7 +11,7 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
 import { VoterStackComponent, voterStackChips } from '../voter-stack/voter-stack.component';
 import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
 import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
-import { plateIsLight, plateTextClass } from '../../../../shared/components/name-plate/plate-art';
+import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
 import { PlatesDisplayService } from '../../../../core/services/plates-display.service';
 
 // Shared result row (rama 7, spec §13 row 7): a compact bar whose width is proportional to
@@ -60,7 +60,10 @@ export class ResultOptionBarComponent {
     if (!user || (!this.isLeader() && !this.platesDisplay.everywhere())) return null;
     return this.groupStreaks.lookFor(user.id)?.plate ?? null;
   });
-  protected readonly plateLight = computed(() => plateIsLight(this.plate()));
+  // The plate fill's clip: the share of the track from the left.
+  // The plate fill's clip (the share of the track from the left) and the empty track's.
+  protected readonly fillClip = computed(() => `inset(0 ${100 - this.displayWidth()}% 0 0 round 9999px)`);
+  protected readonly trackClip = computed(() => `inset(0 0 0 ${this.displayWidth()}%)`);
   protected readonly plateText = computed(() => plateTextClass(this.plate()));
   protected readonly t = inject(I18nService).t;
 }

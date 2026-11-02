@@ -759,7 +759,7 @@ export const en: Translation = {
     plateHint: 'Tap the one you wear to take it off.',
     plateNone: 'You have none yet: they are in the shop, under Style.',
     platesEverywhere: 'Nameplates everywhere (test)',
-    platesEverywhereHint: 'On this device only: also in the member list, the chat and every result row.',
+    platesEverywhereHint: 'On this device only: also in the member list and every result row.',
     doodleStickers: 'Notebook with stickers (trial)',
     doodleStickersHint: 'Only on this device: the Doodle notebook plate shows its frame’s icon stickers instead of doodles.',
     frameFollows: 'Your frame follows your best current streak',

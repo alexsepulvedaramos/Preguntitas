@@ -134,16 +134,19 @@
       <h2 id="profile-plate-title" class="font-display text-lg italic tracking-tight text-foreground">{{ t('profile.plate') }}</h2>
       <div class="flex flex-wrap items-center gap-2">
         @for (plate of ownedPlates(); track plate.key) {
+          <!-- A swatch of the plate with its name underneath, so the name never sits on the art -->
           <button
             type="button"
-            class="relative isolate flex h-10 w-32 items-center overflow-hidden rounded-default px-3 text-left text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none disabled:opacity-60 disabled:pointer-events-none"
-            [class]="(wornPlate() === plate.key ? 'ring-2 ring-accent ring-offset-2 ring-offset-background ' : '') + plate.text"
+            class="flex w-32 flex-col items-stretch gap-1 rounded-default p-1 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none disabled:opacity-60 disabled:pointer-events-none"
+            [class]="wornPlate() === plate.key ? 'bg-accent/15 ring-2 ring-accent' : 'hover:bg-muted'"
             [attr.aria-pressed]="wornPlate() === plate.key"
             [disabled]="isSavingPlate()"
             (click)="selectPlate(plate.key)"
           >
-            <app-name-plate [plate]="plate.key" [streak]="user()?.highestStreak" />
-            <span class="relative z-[1] truncate">{{ plate.name }}</span>
+            <span class="relative isolate block h-10 overflow-hidden rounded-default" aria-hidden="true">
+              <app-name-plate [plate]="plate.key" [streak]="user()?.highestStreak" context="banner" />
+            </span>
+            <span class="truncate px-1 text-xs font-semibold text-foreground">{{ plate.name }}</span>
           </button>
         }
         <a hlmBtn variant="outline" size="sm" class="gap-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-ring" routerLink="/shop" [queryParams]="{ tab: 'plates' }">

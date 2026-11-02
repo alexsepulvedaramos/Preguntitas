@@ -658,6 +658,12 @@
     background: linear-gradient(90deg, var(--vp-plate-veil, rgb(0 0 0 / 0.45)) 0%, transparent 62%);
   }
   .vp-plate--light { --vp-plate-veil: rgb(255 255 255 / 0.55); }
+  /* Peek: the scene fades in from the right behind a row of text, which keeps the app's surface */
+  .vp-plate--peek {
+    -webkit-mask-image: linear-gradient(90deg, transparent 44%, #000 82%);
+    mask-image: linear-gradient(90deg, transparent 44%, #000 82%);
+  }
+  .vp-plate--peek::after { display: none; }
   /* Text in front of a plate: the scene's own ink, whatever the app theme */
   .vp-on-plate { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); }
   .vp-on-plate--light { color: #10324f; text-shadow: 0 1px 0 rgb(255 255 255 / 0.7); }
@@ -868,6 +874,10 @@
     background: linear-gradient(90deg, color-mix(in oklab, var(--vp-plate-tint) 10%, var(--card)) 0%, color-mix(in oklab, var(--vp-plate-tint) 38%, var(--card)) 100%);
   }
   .vp-plate--tint::after { display: none; }
+  /* On the dark theme a little tint over the card reads as mud: the plain plate goes deeper */
+  .dark .vp-plate--tint {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--vp-plate-tint) 22%, var(--card)) 0%, color-mix(in oklab, var(--vp-plate-tint) 62%, var(--card)) 100%);
+  }
   .vp-plate .vpp-tint-glow { inset: 0; background: radial-gradient(60% 120% at 92% 50%, color-mix(in oklab, var(--vp-plate-tint) 35%, transparent), transparent 70%); }
 
   @media (prefers-reduced-motion: reduce) {

@@ -39,7 +39,6 @@ import { LanguagePickerComponent } from '../../shared/components/language-picker
 import { apiErrorMessage } from '../../shared/utils/api-error';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { NamePlateComponent } from '../../shared/components/name-plate/name-plate.component';
-import { plateTextClass } from '../../shared/components/name-plate/plate-art';
 import { PlatesDisplayService } from '../../core/services/plates-display.service';
 
 const FRAME_COLORS: { label: TranslationKey; value: string }[] = [
@@ -110,7 +109,6 @@ export class ProfilePageComponent implements OnInit {
     return COSMETICS.filter((c) => c.kind === CosmeticKind.Plate && owned.has(c.key)).map((c) => ({
       key: c.key,
       name: this.t(c.name),
-      text: plateTextClass(c.key),
     }));
   });
   protected readonly wornPlate = computed(() => this.user()?.look?.plate ?? null);

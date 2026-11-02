@@ -7,6 +7,8 @@ import { PlateContext, plateClass, plateIsLight, plateTintColor, renderPlate } f
 // A plate (rama 60, spec §17.18): the scene behind a name in the featured places. Fills its
 // positioned parent (give the parent `relative isolate` and a radius, and put the content in
 // front with `relative z-[1]`); renders nothing when the key isn't a plate.
+// `peek` (rows with text): the scene fades in from the right, so the name and anything on the
+// left sit on the app's own surface in its own colours and only the right end shows the art.
 @Component({
   selector: 'app-name-plate',
   template: '',
@@ -26,11 +28,12 @@ export class NamePlateComponent {
   // The wearer's streak where the plate is shown: the legendaries grow with its tier.
   readonly streak = input<number | null | undefined>(null);
   readonly context = input<PlateContext>('row');
+  readonly peek = input(false);
 
   protected readonly hostClass = computed(() => {
     const scene = plateClass(this.plate());
     if (!scene) return 'hidden';
-    return `vp-plate vp-plate--${this.context()} ${scene}${plateIsLight(this.plate()) ? ' vp-plate--light' : ''}`;
+    return `vp-plate vp-plate--${this.context()} ${scene}${plateIsLight(this.plate()) ? ' vp-plate--light' : ''}${this.peek() ? ' vp-plate--peek' : ''}`;
   });
 
   protected readonly tint = computed(() => plateTintColor(this.plate()));

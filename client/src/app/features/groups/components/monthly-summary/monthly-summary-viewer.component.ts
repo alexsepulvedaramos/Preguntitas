@@ -15,7 +15,6 @@ import {
 import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
-import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
 import { GroupStreaksService } from '../../services/group-streaks.service';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { GlyphName } from '../../../../shared/components/glyph/glyphs';
@@ -53,9 +52,9 @@ export class MonthlySummaryViewerComponent implements OnInit, AfterViewInit {
   private readonly summaries = inject(MonthlySummaryService);
   // Award winners wear the plate they wear now (rama 60, §17.18): the group's member list.
   private readonly groupStreaks = inject(GroupStreaksService);
-  protected plateOf(userId: number): { plate: string; streak: number | null; text: string } | null {
+  protected plateOf(userId: number): { plate: string; streak: number | null } | null {
     const plate = this.groupStreaks.lookFor(userId)?.plate;
-    return plate ? { plate, streak: this.groupStreaks.streakFor(userId), text: plateTextClass(plate) } : null;
+    return plate ? { plate, streak: this.groupStreaks.streakFor(userId) } : null;
   }
   private readonly i18n = inject(I18nService);
   protected readonly t = this.i18n.t;

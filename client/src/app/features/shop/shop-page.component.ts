@@ -55,7 +55,6 @@ import { CoinComponent } from '../../shared/components/coin/coin.component';
 import { CoinTextComponent } from '../../shared/components/coin/coin-text.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { NamePlateComponent } from '../../shared/components/name-plate/name-plate.component';
-import { plateTextClass } from '../../shared/components/name-plate/plate-art';
 
 const REASON_LABELS: Record<CoinReason, TranslationKey> = {
   [CoinReason.Vote]: 'coins.reasons.vote',
@@ -343,7 +342,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
     const trying = this.trying();
     return trying && 'plate' in trying ? trying.plate : this.wornPlate();
   });
-  protected readonly previewPlateText = computed(() => plateTextClass(this.previewPlate()));
 
   // The try-on avatar: what you wear, or what you are trying.
   protected readonly previewLook = computed<Look>(() => {
@@ -507,7 +505,6 @@ export class ShopPageComponent implements OnInit, OnDestroy {
       { key: 'colours', title: this.t('shop.plateColours'), tiles: plates.filter((t) => colour(t)) },
     ].filter((g) => g.tiles.length > 0);
   });
-  protected readonly plateText = plateTextClass;
 
   // The free streak ring, the plain colours, and no frame.
   protected readonly frames = computed<StyleTile[]>(() => [

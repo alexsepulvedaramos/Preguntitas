@@ -760,7 +760,7 @@ export const es = {
     plateHint: 'Toca la que llevas para quitártela.',
     plateNone: 'Aún no tienes ninguna: están en la tienda, en Estilo.',
     platesEverywhere: 'Placas en todas partes (prueba)',
-    platesEverywhereHint: 'Solo en este dispositivo: también en la lista de miembros, el chat y cada fila de los resultados.',
+    platesEverywhereHint: 'Solo en este dispositivo: también en la lista de miembros y cada fila de los resultados.',
     doodleStickers: 'Libreta con pegatinas (prueba)',
     doodleStickersHint: 'Solo en este dispositivo: la placa Libreta de garabatos lleva las pegatinas de iconos de su marco en vez de garabatos.',
     frameFollows: 'Tu marco sigue tu mejor racha actual',

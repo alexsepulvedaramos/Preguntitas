@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 
 // Where plates show (rama 60, §17.18). By default only in the featured places (profile,
 // member card, a result's leader, duels, monthly awards, shop). A temporary per-device switch
-// in the profile also draws them in the member list, the chat and every result row, so the
+// in the profile also draws them in the member list and every result row, so the
 // developer can judge how busy that gets; it goes once that is decided.
 const STORAGE_KEY = 'vp_plates_everywhere';
 // Second trial (developer, 2026-10-28): Garabato's page with the frame's icon stickers instead

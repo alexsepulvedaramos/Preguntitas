@@ -10,7 +10,6 @@ import { GroupStreaksService } from '../../services/group-streaks.service';
 import { VoterStackComponent } from '../voter-stack/voter-stack.component';
 import { VotesSummaryComponent } from '../votes-summary/votes-summary.component';
 import { NamePlateComponent } from '../../../../shared/components/name-plate/name-plate.component';
-import { plateTextClass } from '../../../../shared/components/name-plate/plate-art';
 
 // The Deathmatch result (1.32.1). Two teams: face to face, like a scoreboard — the teams side
 // by side in their order, faces with frames, the share big, the names once, then the split bar
@@ -55,7 +54,7 @@ export class DeathmatchResultComponent {
     this.faceToFace().map((row) => {
       const members = row.option.teamMembers;
       const plate = members.length === 1 ? this.groupStreaks.lookFor(members[0].id)?.plate : null;
-      return plate ? { plate, streak: this.groupStreaks.streakFor(members[0].id), text: plateTextClass(plate) } : null;
+      return plate ? { plate, streak: this.groupStreaks.streakFor(members[0].id) } : null;
     })
   );
 }
