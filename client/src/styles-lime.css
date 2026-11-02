@@ -650,6 +650,25 @@
     z-index: 0;
   }
   .vp-plate > * { position: absolute; }
+  /*
+   * Theme pass (developer, 2026-11-02): every scene a little calmer so it sits with the app
+   * instead of on top of it — less saturation (and on the light theme a touch more light, so a
+   * night scene weighs less), softer glows, and on banners the card's hairline edge and a bottom
+   * that melts into the surface the face rests on.
+   */
+  .vp-plate { filter: saturate(0.8) brightness(1.06); }
+  .dark .vp-plate { filter: saturate(0.85); }
+  /* The plain colour plates are already the app's own tints: they stay as they are */
+  .vp-plate.vp-plate--tint { filter: none; }
+  .vp-plate--banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, transparent 62%, color-mix(in oklab, var(--card) 30%, transparent));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--border) 80%, transparent);
+    pointer-events: none;
+  }
   .vp-plate svg { display: block; overflow: visible; }
   .vp-plate--row::after {
     content: '';
@@ -672,7 +691,7 @@
   .vp-plate--volt { background: linear-gradient(180deg, #120a2a 0%, #2a1a52 60%, #3c2a6a 100%); }
   .vp-plate .vpp-flash { inset: 0; background: rgb(200 220 255 / 0.3); opacity: 0; animation: vpp-flash 4.5s steps(1) infinite; }
   .vp-plate .vpp-bolt { opacity: 0; animation: vpp-bolt 4.5s steps(1) infinite; }
-  .vp-plate .vpp-bolt path { filter: drop-shadow(0 0 4px #7fe6ff) drop-shadow(0 0 10px #3cc8ff); }
+  .vp-plate .vpp-bolt path { filter: drop-shadow(0 0 2px #7fe6ff) drop-shadow(0 0 5px #3cc8ff); }
   @keyframes vpp-flash { 0%, 70%, 74%, 100% { opacity: 0; } 71%, 73% { opacity: 1; } 72% { opacity: 0.2; } }
   @keyframes vpp-bolt { 0%, 70%, 75%, 100% { opacity: 0; } 71%, 74% { opacity: 1; } 72.5% { opacity: 0.3; } }
 
@@ -792,7 +811,7 @@
     background-size: 30px 14px;
   }
   .vp-plate .vpp-wallglow { top: -40%; height: 180%; border-radius: 9999px; background: radial-gradient(closest-side, var(--wg), transparent); }
-  .vp-plate .vpp-tube { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 1.5px currentColor) drop-shadow(0 0 5px currentColor); }
+  .vp-plate .vpp-tube { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 1px currentColor) drop-shadow(0 0 3px currentColor); }
   .vp-plate .vpp-tube-core { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
   .vp-plate .vpp-tube--pink { color: #ff2bd6; }
   .vp-plate .vpp-tube--cyan { color: #00e5ff; }
@@ -802,9 +821,9 @@
   .vp-plate .vpp-cycle-cyan { animation: vpp-hue-cyan 6s linear infinite; }
   @keyframes vpp-hue-pink { 0%, 100% { color: #ff2bd6; } 33% { color: #8a5cff; } 66% { color: #ff9a3c; } }
   @keyframes vpp-hue-cyan { 0%, 100% { color: #00e5ff; } 33% { color: #3cff9e; } 66% { color: #ff5ce1; } }
-  .vp-plate .vpp-chaser { fill: none; stroke: #fff; stroke-linecap: round; filter: drop-shadow(0 0 3px #fff); animation: vpp-chase var(--cd, 2.4s) linear infinite; }
+  .vp-plate .vpp-chaser { fill: none; stroke: #fff; stroke-linecap: round; filter: drop-shadow(0 0 1.5px #fff); animation: vpp-chase var(--cd, 2.4s) linear infinite; }
   @keyframes vpp-chase { to { stroke-dashoffset: var(--cl, -200); } }
-  .vp-plate .vpp-bulb { width: 3px; height: 3px; border-radius: 9999px; background: #fff; box-shadow: 0 0 4px #fff3a6; }
+  .vp-plate .vpp-bulb { width: 3px; height: 3px; border-radius: 9999px; background: #fff; box-shadow: 0 0 2px #fff3a6; }
   .vp-plate .vpp-bulb:nth-child(2n) { background: #fff3a6; }
   .vp-plate .vpp-reflection { left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(0deg, rgb(162 75 255 / 0.35), transparent); }
 
@@ -855,7 +874,7 @@
 
   /* Noche de brujas — «Casa encantada» */
   .vp-plate--witch { background: linear-gradient(180deg, #0d0a1f 0%, #241a44 70%, #3a2a5c 100%); }
-  .vp-plate .vpp-moon { border-radius: 9999px; background: radial-gradient(circle at 40% 40%, #fffbe0, #ffe9a6 70%); box-shadow: 0 0 16px 4px rgb(255 233 166 / 0.45); }
+  .vp-plate .vpp-moon { border-radius: 9999px; background: radial-gradient(circle at 40% 40%, #fffbe0, #ffe9a6 70%); box-shadow: 0 0 10px 2px rgb(255 233 166 / 0.3); }
   .vp-plate .vpp-ground--night { height: 16%; background: #0a0716; }
   .vp-plate--banner .vpp-ground--night { height: 12%; }
   .vp-plate .vpp-bat { width: 20px; height: 10px; opacity: 0; animation: vpp-batfly 6s linear infinite; }
