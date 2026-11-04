@@ -692,6 +692,8 @@
 
   /* Rayos — «Rayo en el mar» */
   .vp-plate--volt { background: linear-gradient(180deg, #120a2a 0%, #2a1a52 60%, #3c2a6a 100%); }
+  .vp-plate .vpp-sea { fill: #0c0820; }
+  .vp-plate .vpp-sea-edge { stroke: #5b4a9a; }
   .vp-plate .vpp-flash { inset: 0; background: rgb(200 220 255 / 0.3); opacity: 0; animation: vpp-flash 4.5s steps(1) infinite; }
   .vp-plate .vpp-bolt { opacity: 0; animation: vpp-bolt 4.5s steps(1) infinite; }
   .vp-plate .vpp-bolt path { filter: drop-shadow(0 0 2px #7fe6ff) drop-shadow(0 0 5px #3cc8ff); }
@@ -806,6 +808,7 @@
   .vp-plate .vpp-ribbon--b { left: 52%; width: 30%; background: linear-gradient(180deg, transparent 10%, rgb(176 107 255 / 0.65) 45%, rgb(255 107 213 / 0.3) 72%, transparent 95%); animation-duration: 9s; animation-delay: -3s; }
   .vp-plate .vpp-ribbon--c { left: 72%; width: 26%; background: linear-gradient(180deg, transparent 10%, rgb(42 255 176 / 0.55) 50%, transparent 90%); animation-duration: 8s; animation-delay: -5s; }
   .vp-plate .vpp-mountains { left: 0; right: 0; bottom: 0; width: 100%; height: 42%; }
+  .vp-plate .vpp-mount { fill: #03060f; }
   .vp-plate .vpp-shooting-star { top: 18%; left: 55%; width: 46px; height: 1.5px; border-radius: 2px; background: linear-gradient(90deg, transparent, #fff); opacity: 0; animation: vpp-shoot 6s ease-out infinite; }
   @keyframes vpp-wave { 0% { transform: skewX(-24deg) translateX(-12%) scaleY(0.92); } 100% { transform: skewX(-14deg) translateX(10%) scaleY(1.08); } }
   @keyframes vpp-shoot { 0%, 72% { opacity: 0; transform: translate(0, 0) rotate(16deg); } 75% { opacity: 1; } 90% { opacity: 0; transform: translate(70px, 20px) rotate(16deg); } 100% { opacity: 0; } }
@@ -896,10 +899,9 @@
   @keyframes vpp-candle { 0% { opacity: 0.55; } 50% { opacity: 1; } 100% { opacity: 0.75; } }
 
   /*
-   * Day versions (option 2 trial, developer, 2026-11-04): on the light theme these scenes
-   * swap the night for daylight so they sit with the app's light surfaces. The dark theme
-   * keeps the night. Acampada at golden hour, Fondo marino as a clear lagoon, Casa encantada
-   * at a lilac dusk.
+   * Day versions (option 2, developer, 2026-11-04): on the light theme every night scene
+   * swaps the night for daylight so it sits with the app's light surfaces. The dark theme
+   * keeps the night. Ventisca and Garabato are already light.
    */
   :root:not(.dark) .vp-plate--flare { background: linear-gradient(180deg, #9fd0ee 0%, #f8dcb4 62%, #f7c08f 100%); }
   :root:not(.dark) .vp-plate--flare .vpp-stars { display: none; }
@@ -918,6 +920,45 @@
   :root:not(.dark) .vp-plate--witch .vpp-ground--night { background: #4a3a75; }
   :root:not(.dark) .vp-plate--witch .vpp-moon { background: radial-gradient(circle at 40% 40%, #fffdf2, #fff3cf 70%); box-shadow: none; opacity: 0.9; }
   :root:not(.dark) .vp-plate--witch .vpp-bat svg { fill: #3b2d62; }
+
+  /* Rayo en el mar: a stormy day over a grey sea; the bolt stays white with a deeper glow */
+  :root:not(.dark) .vp-plate--volt { background: linear-gradient(180deg, #7d8ca6 0%, #a9b7cb 60%, #c7d2df 100%); }
+  :root:not(.dark) .vp-plate--volt .vpp-sea { fill: #4d6582; }
+  :root:not(.dark) .vp-plate--volt .vpp-sea-edge { stroke: #dfe8f2; }
+  :root:not(.dark) .vp-plate--volt .vpp-bolt path { filter: drop-shadow(0 0 2px #3a6bd1) drop-shadow(0 0 4px #3a6bd1); }
+  :root:not(.dark) .vp-plate--volt .vpp-flash { background: rgb(255 255 255 / 0.45); }
+
+  /* Purpurina: pale gold with the glints catching the light */
+  :root:not(.dark) .vp-plate--sparks { background: linear-gradient(120deg, #fff3cf 0%, #f2d283 45%, #e6b84f 100%); }
+  :root:not(.dark) .vp-plate--sparks .vpp-glint { background: #fff; filter: drop-shadow(0 0 1px rgb(150 95 0)) drop-shadow(0 0 2px rgb(150 95 0 / 0.6)); }
+
+  /* Fiesta: confetti over a light pink-lilac, the papers a little deeper so they show */
+  :root:not(.dark) .vp-plate--confetti { background: linear-gradient(180deg, #fde8f6 0%, #ecd6ff 100%); }
+  :root:not(.dark) .vp-plate--confetti .vpp-confetti { filter: saturate(1.4) brightness(0.85); }
+
+  /* Aurora: a dawn sky with a faint aurora fading over blue-grey mountains */
+  :root:not(.dark) .vp-plate--aurora { background: linear-gradient(180deg, #b7d1ee 0%, #f6dccd 65%, #ffe9cf 100%); }
+  :root:not(.dark) .vp-plate--aurora .vpp-stars,
+  :root:not(.dark) .vp-plate--aurora .vpp-shooting-star { display: none; }
+  :root:not(.dark) .vp-plate--aurora .vpp-ribbon { mix-blend-mode: normal; opacity: 0.45; }
+  :root:not(.dark) .vp-plate--aurora .vpp-mount { fill: #6f80a3; }
+
+  /* Neón: the brick wall by day; the signs keep their colours, less glow, bulbs with a rim */
+  :root:not(.dark) .vp-plate--neon {
+    background-color: #eadbcd;
+    background-image: linear-gradient(rgb(120 72 48 / 0.14) 1px, transparent 1px), linear-gradient(90deg, rgb(120 72 48 / 0.12) 1px, transparent 1px);
+  }
+  :root:not(.dark) .vp-plate--neon .vpp-wallglow { opacity: 0.45; }
+  :root:not(.dark) .vp-plate--neon { filter: none; }
+  :root:not(.dark) .vp-plate--neon .vpp-tube { filter: drop-shadow(0 0 1px currentColor); }
+  :root:not(.dark) .vp-plate--neon .vpp-tube-core { opacity: 0.45; }
+  :root:not(.dark) .vp-plate--neon .vpp-bulb { box-shadow: 0 0 0 1px rgb(90 60 40 / 0.35); }
+
+  /* Arcade: a daytime platform level, sky blue with green pixel hills */
+  :root:not(.dark) .vp-plate--arcade { background: linear-gradient(180deg, #7ccbff 0%, #aee0ff 70%, #d3efff 100%); }
+  :root:not(.dark) .vp-plate--arcade .vpp-pixel-hills {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='16' shape-rendering='crispEdges'%3E%3Cpath d='M0 16 V10 H8 V6 H16 V2 H24 V6 H32 V10 H40 V8 H48 V12 H56 V14 H64 V16 Z' fill='%2363c46e'/%3E%3C/svg%3E");
+  }
 
 
   /* Frame colours — a plain plate in the colour, deeper towards the right */

@@ -45,9 +45,9 @@ export function isPlate(key: string | null | undefined): boolean {
 }
 
 // Light plates carry dark text; the rest carry white text.
-// Trial of option 2 (developer, 2026-11-04): these scenes have a day version on the light
-// theme (styles-lime.css), so content in front of them takes the theme's ink there.
-const DAYLIT: ReadonlySet<PlateFinish> = new Set<PlateFinish>(['flare', 'bubbles', 'witch']);
+// Option 2 (developer, 2026-11-04): every night scene has a day version on the light theme
+// (styles-lime.css), so content in front of them takes the theme's ink there.
+const DAYLIT: ReadonlySet<PlateFinish> = new Set<PlateFinish>(['volt', 'sparks', 'bubbles', 'confetti', 'flare', 'aurora', 'neon', 'arcade', 'witch']);
 export function plateIsDaylit(key: string | null | undefined): boolean {
   const scene = plateScene(key);
   return !!scene && !('color' in scene) && DAYLIT.has(scene.finish);
@@ -89,7 +89,7 @@ const BAT =
 function volt(banner: boolean): string {
   const fork = (x: number, h: number, s: number) =>
     `<svg class="vpp-bolt" style="left:${x}%;top:0;height:${h}%;width:${s}px" viewBox="0 0 30 60" preserveAspectRatio="none"><path d="M16 0 L12 14 L18 18 L10 32 L16 36 L8 60 M12 14 L4 22 M10 32 L22 42" fill="none" stroke="#f2fbff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
-  const sea = `<svg style="left:0;right:0;bottom:0;width:100%;height:28%" viewBox="0 0 400 20" preserveAspectRatio="none"><path d="M0 4 Q 20 0, 40 4 T 80 4 T 120 4 T 160 4 T 200 4 T 240 4 T 280 4 T 320 4 T 360 4 T 400 4 V20 H0 Z" fill="#0c0820"/><path d="M0 4 Q 20 0, 40 4 T 80 4 T 120 4 T 160 4 T 200 4 T 240 4 T 280 4 T 320 4 T 360 4 T 400 4" fill="none" stroke="#5b4a9a" stroke-width="1"/></svg>`;
+  const sea = `<svg style="left:0;right:0;bottom:0;width:100%;height:28%" viewBox="0 0 400 20" preserveAspectRatio="none"><path d="M0 4 Q 20 0, 40 4 T 80 4 T 120 4 T 160 4 T 200 4 T 240 4 T 280 4 T 320 4 T 360 4 T 400 4 V20 H0 Z" class="vpp-sea"/><path d="M0 4 Q 20 0, 40 4 T 80 4 T 120 4 T 160 4 T 200 4 T 240 4 T 280 4 T 320 4 T 360 4 T 400 4" class="vpp-sea-edge" fill="none" stroke-width="1"/></svg>`;
   return `<i class="vpp-flash"></i>${sea}${banner ? fork(12, 80, 22) + fork(84, 76, 22) : fork(66, 80, 16)}`;
 }
 
@@ -146,7 +146,7 @@ function blizzard(): string {
 
 // Aurora: a night sky with waving northern lights over dark mountains.
 function aurora(): string {
-  return `<i class="vpp-stars"></i><i class="vpp-ribbon vpp-ribbon--a"></i><i class="vpp-ribbon vpp-ribbon--b"></i><i class="vpp-ribbon vpp-ribbon--c"></i><svg class="vpp-mountains" viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 40 L0 26 L40 14 L70 24 L110 6 L150 22 L190 12 L230 26 L270 8 L310 20 L350 10 L400 24 L400 40 Z" fill="#03060f"/></svg><i class="vpp-shooting-star"></i>`;
+  return `<i class="vpp-stars"></i><i class="vpp-ribbon vpp-ribbon--a"></i><i class="vpp-ribbon vpp-ribbon--b"></i><i class="vpp-ribbon vpp-ribbon--c"></i><svg class="vpp-mountains" viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 40 L0 26 L40 14 L70 24 L110 6 L150 22 L190 12 L230 26 L270 8 L310 20 L350 10 L400 24 L400 40 Z" class="vpp-mount"/></svg><i class="vpp-shooting-star"></i>`;
 }
 
 // ── Legendaries: they grow with the streak, step for step with their frame ─────
