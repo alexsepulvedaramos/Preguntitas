@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { PlatesDisplayService } from '../../../core/services/plates-display.service';
-import { PlateContext, plateClass, plateIsLight, plateTintColor, renderPlate } from './plate-art';
+import { PlateContext, plateClass, plateIsDaylit, plateIsLight, plateTintColor, renderPlate } from './plate-art';
 
 // A plate (rama 60, spec §17.18): the scene behind a name in the featured places. Fills its
 // positioned parent (give the parent `relative isolate` and a radius, and put the content in
@@ -33,7 +33,7 @@ export class NamePlateComponent {
   protected readonly hostClass = computed(() => {
     const scene = plateClass(this.plate());
     if (!scene) return 'hidden';
-    return `vp-plate vp-plate--${this.context()} ${scene}${plateIsLight(this.plate()) ? ' vp-plate--light' : ''}${this.peek() ? ' vp-plate--peek' : ''}`;
+    return `vp-plate vp-plate--${this.context()} ${scene}${plateIsLight(this.plate()) ? ' vp-plate--light' : ''}${plateIsDaylit(this.plate()) ? ' vp-plate--daylit' : ''}${this.peek() ? ' vp-plate--peek' : ''}`;
   });
 
   protected readonly tint = computed(() => plateTintColor(this.plate()));

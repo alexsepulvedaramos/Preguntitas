@@ -45,6 +45,14 @@ export function isPlate(key: string | null | undefined): boolean {
 }
 
 // Light plates carry dark text; the rest carry white text.
+// Trial of option 2 (developer, 2026-11-04): these scenes have a day version on the light
+// theme (styles-lime.css), so content in front of them takes the theme's ink there.
+const DAYLIT: ReadonlySet<PlateFinish> = new Set<PlateFinish>(['flare', 'bubbles', 'witch']);
+export function plateIsDaylit(key: string | null | undefined): boolean {
+  const scene = plateScene(key);
+  return !!scene && !('color' in scene) && DAYLIT.has(scene.finish);
+}
+
 export function plateIsLight(key: string | null | undefined): boolean {
   const scene = plateScene(key);
   return !!scene && ('color' in scene || scene.finish === 'blizzard' || scene.finish === 'doodle');
@@ -57,7 +65,8 @@ export function plateTextClass(key: string | null | undefined): string {
   const scene = plateScene(key);
   if (!scene) return '';
   if ('color' in scene) return 'text-foreground';
-  return scene.finish === 'blizzard' || scene.finish === 'doodle' ? 'vp-on-plate vp-on-plate--light' : 'vp-on-plate';
+  if (scene.finish === 'blizzard' || scene.finish === 'doodle') return 'vp-on-plate vp-on-plate--light';
+  return DAYLIT.has(scene.finish) ? 'vp-on-plate vp-on-plate--daylit' : 'vp-on-plate';
 }
 
 // The streak tier level the legendaries grow with: 0 = no tier yet, 1 = wood … 7 = amethyst.
@@ -103,7 +112,7 @@ function bubbles(banner: boolean): string {
   const bubs = spots
     .map(([x, y, s], i) => `<i class="vpp-bubble" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;animation-delay:${F(-i * 1.1)}s"></i>`)
     .join('');
-  return `<i class="vpp-rays"></i>${bubs}<svg style="${banner ? 'left:2%' : 'right:16%'};bottom:-2px;width:${banner ? 60 : 50}px;height:70%" viewBox="0 0 60 60" preserveAspectRatio="none"><path d="M10 60 C 4 44, 18 36, 12 20 C 8 10, 16 4, 14 0 L 18 0 C 22 10, 14 18, 20 30 C 26 44, 14 50, 18 60 Z M40 60 C 36 48, 48 42, 42 30 L 46 28 C 54 42, 44 50, 46 60 Z" fill="#06384f"/></svg>`;
+  return `<i class="vpp-rays"></i>${bubs}<svg style="${banner ? 'left:2%' : 'right:16%'};bottom:-2px;width:${banner ? 60 : 50}px;height:70%" viewBox="0 0 60 60" preserveAspectRatio="none"><path d="M10 60 C 4 44, 18 36, 12 20 C 8 10, 16 4, 14 0 L 18 0 C 22 10, 14 18, 20 30 C 26 44, 14 50, 18 60 Z M40 60 C 36 48, 48 42, 42 30 L 46 28 C 54 42, 44 50, 46 60 Z" class="vpp-weed"/></svg>`;
 }
 
 // Confeti — «Fiesta»: paper confetti falling and spinning.
@@ -121,13 +130,13 @@ function confetti(banner: boolean): string {
 
 // Llamarada — «Acampada»: a campfire on a ring of stones under the stars.
 function flare(banner: boolean): string {
-  const pine = (x: number, h: number, w: number) => `<path d="M${x} ${52 - h} L${x - w} 52 L${x + w} 52 Z" fill="#0b0a18"/>`;
+  const pine = (x: number, h: number, w: number) => `<path class="vpp-pine" d="M${x} ${52 - h} L${x - w} 52 L${x + w} 52 Z"/>`;
   const fire = `<ellipse cx="90" cy="54" rx="26" ry="5" fill="rgb(255 120 30 / .35)"/>${flame(90, 26, 44, 53)}${flame(80, 16, 28, 54)}${flame(100, 16, 30, 54)}<path d="M84 40 C 86 46, 94 46, 96 40 C 94 47, 92 50, 90 50 C 88 50, 86 47, 84 40 Z" fill="#fff6c4" class="vpp-core"/><rect x="74" y="51" width="34" height="4" rx="2" fill="#4a2410" transform="rotate(-10 91 53)"/><rect x="74" y="51" width="34" height="4" rx="2" fill="#5a2c14" transform="rotate(10 91 53)"/>${[70, 76, 83, 90, 97, 104, 110].map((x, i) => `<ellipse cx="${x}" cy="${55 + (i % 2)}" rx="3.6" ry="2.6" fill="#5b5550" stroke="#2a2522" stroke-width=".6"/>`).join('')}`;
   const swirls = [0, 1, 2, 3, 4, 5].map((i) => `<i class="vpp-swirl" style="animation-delay:${F(-i * 0.45)}s;--sx:${i % 2 ? -1 : 1}"></i>`).join('');
   if (banner)
     // The avatar covers the middle: pines on the left, the fire on its own on the right.
-    return `<i class="vpp-stars"></i><i class="vpp-ground"></i><svg class="vpp-pines" viewBox="0 0 50 60" preserveAspectRatio="xMinYMax meet">${pine(14, 30, 9)}${pine(30, 22, 7)}<path d="M0 52 L50 52 L50 60 L0 60 Z" fill="#0d0805"/></svg><i class="vpp-glow"></i><svg class="vpp-fire" viewBox="62 6 56 54" preserveAspectRatio="xMaxYMax meet"><path d="M62 52 L118 52 L118 60 L62 60 Z" fill="#0d0805"/>${fire}</svg>${swirls}`;
-  return `<i class="vpp-stars"></i><i class="vpp-glow"></i><svg class="vpp-scene" viewBox="0 0 160 60" preserveAspectRatio="xMaxYMax meet">${pine(18, 30, 9)}${pine(34, 22, 7)}${pine(148, 34, 10)}${pine(134, 24, 7)}<path d="M0 52 L160 52 L160 60 L0 60 Z" fill="#0d0805"/>${fire}</svg>${swirls}`;
+    return `<i class="vpp-stars"></i><i class="vpp-ground"></i><svg class="vpp-pines" viewBox="0 0 50 60" preserveAspectRatio="xMinYMax meet">${pine(14, 30, 9)}${pine(30, 22, 7)}<path class="vpp-soil" d="M0 52 L50 52 L50 60 L0 60 Z"/></svg><i class="vpp-glow"></i><svg class="vpp-fire" viewBox="62 6 56 54" preserveAspectRatio="xMaxYMax meet"><path class="vpp-soil" d="M62 52 L118 52 L118 60 L62 60 Z"/>${fire}</svg>${swirls}`;
+  return `<i class="vpp-stars"></i><i class="vpp-glow"></i><svg class="vpp-scene" viewBox="0 0 160 60" preserveAspectRatio="xMaxYMax meet">${pine(18, 30, 9)}${pine(34, 22, 7)}${pine(148, 34, 10)}${pine(134, 24, 7)}<path class="vpp-soil" d="M0 52 L160 52 L160 60 L0 60 Z"/>${fire}</svg>${swirls}`;
 }
 
 // Ventisca — «Colinas de día»: snowy hills with small pines and snow falling.
@@ -439,7 +448,7 @@ function stickerPage(level: number, banner: boolean): string {
 // bats and a full moon. The Halloween frame draws its own moon from gold on at full size, so
 // the banner drops this one there.
 function witch(level: number, banner: boolean): string {
-  const house = `<g transform="translate(${banner ? 14 : 300} 16)"><path d="M0 44 V20 L14 6 L28 20 V44 Z M24 20 V2 L34 -6 L44 2 V44 H28 Z" fill="#0a0716"/>${[[6, 24], [17, 24], [6, 34], [30, 10], [35, 26]]
+  const house = `<g transform="translate(${banner ? 14 : 300} 16)"><path class="vpp-house" d="M0 44 V20 L14 6 L28 20 V44 Z M24 20 V2 L34 -6 L44 2 V44 H28 Z"/>${[[6, 24], [17, 24], [6, 34], [30, 10], [35, 26]]
     .map(([x, y], i) => `<rect class="vpp-window" style="animation-delay:${F(-i * 0.3)}s" x="${x}" y="${y}" width="5" height="6" fill="#ffcf5a"/>`)
     .join('')}</g>`;
   const stone = (x: number, y: number, s: number, tilt: number) =>
@@ -451,7 +460,7 @@ function witch(level: number, banner: boolean): string {
   const bats = [0, 1]
     .map((i) => `<i class="vpp-bat" style="left:${banner ? (i ? 60 : 2) : 40}%;top:${12 + i * 26}%;--bw:${banner ? 120 : 160}px;animation-delay:${-i * 3}s${i ? ';width:14px;height:7px' : ''}">${BAT}</i>`)
     .join('');
-  return `${moon}${bats}<i class="vpp-ground vpp-ground--night"></i><svg style="left:0;right:0;bottom:0;width:100%;height:100%" viewBox="0 0 400 60" preserveAspectRatio="${banner ? 'xMidYMax meet' : 'xMaxYMax slice'}"><path d="M0 52 C 120 46, 260 56, 400 50 L400 60 L0 60 Z" fill="#0a0716"/>${graves}${house}</svg>`;
+  return `${moon}${bats}<i class="vpp-ground vpp-ground--night"></i><svg style="left:0;right:0;bottom:0;width:100%;height:100%" viewBox="0 0 400 60" preserveAspectRatio="${banner ? 'xMidYMax meet' : 'xMaxYMax slice'}"><path class="vpp-house" d="M0 52 C 120 46, 260 56, 400 50 L400 60 L0 60 Z"/>${graves}${house}</svg>`;
 }
 
 // ── Entry point ────────────────────────────────────────────────────────────────
