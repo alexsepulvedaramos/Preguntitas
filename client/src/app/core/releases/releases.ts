@@ -41,6 +41,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.33.2',
+    date: '2026-11-07',
+    title: {
+      es: 'La cápsula del tiempo, sin sustos',
+      en: 'Time capsule, no surprises',
+      de: 'Zeitkapsel ohne Überraschungen',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'Al elegir otro mes o año para abrir la cápsula del tiempo, el formulario del flash ya no se cierra; y el año solo ofrece los que valen.',
+          en: 'Picking another month or year for the time capsule no longer closes the flash form, and the year list only offers the ones that work.',
+          de: 'Wählst du für die Zeitkapsel einen anderen Monat oder ein anderes Jahr, schließt sich das Flash-Formular nicht mehr – und es stehen nur die Jahre zur Wahl, die gehen.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.33.1',
     date: '2026-11-02',
     title: {
