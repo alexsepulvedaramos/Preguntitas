@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown } from '@ng-icons/lucide';
+import { BrnDialog } from '@spartan-ng/brain/dialog';
 import { BrnFieldControl, BrnFieldControlDescribedBy } from '@spartan-ng/brain/field';
 import { ButtonVariants, HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmPopoverTrigger } from '@spartan-ng/helm/popover';
@@ -13,7 +14,14 @@ import { injectHlmDatePicker } from './hlm-date-picker.token';
 @Component({
 	selector: 'hlm-date-picker-trigger',
 	imports: [HlmButtonImports, HlmPopoverTrigger, NgIcon, BrnFieldControlDescribedBy],
-	providers: [provideIcons({ lucideChevronDown }), provideHlmDatePickerTrigger(HlmDatePickerTrigger)],
+	providers: [
+		provideIcons({ lucideChevronDown }),
+		provideHlmDatePickerTrigger(HlmDatePickerTrigger),
+		// The inner popover trigger targets the picker's own popover ([hlmPopoverTriggerFor]). Without
+		// this it would also grab the nearest enclosing dialog and make it close on outside clicks, so
+		// picking a month or year in the calendar's dropdowns (their own overlay) closed that dialog.
+		{ provide: BrnDialog, useValue: null },
+	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: { 'data-slot': 'date-picker-trigger' },
 	template: `

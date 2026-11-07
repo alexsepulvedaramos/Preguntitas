@@ -39,6 +39,12 @@ function addMonths(months: number): Date {
   return d;
 }
 
+function capsuleYears(min: Date, max: Date): number[] {
+  const years: number[] = [];
+  for (let y = min.getFullYear(); y <= max.getFullYear(); y++) years.push(y);
+  return years;
+}
+
 const DATE_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
 
 // Flash extras (rama 50, §17.15 item 6), folded under «Extras» in the flash form: anonymous
@@ -56,7 +62,8 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short'
     CoinTextComponent,
     FoldSectionComponent,
   ],
-  providers: [provideCalendarI18n()],
+  // The year dropdown only offers the years the capsule can open in (this one and the next).
+  providers: [provideCalendarI18n(() => capsuleYears(addDays(FLASH_CAPSULE_MIN_DAYS), addDays(FLASH_CAPSULE_MAX_DAYS)))],
   template: `
     <app-fold-section [title]="t('flash.extrasTitle')" [summaryGlyphs]="summaryGlyphs()">
       @for (extra of extras; track extra.glyph) {

@@ -8,8 +8,9 @@ const weekdayDate = (index: number) => new Date(2023, 0, 1 + index);
 
 // Spartan's calendar (the history date picker) in the UI language. Every function reads the
 // current locale when called, so the calendar re-renders with it when the language changes.
-// Weeks start on Monday, as they do in all three languages' countries.
-export function provideCalendarI18n(): Provider {
+// Weeks start on Monday, as they do in all three languages' countries. `years` limits the year
+// dropdown (Spartan lists 1925 to next year by default).
+export function provideCalendarI18n(years?: () => number[]): Provider {
   return {
     provide: BrnCalendarI18nToken,
     useFactory: () => {
@@ -30,6 +31,7 @@ export function provideCalendarI18n(): Provider {
         labelPrevious: () => i18n.t('calendar.previous'),
         labelNext: () => i18n.t('calendar.next'),
         firstDayOfWeek: () => 1,
+        ...(years ? { years } : {}),
       });
       return service;
     },
