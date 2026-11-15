@@ -1146,6 +1146,8 @@ From the developer's notes (2026-10-21 → 2026-11-09), checked against the code
 ### Achievements (rama 71, not designed)
 *(developer, 2026-11-15)* Trophies that pile up on the profile, earned by rare feats and by accumulation. The developer's examples: being the most voted with 100 % of the votes on a day everyone voted; writing a question on which every member of the group commented in the chat. The list, whether they are per group or global, and whether they pay coins are open. Constraint (§11.1): they must be granted from events (a vote, the close of a cycle), never by scanning the history.
 
+**Where they show (developer, 2026-11-15):** whoever opens your profile — the member card inside a group, and your own profile page — gets a button that opens **all your achievements**. Every achievement has **its own art**: a trophy, medal or icon drawn in the app's style (the glyph set and the streak-ring materials, §14), not a generic badge or an emoji. Open: whether the ones you haven't earned show locked, hidden or as a silhouette. The screen and the art are shown as a prototype first (§14 UI review gate).
+
 ### Other developer notes (2026-10-21 → 2026-11-09)
 - ⚪ **Monthly summary** — "guesser of the month" already exists (`guesser` award); add "duelist of the month" and a way to share it (rama 65).
 - ⚪ **Guess reward by group size** — pay a right guess according to how many candidates there were instead of a flat 5 🪙 (rama 72). Open: the cap, and whether the hint halves it.
