@@ -430,6 +430,7 @@ export const en: Translation = {
     lockedEmpty: 'Vote on the question to join the chat.',
   },
   reactions: {
+    holdHintChat: 'Press and hold a message to react',
     holdHint: 'Press and hold an answer to react',
     add: 'React',
     open: 'Reactions: {summary}',

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, OnInit, afterNextRender, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, Injector, OnInit, afterNextRender, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +20,8 @@ import { GroupStreaksService } from '../../services/group-streaks.service';
 import { UserNameComponent } from '../../../../shared/components/user-name/user-name.component';
 import { GlyphComponent } from '../../../../shared/components/glyph/glyph.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
+import { OneTimeHintsService } from '../../../../core/services/one-time-hints.service';
+import { LongPressDirective } from '../../../../shared/directives/long-press.directive';
 import { ReactionsComponent } from '../reactions/reactions.component';
 
 export const CHAT_POLL_INTERVAL_MS = 15_000;
@@ -29,7 +31,7 @@ const AT_BOTTOM_THRESHOLD_PX = 80;
 
 @Component({
   selector: 'app-group-chat',
-  imports: [ReactionsComponent, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
+  imports: [ReactionsComponent, LongPressDirective, GlyphComponent, UserNameComponent, UserAvatarComponent, DatePipe, FormsModule, HlmButtonImports, HlmInputImports, HlmSpinnerImports, NgIcon],
   providers: [provideIcons({ lucideLock, lucideSend })],
   templateUrl: './group-chat.component.html',
 })
@@ -110,6 +112,17 @@ export class GroupChatComponent implements OnInit {
   }
 
   // Our own reaction moves the row under the bubble at once (rama 48).
+  // The one-off "press and hold to react" line, while there is someone else's message.
+  private readonly hints = inject(OneTimeHintsService);
+  protected readonly showHint = computed(
+    () => this.hints.isPending('reactionHold') && this.messages().some((m) => !m.isSystem && !m.isCurrentUser),
+  );
+
+  react(reactions: ReactionsComponent) {
+    reactions.open();
+    this.hints.dismiss('reactionHold');
+  }
+
   setReactions(messageId: number, reactions: Reaction[]) {
     this.messages.update((messages) => messages.map((m) => (m.id === messageId ? { ...m, reactions } : m)));
   }

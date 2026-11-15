@@ -60,9 +60,9 @@ export const RELEASES: readonly Release[] = [
       {
         kind: 'polish',
         text: {
-          es: 'Para reaccionar a una respuesta escrita, mantenla pulsada. Sin un botón debajo de cada una, las respuestas ya no quedan tan separadas.',
-          en: 'To react to a written answer, press and hold it. With no button under each one, the answers no longer sit so far apart.',
-          de: 'Um auf eine geschriebene Antwort zu reagieren, halte sie gedrückt. Ohne Knopf unter jeder Antwort stehen sie nicht mehr so weit auseinander.',
+          es: 'Para reaccionar a una respuesta escrita o a un mensaje del chat, mantenlo pulsado. Sin un botón debajo de cada respuesta, ya no quedan tan separadas.',
+          en: 'To react to a written answer or a chat message, press and hold it. With no button under each answer, they no longer sit so far apart.',
+          de: 'Um auf eine geschriebene Antwort oder eine Chatnachricht zu reagieren, halte sie gedrückt. Ohne Knopf unter jeder Antwort stehen sie nicht mehr so weit auseinander.',
         },
       },
       {
