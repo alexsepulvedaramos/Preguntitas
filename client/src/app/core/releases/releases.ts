@@ -41,6 +41,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.2',
+    date: '2026-11-15',
+    title: {
+      es: 'Reacciona igual en el chat',
+      en: 'React the same way in the chat',
+      de: 'Im Chat genauso reagieren',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'En el chat también se reacciona manteniendo pulsado el mensaje, igual que en las respuestas escritas.',
+          en: 'In the chat you now react by pressing and holding the message too, just like on written answers.',
+          de: 'Auch im Chat reagierst du jetzt, indem du die Nachricht gedrückt hältst – wie bei den geschriebenen Antworten.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.34.1',
     date: '2026-11-15',
     title: {
@@ -60,9 +79,9 @@ export const RELEASES: readonly Release[] = [
       {
         kind: 'polish',
         text: {
-          es: 'Para reaccionar a una respuesta escrita o a un mensaje del chat, mantenlo pulsado. Sin un botón debajo de cada respuesta, ya no quedan tan separadas.',
-          en: 'To react to a written answer or a chat message, press and hold it. With no button under each answer, they no longer sit so far apart.',
-          de: 'Um auf eine geschriebene Antwort oder eine Chatnachricht zu reagieren, halte sie gedrückt. Ohne Knopf unter jeder Antwort stehen sie nicht mehr so weit auseinander.',
+          es: 'Para reaccionar a una respuesta escrita, mantenla pulsada. Sin un botón debajo de cada una, las respuestas ya no quedan tan separadas.',
+          en: 'To react to a written answer, press and hold it. With no button under each one, the answers no longer sit so far apart.',
+          de: 'Um auf eine geschriebene Antwort zu reagieren, halte sie gedrückt. Ohne Knopf unter jeder Antwort stehen sie nicht mehr so weit auseinander.',
         },
       },
       {

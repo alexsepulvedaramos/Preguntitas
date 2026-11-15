@@ -1142,7 +1142,7 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 
 - ✅ **No feedback after suggesting a question** — a toast says it was saved.
 - ✅ **Opening a notification of another group with the app open doesn't switch group** — the group screens are rebuilt when the `groupId` in the route changes (`GroupRouteReuseStrategy`).
-- ✅ **The reaction button widens the gaps between written answers** — press and hold the answer instead; no button per answer, and the same in the chat (§14 "Reactions on written answers and chat messages").
+- ✅ **The reaction button widens the gaps between written answers** — press and hold the answer instead; no button per answer, and the same in the chat (§14 "Reactions on written answers and chat messages") — the chat in release 1.34.2.
 - ✅ **"Seen" flags live in `localStorage`** — kept per account (`UserSeenMark`, §7.1), with a one-time hand-over of what each device remembered.
 - ✅ **Small avatars** — the whole frame at every size (§14 "People").
 - ✅ **«X ha votado» re-alerts on every vote** — a vote joining the merged notification no longer rings (`renotify` only for other kinds). Reactions and messages still ring (developer, 2026-11-15).
