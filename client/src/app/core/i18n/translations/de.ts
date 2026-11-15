@@ -803,6 +803,8 @@ export const de: Translation = {
     prefShopNewsHint: 'Wenn ein Saison-Rahmen kommt, nur ein paar Tage zu haben',
     prefUserVoted: 'Jemand hat abgestimmt',
     prefNewMessage: 'Neue Chatnachricht',
+    prefVoteReminder: 'Erinnerung ans Abstimmen',
+    prefVoteReminderHint: 'Wenn die Frage bald endet und du noch nicht abgestimmt hast',
     prefStreakDanger: 'Serie in Gefahr',
     prefStreakDangerHint: 'Wenn du seit 3 Tagen oder länger dabei bist und noch nicht abgestimmt hast',
     dangerLead: 'Erinnere mich vor dem Schließen:',

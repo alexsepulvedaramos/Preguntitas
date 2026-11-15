@@ -221,6 +221,25 @@ public class NotificationService(
                 ));
         });
 
+    public Task SendVoteReminderAsync(
+        int groupId, int userId, string groupName, TimeOnly dailyTime, int votedCount, int memberCount) =>
+        RunLoggedAsync("vote_reminder", groupId, async context =>
+        {
+            var recipients = await context.DevicePushSubscriptions
+                .Where(s => s.UserId == userId)
+                .Select(s => new Recipient(s, s.User.PreferredLanguage))
+                .ToListAsync();
+            var time = FormatTime(dailyTime);
+            await SendLocalizedAsync(context, recipients, UntilNextDailyTime(dailyTime), lang =>
+                BuildPayload(
+                    ServerText.Push.VoteReminderTitle(lang, groupName),
+                    votedCount > 0
+                        ? ServerText.Push.VoteReminderBody(lang, time, votedCount, memberCount)
+                        : ServerText.Push.VoteReminderNobodyBody(lang, time),
+                    groupId, groupName, "vote_reminder", lang
+                ));
+        });
+
     public Task SendNudgeAsync(
         int groupId, int targetUserId, string groupName, string senderUsername, string? message, TimeSpan ttl) =>
         RunLoggedAsync("nudge", groupId, async context =>

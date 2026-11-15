@@ -58,6 +58,7 @@ public interface IStreakService
     // computed, and applies the one-time switch to the streak frame.
     Task BackfillAsync();
 
-    // Background tick: "streak in danger" pushes before the cycle closes.
-    Task SendDangerRemindersAsync();
+    // Background tick: the pushes before the cycle closes, to members who haven't voted —
+    // "streak in danger" for a streak of 3+ days, the plain vote reminder (rama 61) otherwise.
+    Task SendPreCloseRemindersAsync();
 }

@@ -137,8 +137,8 @@ public class DailyCycleRunner(
         // ── RACE TO SELECT (§17.5): T − 10 min and still auto-selected ─────────────
         await OpenRacesAsync(nowUtc);
 
-        // ── STREAK IN DANGER (rama 19) ────────────────────────────────────────
-        await streakService.SendDangerRemindersAsync();
+        // ── STREAK IN DANGER (rama 19) AND VOTE REMINDER (rama 61) ─────────────
+        await streakService.SendPreCloseRemindersAsync();
 
         // ── MONTHLY SUMMARY (§17.12): a few groups per tick ────────────────────
         await monthlySummaryService.BuildPendingAsync();

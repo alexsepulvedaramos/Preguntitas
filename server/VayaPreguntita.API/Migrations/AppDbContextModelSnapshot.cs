@@ -433,6 +433,9 @@ namespace VayaPreguntita.API.Migrations
                     b.Property<int>("StreakFreezes")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("VoteReminderEntryId")
+                        .HasColumnType("integer");
+
                     b.HasKey("GroupId", "UserId");
 
                     b.HasIndex("UserId");
@@ -511,6 +514,9 @@ namespace VayaPreguntita.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<bool>("UserVoted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("VoteReminder")
                         .HasColumnType("boolean");
 
                     b.HasKey("UserId");

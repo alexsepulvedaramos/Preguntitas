@@ -1,7 +1,7 @@
 # Vaya Preguntita — Unified Technical & Agent Guide
 
 > **Purpose:** Single source of truth for developers and AI coding agents (Claude, Copilot, etc.).
-> **Last updated:** 12 October 2026 · **Status:** MVP feature-complete; post-MVP pass done (§13; ramas 14–27; SignalR rama 13 dropped for polling); Phase 2 planned (§13 "Phase 2 plan") — ramas 28 (invite QR), 29 (capacity study) and 30 (gameplay design, §17) done.
+> **Last updated:** 15 November 2026 · **Status:** MVP feature-complete; post-MVP pass done (§13; ramas 14–27; SignalR rama 13 dropped for polling); Phase 2 planned (§13 "Phase 2 plan") — ramas 28 (invite QR), 29 (capacity study) and 30 (gameplay design, §17) done.
 > **Language policy:** This document and all code/comments are written in English. UI-facing copy is Spanish (it is a Spanish-language app).
 
 ---
@@ -786,6 +786,7 @@ Start a disposable Postgres (`docker run -p 55432:5432 postgres:15-alpine`), run
 | Capacity study (rama 29, docs only): free-tier limit inventory, measured throughput of the API at Render's 0.1 vCPU / 512 MB, per-player load model and a feature budget — §11.1; reproducible scripts in `tools/loadtest/` | ✅ — rama 29 |
 | Shop rethink (rama 57, release 1.32.0, §17.16): migration `ShopRethink` — refunds what owners paid for name colours and app themes (`CosmeticRefund` rows; the list price when there is no purchase row) and drops `User.NameColorKey`/`ThemeKey`, renames the old ring skin keys (ids 2–4 now Arcade, Ventisca, Llamarada), moves seniority-frame wearers to the streak ring, gifts every player the frame colour they wear (`UserItem frame-<key>`), adds `NotificationPreferences.ShopNews` (on) and the `Announcements` table. `ShopCatalog`: ten finishes in three rarity steps (rare 400: Rayos, Chispas, Burbujas, Confeti — epic 800: Llamarada, Ventisca, Aurora — legendary 1 500: Neón, Arcade, Garabato; Órbita and Purpurina drawn but not sold), seven frame colours (200), seasonal items with a UTC sale window (`OnSaleFrom`/`OnSaleUntil`, `IsOnSale`; the first: Noche de brujas, 100 🪙, 27 Oct 16:00 → 3 Nov 16:00 Madrid). `SeasonalAnnouncementService` (daily cycle tick): one push per seasonal item, from 16:00 to 19:00 Madrid on its first afternoon on sale (or the next, if missed), written to `Announcements` first so it goes out once. Client: `ring-finishes.ts` draws every finish over the tier material (or a neutral ring before the first tier), with the game's icons on Neón/Arcade/Garabato and a crown in each finish's own style, the same size as the gold one; `app-user-avatar` `effects` (`auto` · `full` · `ring`); `/shop` with «Objetos» · «Estilo» (season, finishes by rarity on tiles that run through the levels, a sheet per finish with every level, frame colours, try-on) and the ledger in a bottom sheet from the balance pill; the profile frame picker shows the owned colours plus «Más colores»; a «Novedades de la tienda» push switch. App themes (`data-vp-theme`, `ThemeService` palette), name colours (`app-user-name` no longer reads a look) and the seniority frame are gone. Author reward: `CoinReason.QuestionPlayed = 22`, +10 🪙 (capped) to the author of a member-written question at activation (`DailyCycleRunner.PayAuthorRewardAsync`), and a «+10 🪙» chip on the «Sugerir» button | ✅ — rama 57 |
 | Guess the chooser (rama 58, release 1.33.0, §17.17): migration `GuessTheChooser` (`AuthorGuess.GuessedCreatorId` → `GuessedUserId`, `FlashEntry.GuessLauncher`, new `FlashGuess` table keyed `(FlashEntryId, UserId)`); `AuthorGuessRules.TargetOf` picks the one guess per question (author when member-written, chooser for `Picked`/`Confirmed`, launcher for a flash with `GuessLauncher`); `AuthorGuessService` runs the same game on either table; `POST flash/{id}/guess` and `/guess/hint`; `CoinReason.FlashGuessCorrect` (23) and `FlashHint` (24); `GuessCorrect` leaves the daily cap; `RaceWon` 10 → 5; `today.decidedByChance`; `FlashStateDto.LauncherHidden` + `Guess`; flash and duel pushes without the launcher's name; `MemberStatsDto.TimesSelector` removed; member card and «Mejor detective» count every kind of guess. Client: `app-author-guess` by kind (and `flashId`), «¿Quién la lanzó?» on the flash card and tab, «Hoy decidió el azar», `app-coin-badge` «+N 🪙» on voting (`app-vote` `reward`, with the streak bonus), choosing (+5), «Me vale esta» (+5) and writing it as selector (+10), hint renamed «Pista». | ✅ — rama 58 |
+| Vote reminder (rama 61, release 1.34.0, §17.18): migration `AddVoteReminder` (`NotificationPreferences.VoteReminder`, `GroupMember.VoteReminderEntryId`); `StreakService.SendPreCloseRemindersAsync` (was `SendDangerRemindersAsync`) sends either the streak-danger push or the new `vote_reminder` push; profile switch «Recordatorio para votar»; `sw.js` merges and expires it | ✅ |
 
 ### Pending (MVP)
 
@@ -873,6 +874,20 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 | 56 | `fix/polish-pass` | Known small bugs and improvements: the developer's list plus a sweep of the app and code (console errors, build warnings, main flows), collected in §16 and approved before the branch starts. **Added 2026-10-21 (sprint 4, before the Play Store).** |
 | 31 | `perf/free-tier-optimization` | **Load speed and resource usage**, tuned to the free-tier limits measured in rama 29. Frontend: initial bundle back under the 500 kB budget (currently ~569 kB, warning), lazy-loading (never by dropping Spartan — design over bundle size), fonts/images, service-worker caching, Lighthouse pass. Backend/DB: query counts and indexes on hot paths, caching layer (absorbs the "Deferred: caching/perf hardening" item), history depth cap, polling/SignalR intervals, background-service work per tick, Render cold start, Supabase egress. Runs after the gameplay ramas so it optimizes the final shape. |
 | 32 | `feat/play-store` | Publish on Google Play (25 $ one-time fee accepted). **Starts with an analysis: Capacitor vs TWA (Bubblewrap)** — Capacitor's WebView doesn't support Web Push (backend would move Android to FCM, free) but opens native plugins (e.g. screen brightness for the QR) and iOS later; a TWA keeps the PWA and its Web Push nearly untouched but needs a real domain with Digital Asset Links (ties to the §16 free-domain item). Then: build/signing, store listing (ES/EN/DE), privacy policy, Play policies, release track. |
+| 61 ✅ | `feat/vote-reminder` | **Done (release 1.34.0).** §17.18 — a push before the question closes to every member who hasn't voted and has no streak in danger. |
+| 62 | `feat/account-and-legal` | Delete my account and my data, delete a group (`DELETE /groups/{id}`, §8), privacy policy and terms pages, report a question / answer / chat message to the group admin. Needed for Google Play (rama 32). Right after rama 55. **Added 2026-11-15; details settled at branch time.** |
+| 63 | `feat/metrics` | Minimal measurement with no third party: the funnel (sign-up → first group → first vote → back after 7 days), participation per group and week, and a server error log the developer can read. **Added 2026-11-15; details settled at branch time.** |
+| 64 | `feat/chat-everywhere` | Each flash gets its own chat (today only the daily question has one, shown under every card); `@` mentions with a push; reply to a vote or an answer; review the 10-messages limit. **Added 2026-11-15; details settled at branch time.** |
+| 65 | `feat/share-results` | Share a result and the monthly summary as an image (Web Share); the summary gains "duelist of the month". **Added 2026-11-15; look shown as a prototype first (§14).** |
+| 66 | `feat/group-time-zone` | Per-group IANA time zone logic on the existing `Group.TimeZoneId` (§4.1). **Added 2026-11-15.** |
+| 67 | `feat/ranking-question` | New question type: order a closed list (written by the author, or the group's members) by dragging; results by average position. **Added 2026-11-15; rules and look settled at branch time.** |
+| 68 | `feat/duel-rework` | Duels shown as face-vs-face, "Duelo" as its own entry in the type picker (still a 1-vs-1 Deathmatch underneath), late votes out of the duel result, and the "you can't vote for yourself" option. **Added 2026-11-15; open points in §16.** |
+| 69 | `feat/group-memory-questions` | Questions made from the group's own history: «Un año después» (an old question played again, results compared) and «¿Quién lo dijo?» (from past written answers). **Added 2026-11-15; rules settled at branch time.** |
+| 70 | `feat/weekly-recap` | A light weekly recap next to the monthly summary. **Added 2026-11-15.** |
+| 71 | `feat/achievements` | Trophies that pile up on the profile (§16 "Achievements"). **Added 2026-11-15; the list and the rules need the developer's OK first.** |
+| 72 | `feat/economy-sinks` | The bet on the result («porra»), gifting more items than freezes, and the guess reward scaled to the group's size (§16). **Added 2026-11-15; the bet's rules need the developer's OK first.** |
+| 73 | `feat/group-packs` | A group's own pack, shareable with other groups by code (§16). **Added 2026-11-15; not designed.** |
+| 74 | `feat/photo-questions` | A photo attached to a question; photo answers later. After rama 62 (it needs reporting). **Added 2026-11-15; not designed.** |
 
 **Phase 2 priority order (confirmed 2026-10-12):** ~~27~~ ✅ ∥ ~~28~~ ✅ → ~~29~~ ✅ → ~~30~~ ✅ → ~~33~~ ✅ → ~~34~~ ✅ → ~~35~~ ✅ → ~~36~~ ✅ → ~~37~~ ❌ *(dropped, folded into 41)* → ~~38~~ ⏸️ *(postponed to backlog)* → ~~39~~ ✅ → 40 → ~~41~~ ✅ → 42 → 43 → 44 → 31 → 32. **Added 2026-10-20:** ~~46~~ ✅ and 43 (§17.15) before 31. **Added 2026-10-21:** ~~47~~ ✅ (free duels; planned after 43, built first on the developer's call) before 31.
 
@@ -882,6 +897,17 @@ Developer decisions (2026-10-12): the invitation QR was built **in parallel with
 3. **Groups, admin, auth and security:** 52 → 53 → 54 → 55.
 4. **Polish pass** of known small bugs and improvements: 56.
 5. **Play Store:** 32 (after 54, the TWA option needs the domain).
+
+**Order (developer, 2026-11-15 — supersedes the sprint order above for what's left):**
+1. ~~61~~ ✅ vote reminder.
+2. **Polish pass:** 56, with the list now in §16.
+3. **Accounts and legal:** 55 (password recovery and Google first) → 62 → 54.
+4. **Measurement:** 63 — before the game ramas, so their effect can be seen.
+5. **Chat:** 64.
+6. **Performance:** 31 (the initial bundle is at ~770 kB against the 500 kB budget).
+7. **Growth:** 65 → 66 → 32 (Play Store, after 62 and 54).
+8. **Game:** 67 → 68 → 69 → 70 → 71 → 72 → 51 → 73 → 74.
+9. **Groups and admin:** 52 → 53, wherever they fit between the above.
 
 Not scheduled (not approved): the §17.15 "under discussion" list, the group streak (§17.8), activity-aware rotation, the "reparto/casting" type.
 
@@ -1105,7 +1131,32 @@ Captured from the developer's running notes (2026-06-22). Legend: 🟢 MVP · �
 - ✅ **Chat only after you answer** *(developer, 2026-10-12; rama 49, release 1.29.0)* — you only see (and get `new_message` pushes for) a day's chat once you've voted on that question, both in the app and in notifications, so the chat can't spoil the answers. **Decided (developer, 2026-10-21):** (1) non-voters see the chat **locked with its message count** («12 mensajes en el chat · Vota la pregunta para leerlos y escribir»); (2) the `new_message` pushes held back while you hadn't voted are **dropped**, not summarised — after voting you're already in the app; (3) **no writing** before voting either (nor reacting to a message). History gating / late votes (rama 39, §17.7) don't interact: the chat only exists for the open daily question (the history and flashes have none).
 
 ### Known small bugs & improvements (rama 56)
-Collected here until the polish pass (§13 rama 56) starts: the developer's own list plus what a sweep of the app and code finds; the developer approves the final list before the branch. *(Empty so far.)*
+Collected here until the polish pass (§13 rama 56) starts: the developer's own list plus what a sweep of the app and code finds; the developer approves the final list before the branch.
+
+From the developer's notes (2026-10-21 → 2026-11-09), checked against the code on 2026-11-15:
+- **No feedback after suggesting a question** — the dialog closes and nothing says it was saved; add a toast.
+- **Opening a notification of another group with the app open doesn't switch group** — the push carries `/groups/{id}` and the router reuses the group screen, which only loads on init. Reload when the group id changes.
+- **Late votes count in duels** (`DuelRules.Outcome`) — the developer doesn't want them to; a duel should be settled when it closes. *(Listed in rama 68 too; do it wherever comes first.)*
+- **The reaction button widens the gaps between written answers** — to rework (the developer suggests press-and-hold); shown as a prototype first (§14).
+- **Can't place the cursor on a misspelled word on a phone** — the word gets marked and offers replacements, but the keyboard doesn't open. To reproduce on a device.
+- **"Seen" flags live in `localStorage`** (release notes, one-off hints such as the vote-change one, the monthly summary card), so they come back after logging out or on another device. Keep them per user on the server.
+- **Small avatars** — try the frame, or at least the custom crown, at the small sizes; shown as a prototype first (§14).
+- **«X ha votado» re-alerts on every vote** — the notifications already merge into one per group in `sw.js` («Ana, Luis y 2 más han votado»), but each new vote makes the phone ring again (`renotify`). Make the merged update silent.
+
+### Achievements (rama 71, not designed)
+*(developer, 2026-11-15)* Trophies that pile up on the profile, earned by rare feats and by accumulation. The developer's examples: being the most voted with 100 % of the votes on a day everyone voted; writing a question on which every member of the group commented in the chat. The list, whether they are per group or global, and whether they pay coins are open. Constraint (§11.1): they must be granted from events (a vote, the close of a cycle), never by scanning the history.
+
+### Other developer notes (2026-10-21 → 2026-11-09)
+- ⚪ **Monthly summary** — "guesser of the month" already exists (`guesser` award); add "duelist of the month" and a way to share it (rama 65).
+- ⚪ **Guess reward by group size** — pay a right guess according to how many candidates there were instead of a flat 5 🪙 (rama 72). Open: the cap, and whether the hint halves it.
+- ⚪ **`@` mentions** and **a separate chat per flash** — rama 64.
+- ⚪ **Photo / multimedia questions** — rama 74.
+- ⚪ **More weight for the duel** — rama 68. Open: whether team Deathmatch wins count in the record, and whether a question can say if winning it is good or bad.
+- ⚪ **Ranking question type** — rama 67.
+- ⚪ **"You can't vote for yourself"** — rama 68. Open: per question, per group, or both.
+- ⚪ **Delete my account and my data** — rama 62.
+- ⚪ **Loading times** — rama 31.
+- ⚪ **Bet on the result («porra»)** and **group packs** — ramas 72 and 73; both need a design the developer approves.
 
 ### Infra / ops
 - 🔵 **Free domain** *(rama 54, 2026-10-21)* via name.com + GitHub; then update Issuer/Audience, CORS `AllowedOrigins`, and frontend API base URL. *CORS also accepts `AllowedOriginPatterns` (developer, 2026-10-25): `*` = one run of letters, digits and dashes; set to our Vercel previews (`https://preguntitas-*-alexsepulvedaramos-5307s-projects.vercel.app`) so every PR preview can call the production API. Update it too if the Vercel team or project slug changes.*
@@ -1533,3 +1584,15 @@ Rejected in the prototypes: Llamas and Escarcha ("cutres"), Brasas (hid the fram
   - **The chooser is never revealed in the history** (only to whoever guessed or skipped, on the open card): naming past choosers would give away who is left in the selector round (§17.4).
   - **«+N 🪙» on voting** shows the vote plus the streak bonus it will carry (`5 + streakBonus(current + 1)`); the first-voter bonus can't be known in advance and isn't shown. Choosing badges only show while the reward is still to earn (the pick is still the automatic one); changing an earlier pick shows none. Spending buttons already carried their price.
   - The ledger labels the daily `GuessCorrect` as «Adivinaste quién fue» (author or chooser) and `FlashGuessCorrect` as «Adivinaste quién lanzó la flash».
+
+### 17.18 Vote reminder (rama 61, developer 2026-11-15)
+
+Until now the only push before a question closed was "streak in danger", for an alive streak of 3+ days. Whoever had lost their streak, or never built one, heard nothing after the new-question push. **As built (release 1.34.0):**
+
+- **Who:** every member who hasn't voted the open daily question on time and isn't getting the streak-danger push for it — no streak of 3+ days alive, or that push turned off. Never both for the same question.
+- **When:** the same lead time as the streak-danger push (`NotificationPreferences.StreakDangerHoursBefore`, 1–8 h before the close, default 3); the profile shows that picker while either switch is on.
+- **Limits:** once per member and question (`GroupMember.VoteReminderEntryId`); respects the group mute and the new **«Recordatorio para votar»** preference (`VoteReminder`, default on, existing rows included); **not sent to a member who hasn't opened the group for 7 days** (`LastSeenAt`, or `JoinedAt`), who keeps only the daily new-question push.
+- **Text:** «⏰ Te falta votar en {grupo}» / «La pregunta de hoy cierra a las {hora}. Ya han votado {n} de {m}.» (or «…aún no ha votado nadie. ¡Estrénala!»), in the recipient's language. It expires at the close; in `sw.js` it merges into the group's notification and is dropped when the next question arrives.
+- **Cost (§11.1):** no new pass — it rides on the streak-danger pass of the tick, which now reads each due group's members once (≤ 30 rows). Flash questions get no reminder.
+- **Not built:** a "we miss you" push for members gone for more than a week.
+

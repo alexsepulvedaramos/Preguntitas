@@ -58,8 +58,9 @@ async function showGrouped(notification) {
 function mergeEvents(previous, event) {
   // A new question starts a new cycle: votes on the previous one and the race to pick it
   // (rama 40) no longer matter.
-  // A daily duel (rama 47) is the new question for its two sides.
-  const stale = ['user_voted', 'new_question', 'duel', 'race_to_select'];
+  // A daily duel (rama 47) is the new question for its two sides. The vote reminder
+  // (rama 61) was about the question that just closed.
+  const stale = ['user_voted', 'new_question', 'duel', 'race_to_select', 'vote_reminder'];
   const kept = event.kind === 'new_question' || event.kind === 'duel'
     ? previous.filter((e) => !stale.includes(e.kind))
     : previous;
@@ -112,6 +113,10 @@ function summarize(events, text) {
 
   const danger = latest('streak_danger');
   if (danger) lines.push(`🔥 ${danger.body}`);
+
+  // Vote reminder (rama 61): never sent together with the streak-danger push.
+  const reminder = latest('vote_reminder');
+  if (reminder) lines.push(`⏰ ${reminder.body}`);
 
   if (latest('selector_turn')) lines.push(`🎯 ${text.selectorTurn}`);
   if (latest('race_to_select')) lines.push(`⏱️ ${text.raceToSelect}`);

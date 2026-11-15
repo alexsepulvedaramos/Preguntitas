@@ -107,6 +107,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
         prefs.Nudge = dto.Nudge;
         prefs.Reaction = dto.Reaction;
         prefs.ShopNews = dto.ShopNews;
+        prefs.VoteReminder = dto.VoteReminder;
 
         await context.SaveChangesAsync();
         return Ok(ToDto(prefs));
@@ -125,6 +126,7 @@ public class NotificationsController(AppDbContext context, IOptions<VapidOptions
             prefs.MonthlySummary,
             prefs.Nudge,
             prefs.Reaction,
-            prefs.ShopNews
+            prefs.ShopNews,
+            prefs.VoteReminder
         );
 }
