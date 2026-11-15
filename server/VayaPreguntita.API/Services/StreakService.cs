@@ -24,6 +24,9 @@ public class StreakService(
     // Only members at or above the first ring get the "streak in danger" push.
     private const int MinStreakForDangerPush = 3;
 
+    // The vote reminder (rama 61) only follows members who opened the group this recently.
+    private static readonly TimeSpan VoteReminderActiveWindow = TimeSpan.FromDays(7);
+
     private sealed record EntryRow(int Id, int QuestionId, DateOnly Date, DateTime ActivatedAt, int SelectorUserId);
 
     // ==========================================
@@ -628,9 +631,9 @@ public class StreakService(
     }
 
     // ==========================================
-    // "STREAK IN DANGER" PUSH
+    // PUSHES BEFORE THE CYCLE CLOSES: "STREAK IN DANGER" AND THE VOTE REMINDER
     // ==========================================
-    public async Task SendDangerRemindersAsync()
+    public async Task SendPreCloseRemindersAsync()
     {
         var nowUtc = DailyClock.UtcNow(clock);
         var month = CurrentMonthKey();
@@ -654,19 +657,19 @@ public class StreakService(
                 continue;
 
             var previousId = await GetPreviousActivatedEntryIdAsync(open.GroupId, open.Date);
-            if (previousId == null)
-                continue;
 
-            // Alive but not yet extended today: last counted entry is the previous one.
-            var members = await context
-                .GroupMembers.Where(m =>
-                    m.GroupId == open.GroupId
-                    && !m.NotificationsMuted
-                    && m.LastStreakEntryId == previousId
-                    && m.CurrentStreak >= MinStreakForDangerPush
+            // An on-time vote stamps the open entry on the member (RegisterVoteAsync), so
+            // everyone else hasn't voted it. Whoever was already reminded of it is left alone.
+            var allMembers = await context.GroupMembers.Where(m => m.GroupId == open.GroupId).ToListAsync();
+            var votedCount = allMembers.Count(m => m.LastStreakEntryId == open.Id);
+            var members = allMembers
+                .Where(m =>
+                    !m.NotificationsMuted
+                    && m.LastStreakEntryId != open.Id
                     && m.StreakDangerNotifiedEntryId != open.Id
+                    && m.VoteReminderEntryId != open.Id
                 )
-                .ToListAsync();
+                .ToList();
             if (members.Count == 0)
                 continue;
 
@@ -678,23 +681,50 @@ public class StreakService(
             foreach (var member in members)
             {
                 var pref = prefs.GetValueOrDefault(member.UserId);
-                if (pref is { StreakDanger: false })
-                    continue;
-
                 var lead = TimeSpan.FromHours(pref?.StreakDangerHoursBefore ?? 3);
                 if (closesAt - nowUtc > lead)
                     continue;
 
-                member.StreakDangerNotifiedEntryId = open.Id;
+                // Alive but not yet extended today: last counted entry is the previous one.
+                var streakInDanger =
+                    previousId != null
+                    && member.LastStreakEntryId == previousId
+                    && member.CurrentStreak >= MinStreakForDangerPush;
+
+                if (streakInDanger && pref is not { StreakDanger: false })
+                {
+                    member.StreakDangerNotifiedEntryId = open.Id;
+                    await context.SaveChangesAsync();
+
+                    _ = notificationService.SendStreakDangerAsync(
+                        open.GroupId,
+                        member.UserId,
+                        group.Name,
+                        member.CurrentStreak,
+                        group.DailyQuestionTime,
+                        freezeCovers: StreakFreezeRules.FreezesIncludingMonthly(member, month) > 0
+                    );
+                    continue;
+                }
+
+                // Vote reminder (rama 61): everyone else who hasn't voted — no streak worth the
+                // danger push, or that push turned off. Members who haven't opened the group
+                // for a week are left to the daily new-question push.
+                if (pref is { VoteReminder: false })
+                    continue;
+                if (nowUtc - (member.LastSeenAt ?? member.JoinedAt) > VoteReminderActiveWindow)
+                    continue;
+
+                member.VoteReminderEntryId = open.Id;
                 await context.SaveChangesAsync();
 
-                _ = notificationService.SendStreakDangerAsync(
+                _ = notificationService.SendVoteReminderAsync(
                     open.GroupId,
                     member.UserId,
                     group.Name,
-                    member.CurrentStreak,
                     group.DailyQuestionTime,
-                    freezeCovers: StreakFreezeRules.FreezesIncludingMonthly(member, month) > 0
+                    votedCount,
+                    allMembers.Count
                 );
             }
         }

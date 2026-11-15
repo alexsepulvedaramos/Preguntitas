@@ -487,6 +487,23 @@ public static class ServerText
             $"Vote in {groupName} before {time}, or you'll spend a freeze 🧊 to save your {streak}-day streak.",
             $"Stimm in {groupName} vor {time} Uhr ab, sonst verbrauchst du einen Serienschutz 🧊, um deine {streak}-Tage-Serie zu retten.");
 
+        // Vote reminder (rama 61): before the cycle closes, to members who haven't voted and
+        // have no streak in danger.
+        public static string VoteReminderTitle(string lang, string groupName) => Pick(lang,
+            $"⏰ Te falta votar en {groupName}",
+            $"⏰ You haven't voted in {groupName}",
+            $"⏰ Du hast in {groupName} noch nicht abgestimmt");
+
+        public static string VoteReminderBody(string lang, string time, int voted, int members) => Pick(lang,
+            $"La pregunta de hoy cierra a las {time}. Ya han votado {voted} de {members}.",
+            $"Today's question closes at {time}. {voted} of {members} have voted.",
+            $"Die heutige Frage endet um {time} Uhr. {voted} von {members} haben abgestimmt.");
+
+        public static string VoteReminderNobodyBody(string lang, string time) => Pick(lang,
+            $"La pregunta de hoy cierra a las {time} y aún no ha votado nadie. ¡Estrénala!",
+            $"Today's question closes at {time} and nobody has voted yet. Be the first!",
+            $"Die heutige Frage endet um {time} Uhr und noch niemand hat abgestimmt. Mach den Anfang!");
+
         // Flash question (§17.11): to everyone but the buyer, as soon as it is launched.
         public static string FlashQuestionTitle(string lang, string groupName) => Pick(lang,
             $"⚡ Pregunta flash en {groupName}",

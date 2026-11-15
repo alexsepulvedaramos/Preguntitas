@@ -41,6 +41,31 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.0',
+    date: '2026-11-15',
+    title: {
+      es: 'Que no se te pase la pregunta',
+      en: 'Don’t miss the question',
+      de: 'Verpass die Frage nicht',
+    },
+    items: [
+      {
+        kind: 'game',
+        glyph: 'bell',
+        title: {
+          es: 'Recordatorio para votar',
+          en: 'Reminder to vote',
+          de: 'Erinnerung ans Abstimmen',
+        },
+        text: {
+          es: 'Si la pregunta del día está a punto de cerrar y aún no has votado, te avisamos y te decimos cuántos lo han hecho ya, tengas racha o no. Si llevas una racha de 3 días o más, te sigue llegando el aviso de racha en peligro. Eliges con cuántas horas de margen, o lo apagas, en tu perfil.',
+          en: 'If today’s question is about to close and you haven’t voted, we’ll let you know and tell you how many already have, streak or no streak. On a streak of 3 days or more you still get the streak-in-danger alert instead. Choose how many hours ahead, or turn it off, in your profile.',
+          de: 'Wenn die Frage des Tages bald endet und du noch nicht abgestimmt hast, sagen wir dir Bescheid – und wie viele schon abgestimmt haben, mit oder ohne Serie. Bei einer Serie von 3 Tagen oder mehr bekommst du weiterhin die Warnung „Serie in Gefahr“. Wie viele Stunden vorher, oder ob überhaupt, stellst du in deinem Profil ein.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.33.2',
     date: '2026-11-07',
     title: {

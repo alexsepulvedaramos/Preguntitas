@@ -803,6 +803,8 @@ export const en: Translation = {
     prefShopNewsHint: 'When a seasonal frame arrives, on sale for just a few days',
     prefUserVoted: 'Someone voted',
     prefNewMessage: 'New chat message',
+    prefVoteReminder: 'Reminder to vote',
+    prefVoteReminderHint: 'If the question is about to close and you haven’t voted yet',
     prefStreakDanger: 'Streak in danger',
     prefStreakDangerHint: 'If you’re on 3 days or more and haven’t voted yet',
     dangerLead: 'Remind me before it closes:',

@@ -290,7 +290,7 @@ public class StreakFreezeTests(DatabaseFixture fixture) : DomainTestBase(fixture
 
         Clock.SetLocal(Day1.AddDays(4), DailyTime.AddHours(-1));
         await using var db = NewContext();
-        await NewStreakService(db).SendDangerRemindersAsync();
+        await NewStreakService(db).SendPreCloseRemindersAsync();
 
         Notifications.Verify(n =>
             n.SendStreakDangerAsync(group.Id, group["ana"], It.IsAny<string>(), 3, DailyTime, true)

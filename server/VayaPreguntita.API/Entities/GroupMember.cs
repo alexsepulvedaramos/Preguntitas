@@ -32,6 +32,9 @@ public class GroupMember
     // The open entry a "streak in danger" push was already sent for (dedupe).
     public int? StreakDangerNotifiedEntryId { get; set; }
 
+    // The open entry this member already got the vote reminder for (rama 61).
+    public int? VoteReminderEntryId { get; set; }
+
     // ==========================================
     // STREAK FREEZE & REPAIR (rama 35, §17.9)
     // ==========================================

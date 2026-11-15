@@ -804,6 +804,8 @@ export const es = {
     prefShopNewsHint: 'Cuando llega un marco de temporada, solo unos días a la venta',
     prefUserVoted: 'Alguien ha votado',
     prefNewMessage: 'Nuevo mensaje en el chat',
+    prefVoteReminder: 'Recordatorio para votar',
+    prefVoteReminderHint: 'Si la pregunta está a punto de cerrar y aún no has votado',
     prefStreakDanger: 'Racha en peligro',
     prefStreakDangerHint: 'Si llevas 3 días o más y aún no has votado',
     dangerLead: 'Avisarme antes del cierre:',

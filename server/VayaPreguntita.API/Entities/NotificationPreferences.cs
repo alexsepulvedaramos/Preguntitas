@@ -29,4 +29,8 @@ public class NotificationPreferences
 
     // "🎃 Novedad en la tienda" — a seasonal frame arrives in the shop (rama 57).
     public bool ShopNews { get; set; } = true;
+
+    // Vote reminder (rama 61): before the cycle closes, when you haven't voted and no streak
+    // is in danger. Shares StreakDangerHoursBefore as its lead time.
+    public bool VoteReminder { get; set; } = true;
 }

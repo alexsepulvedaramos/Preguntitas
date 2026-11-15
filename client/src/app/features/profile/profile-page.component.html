@@ -476,6 +476,17 @@
 
         <div class="flex items-center justify-between gap-3 py-1">
           <div>
+            <p class="text-sm text-foreground">{{ t('profile.prefVoteReminder') }}</p>
+            <p class="text-xs text-muted-foreground">{{ t('profile.prefVoteReminderHint') }}</p>
+          </div>
+          <hlm-switch
+            [checked]="notifPrefs().voteReminder"
+            (checkedChange)="togglePref('voteReminder')"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-1">
+          <div>
             <p class="text-sm text-foreground">{{ t('profile.prefStreakDanger') }}</p>
             <p class="text-xs text-muted-foreground">{{ t('profile.prefStreakDangerHint') }}</p>
           </div>
@@ -485,7 +496,7 @@
           />
         </div>
 
-        @if (notifPrefs().streakDanger) {
+        @if (notifPrefs().streakDanger || notifPrefs().voteReminder) {
           <div class="flex flex-col gap-2">
             <p id="streak-danger-hours" class="text-xs text-muted-foreground">{{ t('profile.dangerLead') }}</p>
             <hlm-toggle-group
