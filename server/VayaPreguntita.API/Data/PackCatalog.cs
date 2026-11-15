@@ -181,7 +181,7 @@ public static partial class PackCatalog
 
                 if (!KeyPattern().IsMatch(t.Key ?? string.Empty))
                     errors.Add($"{where}: key must be lowercase letters, digits and dashes.");
-                else if (!keys.Add(t.Key))
+                else if (!keys.Add(t.Key!))
                     errors.Add($"{where}: duplicated key.");
 
                 if (string.IsNullOrWhiteSpace(t.Text))

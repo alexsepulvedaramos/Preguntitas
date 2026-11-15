@@ -15,6 +15,8 @@ import {
   lucideFlame,
 } from '@ng-icons/lucide';
 
+import { toast } from '@spartan-ng/brain/sonner';
+
 import { GroupResponse } from '../../models/group.models';
 import { inviteLink, shareInvite } from '../../utils/invite-share';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -75,8 +77,8 @@ export class GroupCardComponent {
       await navigator.clipboard.writeText(code);
       this.isCodeCopied.set(true);
       setTimeout(() => this.isCodeCopied.set(false), 3000);
-    } catch (err) {
-      console.error('Failed to copy code: ', err);
+    } catch {
+      toast.error(this.t('groups.list.copyFailed'));
     }
   }
 
@@ -87,8 +89,8 @@ export class GroupCardComponent {
       await navigator.clipboard.writeText(link);
       this.isLinkCopied.set(true);
       setTimeout(() => this.isLinkCopied.set(false), 3000);
-    } catch (err) {
-      console.error('Failed to copy link: ', err);
+    } catch {
+      toast.error(this.t('groups.list.copyFailed'));
     }
   }
 

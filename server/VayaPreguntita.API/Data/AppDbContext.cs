@@ -32,6 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FlashEntry> FlashEntries { get; set; }
     public DbSet<MonthlySummary> MonthlySummaries { get; set; }
     public DbSet<UserInventoryItem> UserInventory { get; set; }
+    public DbSet<UserSeenMark> UserSeenMarks { get; set; }
     public DbSet<UserItem> UserItems { get; set; }
     public DbSet<VoteChange> VoteChanges { get; set; }
     public DbSet<Nudge> Nudges { get; set; }
@@ -402,6 +403,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(r => r.Author)
              .WithMany()
              .HasForeignKey(r => r.AuthorUserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ==========================================
+        // SEEN MARKS (rama 56)
+        // ==========================================
+        modelBuilder.Entity<UserSeenMark>(e =>
+        {
+            e.HasKey(m => new { m.UserId, m.Key });
+            e.Property(m => m.Key).HasMaxLength(SeenMarks.MaxKeyLength);
+            e.Property(m => m.Value).HasMaxLength(SeenMarks.MaxValueLength);
+            e.HasOne(m => m.User)
+             .WithMany()
+             .HasForeignKey(m => m.UserId)
              .OnDelete(DeleteBehavior.Cascade);
         });
 

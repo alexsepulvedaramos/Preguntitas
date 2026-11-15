@@ -3,14 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { MonthlySummary, MonthlySummaryListItem } from '../models/monthly-summary.model';
+import { SeenService } from './seen.service';
 import { environment } from '../../../environments/environment';
-
-const SEEN_KEY = 'vp_summary_seen_';
 
 // Monthly summaries (§17.12): the months a group has (last 12) and one month's story.
 @Injectable({ providedIn: 'root' })
 export class MonthlySummaryService {
   private readonly http = inject(HttpClient);
+  private readonly seen = inject(SeenService);
   private readonly baseUrl = `${environment.apiUrl}/groups`;
 
   list(groupId: number): Observable<MonthlySummaryListItem[]> {
@@ -21,21 +21,17 @@ export class MonthlySummaryService {
     return this.http.get<MonthlySummary>(`${this.baseUrl}/${groupId}/monthly-summaries/${month}`);
   }
 
-  // The newest month this device has opened, so the "your summary is ready" card shows once.
+  // The newest month the player has opened, so the "your summary is ready" card shows once.
+  // Kept per account since rama 56 (SeenService). Reads signals.
   lastSeen(groupId: number): string | null {
-    try {
-      return localStorage.getItem(SEEN_KEY + groupId);
-    } catch {
-      return null;
-    }
+    return this.seen.get(`summary:${groupId}`);
   }
 
+  // False until the account's marks have arrived: nothing is announced as new before that.
+  readonly seenReady = this.seen.ready;
+
   markSeen(groupId: number, month: string): void {
-    try {
-      const seen = this.lastSeen(groupId);
-      if (!seen || month > seen) localStorage.setItem(SEEN_KEY + groupId, month);
-    } catch {
-      // Storage unavailable: the card just shows again next time.
-    }
+    const seen = this.lastSeen(groupId);
+    if (!seen || month > seen) this.seen.set(`summary:${groupId}`, month);
   }
 }

@@ -15,12 +15,6 @@ import { FinishKey, isFinish } from '../streak-frame/ring-finishes';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-// How much of a ring finish shows (rama 57): 'auto' = the full one on lg/xl and a lighter one
-// (still animated, still growing with the tier) on smaller sizes; 'full' wherever the person
-// is the point (a voting option, a free-text answer); 'ring' = the tier ring only, for the
-// small "who has voted" dots.
-export type AvatarEffects = 'auto' | 'full' | 'ring';
-
 @Component({
   selector: 'app-user-avatar',
   standalone: true,
@@ -28,7 +22,7 @@ export type AvatarEffects = 'auto' | 'full' | 'ring';
   template: `
     <div class="relative isolate rounded-full shrink-0" [class]="sizeClass()">
       @if (tier() || finish() || crown()) {
-        <app-streak-frame [tier]="tier()" [finish]="finish()" [crownFinish]="crownFinish()" [crown]="!!crown()" [lite]="lite()" [ribbon]="ribbon()" />
+        <app-streak-frame [tier]="tier()" [finish]="finish()" [crown]="!!crown()" [lite]="false" [ribbon]="ribbon()" />
       }
       <div
         class="relative z-[5] rounded-full shrink-0 overflow-hidden ring-1 ring-border/40"
@@ -63,7 +57,6 @@ export class UserAvatarComponent {
   readonly crown = input<boolean | null | undefined>(false);
   // Equipped shop cosmetics (rama 42): the ring finish is drawn here (rama 57).
   readonly look = input<Look | null | undefined>(null);
-  readonly effects = input<AvatarEffects>('auto');
   // Day-count ribbon on the largest size (off where the count is already shown).
   readonly showRibbon = input(true);
   readonly size = input<AvatarSize>('md');
@@ -83,23 +76,13 @@ export class UserAvatarComponent {
     frameFollowsStreak(this.frameColor()) ? (streakTierFor(this.streak())?.key ?? null) : null
   );
 
-  // A finish is drawn over the streak ring, so only while the frame follows the streak.
+  // A finish is drawn over the streak ring, so only while the frame follows the streak. Every
+  // size gets the whole frame — ornaments, icons and the upright crown (rama 56, developer
+  // 2026-11-15): the lighter version for small sizes hid what people had bought.
   protected readonly finish = computed<FinishKey | null>(() => {
-    const key = this.look()?.ringSkin;
-    return this.effects() !== 'ring' && frameFollowsStreak(this.frameColor()) && isFinish(key) ? key : null;
-  });
-
-  // Where only the tier ring is drawn, the crown still wears the finish's style.
-  protected readonly crownFinish = computed<FinishKey | null>(() => {
     const key = this.look()?.ringSkin;
     return frameFollowsStreak(this.frameColor()) && isFinish(key) ? key : null;
   });
-
-  // Full frames (particles, ornaments, icons) only where the avatar is big enough to show
-  // them, or where it is the point of the screen.
-  protected readonly lite = computed(
-    () => this.effects() !== 'full' && this.size() !== 'lg' && this.size() !== 'xl'
-  );
 
   protected readonly ribbon = computed(() =>
     this.size() === 'xl' && this.showRibbon() && this.tier() ? (this.streak() ?? null) : null

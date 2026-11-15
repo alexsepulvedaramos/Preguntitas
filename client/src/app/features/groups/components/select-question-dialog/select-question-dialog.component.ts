@@ -32,6 +32,7 @@ import { DuelNoticeComponent } from '../duel-notice/duel-notice.component';
 import { CoinTextComponent } from '../../../../shared/components/coin/coin-text.component';
 import { CoinBadgeComponent } from '../../../../shared/components/coin/coin-badge.component';
 import { I18nService } from '../../../../core/i18n/i18n.service';
+import { toast } from '@spartan-ng/brain/sonner';
 import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { QuestionTypeChipComponent } from '../../../../shared/components/question-type-chip/question-type-chip.component';
 
@@ -386,6 +387,7 @@ export class SelectQuestionDialogComponent {
   }
 
   onSavedToPool(ctx: { close: () => void }) {
+    toast.success(this.t('picker.savedToPool'));
     if (this.isSelector()) {
       this.step.set('sources');
       this.reload();

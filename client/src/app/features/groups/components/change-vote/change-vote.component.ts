@@ -127,7 +127,7 @@ export class ChangeVoteComponent {
   protected readonly editing = signal(false);
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly hintPending = signal(this.hints.isPending('changeVote'));
+  protected readonly hintPending = computed(() => this.hints.isPending('changeVote'));
 
   protected readonly owned = computed(
     () => (this.authService.currentUser()?.inventory ?? EMPTY_INVENTORY).voteChange,
@@ -138,7 +138,6 @@ export class ChangeVoteComponent {
 
   dismissHint(): void {
     this.hints.dismiss('changeVote');
-    this.hintPending.set(false);
   }
 
   start(): void {
