@@ -4,6 +4,7 @@ import { toast } from '@spartan-ng/brain/sonner';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { HlmToasterImports } from '../../shared/ui/sonner/src';
+import { ReleaseToastIconComponent } from '../../shared/components/glyph/release-toast-icon.component';
 import { TopLayerDirective } from '../../shared/directives/top-layer.directive';
 import { MemberCardComponent } from '../../features/groups/components/member-card/member-card.component';
 import { AuthService } from '../auth/auth.service';
@@ -25,7 +26,7 @@ import { I18nService } from '../i18n/i18n.service';
       <app-footer></app-footer>
     </div>
     <!-- appTopLayer: toasts must show above dialogs and drawers (CDK top-layer popovers) -->
-    <hlm-toaster richColors appTopLayer />
+    <hlm-toaster appTopLayer />
     <app-member-card />
   `
 })
@@ -39,11 +40,12 @@ export class MainLayoutComponent implements OnInit {
   ngOnInit(): void {
     // "What's new" toast, once per release (rama 26). Delayed so the page settles first —
     // and so landing straight on /releases (which marks the release as seen) skips it.
-    setTimeout(() => {
-      if (!this.authService.isAuthenticated() || !this.releaseNotes.takeAnnouncement()) return;
+    setTimeout(async () => {
+      if (!this.authService.isAuthenticated() || !(await this.releaseNotes.takeAnnouncement())) return;
       const { version, title } = this.releaseNotes.announced;
       toast(this.t('layout.releaseToast', { version }), {
         description: title[this.i18n.lang()],
+        icon: ReleaseToastIconComponent,
         action: { label: this.t('layout.view'), onClick: () => this.router.navigate(['/releases']) },
       });
     }, 1500);

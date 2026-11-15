@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideAppInitializer, provideBrowserGlobalErrorListeners, inject, isDevMode } from '@angular/core';
-import { TitleStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouteReuseStrategy, TitleStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
@@ -7,6 +7,7 @@ import { authInterceptor } from './core/auth/auth.interceptor';
 import { acceptLanguageInterceptor } from './core/i18n/accept-language.interceptor';
 import { I18nService } from './core/i18n/i18n.service';
 import { I18nTitleStrategy } from './core/i18n/i18n-title.strategy';
+import { GroupRouteReuseStrategy } from './core/routing/group-route-reuse.strategy';
 import { provideServiceWorker, SwPush } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(I18nService).init()),
     provideRouter(routes, withComponentInputBinding()),
     { provide: TitleStrategy, useExisting: I18nTitleStrategy },
+    { provide: RouteReuseStrategy, useClass: GroupRouteReuseStrategy },
     provideHttpClient(
       withInterceptors([
         acceptLanguageInterceptor,

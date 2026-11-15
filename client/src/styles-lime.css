@@ -778,3 +778,73 @@
     }
   }
 }
+
+/*
+ * Toasts (rama 56): a card in the app's own colours with a glyph tile, replacing the
+ * library's pastel "rich colours". Outside any layer on purpose: the library's own rules are
+ * unlayered, so a layered rule would lose to them whatever its specificity.
+ */
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 16px -8px rgb(0 0 0 / 0.18);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-icon] {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: 0;
+  justify-content: center;
+  /* A component passed as the icon (the coin) is sized in em. */
+  font-size: 1.5rem;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-content] { gap: 1px; min-width: 0; flex: 1; }
+[data-sonner-toaster] [data-sonner-toast] [data-title] { font-weight: 600; line-height: 1.3; }
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-button] {
+  height: 1.75rem;
+  margin: 0;
+  padding-inline: 0.75rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background-color 0.15s;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-button]:hover { background: var(--primary-hover); }
+[data-sonner-toaster] [data-sonner-toast] [data-button]:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* The toast's glyph tile: sage for what went through, red only for errors (§14). */
+.vp-toast-tile {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 32%;
+  background: color-mix(in oklch, var(--primary) 14%, transparent);
+  color: var(--primary-text);
+  font-size: 1rem;
+}
+.vp-toast-tile--error {
+  background: color-mix(in oklch, var(--destructive) 15%, transparent);
+  color: var(--destructive);
+}
+.vp-toast-tile--warning {
+  background: color-mix(in oklch, var(--warning) 15%, transparent);
+  color: var(--warning);
+}

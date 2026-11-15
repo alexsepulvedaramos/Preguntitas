@@ -45,7 +45,9 @@ async function showGrouped(notification) {
     ...options,
     body: merged ? summarize(events, TEXT[data.lang] || TEXT.es) : options.body,
     tag,
-    renotify: showing.length > 0,
+    // Updating a notification that is already showing rings again only for news worth a
+    // second ring: one more «X ha votado» joins the summary quietly.
+    renotify: showing.length > 0 && data.kind !== 'user_voted',
     data: { ...data, events },
   });
 

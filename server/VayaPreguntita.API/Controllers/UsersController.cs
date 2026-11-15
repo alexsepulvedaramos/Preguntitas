@@ -14,7 +14,8 @@ namespace VayaPreguntita.API.Controllers;
 public class UsersController(
     IUserService userService,
     IStreakService streakService,
-    ICoinService coinService
+    ICoinService coinService,
+    ISeenMarksService seenMarksService
 ) : ControllerBase
 {
     private int CurrentUserId => int.Parse(
@@ -37,6 +38,19 @@ public class UsersController(
     [HttpGet("me/coins/history")]
     public async Task<ActionResult<CoinHistoryPageDto>> GetCoinHistory([FromQuery] int? before) =>
         Ok(await coinService.GetHistoryAsync(CurrentUserId, before));
+
+    // What the user has already seen — release notes, one-off hints, monthly summary cards —
+    // kept per account so it follows them across devices (rama 56).
+    [HttpGet("me/seen")]
+    public async Task<ActionResult<Dictionary<string, string>>> GetSeenMarks() =>
+        Ok(await seenMarksService.GetAsync(CurrentUserId));
+
+    [HttpPut("me/seen")]
+    public async Task<ActionResult<Dictionary<string, string>>> SaveSeenMarks(SaveSeenMarksDto request)
+    {
+        var marks = await seenMarksService.SaveAsync(CurrentUserId, request.Marks);
+        return marks is null ? BadRequest() : Ok(marks);
+    }
 
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile(UpdateProfileRequestDto request)

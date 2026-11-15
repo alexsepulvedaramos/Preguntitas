@@ -8,6 +8,9 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlus } from '@ng-icons/lucide';
 
+import { toast } from '@spartan-ng/brain/sonner';
+
+import { apiErrorMessage } from '../../../../shared/utils/api-error';
 import { GroupsService } from '../../services/groups.service';
 import { CreateGroupRequest } from '../../models/group.models';
 import { I18nService } from '../../../../core/i18n/i18n.service';
@@ -74,10 +77,7 @@ export class CreateGroupDialogComponent {
         // Close the dialog using the portal context
         ctx.close();
       },
-      error: (err) => {
-        // Handle API errors appropriately
-        console.error('Failed to create group:', err);
-      }
+      error: (err) => toast.error(apiErrorMessage(err, this.t('groups.list.createFailed'))),
     });
   }
 }

@@ -41,6 +41,73 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.1',
+    date: '2026-11-15',
+    title: {
+      es: 'Repaso de detalles',
+      en: 'A round of touch-ups',
+      de: 'Eine Runde Feinschliff',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'Los avisos que salen desde abajo estrenan aspecto: una tarjeta con los colores de la app, también en modo oscuro.',
+          en: 'The notices that pop up from the bottom have a new look: a card in the app’s own colours, in dark mode too.',
+          de: 'Die Hinweise, die von unten erscheinen, sehen neu aus: eine Karte in den Farben der App, auch im dunklen Modus.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Para reaccionar a una respuesta escrita, mantenla pulsada. Sin un botón debajo de cada una, las respuestas ya no quedan tan separadas.',
+          en: 'To react to a written answer, press and hold it. With no button under each one, the answers no longer sit so far apart.',
+          de: 'Um auf eine geschriebene Antwort zu reagieren, halte sie gedrückt. Ohne Knopf unter jeder Antwort stehen sie nicht mehr so weit auseinander.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Los avatares pequeños enseñan el marco entero: adornos, iconos y la corona en su sitio.',
+          en: 'Small avatars now show the whole frame: ornaments, icons and the crown where it belongs.',
+          de: 'Kleine Avatare zeigen jetzt den ganzen Rahmen: Verzierungen, Symbole und die Krone an ihrem Platz.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Las novedades, las pistas y el resumen del mes que ya has visto no vuelven a salir al entrar desde otro dispositivo o al volver a iniciar sesión.',
+          en: 'The news, hints and monthly summary you’ve already seen no longer come back on another device or after signing in again.',
+          de: 'Neuigkeiten, Hinweise und der Monatsrückblick, die du schon gesehen hast, tauchen auf einem anderen Gerät oder nach erneutem Anmelden nicht wieder auf.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Abrir la notificación de otro grupo con la app abierta te lleva a ese grupo.',
+          en: 'Opening a notification from another group while the app is open now takes you to that group.',
+          de: 'Öffnest du bei geöffneter App die Benachrichtigung einer anderen Gruppe, landest du jetzt in dieser Gruppe.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'El aviso de «han votado» se va actualizando sin que el móvil vuelva a sonar con cada voto.',
+          en: 'The “they’ve voted” notification keeps updating without your phone ringing again for every vote.',
+          de: 'Die Benachrichtigung „haben abgestimmt“ aktualisiert sich, ohne dass dein Handy bei jeder Stimme erneut klingelt.',
+        },
+      },
+      {
+        kind: 'polish',
+        text: {
+          es: 'Al sugerir una pregunta te confirmamos que se ha guardado; y si falla crear un grupo o copiar el código, ahora te lo decimos.',
+          en: 'When you suggest a question we confirm it was saved, and if creating a group or copying the code fails, we now tell you.',
+          de: 'Wenn du eine Frage vorschlägst, bestätigen wir, dass sie gespeichert ist – und wenn das Erstellen einer Gruppe oder das Kopieren des Codes scheitert, sagen wir es dir jetzt.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.34.0',
     date: '2026-11-15',
     title: {

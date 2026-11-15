@@ -2,6 +2,7 @@
   <hlm-popover [sideOffset]="4" [align]="align()">
     @if (groups().length) {
       <button
+        #opener
         hlmPopoverTrigger
         hlmBtn
         variant="ghost"
@@ -21,6 +22,23 @@
           </span>
         }
       </button>
+    } @else if (trigger() === 'hold') {
+      <!-- No button per answer: the parent opens this on press-and-hold. Keyboard and screen
+           readers still get a real button, which takes room only while it has keyboard focus. -->
+      <span class="absolute size-0 overflow-hidden has-focus-visible:static has-focus-visible:size-auto has-focus-visible:overflow-visible">
+        <button
+          #opener
+          hlmPopoverTrigger
+          hlmBtn
+          variant="ghost"
+          size="icon-sm"
+          class="rounded-full text-muted-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+          [disabled]="saving()"
+          [attr.aria-label]="t('reactions.add')"
+        >
+          <ng-icon hlm name="lucideSmilePlus" class="size-4!" />
+        </button>
+      </span>
     } @else {
       <button
         hlmPopoverTrigger

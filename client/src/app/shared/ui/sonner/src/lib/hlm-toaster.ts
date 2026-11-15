@@ -1,7 +1,7 @@
 import type { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { ChangeDetectionStrategy, Component, booleanAttribute, computed, input, numberAttribute } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCircleCheck, lucideInfo, lucideLoader2, lucideOctagonX, lucideTriangleAlert } from '@ng-icons/lucide';
+import { lucideCheck, lucideInfo, lucideLoader2, lucideTriangleAlert, lucideX } from '@ng-icons/lucide';
 import { BrnSonnerImports, type ToasterProps } from '@spartan-ng/brain/sonner';
 import { hlm } from '@spartan-ng/helm/utils';
 import type { ClassValue } from 'clsx';
@@ -9,7 +9,7 @@ import type { ClassValue } from 'clsx';
 @Component({
 	selector: 'hlm-toaster',
 	imports: [BrnSonnerImports, NgIcon],
-	providers: [provideIcons({ lucideCircleCheck, lucideInfo, lucideTriangleAlert, lucideOctagonX, lucideLoader2 })],
+	providers: [provideIcons({ lucideCheck, lucideInfo, lucideTriangleAlert, lucideX, lucideLoader2 })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<brn-sonner-toaster
@@ -27,20 +27,21 @@ import type { ClassValue } from 'clsx';
 			[offset]="offset()"
 			[style]="userStyle()"
 		>
+			<!-- A glyph tile per kind (§14, rama 56): sage for done and info, red only for errors -->
 			<ng-template #loadingIcon>
-				<ng-icon name="lucideLoader2" class="overflow-visible! text-base [&>svg]:motion-safe:animate-spin" />
+				<span class="vp-toast-tile"><ng-icon name="lucideLoader2" class="overflow-visible! [&>svg]:motion-safe:animate-spin" /></span>
 			</ng-template>
 			<ng-template #successIcon>
-				<ng-icon name="lucideCircleCheck" class="overflow-visible! text-base" />
+				<span class="vp-toast-tile"><ng-icon name="lucideCheck" class="overflow-visible!" /></span>
 			</ng-template>
 			<ng-template #errorIcon>
-				<ng-icon name="lucideOctagonX" class="overflow-visible! text-base" />
+				<span class="vp-toast-tile vp-toast-tile--error"><ng-icon name="lucideX" class="overflow-visible!" /></span>
 			</ng-template>
 			<ng-template #infoIcon>
-				<ng-icon name="lucideInfo" class="overflow-visible! text-base" />
+				<span class="vp-toast-tile"><ng-icon name="lucideInfo" class="overflow-visible!" /></span>
 			</ng-template>
 			<ng-template #warningIcon>
-				<ng-icon name="lucideTriangleAlert" class="overflow-visible! text-base" />
+				<span class="vp-toast-tile vp-toast-tile--warning"><ng-icon name="lucideTriangleAlert" class="overflow-visible!" /></span>
 			</ng-template>
 		</brn-sonner-toaster>
 	`,
@@ -75,7 +76,7 @@ export class HlmToaster {
 			...options,
 			classes: {
 				...options?.classes,
-				toast: hlm('rounded-2xl!', options?.classes?.toast),
+				toast: hlm(options?.classes?.toast),
 			},
 		};
 	});

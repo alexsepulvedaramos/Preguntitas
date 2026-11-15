@@ -295,6 +295,8 @@ export const es = {
   },
   groups: {
     list: {
+      createFailed: 'No se ha podido crear el grupo. Inténtalo de nuevo.',
+      copyFailed: 'No se ha podido copiar. Cópialo a mano.',
       title: 'Tus grupos',
       loadError: 'No se han podido cargar los grupos.',
       emptyTitle: 'Todavía no tienes ningún grupo',
@@ -429,6 +431,7 @@ export const es = {
     lockedEmpty: 'Vota la pregunta para entrar en el chat.',
   },
   reactions: {
+    holdHint: 'Mantén pulsada una respuesta para reaccionar',
     add: 'Reaccionar',
     open: 'Reacciones: {summary}',
     pick: 'Elige una reacción',
@@ -512,6 +515,7 @@ export const es = {
     addTeam: 'Añadir equipo',
   },
   picker: {
+    savedToPool: 'Pregunta guardada en el grupo',
     change: 'Cambiar',
     pick: 'Elegir',
     suggest: 'Sugerir',

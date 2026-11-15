@@ -72,6 +72,7 @@ builder.Services.Configure<VapidOptions>(builder.Configuration.GetSection("Vapid
 builder.Services.AddHttpClient<SupabaseStorageService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISeenMarksService, SeenMarksService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IDailyService, DailyService>();
 builder.Services.AddScoped<IQuestionsService, QuestionsService>();

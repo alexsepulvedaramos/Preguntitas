@@ -4,6 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { MonthlySummaryViewerComponent } from './monthly-summary-viewer.component';
 import { MonthlySummary } from '../../../../core/models/monthly-summary.model';
+import { MonthlySummaryService } from '../../../../core/services/monthly-summary.service';
 
 const ana = { userId: 1, username: 'ana', avatarUrl: null };
 const bea = { userId: 2, username: 'bea', avatarUrl: null };
@@ -63,7 +64,7 @@ describe('MonthlySummaryViewerComponent', () => {
 
   it('marks the month as seen once it loads', async () => {
     await open();
-    expect(localStorage.getItem('vp_summary_seen_7')).toBe('2026-10');
+    expect(TestBed.inject(MonthlySummaryService).lastSeen(7)).toBe('2026-10');
   });
 
   it('moves forward and back without leaving the story', async () => {

@@ -24,7 +24,6 @@ const MAX_FACES = 4;
         [streak]="groupStreaks.streakFor(voter.id)"
         [crown]="groupStreaks.hasCrown(voter.id)"
         [look]="groupStreaks.lookFor(voter.id)"
-        effects="ring"
         size="xs"
         class="relative inline-block rounded-full ring-2 ring-background"
         [class.-ml-1]="!first"

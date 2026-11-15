@@ -43,7 +43,6 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
                   [streak]="groupStreaks.streakFor(person.id)"
                   [crown]="groupStreaks.hasCrown(person.id)"
                   [look]="groupStreaks.lookFor(person.id)"
-                  effects="full"
                   size="md"
                 />
               </button>
@@ -57,7 +56,6 @@ import { I18nService } from '../../../../core/i18n/i18n.service';
                     [streak]="groupStreaks.streakFor(member.id)"
                     [crown]="groupStreaks.hasCrown(member.id)"
                     [look]="groupStreaks.lookFor(member.id)"
-                    effects="ring"
                     size="sm"
                     class="relative inline-block rounded-full ring-2 ring-background"
                     [class.-ml-1.5]="!first"

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, linkedSignal, output, signal, viewChild } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSmilePlus } from '@ng-icons/lucide';
 import { toast } from '@spartan-ng/brain/sonner';
@@ -32,8 +32,12 @@ interface ReactionGroup {
 // with the seven emojis — picking another replaces yours, picking yours removes it — and who
 // reacted with what, with their avatar and name as everywhere else in the group (§14). Never
 // on your own message or answer: there it only lists them.
+// With `trigger="hold"` (written answers, rama 56) there is no "react" button: the parent
+// calls open() on press-and-hold, and the counts sit on the bubble's bottom edge instead of
+// taking a row of their own.
 @Component({
   selector: 'app-reactions',
+  host: { '[class]': 'hostClass()' },
   imports: [HlmButtonImports, HlmPopoverImports, NgIcon, UserAvatarComponent, UserNameComponent],
   providers: [provideIcons({ lucideSmilePlus })],
   templateUrl: './reactions.component.html',
@@ -52,6 +56,7 @@ export class ReactionsComponent {
   // Which edge of the trigger the popover lines up with: 'end' when the trigger sits on the
   // right of the screen, so the popover opens leftwards instead of running off the edge.
   public readonly align = input<'start' | 'center' | 'end'>('start');
+  public readonly trigger = input<'button' | 'hold'>('button');
   // The target's reactions after a change of ours, for a parent that lays them out itself.
   public readonly changed = output<Reaction[]>();
 
@@ -67,7 +72,7 @@ export class ReactionsComponent {
     const id = this.authService.currentUser()?.id;
     return id == null ? null : Number(id);
   });
-  protected readonly canReact = computed(() => this.userId() != null && this.authorId() !== this.userId());
+  public readonly canReact = computed(() => this.userId() != null && this.authorId() !== this.userId());
   protected readonly mine = computed(() => this.current().find((r) => r.userId === this.userId())?.emoji ?? null);
 
   protected readonly groups = computed<ReactionGroup[]>(() =>
@@ -78,6 +83,16 @@ export class ReactionsComponent {
   );
 
   protected readonly summary = computed(() => this.groups().map((g) => `${g.emoji} ${g.count}`).join(', '));
+
+  private readonly opener = viewChild<ElementRef<HTMLButtonElement>>('opener');
+  protected readonly hostClass = computed(() =>
+    this.trigger() === 'hold' && this.groups().length ? 'relative z-[1] -mt-3 ml-2.5 block' : '',
+  );
+
+  // Opens the picker from outside (press-and-hold on the answer).
+  open() {
+    if (this.canReact()) this.opener()?.nativeElement.click();
+  }
 
   pick(key: ReactionKey) {
     if (this.saving()) return;

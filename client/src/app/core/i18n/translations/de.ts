@@ -294,6 +294,8 @@ export const de: Translation = {
   },
   groups: {
     list: {
+      createFailed: 'Die Gruppe konnte nicht erstellt werden. Versuch es noch einmal.',
+      copyFailed: 'Kopieren hat nicht geklappt. Kopier es von Hand.',
       title: 'Deine Gruppen',
       loadError: 'Die Gruppen konnten nicht geladen werden.',
       emptyTitle: 'Du hast noch keine Gruppe',
@@ -428,6 +430,7 @@ export const de: Translation = {
     lockedEmpty: 'Stimm bei der Frage ab, um in den Chat zu kommen.',
   },
   reactions: {
+    holdHint: 'Halte eine Antwort gedrückt, um zu reagieren',
     add: 'Reagieren',
     open: 'Reaktionen: {summary}',
     pick: 'Wähle eine Reaktion',
@@ -511,6 +514,7 @@ export const de: Translation = {
     addTeam: 'Team hinzufügen',
   },
   picker: {
+    savedToPool: 'Frage in der Gruppe gespeichert',
     change: 'Ändern',
     pick: 'Auswählen',
     suggest: 'Vorschlagen',

@@ -937,6 +937,25 @@ namespace VayaPreguntita.API.Migrations
                     b.ToTable("UserRefreshTokens");
                 });
 
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserSeenMark", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("UserId", "Key");
+
+                    b.ToTable("UserSeenMarks");
+                });
+
             modelBuilder.Entity("VayaPreguntita.API.Entities.Vote", b =>
                 {
                     b.Property<int>("Id")
@@ -1457,6 +1476,17 @@ namespace VayaPreguntita.API.Migrations
                 });
 
             modelBuilder.Entity("VayaPreguntita.API.Entities.UserRefreshToken", b =>
+                {
+                    b.HasOne("VayaPreguntita.API.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VayaPreguntita.API.Entities.UserSeenMark", b =>
                 {
                     b.HasOne("VayaPreguntita.API.Entities.User", "User")
                         .WithMany()

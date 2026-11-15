@@ -147,12 +147,11 @@ export class GroupDetailComponent implements OnInit {
   // ── Monthly summaries (rama 41) ──
   protected readonly summaryMonths = signal<MonthlySummaryListItem[]>([]);
   protected readonly openSummary = signal<string | null>(null);
-  private readonly seenSummary = signal<string | null>(null);
-  // The newest summary, until this device has opened it.
+  // The newest summary, until the player has opened it (on any device, rama 56).
   protected readonly unseenSummary = computed(() => {
     const latest = this.summaryMonths()[0];
-    const seen = this.seenSummary();
-    return latest && (!seen || latest.month > seen) ? latest.month : null;
+    const seen = this.summaryService.lastSeen(this.numericGroupId());
+    return latest && this.summaryService.seenReady() && (!seen || latest.month > seen) ? latest.month : null;
   });
 
   protected readonly chat = viewChild<GroupChatComponent>('chat');
@@ -281,11 +280,10 @@ export class GroupDetailComponent implements OnInit {
   // The flash question you just bought (rama 44): it goes out at once, and you see it first.
   // One-off pointer at the flash button (§17.15), gone once dismissed or used.
   protected readonly flashPrice = FLASH_QUESTION_PRICE;
-  readonly flashHintPending = signal(this.hints.isPending('flashButton'));
+  readonly flashHintPending = computed(() => this.hints.isPending('flashButton'));
 
   dismissFlashHint() {
     this.hints.dismiss('flashButton');
-    this.flashHintPending.set(false);
   }
 
   onFlashLaunched(res: LaunchFlashResponse) {
@@ -572,7 +570,6 @@ export class GroupDetailComponent implements OnInit {
 
   private loadSummaries() {
     const groupId = this.numericGroupId();
-    this.seenSummary.set(this.summaryService.lastSeen(groupId));
     this.summaryService.list(groupId).subscribe({
       next: (months) => {
         this.summaryMonths.set(months);
@@ -587,15 +584,13 @@ export class GroupDetailComponent implements OnInit {
     this.openSummary.set(month);
   }
 
-  // Closing the banner counts as seen: it won't come back for this month on this device.
+  // Closing the banner counts as seen: it won't come back for this month.
   protected dismissSummary(month: string) {
     this.summaryService.markSeen(this.numericGroupId(), month);
-    this.seenSummary.set(this.summaryService.lastSeen(this.numericGroupId()));
   }
 
   protected closeSummary() {
     this.openSummary.set(null);
-    this.seenSummary.set(this.summaryService.lastSeen(this.numericGroupId()));
     if (this.summary())
       this.router.navigate([], { queryParams: { summary: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
