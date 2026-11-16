@@ -42,7 +42,7 @@ export interface Release {
 export const RELEASES: readonly Release[] = [
   {
     version: '1.34.2',
-    date: '2026-11-15',
+    date: '2026-11-16',
     title: {
       es: 'Reacciona igual en el chat',
       en: 'React the same way in the chat',
