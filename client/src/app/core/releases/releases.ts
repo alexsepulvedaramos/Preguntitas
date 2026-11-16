@@ -41,6 +41,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.2',
+    date: '2026-11-16',
+    title: {
+      es: 'Reacciona igual en el chat',
+      en: 'React the same way in the chat',
+      de: 'Im Chat genauso reagieren',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'En el chat también se reacciona manteniendo pulsado el mensaje, igual que en las respuestas escritas.',
+          en: 'In the chat you now react by pressing and holding the message too, just like on written answers.',
+          de: 'Auch im Chat reagierst du jetzt, indem du die Nachricht gedrückt hältst – wie bei den geschriebenen Antworten.',
+        },
+      },
+    ],
+  },
+  {
     version: '1.34.1',
     date: '2026-11-15',
     title: {

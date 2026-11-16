@@ -431,6 +431,7 @@ export const es = {
     lockedEmpty: 'Vota la pregunta para entrar en el chat.',
   },
   reactions: {
+    holdHintChat: 'Mantén pulsado un mensaje para reaccionar',
     holdHint: 'Mantén pulsada una respuesta para reaccionar',
     add: 'Reaccionar',
     open: 'Reacciones: {summary}',

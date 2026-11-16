@@ -430,6 +430,7 @@ export const de: Translation = {
     lockedEmpty: 'Stimm bei der Frage ab, um in den Chat zu kommen.',
   },
   reactions: {
+    holdHintChat: 'Halte eine Nachricht gedrückt, um zu reagieren',
     holdHint: 'Halte eine Antwort gedrückt, um zu reagieren',
     add: 'Reagieren',
     open: 'Reaktionen: {summary}',
