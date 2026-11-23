@@ -222,43 +222,62 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
         memberView.Selection.ActivatesAt.Should().Be(nextT);
     }
 
-    // The day's selector arranges the teams of a Deathmatch whoever wrote it (§5.2).
+    // Anyone may pick someone else's Deathmatch, but its teams are the author's (§5.2).
     [Fact]
-    public async Task TheSelectorCanSetTheTeamsOfSomeoneElsesDeathmatch()
+    public async Task TheSelectorCanPickSomeoneElsesDeathmatchAsItIs()
     {
         var (group, _) = await SeedPendingSelectionAsync();
+        List<List<int>> authorTeams = [[group["ana"]], [group["bea"]]];
         var deathmatch = await AddQuestionAsync(
             group.Id,
             type: QuestionType.Deathmatch,
             text: "¿Quién gana?",
             creatorId: group["ana"],
-            configure: q => q.Metadata.Teams = [[group["ana"]], [group["bea"]]]
+            configure: q => q.Metadata.Teams = authorTeams
         );
-        List<List<int>> teams = [[group["ana"], group["carlos"]], [group["bea"]]];
 
-        var result = await SelectAsync(
-            group.Id,
-            group["carlos"],
-            new() { ExistingQuestionId = deathmatch, TeamsOverride = teams }
-        );
+        var result = await SelectAsync(group.Id, group["carlos"], new() { ExistingQuestionId = deathmatch });
 
         result.Should().Be(SelectResult.Success);
         await using var db = NewContext();
         var entry = await db.DailyEntries.Include(d => d.Question).SingleAsync(d => d.Date == Tomorrow);
         entry.QuestionId.Should().Be(deathmatch);
-        entry.Question.Metadata.Teams.Should().BeEquivalentTo(teams);
-        entry.Question.CreatorId.Should().Be(group["ana"], "arranging teams doesn't change the author");
+        entry.Question.Metadata.Teams.Should().BeEquivalentTo(authorTeams);
     }
 
     [Fact]
-    public async Task TheSelectorCanRearrangeTheTeamsOfThePendingDeathmatch()
+    public async Task TheSelectorCannotChangeTheTeamsOfSomeoneElsesDeathmatch()
+    {
+        var (group, autoPick) = await SeedPendingSelectionAsync();
+        List<List<int>> authorTeams = [[group["ana"]], [group["bea"]]];
+        var deathmatch = await AddQuestionAsync(
+            group.Id,
+            type: QuestionType.Deathmatch,
+            creatorId: group["ana"],
+            configure: q => q.Metadata.Teams = authorTeams
+        );
+
+        var result = await SelectAsync(
+            group.Id,
+            group["carlos"],
+            new() { ExistingQuestionId = deathmatch, TeamsOverride = [[group["carlos"]], [group["ana"]]] }
+        );
+
+        result.Should().Be(SelectResult.NotTheAuthor);
+        await using var db = NewContext();
+        (await db.DailyEntries.SingleAsync(d => d.Date == Tomorrow)).QuestionId.Should().Be(autoPick);
+        (await db.Questions.SingleAsync(q => q.Id == deathmatch)).Metadata.Teams.Should().BeEquivalentTo(authorTeams);
+    }
+
+    [Fact]
+    public async Task TheAuthorCanRearrangeTheTeamsOfTheirPendingDeathmatch()
     {
         var group = await SeedGroupAsync("ana", "bea", "carlos");
         await AddActivatedDayAsync(group.Id, Today, group["bea"]);
         var pending = await AddQuestionAsync(
             group.Id,
             type: QuestionType.Deathmatch,
-            creatorId: group["ana"],
+            creatorId: group["carlos"],
             isUsed: true,
             configure: q => q.Metadata.Teams = [[group["ana"]], [group["bea"]]]
         );
@@ -307,7 +326,7 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
         var deathmatch = await AddQuestionAsync(
             group.Id,
             type: QuestionType.Deathmatch,
-            creatorId: group["ana"],
+            creatorId: group["carlos"],
             configure: q => q.Metadata.Teams = [[group["ana"]], [group["bea"]]]
         );
 
@@ -320,5 +339,34 @@ public class DailySelectionTests(DatabaseFixture fixture) : DomainTestBase(fixtu
         result.Should().Be(SelectResult.InvalidQuestion);
         await using var db = NewContext();
         (await db.DailyEntries.SingleAsync(d => d.Date == Tomorrow)).QuestionId.Should().Be(autoPick);
+    }
+
+    // The selector sees whether they may edit the pending question: an authorless pack clone
+    // yes, another member's question no (§5.2).
+    [Fact]
+    public async Task ThePendingQuestionIsEditableOnlyWhenItsYoursOrHasNoAuthor()
+    {
+        var (group, _) = await SeedPendingSelectionAsync();
+        await using (var db = NewContext())
+        {
+            var packView = await NewDailyService(db).GetCurrentStatusAsync(group.Id, group["carlos"]);
+            packView.Selection!.CanEditPendingQuestion.Should().BeTrue();
+        }
+
+        var beasDeathmatch = await AddQuestionAsync(
+            group.Id,
+            type: QuestionType.Deathmatch,
+            creatorId: group["bea"],
+            configure: q => q.Metadata.Teams = [[group["ana"]], [group["bea"]]]
+        );
+        (await SelectAsync(group.Id, group["carlos"], new() { ExistingQuestionId = beasDeathmatch }))
+            .Should()
+            .Be(SelectResult.Success);
+
+        await using var db2 = NewContext();
+        var service = NewDailyService(db2);
+        (await service.GetCurrentStatusAsync(group.Id, group["carlos"])).Selection!.CanEditPendingQuestion
+            .Should()
+            .BeFalse();
     }
 }

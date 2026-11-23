@@ -77,6 +77,10 @@ public class SelectionStateDto
     // the selector hasn't picked, created or confirmed one yet (§17.4).
     public bool IsAutoSelected { get; set; }
 
+    // Whether the viewer may change the pending question's wording or teams: it's theirs, it has
+    // no author (a pack clone) or they're an admin (§5.2). Otherwise they can only look at it.
+    public bool CanEditPendingQuestion { get; set; }
+
     // From T − 10 min while still auto-selected (§17.5): any member may choose ("¡Elige tú!"),
     // so PendingQuestion is sent to everyone.
     public bool RaceOpen { get; set; }

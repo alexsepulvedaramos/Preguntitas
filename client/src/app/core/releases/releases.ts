@@ -52,9 +52,9 @@ export const RELEASES: readonly Release[] = [
       {
         kind: 'polish',
         text: {
-          es: 'Si te toca elegir, ya puedes escoger una pregunta de equipos que haya escrito otra persona, y cambiar sus equipos si quieres. Antes salía «La pregunta no es válida para este grupo».',
-          en: "When it's your turn to choose, you can now pick a team question someone else wrote, and change its teams if you like. Before, it said «This question isn't valid for this group».",
-          de: 'Wenn du mit Auswählen dran bist, kannst du jetzt eine Teamfrage wählen, die jemand anderes geschrieben hat, und ihre Teams ändern, wenn du willst. Vorher kam «Diese Frage ist für diese Gruppe nicht gültig».',
+          es: 'Ya puedes elegir una pregunta de equipos que haya escrito otra persona: verás sus equipos tal como los dejó. Antes salía «La pregunta no es válida para este grupo».',
+          en: "You can now pick a team question someone else wrote: you'll see its teams just as they left them. Before, it said «This question isn't valid for this group».",
+          de: 'Du kannst jetzt eine Teamfrage wählen, die jemand anderes geschrieben hat: Du siehst ihre Teams so, wie sie sie angelegt haben. Vorher kam «Diese Frage ist für diese Gruppe nicht gültig».',
         },
       },
     ],

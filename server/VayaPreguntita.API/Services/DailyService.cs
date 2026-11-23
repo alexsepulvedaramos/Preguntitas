@@ -131,6 +131,8 @@ public class DailyService(
                     : null,
                 IsCurrentUserSelector = isSelector,
                 IsAutoSelected = pendingEntry.SelectionKind == SelectionKind.Auto,
+                CanEditPendingQuestion =
+                    (isSelector || raceOpen) && CanEditQuestion(pendingEntry.Question, group, userId),
                 RaceOpen = raceOpen,
                 // Only the selector sees tomorrow's question — keeps the surprise. During the
                 // race (§17.5) anyone may keep it, so everyone gets to see it.
@@ -315,6 +317,13 @@ public class DailyService(
         };
     }
 
+    // A question's wording and teams are its author's (§5.2); an admin may also edit them, and
+    // an authorless one (a pack clone) is anyone's to adjust.
+    private static bool CanEditQuestion(Question question, Group group, int userId) =>
+        question.CreatorId == null
+        || question.CreatorId == userId
+        || group.Members.Any(m => m.UserId == userId && m.IsAdmin);
+
     // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
@@ -339,9 +348,8 @@ public class DailyService(
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            var overwriteIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
-            if (existing.CreatorId != null && existing.CreatorId != userId && !overwriteIsAdmin)
-                return (null, SelectResult.InvalidQuestion);
+            if (!CanEditQuestion(existing, group, userId))
+                return (null, SelectResult.NotTheAuthor);
             existing.CreatorId ??= userId;
 
             // A pack clone keeps its translations only while its wording is untouched; once the
@@ -424,10 +432,12 @@ public class DailyService(
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            // Arranging the teams is part of choosing the day's question, so the selector may
-            // do it on anyone's question (§17.4); only the wording stays the author's.
+            // The teams belong to whoever wrote the question (§5.2): anyone can pick it, but
+            // only its author or an admin may rearrange them.
             if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
             {
+                if (!CanEditQuestion(existing, group, userId))
+                    return (null, SelectResult.NotTheAuthor);
                 var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
                 if (dto.TeamsOverride.SelectMany(team => team).Any(id => !memberIds.Contains(id)))
                     return (null, SelectResult.InvalidQuestion);
