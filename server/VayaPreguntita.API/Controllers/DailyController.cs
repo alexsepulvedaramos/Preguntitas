@@ -66,6 +66,7 @@ public class DailyController(
             SelectResult.InvalidQuestion => BadRequest(ServerText.QuestionNotValidForGroup),
             SelectResult.AlreadyActivated => BadRequest(ServerText.QuestionAlreadyActive),
             SelectResult.TemplateAlreadyUsed => BadRequest(ServerText.TemplateAlreadyUsed),
+            SelectResult.NotTheAuthor => StatusCode(StatusCodes.Status403Forbidden, ServerText.OnlyAuthorEdits),
             _ => StatusCode(500),
         };
     }

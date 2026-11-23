@@ -69,6 +69,9 @@ export interface SelectionState {
     isCurrentUserSelector: boolean;
     pendingQuestion: QuestionToVote | null; // only returned to the selector
     isAutoSelected: boolean; // still the automatic pick: not picked, created or confirmed yet
+    // The pending question is yours, has no author (a pack clone) or you're an admin: you may
+    // change its wording or teams. Otherwise you can only look at it (§5.2).
+    canEditPendingQuestion: boolean;
     // T − 10 min and still the automatic pick (§17.5): anyone may choose ("¡Elige tú!"), so
     // pendingQuestion is sent to everyone
     raceOpen: boolean;

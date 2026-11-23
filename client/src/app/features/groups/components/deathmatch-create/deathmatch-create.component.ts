@@ -32,6 +32,8 @@ export class DeathmatchCreateComponent {
   public readonly members = input.required<GroupMember[]>();
   public readonly teams = model<number[][]>([[], []]);
   public readonly showErrors = input(false);
+  // Someone else's question (§5.2): the teams are shown but can't be changed.
+  public readonly readonly = input(false);
   protected readonly t = inject(I18nService).t;
 
   // Display state holds member objects; the model holds plain id lists. Seeded once from

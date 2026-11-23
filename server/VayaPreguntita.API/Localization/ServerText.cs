@@ -145,6 +145,11 @@ public static class ServerText
         "This question isn't valid for this group.",
         "Diese Frage ist für diese Gruppe nicht gültig.");
 
+    public static string OnlyAuthorEdits => Pick(
+        "Solo quien escribió la pregunta puede cambiarla.",
+        "Only whoever wrote the question can change it.",
+        "Nur wer die Frage geschrieben hat, kann sie ändern.");
+
     public static string QuestionAlreadyActive => Pick(
         "La pregunta ya está activa y no se puede cambiar.",
         "The question is already live and can't be changed.",

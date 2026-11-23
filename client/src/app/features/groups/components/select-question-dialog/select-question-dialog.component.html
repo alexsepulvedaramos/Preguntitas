@@ -72,14 +72,18 @@
         } @else if (step() === 'sources') {
           {{ t('picker.title') }}
         } @else if (step() === 'assign-teams') {
-          {{ t('picker.teamsTitle') }}
+          {{ teamsReadOnly() ? t('picker.teamsReadOnlyTitle') : t('picker.teamsTitle') }}
         } @else {
           {{ t('picker.createTitle') }}
         }
       </h3>
       @if (step() === 'assign-teams') {
         <p hlmDialogDescription>
-          {{ t('picker.teamsText', { text: teamAssignmentItem()?.text ?? '' }) }}
+          {{
+            teamsReadOnly()
+              ? t('picker.teamsReadOnlyText')
+              : t('picker.teamsText', { text: teamAssignmentItem()?.text ?? '' })
+          }}
         </p>
       } @else if (step() === 'create') {
         @if (flash()) {
@@ -111,7 +115,7 @@
               >
                 {{ isAutoSelected() ? t('picker.autoPicked') : t('picker.alreadyPicked') }}
               </p>
-              @if (isEditableType(pending.type)) {
+              @if (canOpenPending(pending.type)) {
                 <button
                   type="button"
                   class="vp-poll-option flex flex-col gap-1.5 border-2 border-accent/40 bg-accent/5 text-left"
@@ -132,7 +136,9 @@
                       formatOptions(pending.options)
                     }}</span>
                   }
-                  <span class="text-xs text-accent-text">{{ t('picker.tapToEdit') }}</span>
+                  <span class="text-xs text-accent-text">{{
+                    canEditPending() ? t('picker.tapToEdit') : t('picker.tapToSeeTeams')
+                  }}</span>
                 </button>
               } @else {
                 <div
@@ -300,6 +306,7 @@
         <app-deathmatch-create
           [members]="members()"
           [(teams)]="teamAssignmentTeams"
+          [readonly]="teamsReadOnly()"
         />
       </div>
       <!-- Choosing a 1-vs-1 for tomorrow makes it a duel (§17.15 item 6) -->
@@ -315,18 +322,20 @@
         >
           {{ t('picker.back') }}
         </button>
-        <button
-          hlmBtn
-          type="button"
-          class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
-          [disabled]="assigningTeams()"
-          (click)="confirmTeamAssignment(ctx)"
-        >
-          @if (assigningTeams()) {
-            <hlm-spinner class="size-4" />
-          }
-          {{ t('picker.confirmTeams') }}
-        </button>
+        @if (!teamsViewOnly()) {
+          <button
+            hlmBtn
+            type="button"
+            class="transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+            [disabled]="assigningTeams()"
+            (click)="confirmTeamAssignment(ctx)"
+          >
+            @if (assigningTeams()) {
+              <hlm-spinner class="size-4" />
+            }
+            {{ teamsReadOnly() ? t('picker.pickAsIs') : t('picker.confirmTeams') }}
+          </button>
+        }
       </hlm-dialog-footer>
     } @else {
       <div class="py-2">

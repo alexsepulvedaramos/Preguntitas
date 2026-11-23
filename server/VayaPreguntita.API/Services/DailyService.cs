@@ -131,6 +131,8 @@ public class DailyService(
                     : null,
                 IsCurrentUserSelector = isSelector,
                 IsAutoSelected = pendingEntry.SelectionKind == SelectionKind.Auto,
+                CanEditPendingQuestion =
+                    (isSelector || raceOpen) && CanEditQuestion(pendingEntry.Question, group, userId),
                 RaceOpen = raceOpen,
                 // Only the selector sees tomorrow's question — keeps the surprise. During the
                 // race (§17.5) anyone may keep it, so everyone gets to see it.
@@ -183,7 +185,12 @@ public class DailyService(
             pendingEntry.SelectorUserId = userId;
         }
 
-        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
+        var (question, resolveResult) = await ResolveSelectedQuestionAsync(
+            dto,
+            group,
+            userId,
+            pendingEntry!.QuestionId
+        );
         if (resolveResult != SelectResult.Success)
             return (resolveResult, null);
 
@@ -310,11 +317,19 @@ public class DailyService(
         };
     }
 
+    // A question's wording and teams are its author's (§5.2); an admin may also edit them, and
+    // an authorless one (a pack clone) is anyone's to adjust.
+    private static bool CanEditQuestion(Question question, Group group, int userId) =>
+        question.CreatorId == null
+        || question.CreatorId == userId
+        || group.Members.Any(m => m.UserId == userId && m.IsAdmin);
+
     // Resolves the chosen question (pool / pack template / inline-create / overwrite) WITHOUT activating it.
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
-        int userId
+        int userId,
+        int pendingQuestionId
     )
     {
         // Overwrite path: update an existing pending question's content in place.
@@ -333,9 +348,8 @@ public class DailyService(
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            var overwriteIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
-            if (existing.CreatorId != null && existing.CreatorId != userId && !overwriteIsAdmin)
-                return (null, SelectResult.InvalidQuestion);
+            if (!CanEditQuestion(existing, group, userId))
+                return (null, SelectResult.NotTheAuthor);
             existing.CreatorId ??= userId;
 
             // A pack clone keeps its translations only while its wording is untouched; once the
@@ -407,25 +421,28 @@ public class DailyService(
 
         if (dto.ExistingQuestionId.HasValue)
         {
-            // TeamsOverride also allows re-selecting an already-used question (the current
-            // pending DM) to update its teams without creating a duplicate.
+            // TeamsOverride also allows re-selecting the question already pending for this day
+            // (e.g. the automatic pick) to rearrange its teams without creating a duplicate.
+            // Any other used question stays off limits.
             var existing = await context.Questions.FirstOrDefaultAsync(q =>
                 q.Id == dto.ExistingQuestionId.Value
                 && q.GroupId == group.Id
-                && (!q.IsUsed || dto.TeamsOverride != null)
+                && (!q.IsUsed || (dto.TeamsOverride != null && q.Id == pendingQuestionId))
             );
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            if (dto.TeamsOverride != null)
+            // The teams belong to whoever wrote the question (§5.2): anyone can pick it, but
+            // only its author or an admin may rearrange them.
+            if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
             {
-                var teamsIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
-                if (existing.CreatorId != null && existing.CreatorId != userId && !teamsIsAdmin)
+                if (!CanEditQuestion(existing, group, userId))
+                    return (null, SelectResult.NotTheAuthor);
+                var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
+                if (dto.TeamsOverride.SelectMany(team => team).Any(id => !memberIds.Contains(id)))
                     return (null, SelectResult.InvalidQuestion);
                 existing.CreatorId ??= userId;
-
-                if (existing.Type == QuestionType.Deathmatch)
-                    existing.Metadata.Teams = dto.TeamsOverride;
+                existing.Metadata.Teams = dto.TeamsOverride;
             }
 
             existing.IsUsed = true;

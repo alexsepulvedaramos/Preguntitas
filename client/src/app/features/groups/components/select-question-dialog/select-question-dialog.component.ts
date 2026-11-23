@@ -87,6 +87,8 @@ export class SelectQuestionDialogComponent {
   public readonly pendingQuestion = input<QuestionToVote | null>(null);
   // Whether that question is still the automatic pick, which the selector can keep as is.
   public readonly isAutoSelected = input(false);
+  // Whether that question's wording/teams are the viewer's to change (§5.2).
+  public readonly canEditPending = input(false);
   public readonly compact = input(false);
   // The group's "Lanzar flash" entry point (§17.15): straight to writing a flash question.
   public readonly flash = input(false);
@@ -172,6 +174,8 @@ export class SelectQuestionDialogComponent {
   protected readonly teamAssignmentItem = signal<SelectionSourceItem | null>(null);
   protected readonly teamAssignmentTeams = signal<number[][]>([[], []]);
   protected readonly assigningTeams = signal(false);
+  // Someone else's Deathmatch: the teams are its author's, so the step only shows them (§5.2).
+  protected readonly teamsReadOnly = signal(false);
 
   protected readonly isAdmin = computed(() => {
     const currentUserId = Number(this.authService.currentUser()?.id);
@@ -195,6 +199,7 @@ export class SelectQuestionDialogComponent {
     this.teamAssignmentItem.set(null);
     this.teamAssignmentTeams.set([[], []]);
     this.assigningTeams.set(false);
+    this.teamsReadOnly.set(false);
     this.pendingEditValue.set(null);
     this.typeFilter.set(null);
     if (this.isSelector()) {
@@ -216,7 +221,9 @@ export class SelectQuestionDialogComponent {
 
     // All Deathmatch items go through the team assignment step so the selector can arrange/review
     // teams before confirming. Pack items start fresh; pool items pre-fill from stored teams.
+    // Someone else's question from the pool can be picked, but only as its author left it.
     if (item.type === QuestionType.Deathmatch) {
+      this.teamsReadOnly.set(item.sourceType === 'pool' && !item.isMine && !this.isAdmin());
       this.teamAssignmentItem.set(item);
       this.teamAssignmentTeams.set(
         item.teams?.length ? item.teams.map((t) => [...t]) : [[], []],
@@ -273,8 +280,10 @@ export class SelectQuestionDialogComponent {
 
     // Pool questions: update teams on the existing entity (avoids creating a duplicate).
     // Pack templates: must be cloned as a new question (no pool entity exists yet).
-    const dto =
-      item.sourceType === 'pool'
+    // Read-only (someone else's pool question): pick it as it is, teams untouched.
+    const dto = this.teamsReadOnly()
+      ? { existingQuestionId: item.id }
+      : item.sourceType === 'pool'
         ? { existingQuestionId: item.id, teamsOverride: this.teamAssignmentTeams() }
         : {
             newQuestion: {
@@ -343,6 +352,7 @@ export class SelectQuestionDialogComponent {
     if (!pending) return;
 
     if (pending.type === QuestionType.Deathmatch) {
+      this.teamsReadOnly.set(!this.canEditPending());
       const item: SelectionSourceItem = {
         sourceType: 'pool',
         id: pending.id,
@@ -362,6 +372,17 @@ export class SelectQuestionDialogComponent {
       this.step.set('create');
     }
   }
+
+  // Opening the pending question: a Deathmatch always opens (to look at its teams, or arrange
+  // them when it's yours); a Scale/CustomPoll only when its wording is yours to change.
+  canOpenPending(type: QuestionType): boolean {
+    return type === QuestionType.Deathmatch || (this.isEditableType(type) && this.canEditPending());
+  }
+
+  // Someone else's pending Deathmatch: there's nothing to confirm, only to look at.
+  protected readonly teamsViewOnly = computed(
+    () => this.teamsReadOnly() && this.teamAssignmentItem()?.id === this.pendingQuestion()?.id,
+  );
 
   isEditableType(type: QuestionType): boolean {
     return (
