@@ -271,6 +271,7 @@ All six types are **in MVP scope** (UI + backend). Metadata is stored in the `Qu
 - **Vote:** `{ "SelectedTargetUserIds": [1, 2] }` — must match exactly one configured team.
 - **Validation:** a user cannot appear in more than one team; ≥ 2 teams of ≥ 1 member.
 - **Base-pack variant:** teams are auto-generated from a random split of the group's members at activation (§6.3).
+- **The selector arranges the teams (developer, 2026-11-23):** when the day's selector picks a Deathmatch from the pool, or rearranges the teams of the pending one (also the automatic pick), `daily/select` takes `{ existingQuestionId, teamsOverride }` and stores the new teams on that question **whoever wrote it** — arranging teams is part of choosing. Only the wording stays the author's (or an admin's). `teamsOverride` follows the team rules above (2–4 teams of 1–4 members, nobody repeated, current members only) and may re-select a used question only when it is the one already pending. Replaces the rama-15 rule that blocked a team override on another member's question, which showed «La pregunta no es válida para este grupo».
 
 ### 5.3 The Scale (Subjective Rating) — *numeric, rates a person or any subject*
 

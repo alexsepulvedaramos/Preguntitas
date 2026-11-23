@@ -41,6 +41,25 @@ export interface Release {
 
 export const RELEASES: readonly Release[] = [
   {
+    version: '1.34.3',
+    date: '2026-11-23',
+    title: {
+      es: 'Elige preguntas de equipos de otros',
+      en: "Pick other people's team questions",
+      de: 'Teamfragen von anderen auswählen',
+    },
+    items: [
+      {
+        kind: 'polish',
+        text: {
+          es: 'Si te toca elegir, ya puedes escoger una pregunta de equipos que haya escrito otra persona, y cambiar sus equipos si quieres. Antes salía «La pregunta no es válida para este grupo».',
+          en: "When it's your turn to choose, you can now pick a team question someone else wrote, and change its teams if you like. Before, it said «This question isn't valid for this group».",
+          de: 'Wenn du mit Auswählen dran bist, kannst du jetzt eine Teamfrage wählen, die jemand anderes geschrieben hat, und ihre Teams ändern, wenn du willst. Vorher kam «Diese Frage ist für diese Gruppe nicht gültig».',
+        },
+      },
+    ],
+  },
+  {
     version: '1.34.2',
     date: '2026-11-16',
     title: {

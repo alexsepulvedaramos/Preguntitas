@@ -183,7 +183,12 @@ public class DailyService(
             pendingEntry.SelectorUserId = userId;
         }
 
-        var (question, resolveResult) = await ResolveSelectedQuestionAsync(dto, group, userId);
+        var (question, resolveResult) = await ResolveSelectedQuestionAsync(
+            dto,
+            group,
+            userId,
+            pendingEntry!.QuestionId
+        );
         if (resolveResult != SelectResult.Success)
             return (resolveResult, null);
 
@@ -314,7 +319,8 @@ public class DailyService(
     private async Task<(Question? question, SelectResult result)> ResolveSelectedQuestionAsync(
         SelectQuestionDto dto,
         Group group,
-        int userId
+        int userId,
+        int pendingQuestionId
     )
     {
         // Overwrite path: update an existing pending question's content in place.
@@ -407,25 +413,26 @@ public class DailyService(
 
         if (dto.ExistingQuestionId.HasValue)
         {
-            // TeamsOverride also allows re-selecting an already-used question (the current
-            // pending DM) to update its teams without creating a duplicate.
+            // TeamsOverride also allows re-selecting the question already pending for this day
+            // (e.g. the automatic pick) to rearrange its teams without creating a duplicate.
+            // Any other used question stays off limits.
             var existing = await context.Questions.FirstOrDefaultAsync(q =>
                 q.Id == dto.ExistingQuestionId.Value
                 && q.GroupId == group.Id
-                && (!q.IsUsed || dto.TeamsOverride != null)
+                && (!q.IsUsed || (dto.TeamsOverride != null && q.Id == pendingQuestionId))
             );
             if (existing == null)
                 return (null, SelectResult.QuestionNotFound);
 
-            if (dto.TeamsOverride != null)
+            // Arranging the teams is part of choosing the day's question, so the selector may
+            // do it on anyone's question (§17.4); only the wording stays the author's.
+            if (dto.TeamsOverride != null && existing.Type == QuestionType.Deathmatch)
             {
-                var teamsIsAdmin = group.Members.Any(m => m.UserId == userId && m.IsAdmin);
-                if (existing.CreatorId != null && existing.CreatorId != userId && !teamsIsAdmin)
+                var memberIds = group.Members.Select(m => m.UserId).ToHashSet();
+                if (dto.TeamsOverride.SelectMany(team => team).Any(id => !memberIds.Contains(id)))
                     return (null, SelectResult.InvalidQuestion);
                 existing.CreatorId ??= userId;
-
-                if (existing.Type == QuestionType.Deathmatch)
-                    existing.Metadata.Teams = dto.TeamsOverride;
+                existing.Metadata.Teams = dto.TeamsOverride;
             }
 
             existing.IsUsed = true;

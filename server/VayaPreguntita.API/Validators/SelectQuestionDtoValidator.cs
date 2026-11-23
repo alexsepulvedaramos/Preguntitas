@@ -22,6 +22,22 @@ public class SelectQuestionDtoValidator : AbstractValidator<SelectQuestionDto>
             () =>
                 RuleFor(dto => dto.NewQuestion!).SetValidator(new CreateQuestionDtoValidator())
         );
+
+        // Same team rules as creating a Deathmatch question (§9).
+        When(
+            dto => dto.TeamsOverride != null,
+            () =>
+            {
+                RuleFor(dto => dto.ExistingQuestionId)
+                    .NotNull()
+                    .WithMessage("TeamsOverride only applies to ExistingQuestionId.");
+                RuleFor(dto => dto.TeamsOverride)
+                    .Must(CreateQuestionDtoValidator.TeamsHaveValidMembers)
+                    .WithMessage(
+                        "Deathmatch teams must be 2 to 4, with 1 to 4 members each and no user repeated."
+                    );
+            }
+        );
     }
 
     private static bool ExactlyOneSource(SelectQuestionDto dto)

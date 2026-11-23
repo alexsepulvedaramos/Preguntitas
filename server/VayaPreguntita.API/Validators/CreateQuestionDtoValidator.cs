@@ -201,7 +201,7 @@ public class CreateQuestionDtoValidator : AbstractValidator<CreateQuestionDto>
         );
     }
 
-    private static bool TeamsHaveValidMembers(List<List<int>>? teams)
+    internal static bool TeamsHaveValidMembers(List<List<int>>? teams)
     {
         if (teams == null || teams.Count is < 2 or > 4)
         {
