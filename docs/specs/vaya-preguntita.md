@@ -961,6 +961,7 @@ On «Novedades» the game items show as today; a release's polish items fold int
 - **DTOs at API boundaries** — never return EF entities.
 - **No DB/business logic in controllers** — services only; controllers orchestrate.
 - **All schema changes via EF migrations** — never edit Supabase manually.
+- **Every new table enables Row Level Security in its own migration** (`migrationBuilder.Sql("ALTER TABLE \"X\" ENABLE ROW LEVEL SECURITY;")`), with no policies: the API connects as the table owner and bypasses RLS, while Supabase's anon/authenticated roles (PostgREST) get no access. Supabase flags any public table without RLS as critical.
 - **AutoMapper profiles** for mapping (`MappingProfile.cs`); no manual mapping in controllers.
 - **Time comes from the injected `TimeProvider`** (rama 22) — services and the daily tick never read `DateTime.UtcNow` or the wall clock directly; use `DailyClock.UtcNow/Today/TimeOfDay(clock)` so tests can pin the instant. Entity default timestamps (`= DateTime.UtcNow`) are the only exception.
 - **CI must be green** — `.github/workflows/ci.yml` builds and tests the API and the client on every PR; new domain rules come with a test.
